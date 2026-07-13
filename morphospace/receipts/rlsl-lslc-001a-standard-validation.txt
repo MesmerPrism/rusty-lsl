@@ -1,0 +1,39 @@
+Rusty LSL LSLC-001A standard validation evidence
+Created: 2026-07-13T14:23:52Z
+Project: rusty-lsl
+Unit: rlsl-lslc-001a-stream-info-document-corpus
+Branch: codex/rlsl-lslc-001a-corpus
+Base revision: c7ba3c371ddfae3312c6ad04e6a79f5b5608c5a1
+HEAD revision: 9af3be3636fdfa2e8349a0e9c6d50acd76a926c9
+
+PASS public-documentation-provenance-lock
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1
+Result: The corpus records exactly the public liblsl Stream Info API page and W3C XML 1.0 Fifth Edition page with source IDs, URLs, titles, publisher/authority roles, access date, twelve independently worded claim IDs, source_code_used=false, implementation_input=false, and endpoint_output_captured=false. The implementation worker confirmed that it consulted only those two pages and followed no implementation-source links.
+
+PASS stream-info-document-specification-cases
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1
+Result: Seven positive specification roles and nine damaged/planned-test roles passed deterministic validation. Document roles remain unordered, local bounds are explicitly Rusty-LSL-owned rather than observed endpoint limits, and exact bytes, order, whitespace, empty-element form, numeric spelling, and channel-format wire spelling remain unresolved. Main-account review corrected the CDATA close-delimiter rule so it constrains future emitted representation without incorrectly rejecting the caller value.
+
+PASS unobserved-oracle-and-candidate-separation
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1
+Result: Every case retains separate specification, oracle_observation, and candidate_result roles; all oracle and candidate statuses are not-observed with null evidence. Historical STRM-000 cases remain not-implemented and CORE-001 through CORE-008 overlays retain their accepted digests. Six detached-copy mutations were rejected: source URL substitution, invented oracle evidence, premature serialization resolution, caller-value rejection policy, historical STRM-000 promotion, and Cargo feature activation.
+
+PASS inert-corpus-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed in validating state with 80 Rust tests, zero dependencies and features, no unsafe or runtime activation, historical and overlay checks, public-boundary checks, lifecycle checks, and Git whitespace checks. Main-account review removed Rust-source hash pinning from the corpus checker so future independently accepted implementation units are not blocked by this historical corpus gate.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, corpus, compatibility, provenance, validation, fixture-index, and project-workspace updates passed check_all. Existing rusty-morphospace-context and system-engineering guidance already covers clean-source public intake, evidence-role separation, closed activation, and authority boundaries, so no shared-skill edit was required. Public project prose is lifecycle-neutral.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only an independently authored public-documentation specification corpus and its deterministic validation. It does not prove XML parsing or serialization, exact endpoint output, oracle or candidate behavior, query or protocol behavior, discovery, transport, wire or ecosystem compatibility, runtime support, or official-liblsl behavior beyond the named public documentation roles.

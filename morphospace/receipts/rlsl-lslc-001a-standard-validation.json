@@ -1,0 +1,92 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-001a-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-001a-stream-info-document-corpus",
+  "created_at": "2026-07-13T14:23:52Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "c7ba3c371ddfae3312c6ad04e6a79f5b5608c5a1",
+      "head_revision": "9af3be3636fdfa2e8349a0e9c6d50acd76a926c9",
+      "branch": "codex/rlsl-lslc-001a-corpus"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/CORPUS.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-lslc-001a-stream-info-document-corpus.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001a-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001a-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001a.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001a.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-001a-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-lslc-001a-standard-validation.txt",
+      "sha256": "7594ffa67ee4baea5a3bc3f9483e89e167581f2693cd65fb2fb6fee4799dd37f"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "public-documentation-provenance-lock",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1",
+      "evidence_refs": ["lslc-001a-standard-log"]
+    },
+    {
+      "acceptance_id": "stream-info-document-specification-cases",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1",
+      "evidence_refs": ["lslc-001a-standard-log"]
+    },
+    {
+      "acceptance_id": "unobserved-oracle-and-candidate-separation",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1",
+      "evidence_refs": ["lslc-001a-standard-log"]
+    },
+    {
+      "acceptance_id": "inert-corpus-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001a-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001a-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001a-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["lslc-001a-standard-log"]
+    }
+  ],
+  "device_validation": null
+}
