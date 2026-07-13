@@ -7,7 +7,7 @@
   "created_at":"2026-07-13T22:57:24.8510847Z",
   "tier":"standard",
   "result":"pass",
-  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"4cae984e7b06f99f4a9dad7e93dfc4488cf62fbe","head_revision":"abbec1f23ecfc9411011c84ee2eb2c40dc56ea4d","branch":"codex/rlsl-autonomous"}],
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"4cae984e7b06f99f4a9dad7e93dfc4488cf62fbe","head_revision":"5013ba9fcf53b4f085b788a683d173fef9f5aff3","branch":"codex/rlsl-autonomous"}],
   "changed_paths":[
     {"repo_id":"rusty-lsl","path":"AGENTS.md"},
     {"repo_id":"rusty-lsl","path":"README.md"},
@@ -30,7 +30,7 @@
     {"repo_id":"rusty-lsl","path":"tools/check_lslc_001o.ps1"},
     {"repo_id":"rusty-lsl","path":"tools/check_lslc_001o.py"}
   ],
-  "artifacts":[{"artifact_id":"lslc-001o-standard-log","kind":"validation-log","path":"rlsl-lslc-001o-standard-validation.md","sha256":"a1ad3f799409d334cf18464a63dbd0f7784afa73ddda968c7e6a44611b8547e9"}],
+  "artifacts":[{"artifact_id":"lslc-001o-standard-log","kind":"validation-log","path":"rlsl-lslc-001o-standard-validation.md","sha256":"331b640ebde012e3514daa4de86b3d1529f67239c2f437951a86f0724d30dafc"}],
   "criteria":[
     {"acceptance_id":"bounded-volatile-stream-info-data-contract","status":"pass","command":"cargo test --workspace --all-targets --offline --locked","evidence_refs":["lslc-001o-standard-log"]},
     {"acceptance_id":"role-order-and-ownership-separation","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001o.ps1","evidence_refs":["lslc-001o-standard-log"]},

@@ -4,7 +4,7 @@
 - Project: `rusty-lsl`
 - Branch: `codex/rlsl-autonomous`
 - Claimed-base revision: `4cae984e7b06f99f4a9dad7e93dfc4488cf62fbe`
-- Validated revision: `abbec1f23ecfc9411011c84ee2eb2c40dc56ea4d`
+- Validated revision: `5013ba9fcf53b4f085b788a683d173fef9f5aff3`
 - Validation tier: `standard`
 - Device requirement: `forbidden`
 
@@ -74,8 +74,8 @@ rejected a line-wrapped compatibility disclaimer because its immutable
 validator binds the exact accepted sentence. The README retained the corrected
 LSLC-001H through O status while restoring that disclaimer verbatim. The
 focused STRM-000 and LSLC-001O gates then passed, followed by a clean full owner
-gate. The full gate and workflow contracts were rerun at the exact validating
-revision after its lifecycle transition was committed.
+gate. The full gate and workflow contracts were rerun at the exact
+validation-pass revision after its lifecycle transition was committed.
 
 During focused-validator development, the first field-order lookup used a
 nonexistent generic key instead of LSLC-001H's accepted
