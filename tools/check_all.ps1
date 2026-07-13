@@ -35,6 +35,7 @@ try {
 
     Invoke-Checked cargo test --workspace --all-targets --offline --locked
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_strm_000.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_001.ps1
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked python tools/check_project_workspace.py
     Invoke-Checked git diff --check
@@ -78,7 +79,7 @@ try {
         throw 'The scaffold must expose exactly one library target.'
     }
 
-    Write-Host 'Rusty LSL scaffold checks passed.'
+    Write-Host 'Rusty LSL source-only checks passed.'
 }
 finally {
     Pop-Location

@@ -12,6 +12,11 @@ classification to each bounded damaged input. The expected classification is a
 test expectation, not an oracle observation. `baseline-provenance.json` binds
 both inputs by SHA-256 and records the source-input prohibitions.
 
-All current results are `not-implemented`. Run
+All STRM-000 baseline results remain `not-implemented`.
+`core-001-contract-results.json` is a separate independently authored overlay
+for local Rust unit-test results tied to `contract-metadata-bounds` and
+`contract-sample-shape`; it is not an oracle measurement or an LSL
+compatibility result. Run
 `tools/check_strm_000.ps1` after any edit; digest changes must be reviewed and
-recorded in the provenance manifest.
+recorded in the provenance manifest. Run `tools/check_core_001.ps1` for the
+overlay and local-contract implementation.

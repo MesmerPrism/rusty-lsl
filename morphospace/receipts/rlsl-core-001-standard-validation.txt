@@ -1,0 +1,38 @@
+Rusty LSL CORE-001 standard validation evidence
+Created: 2026-07-13T11:05:30Z
+Project: rusty-lsl
+Unit: rlsl-core-001-bounded-contract-model
+Branch: codex/rlsl-core-contracts-001
+Base and HEAD revision: 99c4aab798e617e47c9a5566ade3f9c54d7ea851
+
+PASS bounded-metadata-contract
+Command: cargo test --workspace --all-targets --offline --locked
+Result: Dependency-free constructors enforce nonzero limits and exact description, field, and Unicode-scalar text bounds. Exact-limit values are preserved, one-past-limit inputs return typed deterministic errors, and no partial accepted state is exposed.
+
+PASS sample-shape-contract
+Command: cargo test --workspace --all-targets --offline --locked
+Result: Dependency-free Sample<T> construction enforces nonzero declared channels and sample limits, rejects channel-count mismatch and one-past-limit shapes with stable typed payloads, and preserves caller-provided values.
+
+PASS contract-damaged-cases
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_001.ps1
+Result: Ten focused contract tests passed. Five in-memory validator mutations were also rejected: promoted compatibility result, missing damaged test, prohibited implementation input, missing limitation disclaimer, and license drift.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed with 12 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe or runtime-effect surfaces, historical STRM-000 baseline integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS and README updates passed check_all. Existing system-engineering authority, boundedness, and evidence guidance was reviewed as sufficient and did not require a repo-specific skill change. Relevant instruction surfaces passed terminal-newline and trailing-whitespace checks.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust contracts for bounded metadata and sample-shape validation. It does not prove XML, protocol, wire, discovery, networking, clock, buffering, inlet/outlet, FFI, ecosystem interoperability, performance, platform behavior, or Morphospace runtime authority.

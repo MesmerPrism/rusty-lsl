@@ -46,11 +46,12 @@ adapter and authority remain in their owning repositories.
 9. `docs/VALIDATION.md`
 
 The project-local workflow is planning and composition state, not LSL runtime
-or compatibility authority. STRM-000 being active means only that its bounded
-documentation, fixtures, and validation may be implemented. It does not make a
-planned observation measured or a compatibility case implemented. Keep the
-feature lock empty and inert until a later reviewed unit and owner-issued
-descriptor open an exact runtime surface.
+or compatibility authority. The accepted STRM-000 baseline remains historical
+specification-only evidence: its planned observations are not measured and its
+results remain `not-implemented`. CORE-001 opens only dependency-free local
+Rust contract semantics for bounded metadata and sample shape. Keep the feature
+lock empty and inert until a later reviewed unit and owner-issued descriptor
+open an exact runtime surface.
 
 ## Provenance And Compatibility
 
@@ -68,8 +69,8 @@ descriptor open an exact runtime surface.
   compatibility, or runtime support without the named process and evidence.
 - Keep official native libraries and wrappers outside the default production
   dependency closure.
-- The initial repository is inert and source-only. Repository presence must not
-  change any runtime, package, permission, network, or feature default.
+- The repository is source-only. Its local constructors have no runtime,
+  package, permission, network, authority, or feature-activation effect.
 
 ## Architecture Rules
 
@@ -79,6 +80,9 @@ descriptor open an exact runtime surface.
   adapter demonstrates a need.
 - Keep metadata, frames, channel counts, chunks, queues, timeouts, retries, and
   retained ranges explicitly bounded.
+- CORE-001 constructors validate complete inputs before returning a value,
+  reject invalid zero limit configurations, preserve accepted caller values,
+  and report stable expected/actual error payloads.
 - Preserve raw source timestamps. Corrected and smoothed timestamps are derived
   views.
 - Discovery is observation, never identity, authorization, or activation.
@@ -109,6 +113,12 @@ For compatibility-baseline edits, also run the focused gate directly:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_strm_000.ps1
 ```
 
-The gates prove only the source-level baseline and inert dependency/activation
-closure. They do not prove protocol behavior, interoperability, or runtime
-support.
+For bounded-contract edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_001.ps1
+```
+
+The gates prove only the source-level baseline, local Rust contract semantics,
+and inert dependency/activation closure. They do not prove protocol behavior,
+interoperability, or runtime support.

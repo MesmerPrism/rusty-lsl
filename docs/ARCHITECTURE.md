@@ -2,25 +2,31 @@
 
 ## Current slice
 
-The repository currently contains one `std`-only facade crate. Its public
-surface reports `ScaffoldOnly` and declares the repository ownership boundary;
-it does not open sockets, discover streams, create threads, read clocks,
-allocate queues, load native libraries, or alter process or platform state.
-There are no Cargo features or dependencies.
+The repository contains one `std`-only facade crate. Its public surface reports
+`BoundedLocalContracts`, declares the repository ownership boundary, and
+implements two local value families: `BoundedMetadata` under validated
+`MetadataLimits`, and `Sample<T>` under validated `SampleLimits`. It does not
+parse or serialize XML, open sockets, discover streams, create threads, read
+clocks, allocate queues, load native libraries, or alter process or platform
+state. There are no Cargo features or dependencies.
 
-This shape makes repository presence inert while leaving one reviewed public
-surface from which later, evidence-backed APIs can grow. Protocol, runtime,
-testkit, oracle, and C ABI crates are deferred until a concrete ownership or
-dependency boundary justifies a split.
+Construction validates the complete caller-provided value before returning an
+accepted value. Invalid limit configurations, exceeded metadata bounds, invalid
+declared channel counts, and value-count mismatches return typed deterministic
+errors with stable expected/actual fields. Accepted strings and sample values
+are not normalized or reordered. Protocol, runtime, testkit, oracle, and C ABI
+crates remain deferred until a concrete ownership or dependency boundary
+justifies a split.
 
 The `morphospace/` directory is an inert planning and composition control
 surface. Its presence does not activate code, packaging, permissions, network
 access, native libraries, runtime profiles, or compatibility behavior.
 
-STRM-000 adds only specification-level compatibility cases, damaged-input
+The accepted STRM-000 baseline adds only specification-level compatibility cases, damaged-input
 expectations, an isolated black-box oracle procedure, and deterministic
 validation. These feedback-plane artifacts are neither data-plane behavior nor
-runtime receipts.
+runtime receipts. CORE-001 records its local unit-test results in a separate
+overlay rather than rewriting that historical baseline as a measurement.
 
 ## Ownership
 
@@ -45,9 +51,11 @@ subscriptions, routes, leases, revisions, and audit. Morphospace-native sample
 transport, topology, identity, permissions, platform lifecycle, Quest and
 Hostess adapters, and application policy remain in their owning repositories.
 
-## Planned contract invariants
+## Contract invariants
 
-Future public contracts must make bounds part of their types or construction:
+CORE-001 makes metadata collection/text limits and sample channel limits part
+of validated construction. Future public contracts must likewise make bounds
+part of their types or construction:
 metadata size and depth, channel count, frame and chunk size, queue capacity,
 timeout, retry count, and retained timestamp range. Invalid or oversized input
 must return a typed error rather than trigger unbounded work.
@@ -56,8 +64,8 @@ Raw source timestamps must remain available without correction. Corrected and
 smoothed time are separately identified derived views. Provider fallback must
 name the selected candidate and retain the rejected candidate's failure.
 
-No planned API is implemented by this scaffold. These invariants constrain
-future design; they are not runtime claims.
+Only the metadata and sample-shape construction invariants are implemented.
+The remaining invariants constrain future design; none is an LSL runtime claim.
 
 ## Dependency direction
 

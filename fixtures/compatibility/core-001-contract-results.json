@@ -1,0 +1,53 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-001-bounded-contract-model",
+  "unit_id": "rlsl-core-001-bounded-contract-model",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 catalog remains historical specification-only evidence; this overlay records only independently authored local Rust contract behavior."
+  },
+  "case_results": [
+    {
+      "case_id": "contract-metadata-bounds",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "contract_metadata_bounds_exact_limit_and_values_unchanged"
+      ],
+      "damaged_tests": [
+        "contract_metadata_bounds_one_past_description_limit_rejected",
+        "contract_metadata_bounds_one_past_field_limit_rejected",
+        "contract_metadata_bounds_one_past_text_limit_rejected",
+        "contract_metadata_bounds_zero_limits_rejected_deterministically"
+      ]
+    },
+    {
+      "case_id": "contract-sample-shape",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "contract_sample_shape_exact_limit_and_values_unchanged"
+      ],
+      "damaged_tests": [
+        "contract_sample_shape_channel_mismatch_has_stable_payload",
+        "contract_sample_shape_one_past_limit_rejected",
+        "contract_sample_shape_zero_declared_channels_rejected",
+        "contract_sample_shape_zero_limit_rejected"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "XML behavior",
+    "LSL protocol behavior",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

@@ -4,8 +4,10 @@
 
 | Surface | Implementation status | Current evidence |
 | --- | --- | --- |
-| Metadata model and XML | Not implemented | Specification cases only |
+| Local bounded metadata construction | Implemented | CORE-001 Rust unit tests; no XML behavior |
+| Metadata XML | Not implemented | Specification cases only |
 | Discovery and resolution | Not implemented | No case or measurement |
+| Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
 | Sample and chunk transport | Not implemented | Specification cases only |
 | Channel formats | Not implemented | No case or measurement |
 | Source and local timestamps | Not implemented | Specification cases only |
@@ -18,9 +20,9 @@
 | Wire compatibility | Not implemented and not claimed | Planned observations only |
 | Operational/ecosystem compatibility | Not implemented and not claimed | Planned observations only |
 
-The compiling crate proves only that the inert facade builds on the tested
-toolchain. It does not prove LSL behavior, interoperability, performance, or
-platform support.
+The CORE-001 tests prove only local Rust contract semantics for the two named
+constructors on the tested toolchain. They do not prove LSL behavior,
+interoperability, performance, or platform support.
 
 ## Compatibility classes
 
@@ -36,10 +38,14 @@ Compatibility evidence is classified at four distinct levels:
 - **Operational/ecosystem compatibility:** documented applications, wrappers,
   platforms, recovery paths, and long-running behavior pass their named gates.
 
-No level is implemented or claimed by this scaffold. The canonical STRM-000
-catalog is `fixtures/compatibility/behavior-catalog.json`; it contains at least
-two bounded cases for each class. Evidence at one level must not be promoted
-into a broader claim.
+Only the two named local contract cases are implemented, and only as local Rust
+API behavior. No LSL protocol, wire, runtime, operational, or ecosystem
+compatibility is implemented or claimed. The canonical STRM-000 catalog is
+`fixtures/compatibility/behavior-catalog.json`; it remains accepted historical
+specification-only evidence with at least two bounded cases for each class.
+The separate `core-001-contract-results.json` overlay binds local unit tests to
+the two case IDs without turning them into measured oracle results. Evidence at
+one level must not be promoted into a broader claim.
 
 Each case has three deliberately separate roles:
 
@@ -47,8 +53,9 @@ Each case has three deliberately separate roles:
 - `planned_observation` names a future endpoint and observable;
 - `measured_result` records evidence only after a reviewed run.
 
-For STRM-000, `current_result` and `measured_result.status` are both
-`not-implemented`, and each measured observation is null.
+For STRM-000, `current_result` and `measured_result.status` remain
+`not-implemented`, and each measured observation remains null. CORE-001 status
+lives only in its result overlay.
 
 ## Compatibility method
 

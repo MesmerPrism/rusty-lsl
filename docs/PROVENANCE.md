@@ -48,6 +48,12 @@ digest manifest. There are no measured oracle outputs, captures, third-party
 source files, native binaries, vendored dependencies, or generated protocol
 artifacts.
 
+`fixtures/compatibility/core-001-contract-results.json` is an independently
+authored local-result overlay. It binds Rust unit-test names to the two accepted
+STRM-000 contract case identifiers while leaving the accepted baseline and its
+digest manifest unchanged. It records no external input or observation and
+proves no XML, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

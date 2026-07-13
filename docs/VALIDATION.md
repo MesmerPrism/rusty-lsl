@@ -9,9 +9,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 ```
 
 The script runs formatting, locked offline metadata inspection, locked offline
-tests, the STRM-000 compatibility/provenance gate, the public-boundary and
-text-hygiene checker, the dependency-free local project-workspace checker, and
-Git whitespace checks.
+tests, the STRM-000 compatibility/provenance gate, the CORE-001 local-contract
+gate, the public-boundary and text-hygiene checker, the dependency-free local
+project-workspace checker, and Git whitespace checks.
 
 Run the focused baseline gate with:
 
@@ -19,18 +19,27 @@ Run the focused baseline gate with:
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1
 ```
 
+Run the focused bounded-contract gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_001.ps1
+```
+
 ## Acceptance criteria
 
-The scaffold passes when:
+The source-only slice passes when:
 
 - the crate builds and tests without third-party dependencies;
 - unsafe Rust is forbidden;
-- the public status remains `ScaffoldOnly`;
+- the public status is exactly `BoundedLocalContracts`;
 - the only package remains unpublished at `crates/rusty-lsl`, exposes no Cargo
   feature, and has exactly one library target;
 - repository content passes the tested public-boundary rules;
 - all four compatibility classes have bounded cases, all current results remain
   `not-implemented`, and specification/planned/measured roles remain separate;
+- the separate CORE-001 overlay binds exactly `contract-metadata-bounds` and
+  `contract-sample-shape` to exact-limit, one-past-limit, malformed/zero-bound,
+  channel-mismatch, stable-error, and unchanged-value tests;
 - the damaged matrix, provenance fields, artifact digests, case relationships,
   source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;
@@ -44,11 +53,12 @@ than silent addition.
 
 ## Evidence limits
 
-A passing source-only gate proves that this revision satisfies the scaffold and
-specification-level STRM-000 checks in the local Rust and PowerShell
-environment. It does not prove protocol behavior, wire interoperability,
-ecosystem compatibility, network behavior, performance, native-library safety,
-platform support, official-liblsl behavior, or publication readiness.
+A passing source-only gate proves that this revision satisfies the local Rust
+contract semantics, historical specification-level STRM-000 checks, and inert
+closure checks in the local Rust and PowerShell environment. It does not prove
+protocol behavior, wire interoperability, ecosystem compatibility, network
+behavior, performance, native-library safety, platform support, official-liblsl
+behavior, or publication readiness.
 
 Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live

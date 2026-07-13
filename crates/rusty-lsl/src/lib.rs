@@ -2,18 +2,28 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 #![forbid(unsafe_code)]
-#![warn(missing_docs)]
-//! Inert facade for the Rusty LSL repository scaffold.
+#![deny(missing_docs)]
+//! Dependency-free local contracts for Rusty LSL.
 //!
-//! No LSL protocol, runtime, wire, discovery, clock, inlet, outlet, FFI, or
-//! Morphospace adapter behavior is implemented or claimed by this crate.
+//! This crate currently implements only bounded metadata and sample-shape
+//! construction. It does not implement or claim LSL protocol, runtime, wire,
+//! discovery, clock, inlet, outlet, FFI, or Morphospace adapter behavior.
 
-/// The implementation state exposed by this scaffold.
+mod metadata;
+mod sample;
+
+pub use metadata::{
+    BoundedMetadata, MetadataBound, MetadataDescription, MetadataError, MetadataField,
+    MetadataLimits, MetadataTextRole,
+};
+pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
+
+/// The implementation state exposed by the crate.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum ImplementationStatus {
-    /// The repository contains documentation and an inert facade only.
-    ScaffoldOnly,
+    /// Only local bounded metadata and sample-shape contracts are implemented.
+    BoundedLocalContracts,
 }
 
 /// A stable declaration of one side of the repository ownership boundary.
@@ -28,7 +38,7 @@ pub struct OwnershipDeclaration {
 /// Returns the current implementation status.
 #[must_use]
 pub const fn implementation_status() -> ImplementationStatus {
-    ImplementationStatus::ScaffoldOnly
+    ImplementationStatus::BoundedLocalContracts
 }
 
 /// Returns the repository's current ownership declaration.
@@ -36,9 +46,9 @@ pub const fn implementation_status() -> ImplementationStatus {
 pub const fn ownership_declaration() -> OwnershipDeclaration {
     OwnershipDeclaration {
         owns: &[
-            "backend-neutral Rust LSL API",
-            "LSL metadata and sample types",
-            "future discovery, inlet, outlet, clock, recovery, and provider health behavior",
+            "bounded local metadata construction",
+            "bounded local sample-shape construction",
+            "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
         ],
@@ -57,8 +67,11 @@ mod tests {
     use super::{implementation_status, ownership_declaration, ImplementationStatus};
 
     #[test]
-    fn status_does_not_claim_an_implementation() {
-        assert_eq!(implementation_status(), ImplementationStatus::ScaffoldOnly);
+    fn status_names_only_the_implemented_local_contracts() {
+        assert_eq!(
+            implementation_status(),
+            ImplementationStatus::BoundedLocalContracts
+        );
     }
 
     #[test]

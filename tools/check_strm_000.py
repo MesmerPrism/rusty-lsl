@@ -260,14 +260,17 @@ def validate_overclaims() -> None:
     )
     paths = [ROOT / "README.md", ROOT / "AGENTS.md", *(ROOT / "docs").glob("*.md")]
     for path in paths:
-        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for number, line in enumerate(lines, 1):
             if not pattern.search(line):
                 continue
-            words = set(re.findall(r"[a-z]+(?:n't)?", line.lower()))
+            context = " ".join(lines[max(0, number - 2) : number])
+            words = set(re.findall(r"[a-z]+(?:n't)?", context.lower()))
             require(bool(words & NEGATIONS), f"overclaim in {path.relative_to(ROOT)}:{number}")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     require(
-        "No protocol, runtime, wire, or ecosystem compatibility is implemented\n"
+        "No LSL\n"
+        "protocol, wire, runtime, operational, or ecosystem compatibility is implemented\n"
         "or claimed." in readme,
         "README compatibility disclaimer drifted",
     )
