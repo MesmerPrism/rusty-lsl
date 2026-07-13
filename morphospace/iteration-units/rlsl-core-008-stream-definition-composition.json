@@ -1,0 +1,110 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "unit_id": "rlsl-core-008-stream-definition-composition",
+  "project_id": "rusty-lsl",
+  "status": "proposed",
+  "objective": "Implement a dependency-free local StreamDefinition composition that moves one already validated StreamDescriptor and one already validated MetadataTree into private accepted state, preserves both contracts exactly, and exposes read-only and consuming access without XML interpretation, cross-component inference, runtime identity, discovery, protocol, transport, or authority behavior.",
+  "tags": ["descriptor", "metadata", "stream-definition", "types"],
+  "change_categories": ["implementation", "validation"],
+  "instruction_impact": "update",
+  "instruction_surfaces": [
+    {
+      "surface_kind": "agents",
+      "path": "AGENTS.md",
+      "owner": "rusty-lsl",
+      "change_reason": "Route the descriptor-plus-extended-metadata aggregate while keeping XML, discovery, runtime identity, protocol, transport, and downstream authority closed.",
+      "action": "update",
+      "status": "planned",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "skill_id": null
+    },
+    {
+      "surface_kind": "readme",
+      "path": "README.md",
+      "owner": "rusty-lsl",
+      "change_reason": "Describe only lossless local composition of already validated descriptor and metadata-tree values without claiming a wire document, XML compatibility, discovery, or runtime support.",
+      "action": "update",
+      "status": "planned",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "skill_id": null
+    },
+    {
+      "surface_kind": "skill",
+      "path": "<skills-root>/system-engineering/SKILL.md",
+      "owner": "workflow-maintainer",
+      "change_reason": "Review whether composition of independently validated aggregates adds reusable ownership guidance; avoid adding Rusty-LSL-specific recipes when the existing closed-activation and authority rules are sufficient.",
+      "action": "update",
+      "status": "planned",
+      "validation": "Review the installed skill and run its instruction-surface whitespace check.",
+      "skill_id": "system-engineering"
+    }
+  ],
+  "instruction_none_justification": null,
+  "prerequisites": [
+    "rlsl-core-004-bounded-metadata-tree",
+    "rlsl-core-007-timestamped-descriptor-chunk"
+  ],
+  "allowed_repositories": [
+    {
+      "repo_id": "rusty-lsl",
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/",
+        "docs/",
+        "fixtures/compatibility/",
+        "morphospace/",
+        "tools/"
+      ]
+    }
+  ],
+  "non_scope": [
+    "XML names or document shape, parsing, serialization, escaping, entities, attributes, namespaces, schema validation, canonicalization, queries, mutation, or a claim that the generic metadata-tree root is an LSL desc element.",
+    "Cross-component inference or validation, generated channel metadata, channel-label conventions, content-type policy, source-id interpretation, runtime version, creation time, UID, session, host, address, port, fingerprint, or recovery identity.",
+    "Discovery, resolution, networking, sockets, inlets, outlets, transport, buffering, queues, threads, clocks, scheduling, recovery, providers, FFI, native loading, adapters, or language bindings.",
+    "Cargo dependencies, Cargo features, unsafe Rust, additional crates, generated protocol material, copied or translated liblsl or rLSL source, and production liblsl integration.",
+    "Morphospace adapters, Manifold admission or stream authority, topology, platform lifecycle, Quest or Hostess behavior, device validation, and any XML, protocol, wire, runtime, performance, recovery, or ecosystem compatibility claim."
+  ],
+  "acceptance": [
+    {
+      "acceptance_id": "validated-stream-definition-composition",
+      "proof": "One public StreamDefinition accepted-state type privately owns exactly one existing StreamDescriptor and one existing MetadataTree. Its constructor is infallible because both inputs are already validated, and it adds no parallel limits, error family, or cross-component interpretation.",
+      "command": "cargo test --workspace --all-targets --offline --locked"
+    },
+    {
+      "acceptance_id": "definition-value-and-boundary-preservation",
+      "proof": "Borrowing and consuming access preserve descriptor limits, exact text including optional absence versus empty text, channel count, nominal-rate bits, channel format, metadata-tree limits, flat node order, parent indices, names, and optional values exactly without cloning, normalization, inference, or allocation by the composition layer.",
+      "command": "cargo test --workspace --all-targets --offline --locked"
+    },
+    {
+      "acceptance_id": "stream-definition-focused-contracts",
+      "proof": "Focused tests cover private accepted fields, borrow and into-parts access, all seven descriptor channel-format variants, irregular and regular-rate preservation, Unicode text, absent and empty optional values, nontrivial parent-before-child metadata order, and the absence of XML/runtime identity or authority fields and behaviors.",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_008.ps1"
+    },
+    {
+      "acceptance_id": "inert-core-closure",
+      "proof": "The crate remains one unpublished std-only package with no dependencies, features, unsafe code, XML, discovery, networking, clocks, buffering, runtime effects, protocol implementation, or compatibility overclaim; every historical STRM-000 result remains not-implemented.",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    }
+  ],
+  "risk_tier": "standard",
+  "device_requirement": "forbidden",
+  "validation": [
+    {
+      "profile_id": "source-only",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+    }
+  ],
+  "outputs": [
+    "Dependency-free StreamDefinition accepted-state API that composes the existing validated descriptor and metadata-tree contracts without adding new validation, allocation, or interpretation.",
+    "Positive and structural tests plus a separate CORE-008 local-results overlay preserving every historical STRM-000 result.",
+    "Deterministic CORE-008 validation entrypoint and public status updates that do not claim XML, discovery, protocol, transport, runtime identity, recovery, authority, wire, or ecosystem support."
+  ],
+  "commit_policy": "Commit the accepted StreamDefinition composition separately from XML, document assembly, queries, channel metadata conventions, runtime identity, discovery, protocol, transport, adapters, providers, or runtime work.",
+  "push_checkpoint": "integration-batch"
+}
