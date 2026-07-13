@@ -1,0 +1,39 @@
+Rusty LSL CORE-006 standard validation evidence
+Created: 2026-07-13T13:09:04Z
+Project: rusty-lsl
+Unit: rlsl-core-006-timestamped-descriptor-sample
+Branch: codex/rlsl-core-contracts-006
+Base revision: e6abd7a21e57a9ed43cc5da95c5982321f6c6574
+HEAD revision: 856111632757d5ed7cc9f0d49dece2c5fae23ddf
+
+PASS timestamped-descriptor-sample-composition
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Exactly seven TimestampedSample<T> input families map transitively through CORE-005 to the existing f32, f64, String, i32, i16, i8, and i64 data-only ChannelFormat values. Accepted state is privately constructed and contains only the established BoundDescriptorSample plus raw and optional derived timestamp evidence. The full locked offline 65-test workspace suite passed.
+
+PASS timestamp-evidence-preservation
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Raw timestamp bits, derived None versus Some, both derived kinds, derived value bits, floating-point signed zero and chosen NaN sample payloads, integer edge values, strings, order, and timestamp/sample pairing were preserved exactly. Construction reads no clock and performs no timestamp derivation, correction, smoothing, sorting, rewriting, conversion, or buffering.
+
+PASS timestamped-binding-damaged-cases
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_006.ps1
+Result: Ten focused tests passed with unchanged delegated format, channel-count, String-bound, and validation-precedence errors. Five detached-copy validator mutations were rejected for their intended reasons: type-mapping drift, a public accepted-state field, a clock read, promotion of a historical STRM-000 result, and Cargo feature activation.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed in validating state with 65 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe or runtime-effect surface, historical STRM-000 and CORE-001/002/003/004/005 integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, architecture, compatibility, provenance, validation, fixture-index, and project-workspace updates passed check_all. Existing system-engineering guidance already requires accepted evidence to remain distinct from authority and derived evidence to retain its original pairing, so no shared-skill edit was required. Relevant instruction surfaces passed terminal-newline and trailing-whitespace checks.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust composition of validated timestamp, homogeneous sample, and descriptor-shape contracts. It does not prove clock behavior, timestamp derivation or correction, numeric or string conversion, parsing, formatting, byte sizing, encoding, decoding, endianness, memory layout, XML, discovery, buffering, transport, protocol, wire interoperability, ecosystem compatibility, performance, platform behavior, or Morphospace authority.
