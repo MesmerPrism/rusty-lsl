@@ -334,6 +334,22 @@ character data owns the separate LSLC-001C allocation. The module owns no
 reverse conversion, decoding, defaults, mutable XML state, document or
 serialization behavior, LSL mapping, protocol, wire, or runtime authority.
 
+## LSLC-001L static numeric lexical projection
+
+The private `stream_info_static_numeric_spellings` module retains one borrowed
+`StreamInfoStaticFields` reference and two private owned strings. Construction
+first selects nominal-rate text from the closed observed policy, before either
+allocation, then converts the channel count through a fixed 20-byte stack
+buffer. The irregular form and each of the five bit-exact accepted regular
+forms select one 17-byte spelling. Any other regular bits reject before either
+allocation. Each accepted output performs one exact fallible reserve; accepted
+state exposes only borrowed channel-count and nominal-rate text.
+
+The source remains unchanged. There is no generic float formatter,
+exponent/locale/rounding policy, XML node or document ownership, `desc`
+mapping, volatile-field surface, protocol, wire, runtime, adapter, provider,
+device, feature, effect, or authority behavior.
+
 ## LSLC-001K static semantic projection
 
 The private `stream_info_static_fields` module is an allocation-free borrowed

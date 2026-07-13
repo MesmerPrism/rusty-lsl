@@ -271,6 +271,19 @@ The evidence makes no reverse, decoding, round-trip, document, serialization,
 stream-info, LSL field-mapping, endpoint, official-liblsl, protocol, wire,
 runtime, ecosystem, or compatibility claim.
 
+## LSLC-001L local numeric lexical evidence
+
+LSLC-001L binds the immutable LSLC-001H observation and LSLC-001K semantic
+overlays, then directly executes their seven accepted inputs in Rust. The only
+candidate results are channel counts `1` through `7` and nominal-rate spellings
+`0.000000000000000`, `100.0000000000000`, `59.94000000000000`,
+`1.000000000000000`, `256.5000000000000`, and `1000000.250000000`.
+
+Regular-rate acceptance is bit-exact and closed to those five observed values.
+This evidence does not establish arbitrary fixed-decimal, exponent, locale,
+shortest-round-trip, rounding, XML, complete-document, endpoint, protocol,
+wire, runtime, or ecosystem compatibility.
+
 ## LSLC-001K local semantic-field evidence
 
 LSLC-001K binds the seven accepted LSLC-001H inputs and observations in a

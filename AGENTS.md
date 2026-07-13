@@ -1,5 +1,29 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001L Bounded Static Numeric Spellings
+
+LSLC-001L adds only a dependency-free bounded lexical projection that borrows
+one accepted `StreamInfoStaticFields` and exposes owned `channel_count` and
+`nominal_srate` text. Channel counts use at most 20 decimal bytes. Irregular
+rates spell exactly `0.000000000000000`; regular rates are accepted only when
+their `f64` bits equal the five observed values, spelling exactly
+`100.0000000000000`, `59.94000000000000`, `1.000000000000000`,
+`256.5000000000000`, or `1000000.250000000`. Any other regular rate returns a
+typed error containing its unchanged bits.
+
+The two exact output lengths precede separate fallible exact reserves. The
+borrowed static fields and source definition remain unchanged and reusable.
+This narrow policy makes no exponent, locale, shortest-round-trip, rounding,
+or general floating-point compatibility claim. It adds no XML construction or
+serialization, `desc` meaning, volatile/runtime fields, protocol, wire, I/O,
+adapter, provider, device, dependency, feature, or authority behavior. The
+rolling focused gate executes all seven accepted LSLC-001H/K cases directly in
+Rust and reuses the immutable historical validators. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001l.ps1
+```
+
 ## LSLC-001K Borrowed StreamInfo Static Fields
 
 LSLC-001K adds only a borrowed, allocation-free semantic projection from one

@@ -1,5 +1,28 @@
 # Rusty LSL
 
+## LSLC-001L bounded static numeric spellings
+
+`StreamInfoStaticNumericSpellings` borrows one accepted
+`StreamInfoStaticFields` and exposes only owned `channel_count()` and
+`nominal_srate()` text. It spells the seven accepted LSLC-001H/K cases exactly:
+channel counts `1` through `7`; irregular rate `0.000000000000000`; and regular
+rates `100.0000000000000`, `59.94000000000000`, `1.000000000000000`,
+`256.5000000000000`, and `1000000.250000000`.
+
+The channel-count output is bounded to the 20 bytes sufficient for `usize` on
+supported Rust targets. Nominal-rate output is exactly 17 bytes. Regular rates
+are accepted only by exact `f64` bit identity with those five observed values;
+all others fail with `UnsupportedRegularNominalSrate` and retain the rejected
+bits. Both outputs use exact fallible reserves, and the borrowed source remains
+unchanged and reusable.
+
+This is a deliberately closed observed-case policy, not exponent, locale,
+shortest-round-trip, rounding, arbitrary fixed-decimal, or general liblsl
+formatting compatibility. It constructs no XML and assigns no `desc`, volatile
+field, runtime, protocol, wire, I/O, adapter, provider, device, or Manifold
+authority meaning. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_001l.ps1` for the focused gate.
+
 ## LSLC-001K borrowed static stream-info fields
 
 `StreamInfoStaticFields` borrows one accepted `StreamDefinition` and exposes

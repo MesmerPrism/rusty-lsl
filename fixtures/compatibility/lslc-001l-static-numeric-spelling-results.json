@@ -1,0 +1,66 @@
+{
+  "schema": "rusty.lsl.local_results_overlay.v1",
+  "overlay_id": "lslc-001l-static-numeric-spelling-results",
+  "unit_id": "rlsl-lslc-001l-static-numeric-spellings",
+  "evidence_level": "local-rust-numeric-lexical-projection-tests",
+  "implementation_status": "bounded-local-contracts",
+  "accepted_artifact_bindings": {
+    "semantic_projection_overlay": {
+      "path": "fixtures/compatibility/lslc-001k-stream-info-static-field-results.json",
+      "overlay_id": "lslc-001k-stream-info-static-field-results",
+      "sha256": "3840fdd65dd33d56f424a3c7958b0bf9294f1b44d1e62d7476f0f48ded37511a"
+    },
+    "case_manifest": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "case_set_id": "lslc-001h-stream-info-xml-cases",
+      "sha256": "398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"
+    },
+    "observation_overlay": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json",
+      "overlay_id": "lslc-001h-stream-info-xml-black-box-observations",
+      "sha256": "2b1aaa4ce3faa20722386c224e70dd7b8252fecd94b6e4437280af2bb4c5ab1e",
+      "preserved_candidate_result": {
+        "status": "not-observed",
+        "evidence": null
+      }
+    }
+  },
+  "candidate_numeric_results": [
+    {"case_id": "irregular-float32-empty-optionals-desc", "result": "implemented-local-numeric-lexical-projection", "channel_count": "1", "nominal_srate": "0.000000000000000"},
+    {"case_id": "regular-double64-populated-optionals", "result": "implemented-local-numeric-lexical-projection", "channel_count": "2", "nominal_srate": "100.0000000000000"},
+    {"case_id": "regular-string-unicode-sensitive-nested-desc", "result": "implemented-local-numeric-lexical-projection", "channel_count": "3", "nominal_srate": "59.94000000000000"},
+    {"case_id": "regular-int32-unit-rate", "result": "implemented-local-numeric-lexical-projection", "channel_count": "4", "nominal_srate": "1.000000000000000"},
+    {"case_id": "regular-int16-fractional-rate", "result": "implemented-local-numeric-lexical-projection", "channel_count": "5", "nominal_srate": "256.5000000000000"},
+    {"case_id": "irregular-int8", "result": "implemented-local-numeric-lexical-projection", "channel_count": "6", "nominal_srate": "0.000000000000000"},
+    {"case_id": "regular-int64-large-fractional-rate", "result": "implemented-local-numeric-lexical-projection", "channel_count": "7", "nominal_srate": "1000000.250000000"}
+  ],
+  "fixed_policy": {
+    "channel_count_max_bytes": 20,
+    "nominal_srate_bytes": 17,
+    "irregular_spelling": "0.000000000000000",
+    "accepted_regular_f64_values": [100.0, 59.94, 1.0, 256.5, 1000000.25],
+    "unsupported_regular_policy": "reject-with-unchanged-f64-bits"
+  },
+  "source_relationship": {
+    "input": "one borrowed accepted StreamInfoStaticFields",
+    "allocation": "two exact-length fallibly reserved owned strings after domain validation",
+    "mutation": "none",
+    "exposed_text": ["channel_count", "nominal_srate"]
+  },
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json",
+      "fixtures/compatibility/lslc-001k-stream-info-static-field-results.json"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "numeric spelling for any regular rate outside the five exact accepted f64 values; exponent, locale, shortest-round-trip, rounding, or general floating-point policy",
+    "XML validation, escaping, elements, desc mapping, serialization, parsing, complete documents, endpoint bytes, or volatile runtime fields",
+    "protocol, wire, I/O, transport, FFI, adapters, providers, devices, runtime support, or broad official-liblsl compatibility",
+    "Manifold admission, identity, registry, subscription, route, lease, revision, replay, authorization, audit, command, session, topology, transport, or product-policy authority"
+  ]
+}

@@ -294,6 +294,14 @@ oracle/candidate roles unchanged. It proves only the bounded local consuming
 projection, not decoding, round trips, documents, serialization, LSL mapping,
 protocol, wire, runtime, ecosystem, compatibility, or official-liblsl behavior.
 
+`fixtures/compatibility/lslc-001l-static-numeric-spelling-results.json` is an
+independently authored local-results overlay. Its technical inputs are the
+accepted LSLC-001H cases and public observations plus the accepted LSLC-001K
+semantic overlay. Its implementation inputs are empty: no oracle, wrapper,
+liblsl, rLSL, application, generated, vendored, or external implementation
+source was inspected or used. The overlay preserves observation and candidate
+separation and claims only the two recorded lexical fields.
+
 `fixtures/compatibility/lslc-001k-stream-info-static-field-results.json` is an
 independently authored local-results overlay. It binds the exact accepted
 LSLC-001H case-manifest and observation-overlay SHA-256 values while leaving

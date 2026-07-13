@@ -410,6 +410,24 @@ ownership. It does not prove reverse conversion, decoding, round trips,
 document or serialization behavior, stream-info or LSL mapping, endpoint or
 official behavior, protocol, wire, transport, runtime, or compatibility.
 
+## LSLC-001L focused gate
+
+Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001l.ps1
+```
+
+The gate reuses the complete accepted LSLC-001K validator, including its
+immutable LSLC-001H corpus, case, observation, provenance, and driver checks.
+It then checks the borrowed-plus-two-string source shape, bounded fallible
+reserves, closed regular-rate bit policy, all seven overlay rows and observed
+numeric texts, three focused Rust tests, documentation routes, protected-file
+cleanliness, and inert dependency/feature/publication closure. It does not
+execute the external oracle or validate XML construction, complete-document
+bytes, volatile fields, protocol, wire, runtime, or broad floating-point
+compatibility.
+
 ## LSLC-001K focused gate
 
 Run:

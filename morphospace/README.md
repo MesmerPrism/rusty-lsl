@@ -74,6 +74,15 @@ overlay. It performs no lifecycle transition and opens no XML, `desc`, numeric
 formatting, volatile runtime field, protocol, wire, I/O, transport, adapter,
 provider, device, feature, effect, or authority surface.
 
+`rlsl-lslc-001l-static-numeric-spellings` permits only one dependency-free
+bounded projection borrowing `StreamInfoStaticFields`, with two exact fallibly
+reserved strings for channel count and nominal rate. It executes the seven
+accepted H/K cases, accepts regular rates only at the five exact observed
+`f64` bit patterns, and rejects all other regular values with unchanged-bit
+evidence. It performs no lifecycle transition and opens no general numeric
+formatting, XML, `desc`, volatile field, protocol, wire, I/O, runtime, adapter,
+provider, device, feature, effect, or authority surface.
+
 `rlsl-lslc-001f-metadata-to-xml-element-tree-projection` permits only one
 dependency-free consuming projection from an accepted `MetadataTree` to an
 accepted `XmlElementTree`, with explicit component and target limits,

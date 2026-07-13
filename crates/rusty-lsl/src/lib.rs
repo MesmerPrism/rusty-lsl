@@ -10,6 +10,8 @@
 //! construction, descriptor/sample shape and format binding, and timestamped
 //! descriptor/sample, non-empty descriptor/chunk, and stream-definition
 //! composition, a borrowed static stream-info semantic projection, plus
+//! a bounded static numeric lexical projection for its channel count and
+//! nominal sample rate, plus
 //! bounded XML legal-text, element-name, and character-data
 //! representation contracts, leaf-only XML value composition, and a bounded
 //! parent-before-child XML container/leaf hierarchy, plus bounded borrowed
@@ -27,6 +29,7 @@ mod sample;
 mod stream_definition;
 mod stream_descriptor;
 mod stream_info_static_fields;
+mod stream_info_static_numeric_spellings;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
@@ -60,6 +63,9 @@ pub use stream_descriptor::{
     StreamDescriptorLimits, StreamDescriptorTextRole,
 };
 pub use stream_info_static_fields::{StreamInfoStaticFieldRole, StreamInfoStaticFields};
+pub use stream_info_static_numeric_spellings::{
+    StreamInfoStaticNumericSpellingError, StreamInfoStaticNumericSpellings,
+};
 pub use timestamped::{
     ChunkBound, ChunkError, ChunkLimits, DerivedTimestamp, DerivedTimestampKind,
     NonFiniteTimestamp, RawSourceTimestamp, TimestampError, TimestampRole, TimestampedChunk,
@@ -123,6 +129,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local non-empty timestamped descriptor/chunk composition",
             "bounded local stream-definition composition",
             "borrowed static stream-info semantic projection",
+            "bounded static stream-info numeric lexical projection",
             "bounded local XML legal-text and element-name values",
             "bounded local XML character-data representation",
             "bounded local XML leaf-element composition",

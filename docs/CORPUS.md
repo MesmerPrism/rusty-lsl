@@ -147,6 +147,16 @@ The projection assigns no reverse or round-trip behavior, complete-document,
 serialization, stream-info, `info`, `desc`, LSL field-mapping, endpoint,
 official-liblsl, protocol, wire, transport, runtime, or compatibility role.
 
+## LSLC-001L local numeric-spelling binding
+
+`fixtures/compatibility/lslc-001l-static-numeric-spelling-results.json` is a
+separate candidate overlay over the immutable LSLC-001H case/observation set
+and LSLC-001K semantic overlay. It records only the exact two numeric lexical
+fields for all seven cases, the 20-byte channel-count bound, the fixed 17-byte
+nominal-rate outputs, and the closed five-value regular-rate policy. It does
+not modify public observed XML or the unresolved full-document candidate
+result.
+
 ## LSLC-001K local static-field binding
 
 LSLC-001K uses the accepted LSLC-001H seven-case manifest and observation
