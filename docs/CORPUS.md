@@ -1,5 +1,11 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001P representation overlay
+
+The LSLC-001P overlay hash-binds accepted B/C/E/H/O artifacts and the O receipt.
+It records only the local volatile `info` element tree and leaves all observed
+and complete-document candidate evidence unchanged.
+
 ## LSLC-001O bounded data overlay
 
 The LSLC-001O overlay binds the frozen LSLC-001A role corpus, accepted

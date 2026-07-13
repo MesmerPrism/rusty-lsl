@@ -15,8 +15,8 @@
 //! bounded XML legal-text, element-name, and character-data
 //! representation contracts, leaf-only XML value composition, and a bounded
 //! parent-before-child XML container/leaf hierarchy, plus bounded borrowed
-//! element-tree string serialization and bounded opaque volatile stream-info
-//! accepted data.
+//! element-tree string serialization, bounded opaque volatile stream-info
+//! accepted data, and its bounded local XML element projection.
 //! It does not
 //! implement or claim LSL protocol,
 //! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
@@ -34,6 +34,7 @@ mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
 mod stream_info_static_xml;
 mod stream_info_volatile_fields;
+mod stream_info_volatile_xml;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
@@ -77,6 +78,9 @@ pub use stream_info_static_xml::{
 pub use stream_info_volatile_fields::{
     StreamInfoVolatileFieldClass, StreamInfoVolatileFieldError, StreamInfoVolatileFieldInput,
     StreamInfoVolatileFieldLimits, StreamInfoVolatileFieldRole, StreamInfoVolatileFields,
+};
+pub use stream_info_volatile_xml::{
+    StreamInfoVolatileXml, StreamInfoVolatileXmlError, StreamInfoVolatileXmlLimits,
 };
 pub use timestamped::{
     ChunkBound, ChunkError, ChunkLimits, DerivedTimestamp, DerivedTimestampKind,
@@ -149,6 +153,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local metadata-to-XML-element-tree projection",
             "bounded local XML element-tree serialization",
             "bounded volatile stream-info accepted data",
+            "bounded volatile stream-info XML element composition",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

@@ -1,5 +1,13 @@
 # STRM-000 compatibility fixtures
 
+## LSLC-001P volatile XML composition
+
+- `lslc-001p-volatile-stream-info-xml-results.json`: independently authored
+  local volatile `info` tree policy and boundary evidence.
+
+Run `tools/check_lslc_001p.ps1`; it proves no provider or complete-document
+behavior.
+
 ## LSLC-001O volatile stream-info data contract
 
 - `lslc-001o-volatile-stream-info-data-results.json`: independently authored

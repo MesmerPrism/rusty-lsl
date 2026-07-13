@@ -1,5 +1,17 @@
 # Rusty LSL
 
+## LSLC-001P bounded volatile stream-info XML composition
+
+`StreamInfoVolatileXml` borrows accepted LSLC-001O data and produces a bounded
+local `info` tree with eleven direct volatile-field leaves in accepted order.
+Fixed names and opaque values are separately copied through the existing XML
+value, character-data, and tree contracts; the source remains unchanged.
+
+This is not a provider or complete document. It adds no static/`desc` merge,
+declaration, observed whitespace or self-closing policy, clocks, host
+inspection, identity generation, endpoint parsing, networking, runtime, or
+authority. Run `./tools/check_lslc_001p.ps1` for the focused gate.
+
 ## LSLC-001O bounded volatile stream-info data
 
 `StreamInfoVolatileFields` accepts one owning input for the eleven LSLC-001H

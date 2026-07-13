@@ -1,5 +1,13 @@
 # Compatibility
 
+## LSLC-001P local candidate representation
+
+LSLC-001P implements only the compact local volatile `info` element tree. Its
+eleven leaves follow the accepted LSLC-001H order and LSLC-001C representation
+policy. It does not merge static or description content or claim observed
+declaration, whitespace, self-closing spelling, endpoint bytes, or complete
+document compatibility.
+
 ## LSLC-001O local candidate data result
 
 LSLC-001O binds its eleven-role inventory to the accepted LSLC-001H observed

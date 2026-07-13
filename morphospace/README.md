@@ -1,5 +1,10 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001p-volatile-stream-info-xml-composition` permits only a borrowed
+projection of accepted O data into a bounded local volatile `info` tree. It
+opens no provider, static/description merge, complete document, networking,
+runtime, feature, device, effect, or authority surface.
+
 `rlsl-lslc-001o-volatile-stream-info-data-contract` permits only the fixed
 eleven-role bounded opaque data contract. It separates implementation-assigned
 version, runtime-assigned creation/identity/session/host, and transport-owned

@@ -1,5 +1,13 @@
 # Architecture
 
+## LSLC-001P volatile XML representation layer
+
+`stream_info_volatile_xml` is a one-way borrowed projection from accepted
+LSLC-001O data into an owned `info` element tree. It applies explicit existing
+name, text, represented-byte, and tree limits, checks the twelve-node target
+bound before allocation, and retains fixed node-indexed delegated errors.
+Provider acquisition and complete-document representation remain separate.
+
 ## LSLC-001O volatile accepted-data layer
 
 `stream_info_volatile_fields` is a dependency-free data layer below any XML

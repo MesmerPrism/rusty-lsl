@@ -1,5 +1,12 @@
 # Provenance
 
+## LSLC-001P local representation overlay
+
+`fixtures/compatibility/lslc-001p-volatile-stream-info-xml-results.json` is
+independently authored and binds accepted XML value/tree, observation, and
+volatile-data artifacts. Its implementation inputs are empty; it records local
+representation policy only, not provider or complete-document behavior.
+
 ## LSLC-001O local data overlay
 
 `fixtures/compatibility/lslc-001o-volatile-stream-info-data-results.json` is an

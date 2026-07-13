@@ -1,5 +1,23 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001P Bounded Volatile Stream-Info XML Composition
+
+LSLC-001P borrows one accepted LSLC-001O field set and projects its eleven
+opaque values into a twelve-node `XmlElementTree`. The root is `info`; direct
+leaves remain in accepted `version` through `v6service_port` order. The target
+node bound precedes one exact arena reserve, and every fixed name and value is
+copied separately through accepted LSLC-001B/C/E contracts.
+
+The source data remains unchanged and reusable. This local element tree adds no
+provider, acquisition, static or `desc` merge, XML declaration, observed
+whitespace, self-closing spelling, complete document, clock/host/identity
+generation, endpoint semantics, networking, runtime, feature, device, or
+Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001p.ps1
+```
+
 ## LSLC-001O Bounded Volatile Stream-Info Data
 
 LSLC-001O adds only a dependency-free bounded accepted-data contract for the
