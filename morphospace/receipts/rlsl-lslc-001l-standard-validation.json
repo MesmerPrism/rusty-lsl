@@ -1,0 +1,106 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-001l-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-001l-static-numeric-spellings",
+  "created_at": "2026-07-13T21:19:12.8031282Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "a9683760e9874ae79e34418c6a66604142c7d8d2",
+      "head_revision": "d0edfa9f8d1e3cc8473efd9e2558e55743005a3e",
+      "branch": "codex/rlsl-lslc-001l-numeric-spellings"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/lib.rs" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/stream_info_static_numeric_spellings.rs" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/CORPUS.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/lslc-001l-static-numeric-spelling-results.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-lslc-001l-static-numeric-spellings.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001l-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001l-standard-validation.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001l.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001l.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-001l-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-lslc-001l-standard-validation.md",
+      "sha256": "9b30199f584066676d0e50991272d8c0541578243f647a9b040f641f80edfb0e"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "bounded-numeric-lexical-projection",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    },
+    {
+      "acceptance_id": "exact-seven-case-spellings",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001l.ps1",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    },
+    {
+      "acceptance_id": "unsupported-policy-fails-closed",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    },
+    {
+      "acceptance_id": "observation-and-candidate-separation",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001l.ps1",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    },
+    {
+      "acceptance_id": "source-only-and-authority-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    },
+    {
+      "acceptance_id": "portable-workflow-and-instruction-synchronization",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["lslc-001l-standard-log"]
+    }
+  ],
+  "device_validation": null
+}
