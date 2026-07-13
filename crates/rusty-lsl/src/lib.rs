@@ -28,6 +28,7 @@ mod metadata_xml_projection;
 mod sample;
 mod stream_definition;
 mod stream_descriptor;
+mod stream_info_description_xml;
 mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
 mod stream_info_static_xml;
@@ -63,6 +64,7 @@ pub use stream_descriptor::{
     RegularSampleRate, StreamDescriptor, StreamDescriptorBound, StreamDescriptorError,
     StreamDescriptorLimits, StreamDescriptorTextRole,
 };
+pub use stream_info_description_xml::{StreamInfoDescriptionXml, StreamInfoDescriptionXmlError};
 pub use stream_info_static_fields::{StreamInfoStaticFieldRole, StreamInfoStaticFields};
 pub use stream_info_static_numeric_spellings::{
     StreamInfoStaticNumericSpellingError, StreamInfoStaticNumericSpellings,

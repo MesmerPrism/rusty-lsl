@@ -1,0 +1,44 @@
+{
+  "schema": "rusty.lsl.local_results_overlay.v1",
+  "overlay_id": "lslc-001n-description-xml-results",
+  "unit_id": "rlsl-lslc-001n-description-xml-composition",
+  "evidence_level": "local-rust-description-xml-composition-tests",
+  "implementation_status": "bounded-local-contracts",
+  "accepted_artifact_bindings": {
+    "case_manifest": {"path":"fixtures/compatibility/lslc-001h-stream-info-xml-cases.json","sha256":"398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"},
+    "observation_overlay": {"path":"fixtures/compatibility/lslc-001h-stream-info-xml-observations.json","sha256":"2b1aaa4ce3faa20722386c224e70dd7b8252fecd94b6e4437280af2bb4c5ab1e","preserved_candidate_result":{"status":"not-observed","evidence":null}},
+    "metadata_projection_overlay": {"path":"fixtures/compatibility/lslc-001f-contract-results.json","sha256":"22887579e874624ec13fb68365ccdb835d40bc42249c55053fcedb3606476438"},
+    "serialization_overlay": {"path":"fixtures/compatibility/lslc-001g-contract-results.json","sha256":"4819c8cea026c534140104c8416cddb6dd9130c3bd433857e367aed1ff7d0e74"},
+    "static_xml_overlay": {"path":"fixtures/compatibility/lslc-001m-static-stream-info-xml-results.json","sha256":"f95d4a1387d6291bee930bbb7893c0e00ec83a3791c82958885bb74c618baad3"}
+  },
+  "fixed_candidate_policy": {
+    "description_admission": "separately-accepted-container-root-named-exactly-desc",
+    "description_root_parent": "info",
+    "description_root_index": 7,
+    "static_predecessor": "nominal_srate",
+    "parent_remap": "add-seven-to-every-non-root-description-parent",
+    "empty_description_serialization": "<desc></desc>",
+    "serialization_policy": "unchanged-lslc-001g-explicit-tags-no-inserted-whitespace"
+  },
+  "candidate_description_results": [
+    {"case_id":"irregular-float32-empty-optionals-desc","result":"implemented-local-description-element-composition","compact_desc":"<desc></desc>"},
+    {"case_id":"regular-double64-populated-optionals","result":"implemented-local-description-element-composition","compact_desc":"<desc></desc>"},
+    {"case_id":"regular-string-unicode-sensitive-nested-desc","result":"implemented-local-description-element-composition","compact_desc":"<desc><ordered><first>alpha-α-&amp;-&lt;-greater-&gt;-\"-'</first><second>beta-β-]]&gt;</second><nested><third>tail-尾-&amp;-&lt;-greater-&gt;</third></nested></ordered></desc>"},
+    {"case_id":"regular-int32-unit-rate","result":"implemented-local-description-element-composition","compact_desc":"<desc></desc>"},
+    {"case_id":"regular-int16-fractional-rate","result":"implemented-local-description-element-composition","compact_desc":"<desc></desc>"},
+    {"case_id":"irregular-int8","result":"implemented-local-description-element-composition","compact_desc":"<desc></desc>"},
+    {"case_id":"regular-int64-large-fractional-rate","result":"implemented-local-description-element-composition","compact_desc":"<desc></desc>"}
+  ],
+  "provenance": {
+    "origin_classification":"independently-authored",
+    "license_expression":"AGPL-3.0-or-later",
+    "technical_specification_inputs":["fixtures/compatibility/lslc-001h-stream-info-xml-cases.json","fixtures/compatibility/lslc-001h-stream-info-xml-observations.json","fixtures/compatibility/lslc-001f-contract-results.json","fixtures/compatibility/lslc-001g-contract-results.json","fixtures/compatibility/lslc-001m-static-stream-info-xml-results.json"],
+    "implementation_inputs":[]
+  },
+  "does_not_prove": [
+    "implicit interpretation of an arbitrary MetadataTree root as desc, borrowed projection, reverse conversion, or round trip",
+    "the observed XML declaration, inter-element whitespace, self-closing empty desc spelling, volatile fields, complete info document, or endpoint bytes",
+    "protocol, wire, I/O, transport, FFI, adapters, providers, devices, runtime support, or broad official-liblsl compatibility",
+    "Manifold admission, identity, registry, subscription, route, lease, revision, replay, authorization, audit, command, session, topology, transport, or product-policy authority"
+  ]
+}

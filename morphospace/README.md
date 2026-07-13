@@ -1,5 +1,13 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001n-description-xml-composition` permits only a consuming bounded
+merge of accepted LSLC-001M static XML with a separately accepted LSLC-001F
+tree whose root is exactly the container `desc`. It preserves description
+hierarchy, order, `None`/`Some("")` classification, and component allocations.
+It opens no arbitrary metadata-root interpretation, observed document policy,
+volatile field, complete document, protocol, wire, I/O, runtime, adapter,
+provider, device, feature, effect, or authority surface.
+
 `rlsl-lslc-001m-static-stream-info-xml-composition` permits only one
 dependency-free bounded projection from borrowed accepted static fields into a
 seven-node `info` element tree whose six direct leaves retain the accepted

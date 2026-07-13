@@ -1,5 +1,30 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001N Bounded Description XML Composition
+
+LSLC-001N adds only a dependency-free consuming merge of one accepted
+`StreamInfoStaticXml` and one separately accepted LSLC-001F projection whose
+root is exactly the container `desc`. The description root becomes the seventh
+direct `info` child, immediately after `nominal_srate`; every later description
+parent index receives the fixed seven-node offset. One checked total precedes
+the target node limit and one exact fallible merged-arena reserve.
+
+Component values and allocations move without cloning. LSLC-001F `None`
+containers and every `Some`, including `Some("")`, leaf remain distinct and in
+source order. Arbitrary or leaf roots reject before allocation. Compact
+serialization continues to use unchanged LSLC-001G explicit tags, so an empty
+description spells `<desc></desc>` locally rather than claiming the observed
+self-closing form.
+
+This unit adds no implicit meaning for arbitrary generic metadata roots, XML
+declaration, observed whitespace, volatile/runtime fields, complete document,
+protocol, wire, I/O, adapter, provider, device, feature, or authority behavior.
+Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001n.ps1
+```
+
 ## LSLC-001M Bounded Static Stream-Info XML Composition
 
 LSLC-001M adds only a dependency-free bounded projection from one borrowed

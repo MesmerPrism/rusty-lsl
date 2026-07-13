@@ -1,5 +1,12 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001N projection overlay
+
+The LSLC-001N overlay binds immutable LSLC-001H cases and observations plus
+accepted LSLC-001F, G, and M overlays. It records only local compact `desc`
+element results after explicit root admission and does not modify the observed
+XML corpus or full-document candidate role.
+
 ## LSLC-001M projection overlay
 
 The LSLC-001M overlay binds the immutable LSLC-001H cases and observations,

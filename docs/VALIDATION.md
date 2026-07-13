@@ -1,5 +1,13 @@
 # Validation
 
+## LSLC-001N focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_001n.ps1`. The gate checks explicit `desc` admission,
+checked offset and allocation order, immutable dependency bindings, all five
+focused Rust tests and seven candidate cases, documentation, protected
+surfaces, and the inert dependency/feature/publication closure.
+
 ## LSLC-001M focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File

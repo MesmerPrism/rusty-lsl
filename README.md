@@ -1,5 +1,15 @@
 # Rusty LSL
 
+## LSLC-001N bounded description XML composition
+
+`StreamInfoDescriptionXml` consumes an accepted LSLC-001M static tree and a
+separately accepted LSLC-001F tree whose container root is exactly `desc`.
+It moves both into one target-bounded `info` tree, placing `desc` after the six
+static leaves and preserving description hierarchy, order, absent-versus-empty
+classification, and component allocations. It does not reinterpret arbitrary
+metadata roots or claim observed document whitespace, self-closing empty
+`desc`, volatile fields, endpoint bytes, protocol, or runtime.
+
 ## LSLC-001M bounded static stream-info XML composition
 
 `StreamInfoStaticXml` composes the accepted six static stream-info roles into

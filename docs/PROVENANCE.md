@@ -1,5 +1,12 @@
 # Provenance
 
+## LSLC-001N
+
+`fixtures/compatibility/lslc-001n-description-xml-results.json` is an
+independently authored local-results overlay over hash-bound accepted H, F, G,
+and M artifacts. Its implementation-input list is empty; no external
+implementation source was inspected or used.
+
 ## LSLC-001M
 
 `fixtures/compatibility/lslc-001m-static-stream-info-xml-results.json` is an

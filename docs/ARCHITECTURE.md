@@ -1,5 +1,14 @@
 # Architecture
 
+## LSLC-001N description composition
+
+`stream_info_description_xml` is a consuming arena merge above LSLC-001M and a
+separate LSLC-001F projection. Admission requires an already accepted
+container root named exactly `desc`; this keeps generic metadata semantics with
+the caller and prevents ambient reinterpretation. The merged arena preserves
+values and allocations and delegates final structural bounds to
+`XmlElementTree`. No runtime or complete-document owner is introduced.
+
 ## LSLC-001M static XML composition
 
 `stream_info_static_xml` is a leaf composition layer above the accepted static

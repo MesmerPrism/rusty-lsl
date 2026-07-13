@@ -1,5 +1,15 @@
 # Compatibility
 
+## LSLC-001N local candidate result
+
+LSLC-001N executes the seven accepted case shapes through static composition,
+metadata projection, description merge, and compact serialization. The nested
+description order and represented values match the accepted observation, while
+empty descriptions remain explicit `<desc></desc>` under local LSLC-001G
+policy. This is not an observed self-closing, whitespace, volatile-field, or
+complete-document compatibility result; LSLC-001H remains `not-observed` for
+the candidate document.
+
 ## LSLC-001M local candidate result
 
 LSLC-001M executes all seven accepted black-box case inputs through the local
