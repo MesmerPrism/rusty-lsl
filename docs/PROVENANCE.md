@@ -65,6 +65,16 @@ proves no clock behavior, timestamp derivation, correction or smoothing
 algorithm, transport, protocol, wire, runtime, ecosystem, or official-liblsl
 behavior.
 
+`fixtures/compatibility/core-003-contract-results.json` is a separate
+independently authored local-results overlay. It binds exact positive and
+damaged local Rust tests for bounded descriptors, nominal sample-rate values,
+and seven data-only channel-format names. Optional content type and source
+correlation are opaque caller inputs; no external identity or authority meaning
+was imported. The implementation and overlay use no liblsl, rLSL, generated
+protocol material, or other implementation source as input. They prove no XML,
+discovery, recovery, timing algorithm, transport, protocol, wire, runtime,
+ecosystem, or official-liblsl behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

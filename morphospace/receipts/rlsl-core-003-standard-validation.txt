@@ -1,0 +1,42 @@
+Rusty LSL CORE-003 standard validation evidence
+Created: 2026-07-13T11:51:20Z
+Project: rusty-lsl
+Unit: rlsl-core-003-stream-descriptor-contracts
+Branch: codex/rlsl-core-contracts-003
+Base and HEAD revision: b7c5cde56d4c1e8fd6d7e2ddcda14212169c39b2
+
+PASS bounded-core-stream-descriptor
+Command: cargo test --workspace --all-targets --offline --locked
+Result: Construction requires a nonempty bounded name and positive bounded channel count, applies explicit nonzero Unicode-scalar and channel maxima, preserves optional absent-versus-empty opaque content/source text and all accepted caller values unchanged, and rejects malformed or one-past input atomically with typed deterministic errors.
+
+PASS nominal-rate-and-channel-format-values
+Command: cargo test --workspace --all-targets --offline --locked
+Result: Nominal rate is explicitly irregular or finite positive regular Hz with exact bit preservation. Exactly seven data-only channel-format variants are exposed without wire discriminants, byte sizing, encoding, decoding, or conversion.
+
+PASS source-correlation-not-authority
+Command: cargo test --workspace --all-targets --offline --locked
+Result: Optional source correlation remains opaque caller data. The descriptor exposes no runtime UID, discovery result, recovery decision, route, permission, admission, or accepted Morphospace state.
+
+PASS stream-descriptor-damaged-cases
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_003.ps1
+Result: Nine focused contract tests passed. Five independent in-memory validator mutations were rejected: promoted historical baseline, missing damaged test, license drift, prohibited XML public surface, and channel-format drift.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed with 31 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe or runtime-effect surfaces, historical STRM-000 and CORE-001/002 integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, and fixture-index updates passed check_all. Existing system-engineering guidance already distinguishes correlation data, runtime identity, proposals, and admission authority, so no skill change was required. Relevant instruction surfaces passed terminal-newline and trailing-whitespace checks.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust core stream-descriptor, nominal-rate, and channel-format value construction. It does not prove XML, queries, discovery, resolution, recovery, runtime identity, timing behavior, encoding, conversion, transport, protocol, wire, interoperability, performance, platform behavior, or Morphospace authority.

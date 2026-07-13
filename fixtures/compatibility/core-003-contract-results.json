@@ -1,0 +1,65 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-003-stream-descriptor-contracts",
+  "unit_id": "rlsl-core-003-stream-descriptor-contracts",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "case_id": "semantic-observation-not-authority",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 semantic authority case remains historical specification-only evidence; this overlay records only independently authored local Rust descriptor construction and value behavior."
+  },
+  "contract_results": [
+    {
+      "contract_id": "bounded-stream-descriptor",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_003_descriptor_exact_limits_preserve_all_text_and_values",
+        "core_003_optional_text_is_explicit_and_empty_opaque_text_is_preserved"
+      ],
+      "damaged_tests": [
+        "core_003_empty_name_has_stable_typed_error",
+        "core_003_one_past_each_text_limit_has_stable_typed_error",
+        "core_003_zero_and_one_past_channels_have_stable_typed_errors",
+        "core_003_zero_limits_reject_in_argument_order"
+      ]
+    },
+    {
+      "contract_id": "nominal-sample-rate",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_003_regular_rate_preserves_bits_and_irregular_is_explicit"
+      ],
+      "damaged_tests": [
+        "core_003_invalid_regular_rates_have_stable_typed_errors"
+      ]
+    },
+    {
+      "contract_id": "channel-format-values",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_003_all_seven_channel_formats_are_independent_data_values"
+      ],
+      "damaged_tests": []
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "XML parsing, serialization, metadata-tree mutation, or query matching",
+    "discovery, resolution, recovery, or runtime identity",
+    "source identifier uniqueness, authorization, routing, permission, admission, or Morphospace authority",
+    "clock reading, rate measurement, scheduling, enforcement, interpolation, or rate derivation",
+    "channel encoding, decoding, byte sizing, sample conversion, or wire numeric formats",
+    "LSL protocol behavior",
+    "sample or descriptor transport",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

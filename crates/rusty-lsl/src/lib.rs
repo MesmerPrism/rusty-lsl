@@ -5,13 +5,14 @@
 #![deny(missing_docs)]
 //! Dependency-free local contracts for Rusty LSL.
 //!
-//! This crate currently implements only bounded metadata, sample-shape, and
-//! timestamped-chunk construction. It does not implement or claim LSL protocol,
-//! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
-//! behavior.
+//! This crate currently implements only bounded metadata, sample-shape,
+//! timestamped-chunk, and core stream-descriptor construction. It does not
+//! implement or claim LSL protocol, runtime, wire, discovery, clock, inlet,
+//! outlet, FFI, or Morphospace adapter behavior.
 
 mod metadata;
 mod sample;
+mod stream_descriptor;
 mod timestamped;
 
 pub use metadata::{
@@ -19,6 +20,11 @@ pub use metadata::{
     MetadataLimits, MetadataTextRole,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
+pub use stream_descriptor::{
+    ChannelFormat, InvalidRegularSampleRate, NominalSampleRate, NominalSampleRateError,
+    RegularSampleRate, StreamDescriptor, StreamDescriptorBound, StreamDescriptorError,
+    StreamDescriptorLimits, StreamDescriptorTextRole,
+};
 pub use timestamped::{
     ChunkBound, ChunkError, ChunkLimits, DerivedTimestamp, DerivedTimestampKind,
     NonFiniteTimestamp, RawSourceTimestamp, TimestampError, TimestampRole, TimestampedChunk,
@@ -29,7 +35,7 @@ pub use timestamped::{
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum ImplementationStatus {
-    /// Only local bounded metadata, sample-shape, and timestamped-chunk contracts are implemented.
+    /// Only local bounded metadata, sample, timestamped-chunk, and descriptor contracts exist.
     BoundedLocalContracts,
 }
 
@@ -56,6 +62,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local metadata construction",
             "bounded local sample-shape construction",
             "bounded local timestamped-sample and chunk construction",
+            "bounded local core stream-descriptor construction",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

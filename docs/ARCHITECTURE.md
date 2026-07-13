@@ -5,7 +5,8 @@
 The repository contains one `std`-only facade crate. Its public surface reports
 `BoundedLocalContracts`, declares the repository ownership boundary, and
 implements local bounded metadata, sample shape, timestamp value, timestamped
-sample, and chunk families. `RawSourceTimestamp` and `DerivedTimestamp` accept
+sample, chunk, and core stream-descriptor families. `RawSourceTimestamp` and
+`DerivedTimestamp` accept
 only finite `f64` values and preserve their bits. Every `DerivedTimestamp`
 stores an explicit non-exhaustive `DerivedTimestampKind`: currently
 `ClockCorrected` or `Smoothed`. These are caller-supplied classifications, not
@@ -17,6 +18,22 @@ collection. It does not parse or serialize XML, open sockets,
 discover streams, create threads, read clocks, allocate queues, load native
 libraries, or alter process or platform state. There are no Cargo features or
 dependencies.
+
+`StreamDescriptor` requires a nonempty stream name, a positive bounded channel
+count, and explicit nonzero maxima for name, content-type, source-id Unicode
+scalar counts and channel count. Content type and source correlation are
+optional bounded opaque text. Accepted text is preserved without trimming,
+case folding, normalization, inference, or reordering. Source correlation has
+no identity, discovery, recovery, authorization, routing, permission,
+admission, or Morphospace/Manifold authority effect. The descriptor exposes no
+runtime-assigned version, creation time, UID, session, host, address, or port.
+
+`NominalSampleRate` distinguishes `Irregular` from a validated finite positive
+`RegularHz` value and preserves accepted regular-rate bits. It performs no
+clock read, rate measurement, scheduling, enforcement, interpolation, or rate
+derivation. `ChannelFormat` has exactly seven independently named data-only
+variants and assigns no protocol or wire numeric discriminants; it performs no
+byte sizing, encoding, decoding, or value conversion.
 
 Construction validates the complete caller-provided value before returning an
 accepted value. Invalid limit configurations, exceeded metadata or chunk
@@ -34,8 +51,8 @@ access, native libraries, runtime profiles, or compatibility behavior.
 The accepted STRM-000 baseline adds only specification-level compatibility cases, damaged-input
 expectations, an isolated black-box oracle procedure, and deterministic
 validation. These feedback-plane artifacts are neither data-plane behavior nor
-runtime receipts. CORE-001 and CORE-002 record local Rust contract tests in
-separate overlays rather than rewriting that historical baseline as a
+runtime receipts. CORE-001, CORE-002, and CORE-003 record local Rust contract
+tests in separate overlays rather than rewriting that historical baseline as a
 measurement.
 
 ## Ownership
@@ -65,7 +82,9 @@ Hostess adapters, and application policy remain in their owning repositories.
 
 CORE-001 makes metadata collection/text limits and sample channel limits part
 of validated construction. CORE-002 adds validated maximum sample and channel
-counts for chunks. Future public contracts must likewise make bounds part of
+counts for chunks. CORE-003 adds validated maximum Unicode scalar counts for
+the required name and optional opaque text plus a validated maximum descriptor
+channel count. Future public contracts must likewise make bounds part of
 their types or construction:
 metadata size and depth, channel count, frame and chunk size, queue capacity,
 timeout, retry count, and retained timestamp range. Invalid or oversized input
@@ -79,9 +98,9 @@ calculate correction, dejittering, smoothing, interpolation, or
 sample-rate-derived timestamps. Provider fallback must name the selected
 candidate and retain the rejected candidate's failure.
 
-Only the metadata, sample-shape, timestamp-value, and bounded-chunk construction
-invariants are implemented. The remaining invariants constrain future design;
-none is an LSL runtime claim.
+Only the metadata, sample-shape, timestamp-value, bounded-chunk, and core
+stream-descriptor construction invariants are implemented. The remaining
+invariants constrain future design; none is an LSL runtime claim.
 
 ## Dependency direction
 

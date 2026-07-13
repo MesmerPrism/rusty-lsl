@@ -22,8 +22,15 @@ explicit `ClockCorrected` and `Smoothed` classifications, and bounded
 timestamped chunks including the empty-collection case. The classifications do
 not implement either algorithm. The overlay preserves the historical semantic
 timestamp case as `not-implemented` and proves no clock, transport, protocol,
-wire, runtime, ecosystem, or official-liblsl behavior. Run
+wire, runtime, ecosystem, or official-liblsl behavior.
+`core-003-contract-results.json` records only local Rust tests for bounded core
+stream descriptors, nominal-rate values, and seven data-only channel-format
+names. Its optional source correlation is opaque caller data, not identity,
+discovery, recovery, routing, permission, admission, or authority. It proves no
+XML, transport, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
+Run
 `tools/check_strm_000.ps1` after any edit; digest changes must be reviewed and
 recorded in the provenance manifest. Run `tools/check_core_001.ps1` for the
 CORE-001 overlay and `tools/check_core_002.ps1` for the CORE-002 overlay and
-timestamped-chunk implementation.
+timestamped-chunk implementation. Run `tools/check_core_003.ps1` for the
+CORE-003 overlay and stream-descriptor implementation.

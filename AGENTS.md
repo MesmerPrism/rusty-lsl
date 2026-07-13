@@ -51,9 +51,10 @@ specification-only evidence: its planned observations are not measured and its
 results remain `not-implemented`. CORE-001 opens only dependency-free local
 Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
 only finite raw source timestamps, separately typed optional derived timestamp
-values, timestamped samples, and bounded chunks. Keep the feature lock empty
-and inert until a later reviewed unit and owner-issued descriptor open an exact
-runtime surface.
+values, timestamped samples, and bounded chunks. CORE-003 adds only bounded
+core stream descriptors, explicit nominal-rate values, and seven data-only
+channel-format names. Keep the feature lock empty and inert until a later
+reviewed unit and owner-issued descriptor open an exact runtime surface.
 
 ## Provenance And Compatibility
 
@@ -90,6 +91,18 @@ runtime surface.
   caller-provided classifications only, not implemented algorithms. It rejects
   non-finite timestamps, invalid chunk maxima, one-past maxima, and inconsistent
   channel shapes atomically. An empty chunk is valid under nonzero maxima.
+- CORE-003 requires a nonempty stream name and explicit nonzero Unicode scalar
+  and channel maxima. Optional content type and source correlation are bounded
+  opaque text preserved exactly. Source correlation is never runtime identity,
+  discovery, recovery, authorization, routing, permission, admission, or
+  Morphospace/Manifold authority.
+- A regular nominal sample rate must be finite and positive and preserves its
+  accepted floating-point bits; irregular is a separate explicit form. These
+  values do not read clocks, measure, schedule, enforce, interpolate, or derive
+  rates.
+- `ChannelFormat` has exactly seven data-only variants: `Float32`, `Double64`,
+  `String`, `Int32`, `Int16`, `Int8`, and `Int64`. They have no wire numeric
+  discriminants and perform no byte sizing, encoding, decoding, or conversion.
 - Timestamp value constructors do not read clocks or calculate correction,
   dejittering, smoothing, interpolation, or sample-rate timestamp derivation.
 - Discovery is observation, never identity, authorization, or activation.
@@ -130,6 +143,12 @@ For timestamped-chunk contract edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_002.ps1
+```
+
+For stream-descriptor contract edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_003.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

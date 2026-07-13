@@ -1,0 +1,99 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-core-003-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-core-003-stream-descriptor-contracts",
+  "created_at": "2026-07-13T11:51:20Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "b7c5cde56d4c1e8fd6d7e2ddcda14212169c39b2",
+      "head_revision": "b7c5cde56d4c1e8fd6d7e2ddcda14212169c39b2",
+      "branch": "codex/rlsl-core-contracts-003"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/lib.rs" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/stream_descriptor.rs" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/core-003-contract-results.json" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-core-003-stream-descriptor-contracts.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-core-003-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-core-003-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_core_003.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_core_003.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "core-003-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-core-003-standard-validation.txt",
+      "sha256": "bb08724c78da1ad5842fbb5cf606c43c8f258f8a81eb52b216b1bd7a6270668f"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "bounded-core-stream-descriptor",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["core-003-standard-log"]
+    },
+    {
+      "acceptance_id": "nominal-rate-and-channel-format-values",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["core-003-standard-log"]
+    },
+    {
+      "acceptance_id": "source-correlation-not-authority",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["core-003-standard-log"]
+    },
+    {
+      "acceptance_id": "stream-descriptor-damaged-cases",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_003.ps1",
+      "evidence_refs": ["core-003-standard-log"]
+    },
+    {
+      "acceptance_id": "inert-core-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["core-003-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["core-003-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["core-003-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["core-003-standard-log"]
+    }
+  ],
+  "device_validation": null
+}

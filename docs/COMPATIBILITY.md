@@ -10,8 +10,10 @@
 | Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
 | Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |
 | Local bounded timestamped chunks | Implemented | CORE-002 Rust unit tests, including empty bounded collections; no buffering or transport behavior |
+| Local core stream descriptors | Implemented | CORE-003 Rust unit tests; bounded opaque text and values only, with no XML, discovery, or runtime identity |
 | Sample and chunk transport | Not implemented | Specification cases only |
-| Channel formats | Not implemented | No case or measurement |
+| Local channel-format names | Implemented | CORE-003 Rust unit tests; exactly seven data-only variants with no wire numeric mapping or conversion |
+| Protocol or wire channel formats | Not implemented | No case or measurement |
 | Clock-sourced or protocol timestamps | Not implemented | Specification cases only |
 | Clock correction and smoothing | Not implemented | No case or measurement |
 | Buffering and post-processing | Not implemented | No case or measurement |
@@ -22,12 +24,16 @@
 | Wire compatibility | Not implemented and not claimed | Planned observations only |
 | Operational/ecosystem compatibility | Not implemented and not claimed | Planned observations only |
 
-The CORE-001 and CORE-002 tests prove only local Rust contract semantics for the
+The CORE-001, CORE-002, and CORE-003 tests prove only local Rust contract semantics for the
 named constructors on the tested toolchain. CORE-002 validates caller-provided
 finite values and preserves explicit `ClockCorrected` or `Smoothed`
 classifications; it does not read clocks, derive timestamps, or implement those
 algorithms. These tests do not prove LSL behavior, interoperability,
-performance, or platform support.
+performance, or platform support. CORE-003 proves only bounded construction,
+opaque optional text retention, explicit irregular or finite positive regular
+rate values, and the seven named channel-format values. Source correlation is
+not identity or authority, and no clock, XML, discovery, recovery, transport,
+encoding, conversion, or runtime behavior is exercised.
 
 ## Compatibility classes
 
@@ -52,6 +58,9 @@ The separate `core-001-contract-results.json` overlay binds local unit tests to
 the two CORE-001 case IDs. The `core-002-contract-results.json` overlay binds
 local timestamp preservation to `semantic-raw-timestamp-preserved` and records
 the bounded-chunk contract without turning either into a measured oracle result.
+The separate `core-003-contract-results.json` overlay binds local descriptor,
+nominal-rate, and channel-format tests to CORE-003 while preserving
+`semantic-observation-not-authority` as `not-implemented` historical evidence.
 Evidence at one level must not be promoted into a broader claim.
 
 Each case has three deliberately separate roles:
@@ -61,8 +70,8 @@ Each case has three deliberately separate roles:
 - `measured_result` records evidence only after a reviewed run.
 
 For STRM-000, `current_result` and `measured_result.status` remain
-`not-implemented`, and each measured observation remains null. CORE-001 and
-CORE-002 status lives only in their result overlays.
+`not-implemented`, and each measured observation remains null. CORE-001,
+CORE-002, and CORE-003 status lives only in their result overlays.
 
 ## Compatibility method
 
