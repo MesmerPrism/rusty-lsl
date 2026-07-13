@@ -83,11 +83,13 @@
     },
     "powershell_driver": {
       "path": "tools/oracle/Invoke-Lslc001hOracle.ps1",
-      "sha256": "edf07ba073c7947558ac32c38e608fbbd3d344c715b88baa37512cfa5cd37e0f"
+      "sha256": "edf07ba073c7947558ac32c38e608fbbd3d344c715b88baa37512cfa5cd37e0f",
+      "digest_basis": "canonical-lf-source-bytes"
     },
     "python_driver": {
       "path": "tools/oracle/lslc_001h_capture.py",
-      "sha256": "0e064fcd78f4352268cf37e6be8edd1510bfbfa2cbe029c9ecce83d8a9a25b40"
+      "sha256": "0e064fcd78f4352268cf37e6be8edd1510bfbfa2cbe029c9ecce83d8a9a25b40",
+      "digest_basis": "canonical-lf-source-bytes"
     }
   },
   "external_evidence": {

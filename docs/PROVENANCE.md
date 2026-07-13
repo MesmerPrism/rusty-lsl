@@ -1,5 +1,22 @@
 # Provenance
 
+## LSLC-001I canonical driver-source digest basis
+
+The two existing LSLC-001H driver bindings retain their original SHA-256
+values and now explicitly identify `canonical-lf-source-bytes` as their digest
+basis. The checker reads current working-tree bytes, accepts complete LF or a
+byte-equivalent complete CRLF checkout, replaces only CRLF pairs with LF, and
+hashes those canonical bytes. It rejects mixed LF/CRLF, lone carriage returns,
+and any other source-byte mutation rather than treating general text or
+semantic equivalence as provenance identity.
+
+This is a validation-provenance correction for the failed pre-fix GitHub
+Actions run `29276386135`, not a new observation or normalization of captured
+evidence. Both oracle drivers, all accepted observations and raw artifact
+digests, the capture window, normalization records, external identities,
+limitations, and historical fixture digests remain unchanged. The deterministic
+damaged checks operate only on in-memory copies and do not rerun the oracle.
+
 ## LSLC-001H black-box observation
 
 `fixtures/compatibility/lslc-001h-stream-info-xml-provenance.json` records the

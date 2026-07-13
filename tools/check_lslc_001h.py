@@ -28,6 +28,8 @@ DRIVER_PY = ROOT / "tools/oracle/lslc_001h_capture.py"
 CORPUS_SHA256 = "68331a7a5ae6d0767ae9d2eb2d317d3673595fa04352087e88d6ff1506faaa2c"
 WHEEL_SHA256 = "3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1"
 DLL_SHA256 = "8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff"
+DRIVER_PS1_SHA256 = "edf07ba073c7947558ac32c38e608fbbd3d344c715b88baa37512cfa5cd37e0f"
+DRIVER_PY_SHA256 = "0e064fcd78f4352268cf37e6be8edd1510bfbfa2cbe029c9ecce83d8a9a25b40"
 FORMATS = {
     "cf_float32": "float32", "cf_double64": "double64", "cf_string": "string",
     "cf_int32": "int32", "cf_int16": "int16", "cf_int8": "int8", "cf_int64": "int64",
@@ -83,6 +85,64 @@ def load(path: Path) -> dict[str, Any]:
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def canonical_lf_bound_driver_source(source: bytes, label: str) -> bytes:
+    without_crlf = source.replace(b"\r\n", b"")
+    require(b"\r" not in without_crlf, f"lone carriage return in bound driver: {label}")
+    if b"\r\n" in source:
+        require(b"\n" not in without_crlf,
+                f"mixed LF/CRLF line endings in bound driver: {label}")
+        return source.replace(b"\r\n", b"\n")
+    return source
+
+
+def validate_bound_driver_source(
+    path: Path, expected_sha256: str,
+) -> bytes:
+    label = path.relative_to(ROOT).as_posix()
+    working_tree_source = path.read_bytes()
+    canonical = canonical_lf_bound_driver_source(working_tree_source, label)
+    require(hashlib.sha256(canonical).hexdigest() == expected_sha256,
+            f"canonical LF driver digest binding drifted: {label}")
+
+    complete_crlf = canonical.replace(b"\n", b"\r\n")
+    require(canonical_lf_bound_driver_source(canonical, f"{label}:lf-check") == canonical,
+            f"complete LF driver canonicalization drifted: {label}")
+    require(canonical_lf_bound_driver_source(
+        complete_crlf, f"{label}:crlf-check",
+    ) == canonical, f"complete CRLF driver canonicalization drifted: {label}")
+    require(hashlib.sha256(canonical_lf_bound_driver_source(
+        complete_crlf, f"{label}:crlf-digest-check",
+    )).hexdigest() == expected_sha256,
+            f"complete CRLF driver digest equivalence drifted: {label}")
+
+    require(canonical.count(b"\n") >= 2,
+            f"bound driver needs two lines for mixed-ending validation: {label}")
+    mixed = canonical.replace(b"\n", b"\r\n", 1)
+    lone_cr = canonical.replace(b"\n", b"\r", 1)
+    for damaged, damage in ((mixed, "mixed"), (lone_cr, "lone-cr")):
+        try:
+            canonical_lf_bound_driver_source(damaged, f"{label}:{damage}-check")
+        except ValueError:
+            pass
+        else:
+            raise ValueError(f"damaged driver line endings were accepted: {label}:{damage}")
+
+    mutation_index = next(
+        (index for index, byte in enumerate(canonical) if byte not in (0x0A, 0x0D)),
+        None,
+    )
+    require(mutation_index is not None,
+            f"bound driver has no non-line-ending byte to mutate: {label}")
+    mutated = bytearray(canonical)
+    mutated[mutation_index] ^= 0x01
+    mutated_canonical = canonical_lf_bound_driver_source(
+        bytes(mutated), f"{label}:content-mutation-check",
+    )
+    require(hashlib.sha256(mutated_canonical).hexdigest() != expected_sha256,
+            f"non-line-ending driver mutation retained canonical digest: {label}")
+    return canonical
 
 
 def raw_element_text(xml: bytes, name: str) -> str:
@@ -367,10 +427,20 @@ def validate_provenance_and_driver() -> dict[str, Any]:
             "provenance corpus binding drifted")
     require(bindings.get("case_manifest", {}).get("sha256") == digest(CASES),
             "provenance case binding drifted")
-    require(bindings.get("powershell_driver", {}).get("sha256") == digest(DRIVER_PS1),
-            "PowerShell driver digest binding drifted")
-    require(bindings.get("python_driver", {}).get("sha256") == digest(DRIVER_PY),
-            "Python driver digest binding drifted")
+    expected_driver_bindings = {
+        "powershell_driver": (DRIVER_PS1, DRIVER_PS1_SHA256),
+        "python_driver": (DRIVER_PY, DRIVER_PY_SHA256),
+    }
+    canonical_driver_sources: dict[str, bytes] = {}
+    for binding_name, (path, expected_sha256) in expected_driver_bindings.items():
+        binding = bindings.get(binding_name, {})
+        require(binding.get("sha256") == expected_sha256,
+                f"unchanged driver SHA-256 binding drifted: {binding_name}")
+        require(binding.get("digest_basis") == "canonical-lf-source-bytes",
+                f"canonical LF digest basis missing: {binding_name}")
+        canonical_driver_sources[binding_name] = validate_bound_driver_source(
+            path, expected_sha256,
+        )
     external = provenance.get("external_evidence", {})
     require(external.get("raw_xml_committed") is False and external.get("raw_outputs"),
             "raw evidence boundary drifted")
@@ -407,8 +477,8 @@ def validate_provenance_and_driver() -> dict[str, Any]:
     require(DAMAGED_STAGES <= set(failure.get("typed_stages", [])),
             "typed failure stages drifted")
 
-    ps1 = DRIVER_PS1.read_text(encoding="utf-8")
-    py = DRIVER_PY.read_text(encoding="utf-8")
+    ps1 = canonical_driver_sources["powershell_driver"].decode("utf-8")
+    py = canonical_driver_sources["python_driver"].decode("utf-8")
     ast.parse(py)
     for marker in (
         "--no-deps", "--no-index", WHEEL_SHA256, DLL_SHA256, "$maxProcessOutputBytes",

@@ -1,5 +1,20 @@
 # Validation
 
+## LSLC-001I portable driver-source correction
+
+The LSLC-001H focused gate reads the two bound driver sources from the current
+working tree and compares their canonical LF SHA-256 values with the unchanged
+provenance bindings. Complete LF and byte-equivalent complete CRLF sources are
+accepted. Mixed LF/CRLF, lone carriage returns, and non-line-ending mutations
+are rejected by deterministic in-memory checks for both drivers. Only CRLF
+pairs are canonicalized; no other byte is decoded, trimmed, or normalized.
+
+GitHub Actions run `29276386135` is the preserved failed pre-fix integration
+attempt that exposed complete CRLF checkout materialization. A passing gate
+proves only checkout-portable validation of the two bound text sources. It does
+not rerun the oracle or change/prove any observation, capture, candidate XML,
+protocol, wire, runtime, dependency, platform, or authority behavior.
+
 ## LSLC-001H oracle observation gate
 
 Run:

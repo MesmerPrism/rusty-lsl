@@ -1,5 +1,26 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001I Portable Driver Provenance
+
+LSLC-001I is a bounded validation-only correction for the two LSLC-001H text
+driver bindings. The checker reads their current working-tree bytes, accepts
+either complete LF or byte-equivalent complete CRLF materialization, converts
+only CRLF pairs to LF for canonical SHA-256 comparison, and rejects mixed
+LF/CRLF, lone carriage returns, and all non-line-ending source mutations.
+Both recorded driver SHA-256 values remain unchanged and their explicit digest
+basis is `canonical-lf-source-bytes`.
+
+GitHub Actions run `29276386135` remains the failed pre-fix integration
+attempt: its Windows checkout materialized the committed LF source as complete
+CRLF. This correction changes no oracle driver, observation, capture fact,
+candidate behavior, runtime surface, dependency, or authority boundary. The
+focused gate includes deterministic in-memory LF/CRLF equivalence and damaged
+newline/content checks and does not rerun the external oracle. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001h.ps1
+```
+
 ## LSLC-001H StreamInfo XML Black-Box Observation
 
 LSLC-001H is an append-only, bounded black-box observation through the exact

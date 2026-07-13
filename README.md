@@ -1,5 +1,26 @@
 # Rusty LSL
 
+## LSLC-001I checkout-portable driver provenance
+
+GitHub Actions run `29276386135` preserved a failed pre-fix integration
+attempt in which a Windows checkout materialized the LF-bound LSLC-001H driver
+sources as complete CRLF. LSLC-001I repairs only that source-validation
+boundary: the focused checker reads current working-tree bytes, accepts either
+complete LF or byte-equivalent complete CRLF, and hashes canonical LF bytes
+against the two unchanged recorded SHA-256 values. It rejects mixed LF/CRLF,
+lone carriage returns, and any non-line-ending content mutation. Deterministic
+in-memory checks cover both accepted materializations and all damaged forms for
+each bound driver.
+
+The provenance entries now state the digest basis as
+`canonical-lf-source-bytes`. Canonicalization replaces only CRLF pairs with LF;
+it performs no trimming, decoding, or other byte normalization. No oracle
+driver, accepted observation, raw capture digest, normalization operation,
+external identity, candidate behavior, dependency, runtime effect, or
+authority boundary changes, and the external oracle is not rerun. Use
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1`
+for the focused validation.
+
 ## LSLC-001H pinned StreamInfo XML observation
 
 LSLC-001H records seven bounded synthetic `StreamInfo.as_xml()` black-box
