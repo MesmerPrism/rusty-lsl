@@ -1,0 +1,39 @@
+Rusty LSL CORE-004 standard validation evidence
+Created: 2026-07-13T12:17:00Z
+Project: rusty-lsl
+Unit: rlsl-core-004-bounded-metadata-tree
+Branch: codex/rlsl-core-contracts-004
+Base revision: dd6d7c267647f0d24f6d26de46f6b339cad3f2b5
+HEAD revision: a2ce26c56f01948b6ce3e0c2fc3745993727c908
+
+PASS bounded-parent-before-child-arena
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Exactly one root is accepted at index zero, every later node requires a strictly earlier parent, and explicit nonzero maxima bound total nodes, root-one depth, direct children, name Unicode scalar values, and optional value Unicode scalar values. The full 46-test workspace suite passed.
+
+PASS metadata-tree-value-preservation
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Accepted node order, parent indices, names, and optional values remain exact, including None versus Some(""). The iterative deep-chain case accepted 65,536 nodes at the exact node and depth limits without recursive validation or traversal.
+
+PASS metadata-tree-damaged-cases
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_004.ps1
+Result: Fifteen focused tests passed. Five detached-copy validator mutations were rejected for their intended reasons: byte-counted text in place of Unicode scalar counting, a public accepted-node field, environment access, promotion of the historical STRM-000 result, and Cargo feature activation.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed with 46 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe or runtime-effect surfaces, historical STRM-000 and CORE-001/002/003 integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, architecture, compatibility, provenance, validation, fixture-index, and project-workspace updates passed check_all. Existing system-engineering guidance already covers bounded contracts, authority separation, closed activation, and deterministic evidence; the parent-index arena mechanics remain repository-specific, so no shared-skill change was required. Relevant instruction surfaces passed terminal-newline and trailing-whitespace checks.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust parent-before-child metadata-tree construction and validation. It does not prove XML syntax or documents, parsing, serialization, queries, discovery, resolution, recovery, runtime identity, transport, protocol, wire interoperability, ecosystem compatibility, performance, platform behavior, or Morphospace authority.
