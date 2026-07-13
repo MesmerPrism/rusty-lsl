@@ -1,0 +1,48 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema":"rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id":"rlsl-lslc-001p-standard-validation",
+  "project_id":"rusty-lsl",
+  "unit_id":"rlsl-lslc-001p-volatile-stream-info-xml-composition",
+  "created_at":"2026-07-13T23:10:42.0819338Z",
+  "tier":"standard",
+  "result":"pass",
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"1648eba75c00f7592542bbf084cd930a6cb981b3","head_revision":"9b44e6cfe6698018a5d04003850bcaaf12b37842","branch":"codex/rlsl-autonomous"}],
+  "changed_paths":[
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},
+    {"repo_id":"rusty-lsl","path":"README.md"},
+    {"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/lib.rs"},
+    {"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/stream_info_volatile_xml.rs"},
+    {"repo_id":"rusty-lsl","path":"docs/ARCHITECTURE.md"},
+    {"repo_id":"rusty-lsl","path":"docs/COMPATIBILITY.md"},
+    {"repo_id":"rusty-lsl","path":"docs/CORPUS.md"},
+    {"repo_id":"rusty-lsl","path":"docs/PROVENANCE.md"},
+    {"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"fixtures/compatibility/README.md"},
+    {"repo_id":"rusty-lsl","path":"fixtures/compatibility/lslc-001p-volatile-stream-info-xml-results.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/README.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-001p-volatile-stream-info-xml-composition.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-001p-standard-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-001p-standard-validation.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},
+    {"repo_id":"rusty-lsl","path":"tools/check_all.ps1"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_001p.ps1"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_001p.py"}
+  ],
+  "artifacts":[{"artifact_id":"lslc-001p-standard-log","kind":"validation-log","path":"rlsl-lslc-001p-standard-validation.md","sha256":"e6ac2c2c6e515e9cfa8a68a041e4e827fa54a89f9dc5b90e85e60623a8f1427f"}],
+  "criteria":[
+    {"acceptance_id":"bounded-volatile-info-element-composition","status":"pass","command":"cargo test --workspace --all-targets --offline --locked","evidence_refs":["lslc-001p-standard-log"]},
+    {"acceptance_id":"exact-role-order-and-representation","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001p.ps1","evidence_refs":["lslc-001p-standard-log"]},
+    {"acceptance_id":"borrowed-source-and-owned-copy-separation","status":"pass","command":"cargo test --workspace --all-targets --offline --locked","evidence_refs":["lslc-001p-standard-log"]},
+    {"acceptance_id":"provider-document-and-authority-boundary","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001p.ps1","evidence_refs":["lslc-001p-standard-log"]},
+    {"acceptance_id":"source-only-feature-and-provenance-closure","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-001p-standard-log"]},
+    {"acceptance_id":"portable-workflow-and-instruction-synchronization","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-001p-standard-log"]}
+  ],
+  "gates":[
+    {"gate_id":"validation-source-only","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-001p-standard-log"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-001p-standard-log"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-001p-standard-log"]}
+  ],
+  "device_validation":null
+}
