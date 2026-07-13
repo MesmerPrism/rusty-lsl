@@ -9,8 +9,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 ```
 
 The script runs formatting, locked offline metadata inspection, locked offline
-tests, the STRM-000 compatibility/provenance gate, the CORE-001, CORE-002,
-CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
+tests, the STRM-000 compatibility/provenance gate, the LSLC-001A corpus gate,
+the CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
 public-boundary and text-hygiene checker, the dependency-free local
 project-workspace checker, and Git whitespace checks.
 
@@ -18,6 +18,12 @@ Run the focused baseline gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1
+```
+
+Run the focused LSLC-001A corpus gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1
 ```
 
 Run the focused bounded-contract gate with:
@@ -80,6 +86,16 @@ The source-only slice passes when:
 - repository content passes the tested public-boundary rules;
 - all four compatibility classes have bounded cases, all current results remain
   `not-implemented`, and specification/planned/measured roles remain separate;
+- LSLC-001A records exactly the two approved public-documentation sources and
+  the independently worded claim inventory, with no source-code or
+  implementation-input classification;
+- its seven positive and nine damaged cases keep specification, oracle
+  observation, and candidate result separate; every observation and result is
+  `not-observed` with null evidence;
+- its corpus-owned input limits remain explicit, exact serialization remains
+  unresolved, historical STRM-000 files and CORE overlays retain their baseline
+  digests, all instruction rows are complete, and lifecycle parsing accepts
+  only active, validating, or accepted state;
 - the separate CORE-001 overlay binds exactly `contract-metadata-bounds` and
   `contract-sample-shape` to exact-limit, one-past-limit, malformed/zero-bound,
   channel-mismatch, stable-error, and unchanged-value tests;
@@ -175,7 +191,8 @@ than silent addition.
 ## Evidence limits
 
 A passing source-only gate proves that this revision satisfies the local Rust
-contract semantics, historical specification-level STRM-000 checks, and inert
+contract semantics, historical specification-level STRM-000 checks, the
+LSLC-001A public-documentation corpus invariants, and inert
 closure checks in the local Rust and PowerShell environment. It does not prove
 clock or nominal-rate behavior, timestamp or rate derivation, sample, chunk, or
 descriptor transport, metadata-tree XML/document behavior, source identity or
@@ -185,6 +202,10 @@ protocol behavior, wire interoperability, ecosystem compatibility, network behav
 performance, numeric or String conversion, memory layout, native-library safety,
 platform support, official-liblsl behavior,
 or publication readiness.
+
+The LSLC-001A gate does not prove XML parsing, serialization, exact endpoint
+output, oracle behavior, candidate behavior, protocol or query behavior, wire
+compatibility, or ecosystem compatibility.
 
 Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live

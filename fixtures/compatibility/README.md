@@ -13,6 +13,12 @@ test expectation, not an oracle observation. `baseline-provenance.json` binds
 both inputs by SHA-256 and records the source-input prohibitions.
 
 All STRM-000 baseline results remain `not-implemented`.
+`lslc-001a-stream-info-document-corpus.json` is a separate LSLC-001A
+public-documentation specification corpus. It records two exact source records,
+seven positive roles, nine damaged/planned-test roles, and explicit local
+bounds. Every oracle observation and candidate result is `not-observed` with
+null evidence. It contains no XML payload or endpoint output, and exact
+serialization remains unresolved.
 `core-001-contract-results.json` is a separate independently authored overlay
 for local Rust unit-test results tied to `contract-metadata-bounds` and
 `contract-sample-shape`; it is not an oracle measurement or an LSL
@@ -74,3 +80,5 @@ Run `tools/check_core_007.ps1` for the CORE-007 overlay and timestamped
 descriptor/chunk composition implementation.
 Run `tools/check_core_008.ps1` for the CORE-008 overlay and stream-definition
 composition implementation.
+Run `tools/check_lslc_001a.ps1` for the LSLC-001A corpus and its clean-source,
+role-separation, historical-preservation, and inert-closure checks.

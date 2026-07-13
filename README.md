@@ -11,10 +11,12 @@ flat metadata-tree arena, a data-only descriptor/sample binding, a timestamped
 descriptor/sample composition, a non-empty timestamped descriptor/chunk
 composition, an infallible local stream-definition composition, and the
 accepted specification-level STRM-000
-baseline. No LSL
+baseline, and the LSLC-001A public-documentation specification corpus. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
+Every LSLC-001A oracle observation and candidate result is `not-observed` with
+null evidence.
 
 The architecture keeps LSL interoperability at a data-plane edge:
 
@@ -142,6 +144,14 @@ adds no XML/document assembly, channel metadata convention, runtime identity,
 version, creation time, UID, session, host, address, port, fingerprint,
 recovery, discovery, networking, clock, buffering, provider, adapter,
 authority, protocol, wire, or runtime behavior.
+
+LSLC-001A adds a separate provenance-locked corpus of independently worded
+public-documentation claims and bounded future test roles. It covers the
+documented stream-info top-level, core, extended-description, and runtime/misc
+roles plus the XML 1.0 legal-character and character-data constraints named in
+[`docs/CORPUS.md`](docs/CORPUS.md). It contains no XML payload, endpoint output,
+parser, serializer, or observed compatibility result. Exact serialization is
+unresolved pending a separately approved black-box oracle unit.
 
 The separate STRM-000 baseline
 continues to distinguish independently authored specifications, planned

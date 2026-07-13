@@ -1,0 +1,340 @@
+{
+  "schema": "rusty.lsl.compatibility.stream_info_document_corpus.v1",
+  "corpus_id": "lslc-001a-stream-info-document-corpus",
+  "unit_id": "rlsl-lslc-001a-stream-info-document-corpus",
+  "evidence_level": "public-documentation-specification-only",
+  "origin_classification": "independently-authored",
+  "license_expression": "AGPL-3.0-or-later",
+  "access_date": "2026-07-13",
+  "source_boundary": {
+    "source_code_used": false,
+    "implementation_input": false,
+    "endpoint_output_captured": false,
+    "allowed_sources_only": true
+  },
+  "sources": [
+    {
+      "source_id": "liblsl-stream-info-api-doc",
+      "url": "https://labstreaminglayer.readthedocs.io/projects/liblsl/ref/streaminfo.html",
+      "title": "Stream Info",
+      "publisher": "liblsl documentation project",
+      "authority": "public liblsl API documentation",
+      "access_date": "2026-07-13",
+      "role": "public-documentation",
+      "source_code_used": false,
+      "implementation_input": false,
+      "extracted_claim_ids": [
+        "lsl-stream-info-document-top-level",
+        "lsl-stream-info-core-child-roles",
+        "lsl-stream-info-extended-description-role",
+        "lsl-stream-info-runtime-misc-role",
+        "lsl-stream-name-required-nonempty",
+        "lsl-stream-channel-count-positive"
+      ]
+    },
+    {
+      "source_id": "w3c-xml-1-0-fifth-edition",
+      "url": "https://www.w3.org/TR/xml/",
+      "title": "Extensible Markup Language (XML) 1.0 (Fifth Edition)",
+      "publisher": "World Wide Web Consortium (W3C)",
+      "authority": "W3C Recommendation",
+      "access_date": "2026-07-13",
+      "role": "public-documentation",
+      "source_code_used": false,
+      "implementation_input": false,
+      "extracted_claim_ids": [
+        "xml-well-formed-document-role",
+        "xml-legal-character-domain",
+        "xml-name-grammar-role",
+        "xml-character-data-escape-ampersand",
+        "xml-character-data-escape-less-than",
+        "xml-character-data-forbidden-close-delimiter"
+      ]
+    }
+  ],
+  "extracted_claims": [
+    {
+      "claim_id": "lsl-stream-info-document-top-level",
+      "source_id": "liblsl-stream-info-api-doc",
+      "independent_summary": "The documented whole-stream metadata form is an XML document with info as its top-level element."
+    },
+    {
+      "claim_id": "lsl-stream-info-core-child-roles",
+      "source_id": "liblsl-stream-info-api-doc",
+      "independent_summary": "The documented caller-supplied core roles are name, type, channel_count, nominal_srate, channel_format, and source_id."
+    },
+    {
+      "claim_id": "lsl-stream-info-extended-description-role",
+      "source_id": "liblsl-stream-info-api-doc",
+      "independent_summary": "The documented desc role contains caller-defined extended metadata below the stream information."
+    },
+    {
+      "claim_id": "lsl-stream-info-runtime-misc-role",
+      "source_id": "liblsl-stream-info-api-doc",
+      "independent_summary": "The documented complete information includes runtime or miscellaneous roles in addition to the caller-supplied core roles."
+    },
+    {
+      "claim_id": "lsl-stream-name-required-nonempty",
+      "source_id": "liblsl-stream-info-api-doc",
+      "independent_summary": "The documented constructor requires a nonempty stream name."
+    },
+    {
+      "claim_id": "lsl-stream-channel-count-positive",
+      "source_id": "liblsl-stream-info-api-doc",
+      "independent_summary": "The documented stream model requires at least one channel."
+    },
+    {
+      "claim_id": "xml-well-formed-document-role",
+      "source_id": "w3c-xml-1-0-fifth-edition",
+      "independent_summary": "An XML document must satisfy the document production and its well-formedness constraints."
+    },
+    {
+      "claim_id": "xml-legal-character-domain",
+      "source_id": "w3c-xml-1-0-fifth-edition",
+      "independent_summary": "XML 1.0 defines an explicit set of legal character scalar values and excludes values outside that set."
+    },
+    {
+      "claim_id": "xml-name-grammar-role",
+      "source_id": "w3c-xml-1-0-fifth-edition",
+      "independent_summary": "XML element names must start with a permitted name-start character and continue only with permitted name characters."
+    },
+    {
+      "claim_id": "xml-character-data-escape-ampersand",
+      "source_id": "w3c-xml-1-0-fifth-edition",
+      "independent_summary": "A literal ampersand is not ordinary element character data and requires reference handling when it represents text."
+    },
+    {
+      "claim_id": "xml-character-data-escape-less-than",
+      "source_id": "w3c-xml-1-0-fifth-edition",
+      "independent_summary": "A literal less-than sign is not ordinary element character data and requires reference handling when it represents text."
+    },
+    {
+      "claim_id": "xml-character-data-forbidden-close-delimiter",
+      "source_id": "w3c-xml-1-0-fifth-edition",
+      "independent_summary": "The CDATA closing delimiter sequence cannot be emitted unchanged as ordinary element character data."
+    }
+  ],
+  "document_roles": {
+    "ordering_semantics": "none-recorded",
+    "top_level": "info",
+    "core_children": [
+      "name",
+      "type",
+      "channel_count",
+      "nominal_srate",
+      "channel_format",
+      "source_id"
+    ],
+    "extended_description": "desc",
+    "runtime_misc_children": [
+      "version",
+      "created_at",
+      "uid",
+      "session_id",
+      "v4address",
+      "v4data_port",
+      "v4service_port",
+      "v6address",
+      "v6data_port",
+      "v6service_port"
+    ],
+    "interpretation": "These names identify documented roles only; list position does not assert serialized element order."
+  },
+  "bounded_input_policy": {
+    "policy_owner": "rusty-lsl",
+    "counts": "Unicode scalar values where text is counted",
+    "max_document_characters": 65536,
+    "max_depth": 16,
+    "max_nodes": 256,
+    "max_element_name_characters": 128,
+    "max_character_data_characters_per_node": 4096,
+    "interpretation": "These are independently selected corpus and future-harness bounds, not documented or observed liblsl limits."
+  },
+  "serialization_resolution": {
+    "status": "unresolved",
+    "next_authority": "separately-approved-black-box-oracle-unit",
+    "unresolved_dimensions": [
+      "bytes",
+      "element-order",
+      "whitespace",
+      "empty-element-form",
+      "numeric-spelling",
+      "channel-format-wire-spelling"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "spec-info-top-level",
+      "case_class": "positive-specification",
+      "specification": {
+        "claim_ids": ["lsl-stream-info-document-top-level"],
+        "role": "Require a well-formed XML document whose document-element role is info, without fixing a serialized representation."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "spec-core-child-roles",
+      "case_class": "positive-specification",
+      "specification": {
+        "claim_ids": ["lsl-stream-info-core-child-roles"],
+        "role": "Represent the six documented core child roles: name, type, channel_count, nominal_srate, channel_format, and source_id; do not prescribe order, spelling of values, or bytes."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "spec-extended-desc-role",
+      "case_class": "positive-specification",
+      "specification": {
+        "claim_ids": ["lsl-stream-info-extended-description-role"],
+        "role": "Represent desc as the documented container role for caller-defined extended metadata, without adopting a channel convention or a generic MetadataTree root interpretation."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "spec-runtime-misc-separation",
+      "case_class": "positive-specification",
+      "specification": {
+        "claim_ids": ["lsl-stream-info-runtime-misc-role"],
+        "role": "Keep documented runtime and miscellaneous information distinct from the six caller-supplied core roles; this case supplies no runtime values and grants them no local authority."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "spec-xml-legal-character-domain",
+      "case_class": "positive-specification",
+      "specification": {
+        "claim_ids": ["xml-legal-character-domain"],
+        "role": "Accept character data for corpus planning only when each scalar value belongs to the XML 1.0 legal-character domain."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "spec-xml-character-data-handling",
+      "case_class": "positive-specification",
+      "specification": {
+        "claim_ids": [
+          "xml-character-data-escape-ampersand",
+          "xml-character-data-escape-less-than",
+          "xml-character-data-forbidden-close-delimiter"
+        ],
+        "role": "Require future representation handling so textual ampersand and less-than do not appear literally as ordinary character data and a caller value containing the CDATA close delimiter is not emitted unchanged; no escaping, splitting, or rejection policy is selected."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "spec-bounded-input-policy",
+      "case_class": "positive-specification",
+      "specification": {
+        "claim_ids": [],
+        "role": "Apply the corpus-owned nonzero document, depth, node, element-name, and per-node character-data maxima before any future parsing or document construction work."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-malformed-document",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": ["xml-well-formed-document-role"],
+        "role": "Plan deterministic rejection of input that does not form one well-formed XML document; this is not an observed endpoint result."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-illegal-xml-character",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": ["xml-legal-character-domain"],
+        "role": "Plan deterministic rejection when any presented scalar value is outside the XML 1.0 legal-character domain; this is not observed liblsl behavior."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-invalid-element-name",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": ["xml-name-grammar-role"],
+        "role": "Plan deterministic rejection of an element name that violates the XML name grammar; this is not observed liblsl behavior."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-missing-stream-name",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": ["lsl-stream-name-required-nonempty"],
+        "role": "Represent the documented constructor invariant that a stream name cannot be empty; no parser or endpoint response is inferred."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-nonpositive-channel-count",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": ["lsl-stream-channel-count-positive"],
+        "role": "Represent the documented invariant that a stream has at least one channel; no parser or endpoint response is inferred."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-duplicate-core-role",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": ["lsl-stream-info-core-child-roles"],
+        "role": "Plan deterministic rejection when a required singleton core role is presented more than once; this is a corpus policy, not documented or observed endpoint behavior."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-excessive-depth",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": [],
+        "role": "Plan deterministic rejection at depth 17 when the corpus maximum is 16; this is a local bound, not endpoint behavior."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-excessive-node-count",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": [],
+        "role": "Plan deterministic rejection at 257 nodes when the corpus maximum is 256; this is a local bound, not endpoint behavior."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    {
+      "case_id": "damaged-excessive-text",
+      "case_class": "damaged-specification",
+      "specification": {
+        "claim_ids": [],
+        "role": "Plan deterministic rejection at 4097 character-data scalar values in one node when the corpus maximum is 4096; this is a local bound, not endpoint behavior."
+      },
+      "oracle_observation": {"status": "not-observed", "evidence": null},
+      "candidate_result": {"status": "not-observed", "evidence": null}
+    }
+  ],
+  "does_not_prove": [
+    "XML parsing or serialization implementation",
+    "exact liblsl serialization",
+    "official liblsl behavior",
+    "candidate behavior",
+    "protocol or query behavior",
+    "wire or ecosystem compatibility",
+    "runtime support"
+  ]
+}

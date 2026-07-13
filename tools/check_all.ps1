@@ -35,6 +35,7 @@ try {
 
     Invoke-Checked cargo test --workspace --all-targets --offline --locked
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_strm_000.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001a.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_001.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_002.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_003.ps1

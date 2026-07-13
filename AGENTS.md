@@ -48,7 +48,12 @@ adapter and authority remain in their owning repositories.
 The project-local workflow is planning and composition state, not LSL runtime
 or compatibility authority. The accepted STRM-000 baseline remains historical
 specification-only evidence: its planned observations are not measured and its
-results remain `not-implemented`. CORE-001 opens only dependency-free local
+results remain `not-implemented`. LSLC-001A adds only an independently authored,
+provenance-locked public-documentation corpus for documented stream-info
+document roles and XML 1.0 character constraints. Every LSLC-001A oracle
+observation and candidate result remains `not-observed` with null evidence;
+exact serialization remains unresolved for a separately approved black-box
+unit. CORE-001 opens only dependency-free local
 Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
 only finite raw source timestamps, separately typed optional derived timestamp
 values, timestamped samples, and bounded chunks. CORE-003 adds only bounded
@@ -84,6 +89,9 @@ owner-issued descriptor open an exact runtime surface.
   license and notice review.
 - Do not claim clean-room implementation, wire compatibility, ecosystem
   compatibility, or runtime support without the named process and evidence.
+- LSLC-001A public-documentation cases keep specification, oracle observation,
+  and candidate result separate. Its bounds are Rusty LSL test policy, not
+  liblsl limits, and it implements no XML behavior.
 - Keep official native libraries and wrappers outside the default production
   dependency closure.
 - The repository is source-only. Its local constructors have no runtime,
@@ -242,6 +250,12 @@ For stream-definition composition edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_008.ps1
+```
+
+For LSLC-001A corpus or corpus-documentation edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001a.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

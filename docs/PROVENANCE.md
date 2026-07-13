@@ -125,6 +125,16 @@ wire, runtime identity, authority, ecosystem, or official-liblsl behavior.
 
 ## Required fixture record
 
+`fixtures/compatibility/lslc-001a-stream-info-document-corpus.json` is the
+independently authored LSLC-001A public-documentation corpus. Its only external
+technical references are the exact recorded liblsl Stream Info API page and
+W3C XML 1.0 Fifth Edition Recommendation, both accessed on 2026-07-13. The
+corpus retains concise claim identifiers and independently worded summaries;
+`source_code_used` and `implementation_input` are false for both records. It
+contains no copied prose, implementation source, endpoint output, XML payload,
+or serialization observation. Its bounds are local future-harness policy and
+do not describe liblsl limits or behavior.
+
 Each fixture family must have an adjacent machine-readable manifest recording:
 
 - stable fixture identifier and classification;

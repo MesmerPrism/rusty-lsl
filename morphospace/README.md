@@ -22,3 +22,10 @@ composition adds no allocation, clone, error or limit family, cross-component
 validation, XML or `desc`-root interpretation, runtime identity, discovery,
 networking, clocks, buffering, provider, adapter, authority, wire or protocol
 implementation, compatibility, oracle measurement, or runtime activation.
+
+`rlsl-lslc-001a-stream-info-document-corpus` permits only a public-documentation
+specification corpus, its deterministic checker, and documentation routing. It
+keeps specification, oracle observation, and
+candidate result separate; all LSLC-001A observations and results remain
+`not-observed` with null evidence. It performs no lifecycle transition and
+opens no XML, oracle, protocol, dependency, feature, effect, or runtime surface.
