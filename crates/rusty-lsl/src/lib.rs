@@ -17,6 +17,8 @@
 //! parent-before-child XML container/leaf hierarchy, plus bounded borrowed
 //! element-tree string serialization, bounded opaque volatile stream-info
 //! accepted data, and its bounded local XML element projection.
+//! Accepted static-plus-description and volatile trees can also be consumed
+//! into one bounded local static, volatile, then `desc` element hierarchy.
 //! It does not
 //! implement or claim LSL protocol,
 //! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
@@ -30,6 +32,7 @@ mod sample;
 mod stream_definition;
 mod stream_descriptor;
 mod stream_info_description_xml;
+mod stream_info_ordered_xml;
 mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
 mod stream_info_static_xml;
@@ -68,6 +71,7 @@ pub use stream_descriptor::{
     StreamDescriptorLimits, StreamDescriptorTextRole,
 };
 pub use stream_info_description_xml::{StreamInfoDescriptionXml, StreamInfoDescriptionXmlError};
+pub use stream_info_ordered_xml::{StreamInfoOrderedXml, StreamInfoOrderedXmlError};
 pub use stream_info_static_fields::{StreamInfoStaticFieldRole, StreamInfoStaticFields};
 pub use stream_info_static_numeric_spellings::{
     StreamInfoStaticNumericSpellingError, StreamInfoStaticNumericSpellings,

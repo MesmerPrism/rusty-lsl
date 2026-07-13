@@ -1,5 +1,26 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001Q Ordered Stream-Info Element Composition
+
+LSLC-001Q adds only a dependency-free consuming merge of one accepted
+`StreamInfoDescriptionXml` and one accepted `StreamInfoVolatileXml`. The final
+`info` tree retains six static leaves, eleven volatile leaves, then `desc` in
+the accepted LSLC-001H order. It validates both fixed component shapes, checks
+the exact root-sharing total and target node bound before one exact fallible
+reserve, discards only the duplicate volatile `info` root, and adds eleven only
+to parents inside the description subtree. Component names and represented
+character data move unchanged without cloning.
+
+The result is a compact local element tree, not an observed endpoint document.
+It adds no XML declaration, observed whitespace or self-closing spelling,
+parser, provider, clock or host inspection, identity generation, address or
+port ownership semantics, protocol, transport, networking, runtime, adapter,
+device, feature, or Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001q.ps1
+```
+
 ## LSLC-001P Bounded Volatile Stream-Info XML Composition
 
 LSLC-001P borrows one accepted LSLC-001O field set and projects its eleven
@@ -366,6 +387,13 @@ owner-issued descriptor open an exact runtime surface.
   three explicit class bounds. The role inventory and class mapping are data
   contracts only; they do not confer provider, representation, endpoint,
   runtime, identity, transport, security, recovery, or authority meaning.
+- LSLC-001Q consumes only accepted N and P trees. It validates their fixed
+  shapes, shares the `info` root, retains six static and eleven volatile leaves
+  before `desc`, offsets only description-internal parents by eleven, and
+  delegates all final hierarchy bounds to `XmlElementTree`.
+- LSLC-001Q is local element composition only. It does not own a declaration,
+  observed whitespace or self-closing policy, complete-document bytes,
+  provider acquisition, runtime values, transport, activation, or authority.
 - LSLC-001B uses separate nonzero Unicode scalar-value maxima for XML text and
   element names. Text accepts exactly the XML 1.0 Fifth Edition `Char`
   production; names accept the complete `NameStartChar` and `NameChar`

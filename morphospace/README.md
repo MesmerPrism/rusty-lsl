@@ -1,5 +1,12 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001q-ordered-stream-info-element-composition` permits only a
+consuming bounded structural merge of accepted N and P element trees. It moves
+six static leaves, eleven volatile leaves, then `desc`, remapping only the
+description subtree. It opens no declaration, observed document spelling,
+provider, protocol, transport, runtime, feature, device, effect, or authority
+surface.
+
 `rlsl-lslc-001p-volatile-stream-info-xml-composition` permits only a borrowed
 projection of accepted O data into a bounded local volatile `info` tree. It
 opens no provider, static/description merge, complete document, networking,

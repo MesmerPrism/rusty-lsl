@@ -1,5 +1,13 @@
 # STRM-000 compatibility fixtures
 
+## LSLC-001Q ordered element composition
+
+- `lslc-001q-ordered-stream-info-element-results.json`: independently authored
+  local static, volatile, then `desc` composition and boundary evidence.
+
+Run `tools/check_lslc_001q.ps1`; it proves only compact local element order,
+not observed document spelling, provider acquisition, or runtime behavior.
+
 ## LSLC-001P volatile XML composition
 
 - `lslc-001p-volatile-stream-info-xml-results.json`: independently authored

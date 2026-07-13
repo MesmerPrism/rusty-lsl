@@ -1,5 +1,18 @@
 # Rusty LSL
 
+## LSLC-001Q ordered stream-info element composition
+
+`StreamInfoOrderedXml` consumes accepted LSLC-001N static-plus-description and
+LSLC-001P volatile trees into one bounded local `info` element hierarchy. Its
+direct children are the six static fields, eleven volatile fields, then
+`desc`; only description-subtree parent indexes receive the fixed eleven-node
+offset, while every component value moves unchanged.
+
+This closes local element ordering only. It does not claim the observed XML
+declaration, whitespace, self-closing empty `desc`, complete endpoint bytes,
+provider acquisition, clocks, host or identity generation, networking,
+runtime, or authority. Run `./tools/check_lslc_001q.ps1` for the focused gate.
+
 ## LSLC-001P bounded volatile stream-info XML composition
 
 `StreamInfoVolatileXml` borrows accepted LSLC-001O data and produces a bounded
@@ -195,11 +208,12 @@ Layer compatibility. It is designed for the existing LSL ecosystem and for
 explicit, typed integration with Rusty Morphospace.
 
 Status: source-only crate with dependency-free bounded local contracts through
-LSLC-001O. Accepted evidence now includes the frozen LSLC-001A specification
+LSLC-001Q. Accepted evidence now includes the frozen LSLC-001A specification
 corpus and the separate LSLC-001H pinned black-box observations; accepted local
 candidate surfaces include XML values, character-data representation, element
 composition/tree/serialization, static and explicit-description stream-info
-composition, and the bounded volatile data contract. The historical STRM-000
+composition, bounded volatile data and XML composition, and the final compact
+static/volatile/description element ordering. The historical STRM-000
 results remain `not-implemented`, LSLC-001A's own oracle/candidate cells remain
 `not-observed`, and LSLC-001H's complete-document candidate result remains
 `not-observed`. No LSL

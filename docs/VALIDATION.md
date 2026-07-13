@@ -1,5 +1,13 @@
 # Validation
 
+## LSLC-001Q focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_001q.ps1`. The gate binds accepted H/N/P evidence, checks
+the exact structural and allocation-order invariants, executes four focused
+Rust tests including all seven cases, protects inert dependency and feature
+surfaces, and checks public boundary routing.
+
 ## LSLC-001P focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File

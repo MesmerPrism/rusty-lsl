@@ -1,5 +1,17 @@
 # Architecture
 
+## LSLC-001Q ordered element composition layer
+
+`stream_info_ordered_xml` is a consuming structural layer above the accepted
+LSLC-001N and LSLC-001P element trees. It validates their fixed `info` shapes,
+shares the static component root, inserts the eleven volatile leaves after the
+six static leaves, and moves `desc` plus its descendants after them. Only
+description-internal parents are offset by eleven before final delegation to
+`XmlElementTree`; values are neither cloned nor re-represented.
+
+This layer owns no complete-document spelling and no observation, semantic
+data acquisition, provider, protocol, transport, runtime, or authority role.
+
 ## LSLC-001P volatile XML representation layer
 
 `stream_info_volatile_xml` is a one-way borrowed projection from accepted

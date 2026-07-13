@@ -1,5 +1,12 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001Q composition overlay
+
+The LSLC-001Q overlay binds the immutable LSLC-001H case and observation files
+plus the accepted LSLC-001N and LSLC-001P overlays and receipts. It records an
+independently authored local ordered-element policy with no implementation
+source inputs and leaves all accepted observation artifacts unchanged.
+
 ## LSLC-001P representation overlay
 
 The LSLC-001P overlay hash-binds accepted B/C/E/H/O artifacts and the O receipt.

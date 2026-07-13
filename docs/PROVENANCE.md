@@ -1,5 +1,12 @@
 # Provenance
 
+## LSLC-001Q local composition overlay
+
+`lslc-001q-ordered-stream-info-element-results.json` is independently authored
+and hash-binds accepted H/N/P public evidence. Official observations supply
+compatibility facts only; no official or third-party source is an
+implementation input. The implementation is an original consuming arena merge.
+
 ## LSLC-001P local representation overlay
 
 `fixtures/compatibility/lslc-001p-volatile-stream-info-xml-results.json` is

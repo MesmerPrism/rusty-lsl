@@ -1,5 +1,13 @@
 # Compatibility
 
+## LSLC-001Q local ordered-element result
+
+LSLC-001Q executes all seven accepted case shapes through the accepted N and P
+components and obtains the static, volatile, then `desc` element order observed
+in LSLC-001H. The evidence proves only the compact LSLC-001G local serialization
+of that hierarchy. It does not reproduce the observed declaration, whitespace,
+self-closing spelling, endpoint bytes, provider values, or runtime behavior.
+
 ## LSLC-001P local candidate representation
 
 LSLC-001P implements only the compact local volatile `info` element tree. Its
@@ -75,6 +83,7 @@ behavior, protocol, wire, I/O, runtime, ecosystem, or compatibility claim.
 | Stream-info XML black-box observation | Observed for seven bounded cases | LSLC-001H pinned Windows binary observation; separate complete-document candidate remains not observed |
 | Local static and description stream-info element composition | Implemented | LSLC-001M/N compact local element trees only; no declaration, observed whitespace, volatile fields, or complete document |
 | Local volatile stream-info data | Implemented | LSLC-001O bounded opaque values with explicit implementation/runtime/transport classes; no provider, XML, parsing, endpoint, or runtime behavior |
+| Local volatile stream-info XML and ordered element composition | Implemented | LSLC-001P/Q compact local element trees; exact static, volatile, then `desc` order without declaration, observed whitespace, provider, or complete-document behavior |
 | Local XML legal-text and element-name values | Implemented | LSLC-001B Rust unit tests; bounded scalar/name validation only, with no representation or document behavior |
 | Local XML character-data representation | Implemented | LSLC-001C Rust unit tests; bounded candidate-owned `&`, `<`, and `>` replacement only, with no document or endpoint-byte claim |
 | Local XML leaf-only composition | Implemented | LSLC-001D Rust unit tests; exact accepted name plus character-data ownership only, with no tag, tree, document, mapping, or endpoint-byte claim |

@@ -1,0 +1,33 @@
+{
+  "schema":"rusty-lsl.lslc-001q-ordered-stream-info-element-results.v1",
+  "provenance":{"classification":"independently-authored","implementation_inputs":[]},
+  "accepted_artifact_bindings":{
+    "case_manifest":{"path":"fixtures/compatibility/lslc-001h-stream-info-xml-cases.json","sha256":"398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"},
+    "observation_overlay":{"path":"fixtures/compatibility/lslc-001h-stream-info-xml-observations.json","sha256":"2b1aaa4ce3faa20722386c224e70dd7b8252fecd94b6e4437280af2bb4c5ab1e"},
+    "description_xml_overlay":{"path":"fixtures/compatibility/lslc-001n-description-xml-results.json","sha256":"ee8071b2ecc204e8dcd5de7e0d588d02b500a248e6ba1fa41e8a034eeaf61fd7"},
+    "description_xml_receipt":{"path":"morphospace/receipts/rlsl-lslc-001n-standard-validation.json","sha256":"8c6ab97b4697d5e42baedc6e4330b76ad2cda043ab507e2be97d037542a273a6"},
+    "volatile_xml_overlay":{"path":"fixtures/compatibility/lslc-001p-volatile-stream-info-xml-results.json","sha256":"57456fb3149dd1649ec94e68ee280e194311c77a2e7486f8700531628764e3b1"},
+    "volatile_xml_receipt":{"path":"morphospace/receipts/rlsl-lslc-001p-standard-validation.json","sha256":"afff9a3aa55f7e76b3e443dd967f58ae5562f65b60bd6c3fcd57c5bc48e58716"}
+  },
+  "fixed_candidate_policy":{
+    "root":"info",
+    "direct_child_order":["name","type","channel_count","channel_format","source_id","nominal_srate","version","created_at","uid","session_id","hostname","v4address","v4data_port","v4service_port","v6address","v6data_port","v6service_port","desc"],
+    "root_sharing":"discard-only-the-volatile-component-info-root",
+    "description_parent_remap":"add-eleven-only-to-non-root-description-parents",
+    "values":"moved-without-cloning-or-representation-change",
+    "serialization_policy":"unchanged-lslc-001g-explicit-tags-no-inserted-whitespace",
+    "document_status":"local-element-tree-only"
+  },
+  "focused_rust_tests":[
+    "lslc_001q_seven_cases_preserve_exact_static_volatile_desc_order",
+    "lslc_001q_only_description_parents_receive_volatile_offset",
+    "lslc_001q_component_values_move_without_cloning",
+    "lslc_001q_target_bound_rejects_before_merged_allocation"
+  ],
+  "candidate_result":"implemented-local-ordered-info-element-composition",
+  "does_not_prove":[
+    "XML declaration, observed inter-element whitespace, observed self-closing spelling, endpoint bytes, or complete-document compatibility",
+    "provider acquisition, clocks, host inspection, identity generation, address or port ownership semantics, networking, protocol, transport, runtime, adapter, device, or feature behavior",
+    "Manifold admission, identity, registry, routing, authorization, audit, provider epoch, transport, or product-policy authority"
+  ]
+}
