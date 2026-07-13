@@ -1,1 +1,139 @@
-{"$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json","acceptance":[{"acceptance_id":"bounded-static-description-tree-composition","command":"cargo test --workspace --all-targets --offline --locked","proof":"The composition consumes only two accepted XML trees, validates the explicit desc-root contract before allocation, reserves one exact merged arena, remaps parents without recursion, and delegates final limits to XmlElementTree."},{"acceptance_id":"exact-seven-case-description-order-and-values","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001n.ps1","proof":"All seven accepted cases execute through M plus F plus N; desc follows nominal_srate, empty descriptions remain explicit empty containers, and the nested observed description preserves exact order and represented values."},{"acceptance_id":"absence-empty-and-allocation-preservation","command":"cargo test --workspace --all-targets --offline --locked","proof":"Metadata None remains a container, every Some including empty remains a leaf, and consuming access proves component strings and the distinct source arenas are moved rather than cloned."},{"acceptance_id":"observation-candidate-and-document-boundary","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001n.ps1","proof":"The overlay records compact local candidate elements only and does not claim the observed declaration, whitespace, self-closing empty desc spelling, volatile fields, complete endpoint document, or runtime behavior."},{"acceptance_id":"source-only-feature-and-authority-closure","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","proof":"Cargo files, dependencies, feature lock, runtime effects, oracle, networking, adapters, providers, devices, and Manifold authority remain unchanged and inert."},{"acceptance_id":"portable-workflow-and-instruction-synchronization","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","proof":"Public instructions route the explicit desc-root composition and its document/runtime limits; shared skills are reviewed; workflow contracts remain fail-closed with no device requirement."}],"allowed_repositories":[{"allowed_paths":["AGENTS.md","README.md","crates/rusty-lsl/src/lib.rs","crates/rusty-lsl/src/stream_info_description_xml.rs","docs/","fixtures/compatibility/lslc-001n-description-xml-results.json","morphospace/","tools/check_all.ps1","tools/check_lslc_001n.ps1","tools/check_lslc_001n.py"],"repo_id":"rusty-lsl"}],"change_categories":["implementation","validation","public-private-boundary"],"commit_policy":"Commit the explicit desc-rooted element-tree merge separately from arbitrary metadata-root interpretation, observed whitespace/self-closing policy, volatile/runtime fields, complete documents, protocol, transport, adapters, providers, features, or external integration.","device_requirement":"forbidden","instruction_impact":"update","instruction_none_justification":null,"instruction_surfaces":[{"action":"update","change_reason":"Route explicit desc-rooted composition, allocation/order preservation, and strict document/runtime boundary.","owner":"rusty-lsl","path":"AGENTS.md","skill_id":null,"status":"planned","surface_kind":"agents","validation":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"},{"action":"update","change_reason":"Describe the description composition surface, required explicit root, preserved metadata distinctions, and remaining complete-document/runtime work.","owner":"rusty-lsl","path":"README.md","skill_id":null,"status":"planned","surface_kind":"readme","validation":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"},{"action":"update","change_reason":"Review whether explicit semantic-root admission adds reusable contract guidance; retain unchanged if current fail-closed contract guidance covers it.","owner":"workflow-maintainer","path":"<skills-root>/system-engineering/SKILL.md","skill_id":"system-engineering","status":"planned","surface_kind":"skill","validation":"Review the installed skill and run its instruction-surface whitespace check."},{"action":"update","change_reason":"Review whether the Rusty LSL desc composition needs new repo-family routing; retain unchanged if current boundaries cover it.","owner":"workflow-maintainer","path":"<skills-root>/rusty-morphospace-context/SKILL.md","skill_id":"rusty-morphospace-context","status":"planned","surface_kind":"skill","validation":"Review the installed skill and run its instruction-surface whitespace check."}],"non_scope":["Any change to Cargo.toml, Cargo.lock, project or feature locks, accepted fixtures, oracle drivers, dependencies, Cargo features, unsafe Rust, generated protocol material, or native libraries.","Implicit interpretation of an arbitrary generic MetadataTree root as desc; borrowed metadata projection; source StreamDefinition recovery; default limits; reverse conversion; mutation; or round-trip claims.","XML declaration, inter-element whitespace, self-closing tags, attributes, namespaces, schemas, parsing, decoding, canonicalization, endpoint bytes, or complete-document compatibility.","Version, created_at, uid, session_id, hostname, addresses, ports, or any volatile/runtime-populated or transport-owned field.","Oracle execution, network access, external implementation-source inspection, protocol, wire, sockets, discovery, inlet, outlet, clocks, buffering, recovery, FFI, adapters, providers, devices, Quest, Hostess, or platform lifecycle.","Manifold admission, registry, subscription, route, lease, revision, replay, identity, authorization, audit, command, session, topology, transport, or product-policy authority."],"objective":"Consume one accepted LSLC-001M static info tree and one separately accepted LSLC-001F metadata projection whose container root is exactly desc, moving both into one bounded XmlElementTree with desc after the six static leaves while preserving description hierarchy, None-versus-Some-empty classification, order, and component allocations and adding no complete-document, volatile/runtime, protocol, transport, provider, device, feature, or authority behavior.","outputs":["A dependency-free consuming composition from StreamInfoStaticXml plus a separately projected desc-rooted XmlElementTree into one target-limited info tree.","Exact parent-index remapping that places desc immediately after the six static leaves, retains every description descendant in source order, and moves all accepted component allocations without cloning.","Typed rejection for node-count overflow, non-container or non-desc description roots, exact merged-arena reserve failure, parent-index overflow, and unchanged target XmlElementTree errors.","Seven-case local candidate evidence covering explicit empty desc containers and the accepted ordered nested description while preserving the LSLC-001H full-document candidate role."],"prerequisites":["rlsl-lslc-001f-metadata-to-xml-element-tree-projection","rlsl-lslc-001g-bounded-xml-element-tree-serialization","rlsl-lslc-001m-static-stream-info-xml-composition"],"project_id":"rusty-lsl","push_checkpoint":"integration-batch","risk_tier":"standard","schema":"rusty.morphospace.workflow.iteration_unit.v1","status":"active","unit_id":"rlsl-lslc-001n-description-xml-composition","validation":[{"command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","profile_id":"source-only"},{"command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","profile_id":"workflow"}]}
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "acceptance": [
+    {
+      "acceptance_id": "bounded-static-description-tree-composition",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "proof": "The composition consumes only two accepted XML trees, validates the explicit desc-root contract before allocation, reserves one exact merged arena, remaps parents without recursion, and delegates final limits to XmlElementTree."
+    },
+    {
+      "acceptance_id": "exact-seven-case-description-order-and-values",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001n.ps1",
+      "proof": "All seven accepted cases execute through M plus F plus N; desc follows nominal_srate, empty descriptions remain explicit empty containers, and the nested observed description preserves exact order and represented values."
+    },
+    {
+      "acceptance_id": "absence-empty-and-allocation-preservation",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "proof": "Metadata None remains a container, every Some including empty remains a leaf, and consuming access proves component strings and the distinct source arenas are moved rather than cloned."
+    },
+    {
+      "acceptance_id": "observation-candidate-and-document-boundary",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001n.ps1",
+      "proof": "The overlay records compact local candidate elements only and does not claim the observed declaration, whitespace, self-closing empty desc spelling, volatile fields, complete endpoint document, or runtime behavior."
+    },
+    {
+      "acceptance_id": "source-only-feature-and-authority-closure",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "proof": "Cargo files, dependencies, feature lock, runtime effects, oracle, networking, adapters, providers, devices, and Manifold authority remain unchanged and inert."
+    },
+    {
+      "acceptance_id": "portable-workflow-and-instruction-synchronization",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "proof": "Public instructions route the explicit desc-root composition and its document/runtime limits; shared skills are reviewed; workflow contracts remain fail-closed with no device requirement."
+    }
+  ],
+  "allowed_repositories": [
+    {
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/lib.rs",
+        "crates/rusty-lsl/src/stream_info_description_xml.rs",
+        "docs/",
+        "fixtures/compatibility/lslc-001n-description-xml-results.json",
+        "morphospace/",
+        "tools/check_all.ps1",
+        "tools/check_lslc_001n.ps1",
+        "tools/check_lslc_001n.py"
+      ],
+      "repo_id": "rusty-lsl"
+    }
+  ],
+  "change_categories": [
+    "implementation",
+    "validation",
+    "public-private-boundary"
+  ],
+  "commit_policy": "Commit the explicit desc-rooted element-tree merge separately from arbitrary metadata-root interpretation, observed whitespace/self-closing policy, volatile/runtime fields, complete documents, protocol, transport, adapters, providers, features, or external integration.",
+  "device_requirement": "forbidden",
+  "instruction_impact": "update",
+  "instruction_none_justification": null,
+  "instruction_surfaces": [
+    {
+      "action": "update",
+      "change_reason": "Route explicit desc-rooted composition, allocation/order preservation, and strict document/runtime boundary.",
+      "owner": "rusty-lsl",
+      "path": "AGENTS.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "agents",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "action": "update",
+      "change_reason": "Describe the description composition surface, required explicit root, preserved metadata distinctions, and remaining complete-document/runtime work.",
+      "owner": "rusty-lsl",
+      "path": "README.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "readme",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "action": "update",
+      "change_reason": "Review whether explicit semantic-root admission adds reusable contract guidance; retain unchanged if current fail-closed contract guidance covers it.",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/system-engineering/SKILL.md",
+      "skill_id": "system-engineering",
+      "status": "complete",
+      "surface_kind": "skill",
+      "validation": "Review the installed skill and run its instruction-surface whitespace check."
+    },
+    {
+      "action": "update",
+      "change_reason": "Review whether the Rusty LSL desc composition needs new repo-family routing; retain unchanged if current boundaries cover it.",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/rusty-morphospace-context/SKILL.md",
+      "skill_id": "rusty-morphospace-context",
+      "status": "complete",
+      "surface_kind": "skill",
+      "validation": "Review the installed skill and run its instruction-surface whitespace check."
+    }
+  ],
+  "non_scope": [
+    "Any change to Cargo.toml, Cargo.lock, project or feature locks, accepted fixtures, oracle drivers, dependencies, Cargo features, unsafe Rust, generated protocol material, or native libraries.",
+    "Implicit interpretation of an arbitrary generic MetadataTree root as desc; borrowed metadata projection; source StreamDefinition recovery; default limits; reverse conversion; mutation; or round-trip claims.",
+    "XML declaration, inter-element whitespace, self-closing tags, attributes, namespaces, schemas, parsing, decoding, canonicalization, endpoint bytes, or complete-document compatibility.",
+    "Version, created_at, uid, session_id, hostname, addresses, ports, or any volatile/runtime-populated or transport-owned field.",
+    "Oracle execution, network access, external implementation-source inspection, protocol, wire, sockets, discovery, inlet, outlet, clocks, buffering, recovery, FFI, adapters, providers, devices, Quest, Hostess, or platform lifecycle.",
+    "Manifold admission, registry, subscription, route, lease, revision, replay, identity, authorization, audit, command, session, topology, transport, or product-policy authority."
+  ],
+  "objective": "Consume one accepted LSLC-001M static info tree and one separately accepted LSLC-001F metadata projection whose container root is exactly desc, moving both into one bounded XmlElementTree with desc after the six static leaves while preserving description hierarchy, None-versus-Some-empty classification, order, and component allocations and adding no complete-document, volatile/runtime, protocol, transport, provider, device, feature, or authority behavior.",
+  "outputs": [
+    "A dependency-free consuming composition from StreamInfoStaticXml plus a separately projected desc-rooted XmlElementTree into one target-limited info tree.",
+    "Exact parent-index remapping that places desc immediately after the six static leaves, retains every description descendant in source order, and moves all accepted component allocations without cloning.",
+    "Typed rejection for node-count overflow, non-container or non-desc description roots, exact merged-arena reserve failure, parent-index overflow, and unchanged target XmlElementTree errors.",
+    "Seven-case local candidate evidence covering explicit empty desc containers and the accepted ordered nested description while preserving the LSLC-001H full-document candidate role."
+  ],
+  "prerequisites": [
+    "rlsl-lslc-001f-metadata-to-xml-element-tree-projection",
+    "rlsl-lslc-001g-bounded-xml-element-tree-serialization",
+    "rlsl-lslc-001m-static-stream-info-xml-composition"
+  ],
+  "project_id": "rusty-lsl",
+  "push_checkpoint": "integration-batch",
+  "risk_tier": "standard",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "status": "active",
+  "unit_id": "rlsl-lslc-001n-description-xml-composition",
+  "validation": [
+    {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "profile_id": "source-only"
+    },
+    {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "profile_id": "workflow"
+    }
+  ]
+}
