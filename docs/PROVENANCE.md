@@ -1,5 +1,29 @@
 # Provenance
 
+## LSLC-001J protected-tree identity
+
+The protected production and activation surface is identified from current
+`HEAD`, without an ancestor: the exact binary stdout of `git ls-tree -r
+--full-tree HEAD` over the Rust crate, both Cargo files, the feature lock, and
+the project specification has 21 entries and SHA-256
+`ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1`.
+The pinned manifest binds every path, file mode, blob identity, separator, and
+line ending. Separate HEAD comparisons cover the combined index and working
+tree, and an untracked-path inventory covers every protected root.
+
+GitHub Actions runs `29276386135` and `29278122366` remain separate failed
+pre-fix evidence. Run `29278122366` passed all 134 Rust tests and LSLC-001A
+through LSLC-001G before failing on absent shallow-checkout history at
+`9650de4`. Disposable local file clones provide only synthetic validation
+evidence: one depth-1 pass with that revision absent, plus rejected tracked,
+staged, untracked, and committed manifest mutations. They are removed after
+each gate and supply no implementation input.
+
+This correction changes no accepted oracle evidence or LSLC-001I driver
+binding and proves no source semantics, candidate output, protocol, wire,
+runtime, dependency, platform, compatibility, publication, or authority
+behavior.
+
 ## LSLC-001I canonical driver-source digest basis
 
 The two existing LSLC-001H driver bindings retain their original SHA-256

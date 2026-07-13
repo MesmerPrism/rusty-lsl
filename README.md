@@ -1,5 +1,29 @@
 # Rusty LSL
 
+## LSLC-001J shallow-checkout protected-surface correction
+
+GitHub Actions runs `29276386135` and `29278122366` are preserved as distinct
+failed pre-fix attempts. The latter passed all 134 Rust tests and LSLC-001A
+through LSLC-001G before the focused checker tried to compare against historical
+revision `9650de4`, which was unavailable in the depth-1 checkout.
+
+LSLC-001J removes that history dependency while retaining an exact accepted
+identity. The checker hashes the binary stdout of `git ls-tree -r --full-tree
+HEAD` for the Rust crate, both Cargo files, `morphospace/feature.lock.json`, and
+`morphospace/project.spec.json`. Exactly 21 path/mode/object entries and SHA-256
+`ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1` are
+accepted. Independent checks reject staged and unstaged protected changes and
+all untracked paths under those roots. Disposable local shallow clones prove a
+one-commit pass with `9650de4` absent and deterministic worktree, index,
+untracked-path, and exact-manifest failures.
+
+This validation-only correction performs no fetch, unshallow, network access,
+oracle execution, or protected implementation inspection. It changes no Rust
+or Cargo surface, feature or project lock, observation, driver, capture,
+candidate behavior, runtime effect, dependency, platform behavior,
+compatibility claim, publication status, or authority boundary. LSLC-001I
+canonical LF/complete-CRLF driver validation remains unchanged.
+
 ## LSLC-001I checkout-portable driver provenance
 
 GitHub Actions run `29276386135` preserved a failed pre-fix integration

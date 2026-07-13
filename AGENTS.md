@@ -1,5 +1,31 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001J Shallow-Checkout Protected-Surface Gate
+
+LSLC-001J is a validation-only correction for the LSLC-001H protected-source
+guard. GitHub Actions runs `29276386135` and `29278122366` remain distinct
+failed pre-fix integration attempts. Run `29278122366` passed all 134 Rust
+tests and LSLC-001A through LSLC-001G, then failed because revision `9650de4`
+was absent from the depth-1 checkout.
+
+The focused checker now binds the exact 21-entry binary `git ls-tree` output
+for `HEAD` across `crates/rusty-lsl`, both Cargo files, the feature lock, and
+the project specification. Its accepted SHA-256 is
+`ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1`.
+It separately rejects staged or unstaged protected-path drift and every
+untracked protected path. Disposable local one-commit shallow clones prove the
+history-independent pass and damaged manifest, worktree, index, and untracked
+rejections without fetching or changing this source worktree.
+
+This gate does not inspect protected implementation contents, rerun or change
+the oracle, or prove candidate XML, protocol, wire, runtime, dependency,
+platform, compatibility, publication, or authority behavior. The LSLC-001I
+working-tree driver LF/CRLF provenance behavior remains unchanged. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001h.ps1
+```
+
 ## LSLC-001I Portable Driver Provenance
 
 LSLC-001I is a bounded validation-only correction for the two LSLC-001H text

@@ -9,8 +9,12 @@ import argparse
 import ast
 import hashlib
 import json
+import os
 import re
+import shutil
 import subprocess
+import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
@@ -24,6 +28,40 @@ CORPUS = FIXTURES / "lslc-001a-stream-info-document-corpus.json"
 UNIT = ROOT / "morphospace/iteration-units/rlsl-lslc-001h-stream-info-xml-black-box-observation.json"
 DRIVER_PS1 = ROOT / "tools/oracle/Invoke-Lslc001hOracle.ps1"
 DRIVER_PY = ROOT / "tools/oracle/lslc_001h_capture.py"
+
+PROTECTED_PATHS = (
+    "crates/rusty-lsl",
+    "Cargo.toml",
+    "Cargo.lock",
+    "morphospace/feature.lock.json",
+    "morphospace/project.spec.json",
+)
+PROTECTED_TREE_ENTRY_COUNT = 21
+PROTECTED_TREE_SHA256 = "ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1"
+PROTECTED_TREE_MANIFEST = (
+    b"100644 blob 9fa8457b15ab8c9afba84f82f6cc3f67a03f86de\tCargo.lock\n"
+    b"100644 blob bdd26437cd3daa0be2df2a2c171753f642571a47\tCargo.toml\n"
+    b"100644 blob a92227a58889233599fbe9984f83ec16e79c7bfa\tcrates/rusty-lsl/Cargo.toml\n"
+    b"100644 blob c19f5a5afe7e86c40d497bfb13d534ed19a7c253\tcrates/rusty-lsl/src/descriptor_sample.rs\n"
+    b"100644 blob fc5e85063843fd2691cf8453cd4b1ff2ae675458\tcrates/rusty-lsl/src/lib.rs\n"
+    b"100644 blob ab0b4c30bb6084219a1f784bea7f313cd6f6bbeb\tcrates/rusty-lsl/src/metadata.rs\n"
+    b"100644 blob b5cba5e834cebffbc434a3f71c23d63117537915\tcrates/rusty-lsl/src/metadata_tree.rs\n"
+    b"100644 blob 5cd8d7e633ba2adc2b22e6c8498c6dcad9025816\tcrates/rusty-lsl/src/metadata_xml_projection.rs\n"
+    b"100644 blob efb3ab6f9e1814b8bd77b8cb4c3f4b59d5c248bd\tcrates/rusty-lsl/src/sample.rs\n"
+    b"100644 blob e5fd01c90552529ff384cd3e4d373a947c38b8ba\tcrates/rusty-lsl/src/stream_definition.rs\n"
+    b"100644 blob 5b91ca6ec59876745628273ef939e744ef274588\tcrates/rusty-lsl/src/stream_descriptor.rs\n"
+    b"100644 blob 9e158dcfd3aa8b410fa66a182d043edb10784470\tcrates/rusty-lsl/src/timestamped.rs\n"
+    b"100644 blob 76b03c689b9c1d1a8b1ffff602550f45d652c034\tcrates/rusty-lsl/src/timestamped_descriptor_chunk.rs\n"
+    b"100644 blob 00a8ccd6a501ad3d0f6d4e25a5897e09c4c0281f\tcrates/rusty-lsl/src/timestamped_descriptor_sample.rs\n"
+    b"100644 blob 853cbc7db2e3fd37c0272f52f9771f131fa341e1\tcrates/rusty-lsl/src/xml_character_data.rs\n"
+    b"100644 blob de632cc491b30400bd6fb5de19c566176e287083\tcrates/rusty-lsl/src/xml_element_serialization.rs\n"
+    b"100644 blob 55ee4b72ac8cee73dae771a58c1f97b03cad1aed\tcrates/rusty-lsl/src/xml_element_tree.rs\n"
+    b"100644 blob feadc048441143860491b74a4d6b5b13124bcc73\tcrates/rusty-lsl/src/xml_leaf_element.rs\n"
+    b"100644 blob a80e0c7a29088396c8806cd8d48bb80e791680dd\tcrates/rusty-lsl/src/xml_value.rs\n"
+    b"100644 blob 569129e9d8fab591ca0210d4b02ded568c80efbe\tmorphospace/feature.lock.json\n"
+    b"100644 blob 062b62efe799ed301ef3f0a04b0c21dab205d1f7\tmorphospace/project.spec.json\n"
+)
+NESTED_PROTECTED_SURFACE_PROBE = "RUSTY_LSL_LSLC_001J_NESTED_PROBE"
 
 CORPUS_SHA256 = "68331a7a5ae6d0767ae9d2eb2d317d3673595fa04352087e88d6ff1506faaa2c"
 WHEEL_SHA256 = "3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1"
@@ -85,6 +123,168 @@ def load(path: Path) -> dict[str, Any]:
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def run_git(root: Path, arguments: list[str], label: str) -> subprocess.CompletedProcess[bytes]:
+    try:
+        result = subprocess.run(
+            ["git", *arguments], cwd=root, check=False, capture_output=True,
+        )
+    except OSError as error:
+        raise ValueError(f"Git setup failed during {label}") from error
+    require(result.returncode == 0, f"Git command failed during {label}")
+    return result
+
+
+def validate_protected_surface(root: Path) -> None:
+    manifest = run_git(
+        root,
+        ["ls-tree", "-r", "--full-tree", "HEAD", "--", *PROTECTED_PATHS],
+        "protected HEAD tree manifest",
+    ).stdout
+    require(
+        len(manifest.splitlines()) == PROTECTED_TREE_ENTRY_COUNT,
+        "protected HEAD tree entry count drifted",
+    )
+    require(
+        hashlib.sha256(manifest).hexdigest() == PROTECTED_TREE_SHA256,
+        "protected HEAD tree manifest digest drifted",
+    )
+    require(manifest == PROTECTED_TREE_MANIFEST,
+            "protected HEAD tree path, mode, object, or output bytes drifted")
+
+    tracked = subprocess.run(
+        ["git", "diff", "--quiet", "HEAD", "--", *PROTECTED_PATHS],
+        cwd=root, check=False, capture_output=True,
+    )
+    require(tracked.returncode in {0, 1},
+            "Git command failed during protected working tree/index comparison")
+    require(tracked.returncode == 0, "protected working tree or index changed")
+
+    untracked = run_git(
+        root,
+        ["ls-files", "--others", "--", *PROTECTED_PATHS],
+        "protected untracked-path inventory",
+    ).stdout
+    require(not untracked, "untracked protected path entered the repository")
+
+
+def validate_protected_surface_damaged_checks() -> None:
+    def run_checker(
+        clone: Path, label: str, expected_message: str | None = None,
+    ) -> None:
+        environment = os.environ.copy()
+        environment[NESTED_PROTECTED_SURFACE_PROBE] = "1"
+        result = subprocess.run(
+            [sys.executable, "tools/check_lslc_001h.py"],
+            cwd=clone, check=False, capture_output=True, env=environment,
+        )
+        combined = result.stdout + result.stderr
+        if expected_message is None:
+            require(
+                result.returncode == 0,
+                f"one-commit shallow checker probe failed: {label}: "
+                f"{combined[-2000:].decode('utf-8', errors='replace')}",
+            )
+        else:
+            require(result.returncode != 0,
+                    f"damaged protected-surface probe was accepted: {label}")
+            require(
+                expected_message.encode("utf-8") in combined,
+                f"damaged protected-surface probe failed at the wrong boundary: {label}",
+            )
+
+    with tempfile.TemporaryDirectory(prefix="rusty-lsl-lslc-001j-") as temporary:
+        temporary_root = Path(temporary)
+        clone = temporary_root / "shallow"
+        clone_result = subprocess.run(
+            [
+                "git", "clone", "--quiet", "--depth", "1", "--single-branch",
+                ROOT.resolve().as_uri(), str(clone),
+            ],
+            check=False, capture_output=True,
+        )
+        require(clone_result.returncode == 0, "one-commit local shallow clone failed")
+        shutil.copyfile(Path(__file__), clone / "tools/check_lslc_001h.py")
+
+        shallow = run_git(
+            clone, ["rev-parse", "--is-shallow-repository"], "shallow identity",
+        ).stdout.strip()
+        commit_count = run_git(
+            clone, ["rev-list", "--count", "HEAD"], "shallow commit count",
+        ).stdout.strip()
+        require(shallow == b"true" and commit_count == b"1",
+                "local clone is not an exact one-commit shallow checkout")
+        historical = subprocess.run(
+            ["git", "cat-file", "-e", "9650de4^{commit}"],
+            cwd=clone, check=False, capture_output=True,
+        )
+        require(historical.returncode != 0,
+                "historical revision unexpectedly entered the shallow clone")
+        run_checker(clone, "clean shallow checkout")
+
+        protected_file = clone / "Cargo.toml"
+        with protected_file.open("ab") as stream:
+            stream.write(b"\n# lslc-001j-working-tree-probe\n")
+        run_checker(
+            clone, "tracked working-tree drift",
+            "protected working tree or index changed",
+        )
+        run_git(
+            clone,
+            ["restore", "--source=HEAD", "--staged", "--worktree", "--", "Cargo.toml"],
+            "working-tree probe restoration",
+        )
+
+        with protected_file.open("ab") as stream:
+            stream.write(b"\n# lslc-001j-index-probe\n")
+        run_git(clone, ["add", "--", "Cargo.toml"], "index probe staging")
+        run_checker(
+            clone, "staged index drift", "protected working tree or index changed",
+        )
+        run_git(
+            clone,
+            ["restore", "--source=HEAD", "--staged", "--worktree", "--", "Cargo.toml"],
+            "index probe restoration",
+        )
+
+        untracked = clone / "crates/rusty-lsl/lslc-001j-untracked-probe"
+        untracked.write_bytes(b"synthetic untracked protected-path probe\n")
+        run_checker(
+            clone, "untracked protected path",
+            "untracked protected path entered the repository",
+        )
+        untracked.unlink()
+
+        ignored = clone / "crates/rusty-lsl/src/lib.rs.bk"
+        ignored.write_bytes(b"synthetic ignored protected-path probe\n")
+        run_git(
+            clone,
+            ["check-ignore", "--quiet", "--", "crates/rusty-lsl/src/lib.rs.bk"],
+            "ignored protected-path probe identity",
+        )
+        run_checker(
+            clone, "ignored untracked protected path",
+            "untracked protected path entered the repository",
+        )
+        ignored.unlink()
+
+        with protected_file.open("ab") as stream:
+            stream.write(b"\n# lslc-001j-manifest-probe\n")
+        run_git(clone, ["add", "--", "Cargo.toml"], "manifest probe staging")
+        run_git(
+            clone,
+            [
+                "-c", "user.name=Rusty LSL Validation",
+                "-c", "user.email=validation.invalid",
+                "commit", "--quiet", "--no-verify", "-m", "LSLC-001J manifest probe",
+            ],
+            "manifest probe commit",
+        )
+        run_checker(
+            clone, "exact HEAD manifest mutation",
+            "protected HEAD tree manifest digest drifted",
+        )
 
 
 def canonical_lf_bound_driver_source(source: bytes, label: str) -> bytes:
@@ -507,12 +707,6 @@ def validate_provenance_and_driver() -> dict[str, Any]:
                 f"native/package artifact entered repository: {path}")
         require("/venv/" not in f"/{lowered}/" and "__pycache__" not in lowered,
                 f"environment/cache artifact entered repository: {path}")
-    unchanged = [
-        "crates/rusty-lsl", "Cargo.toml", "Cargo.lock",
-        "morphospace/feature.lock.json", "morphospace/project.spec.json",
-    ]
-    result = subprocess.run(["git", "diff", "--quiet", "9650de4", "--", *unchanged], cwd=ROOT)
-    require(result.returncode == 0, "forbidden production, lock, or project surface changed")
     return provenance
 
 
@@ -644,6 +838,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    validate_protected_surface(ROOT)
     validate_history_and_corpus()
     cases = validate_cases()
     overlay = validate_observations(cases)
@@ -651,6 +846,11 @@ def main() -> int:
     if args.external_root is not None:
         validate_external_evidence(args.external_root, overlay, provenance)
     validate_docs_and_instructions()
+    if os.environ.get(NESTED_PROTECTED_SURFACE_PROBE) != "1":
+        validate_protected_surface_damaged_checks()
+        print(
+            "LSLC-001J one-commit shallow and damaged protected-surface checks passed."
+        )
     print("LSLC-001H black-box observation checks passed.")
     return 0
 

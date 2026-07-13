@@ -1,5 +1,31 @@
 # Validation
 
+## LSLC-001J shallow-checkout protected-surface correction
+
+The focused LSLC-001H gate no longer requires historical revision `9650de4`.
+It requires the exact 21-entry binary protected-tree manifest at current
+`HEAD`, SHA-256
+`ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1`,
+then independently requires no staged or unstaged protected changes and no
+untracked protected paths. Git command or repository setup failures reject.
+
+Deterministic tests use removable local file clones outside the source
+worktree. They prove that the overlaid checker passes in a one-commit shallow
+clone with `9650de4` absent, while tracked worktree content, staged index
+content, ordinary and ignored untracked protected paths, and an exact committed
+manifest mutation each reject at the intended boundary. They make no network,
+fetch, unshallow, oracle, device, or source-worktree mutation.
+The branch-independent clone route also passes when its source checkout is
+detached, matching the GitHub Actions execution shape.
+
+Runs `29276386135` and `29278122366` remain distinct failed pre-fix attempts.
+The latter had already passed all 134 Rust tests and LSLC-001A through
+LSLC-001G before encountering the missing-history failure. A passing corrected
+gate proves only the pinned source-tree and checkout-state validation boundary;
+it does not prove implementation semantics, candidate XML, protocol, wire,
+runtime, dependency, platform, compatibility, publication, or authority
+behavior.
+
 ## LSLC-001I portable driver-source correction
 
 The LSLC-001H focused gate reads the two bound driver sources from the current
