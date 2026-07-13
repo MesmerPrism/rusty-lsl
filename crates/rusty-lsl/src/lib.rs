@@ -19,6 +19,8 @@
 //! accepted data, and its bounded local XML element projection.
 //! Accepted static-plus-description and volatile trees can also be consumed
 //! into one bounded local static, volatile, then `desc` element hierarchy.
+//! A separate bounded borrowed projection can apply the accepted observed
+//! stream-info document envelope without changing compact serialization.
 //! It does not
 //! implement or claim LSL protocol,
 //! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
@@ -32,6 +34,7 @@ mod sample;
 mod stream_definition;
 mod stream_descriptor;
 mod stream_info_description_xml;
+mod stream_info_observed_document;
 mod stream_info_ordered_xml;
 mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
@@ -71,6 +74,9 @@ pub use stream_descriptor::{
     StreamDescriptorLimits, StreamDescriptorTextRole,
 };
 pub use stream_info_description_xml::{StreamInfoDescriptionXml, StreamInfoDescriptionXmlError};
+pub use stream_info_observed_document::{
+    StreamInfoObservedDocument, StreamInfoObservedDocumentError, StreamInfoObservedDocumentLimit,
+};
 pub use stream_info_ordered_xml::{StreamInfoOrderedXml, StreamInfoOrderedXmlError};
 pub use stream_info_static_fields::{StreamInfoStaticFieldRole, StreamInfoStaticFields};
 pub use stream_info_static_numeric_spellings::{

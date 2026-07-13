@@ -1,5 +1,13 @@
 # Provenance
 
+## LSLC-001R local observation-bound overlay
+
+`lslc-001r-observed-stream-info-document-envelope-results.json` is an
+independently authored candidate overlay bound to accepted black-box H evidence
+and accepted local G/Q artifacts. Official binary observations supply exact
+behavioral facts only; no official or third-party source is an implementation
+input.
+
 ## LSLC-001Q local composition overlay
 
 `lslc-001q-ordered-stream-info-element-results.json` is independently authored

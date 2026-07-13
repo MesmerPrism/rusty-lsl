@@ -1,5 +1,14 @@
 # STRM-000 compatibility fixtures
 
+## LSLC-001R observed document envelope
+
+- `lslc-001r-observed-stream-info-document-envelope-results.json`: accepted
+  H/G/Q bindings and the independently authored observation-bound candidate
+  policy.
+
+Run `tools/check_lslc_001r.ps1`; it proves the seven normalized envelope bytes,
+not parsing, endpoint/wire compatibility, provider acquisition, or runtime.
+
 ## LSLC-001Q ordered element composition
 
 - `lslc-001q-ordered-stream-info-element-results.json`: independently authored

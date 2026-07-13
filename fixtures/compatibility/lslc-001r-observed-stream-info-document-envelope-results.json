@@ -1,0 +1,37 @@
+{
+  "schema":"rusty-lsl.lslc-001r-observed-stream-info-document-envelope-results.v1",
+  "provenance":{"classification":"independently-authored-observation-bound-candidate","implementation_inputs":[]},
+  "accepted_artifact_bindings":{
+    "case_manifest":{"path":"fixtures/compatibility/lslc-001h-stream-info-xml-cases.json","sha256":"398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"},
+    "observation_overlay":{"path":"fixtures/compatibility/lslc-001h-stream-info-xml-observations.json","sha256":"2b1aaa4ce3faa20722386c224e70dd7b8252fecd94b6e4437280af2bb4c5ab1e"},
+    "compact_serialization_overlay":{"path":"fixtures/compatibility/lslc-001g-contract-results.json","sha256":"4819c8cea026c534140104c8416cddb6dd9130c3bd433857e367aed1ff7d0e74"},
+    "compact_serialization_receipt":{"path":"morphospace/receipts/rlsl-lslc-001g-standard-validation.json","sha256":"3fc8f4e4d0c9f09a859cf6b8ff80a3a47f648796215110c5d287ae129b6821e1"},
+    "ordered_element_overlay":{"path":"fixtures/compatibility/lslc-001q-ordered-stream-info-element-results.json","sha256":"9e8bbef9f1122a568983ef33b035302e8fd8836da60e5cb172a0a41ea60d6bde"},
+    "ordered_element_receipt":{"path":"morphospace/receipts/rlsl-lslc-001q-standard-validation.json","sha256":"4eacd6ee1f24c713ba97aad975825a7bfb91018b255fda9f930cf177866cb50c"}
+  },
+  "fixed_candidate_policy":{
+    "source":"borrowed-accepted-lslc-001q",
+    "declaration":"<?xml version=\"1.0\"?>\\n",
+    "line_endings":"LF-only",
+    "indentation":"one-horizontal-tab-per-depth-below-info",
+    "element_order":"unchanged-accepted-lslc-001q-depth-first-order",
+    "empty_desc":"<desc />",
+    "other_empty_containers":"typed-fail-closed",
+    "final_newline":"one-LF",
+    "compact_serializer":"unchanged-separate-lslc-001g",
+    "claim":"local-observation-bound-document-envelope-only"
+  },
+  "focused_rust_tests":[
+    "lslc_001r_seven_normalized_observations_match_exact_bytes",
+    "lslc_001r_exact_limit_borrow_and_consuming_output_preserve_allocations",
+    "lslc_001r_one_past_limit_reports_exact_required_bytes",
+    "lslc_001r_childless_non_desc_container_fails_closed"
+  ],
+  "candidate_result":"implemented-local-observation-bound-document-envelope",
+  "does_not_prove":[
+    "general XML pretty printing, parsing, decoding, canonicalization, arbitrary declarations, or unobserved empty-element spellings",
+    "raw endpoint or wire equivalence, protocol, interoperability, ecosystem compatibility, networking, discovery, transport, inlet, outlet, or runtime behavior",
+    "provider acquisition, clock or host inspection, identifier generation, address or port semantics, adapters, devices, features, or platform behavior",
+    "Manifold admission, identity, registry, routing, authorization, audit, provider epoch, transport, or product-policy authority"
+  ]
+}

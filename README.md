@@ -1,5 +1,18 @@
 # Rusty LSL
 
+## LSLC-001R observed stream-info document envelope
+
+`StreamInfoObservedDocument` borrows accepted LSLC-001Q state and emits one
+byte-bounded owned string using the LSLC-001H-observed declaration, LF and tab
+layout, empty `<desc />` spelling, and final LF. It leaves element values and
+the source tree unchanged and rejects unobserved childless description
+containers instead of generalizing their spelling.
+
+This specialized envelope does not retrofit or replace the compact LSLC-001G
+serializer. It proves no parsing, canonical XML, endpoint/wire equivalence,
+provider acquisition, networking, transport, runtime, or authority. Run
+`./tools/check_lslc_001r.ps1` for the focused gate.
+
 ## LSLC-001Q ordered stream-info element composition
 
 `StreamInfoOrderedXml` consumes accepted LSLC-001N static-plus-description and
@@ -208,12 +221,12 @@ Layer compatibility. It is designed for the existing LSL ecosystem and for
 explicit, typed integration with Rusty Morphospace.
 
 Status: source-only crate with dependency-free bounded local contracts through
-LSLC-001Q. Accepted evidence now includes the frozen LSLC-001A specification
+LSLC-001R. Accepted evidence now includes the frozen LSLC-001A specification
 corpus and the separate LSLC-001H pinned black-box observations; accepted local
 candidate surfaces include XML values, character-data representation, element
 composition/tree/serialization, static and explicit-description stream-info
-composition, bounded volatile data and XML composition, and the final compact
-static/volatile/description element ordering. The historical STRM-000
+composition, bounded volatile data and XML composition, compact ordered
+elements, and a separate observation-bound document envelope. The historical STRM-000
 results remain `not-implemented`, LSLC-001A's own oracle/candidate cells remain
 `not-observed`, and LSLC-001H's complete-document candidate result remains
 `not-observed`. No LSL

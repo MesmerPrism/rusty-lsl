@@ -1,5 +1,12 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001R observation-bound candidate overlay
+
+The LSLC-001R overlay hash-binds accepted H observations, the separate G
+compact serializer evidence, and accepted Q ordering evidence. It records the
+seven normalized public strings as technical specification inputs while
+keeping external implementation source inputs empty.
+
 ## LSLC-001Q composition overlay
 
 The LSLC-001Q overlay binds the immutable LSLC-001H case and observation files

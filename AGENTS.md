@@ -1,5 +1,27 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001R Observed Stream-Info Document Envelope
+
+LSLC-001R borrows one accepted `StreamInfoOrderedXml` and projects one owned,
+explicitly byte-bounded UTF-8 string. Its specialized policy emits exactly the
+LSLC-001H-observed XML 1.0 declaration followed by LF, one horizontal tab per
+element depth below `info`, LF after every element line, `<desc />` only for an
+empty fixed description root, and one final LF. Accepted element names and
+represented character data are emitted unchanged. A childless description
+container other than `desc` fails closed because its empty spelling was not
+observed.
+
+This projection is separate from and does not modify LSLC-001G compact
+serialization. It is local observation-bound representation evidence, not a
+parser, canonical XML engine, raw endpoint or wire claim. It adds no provider,
+clock or host inspection, identity generation, address/port semantics,
+networking, discovery, protocol, transport, runtime, adapter, device, feature,
+or Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001r.ps1
+```
+
 ## LSLC-001Q Ordered Stream-Info Element Composition
 
 LSLC-001Q adds only a dependency-free consuming merge of one accepted
@@ -394,6 +416,12 @@ owner-issued descriptor open an exact runtime surface.
 - LSLC-001Q is local element composition only. It does not own a declaration,
   observed whitespace or self-closing policy, complete-document bytes,
   provider acquisition, runtime values, transport, activation, or authority.
+- LSLC-001R borrows accepted Q state and owns only the H-observed declaration,
+  LF/tab layout, empty fixed `desc` spelling, and final LF. Other childless
+  containers reject as unobserved rather than inheriting that spelling.
+- LSLC-001R does not modify or generalize LSLC-001G. Its owned string is local
+  observation-bound candidate evidence, not endpoint, wire, provider, runtime,
+  transport, device, feature, or authority proof.
 - LSLC-001B uses separate nonzero Unicode scalar-value maxima for XML text and
   element names. Text accepts exactly the XML 1.0 Fifth Edition `Char`
   production; names accept the complete `NameStartChar` and `NameChar`

@@ -1,5 +1,11 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001r-observed-stream-info-document-envelope` permits only a
+borrowed byte-bounded string projection from accepted Q using the accepted H
+declaration, LF/tab layout, empty-desc spelling, and final LF. It leaves G
+unchanged and opens no parser, endpoint, wire, provider, transport, runtime,
+feature, device, effect, or authority surface.
+
 `rlsl-lslc-001q-ordered-stream-info-element-composition` permits only a
 consuming bounded structural merge of accepted N and P element trees. It moves
 six static leaves, eleven volatile leaves, then `desc`, remapping only the

@@ -1,5 +1,17 @@
 # Architecture
 
+## LSLC-001R observation-bound document representation
+
+`stream_info_observed_document` is a specialized borrowed representation layer
+above accepted LSLC-001Q. It owns only the observed declaration, LF/tab layout,
+empty-desc spelling, and final LF. A bounded iterative frame table supplies
+depth-first traversal; checked exact length precedes limit rejection and exact
+output allocation. Childless non-desc containers reject as outside the
+observed structural domain.
+
+LSLC-001G remains the generic compact explicit-tag serializer. Neither layer
+owns parsing, endpoints, providers, transport, runtime, or authority.
+
 ## LSLC-001Q ordered element composition layer
 
 `stream_info_ordered_xml` is a consuming structural layer above the accepted

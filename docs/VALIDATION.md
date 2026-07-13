@@ -1,5 +1,13 @@
 # Validation
 
+## LSLC-001R focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_001r.ps1`. The gate binds H/G/Q artifacts, proves the G
+source remains unchanged, executes four focused Rust tests including all seven
+normalized cases and the unobserved-empty-container rejection, and protects
+the inert dependency, feature, runtime, and public-boundary surfaces.
+
 ## LSLC-001Q focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File
