@@ -1,0 +1,56 @@
+Rusty LSL LSLC-001E standard validation
+========================================
+
+Unit: rlsl-lslc-001e-xml-container-leaf-tree
+Implementation HEAD: aa40996711c732b0930d438e258d4d87f016a045
+Validation authority: main Codex account
+Secondary MCP role: unrestricted implementation proposer, not lifecycle authority
+Device validation: forbidden by the unit and not run
+
+PASS cargo +1.80.0 fmt --all -- --check
+PASS cargo +1.80.0 test --workspace --all-targets --offline --locked
+     110 passed; 0 failed; 9 LSLC-001E focused tests passed.
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001e.ps1
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     Historical compatibility checks, public-boundary checks, project lifecycle,
+     dependency/feature closure, and inert effect-lock checks passed.
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+
+Independent review and repair
+-----------------------------
+
+PASS Main review found no production-code defect in the secondary MCP result.
+PASS Main review strengthened the focused checker so a manual Clone
+     implementation cannot bypass the existing derive-only owning-type guard.
+PASS Main review added an exact accepted-state shape guard requiring private
+     limits plus the original candidate-node Vec and no transformed arena.
+
+Independent mutation evidence
+-----------------------------
+
+PASS Adding a manual Clone implementation for XmlElementNodeValue was rejected
+     by check_lslc_001e.py with the owning-type Clone error.
+PASS Adding a second accepted-state Vec to XmlElementTree was rejected by
+     check_lslc_001e.py with the exact accepted-state error.
+PASS Both mutations were reverted before the aggregate and workflow gates ran.
+
+Boundary and provenance evidence
+--------------------------------
+
+PASS Validation performs one typed fallible scratch reservation, then checks
+     parent identity, parent kind, root-one depth, direct-child counts, checked
+     retained-byte arithmetic, and the retained-byte bound in fixed precedence.
+PASS Accepted private state contains exactly the configured limits and the
+     original caller node Vec; node-vector and component-string allocations are
+     preserved, and owning candidate node/value/tree types expose no Clone or
+     mutable access.
+PASS All LSLC-001A oracle/candidate roles remain not-observed with null evidence.
+     Historical fixture digests remain unchanged, the feature/effect lock is
+     empty and inert, and no document, serializer, MetadataTree conversion,
+     stream-info mapping, protocol, wire, runtime, adapter, provider, FFI,
+     device, or authority surface was added.
+PASS All four declared instruction surfaces are complete; both shared skills were
+     reviewed and required no change.
