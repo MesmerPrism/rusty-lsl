@@ -1,5 +1,14 @@
 # Validation
 
+## LSLC-001O focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_001o.ps1`. The gate binds the accepted A/H/N artifacts,
+checks the fixed eleven-role order and three disjoint classes, executes all five
+focused Rust tests, validates the local overlay and stale-status reconciliation,
+and preserves dependency, feature, publication, provider, representation,
+runtime, device, and authority closure.
+
 ## LSLC-001N focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File

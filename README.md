@@ -1,5 +1,20 @@
 # Rusty LSL
 
+## LSLC-001O bounded volatile stream-info data
+
+`StreamInfoVolatileFields` accepts one owning input for the eleven LSLC-001H
+volatile roles in fixed observed order. Three explicit nonzero Unicode
+scalar-value maxima separate implementation-assigned `version`, runtime-assigned
+creation/identity/session/host values, and transport-owned address/port values.
+Every string, including empty or deliberately non-numeric text, remains opaque
+and allocation-preserving.
+
+This is an accepted-data surface only. It does not obtain values from a
+provider, read clocks or hosts, generate identity, parse addresses or ports,
+validate XML, build a document, open networking, activate a runtime, or own
+Manifold decisions. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_001o.ps1` for the focused gate.
+
 ## LSLC-001N bounded description XML composition
 
 `StreamInfoDescriptionXml` consumes an accepted LSLC-001M static tree and a
@@ -167,24 +182,16 @@ Rusty LSL is an independently authored Rust implementation of Lab Streaming
 Layer compatibility. It is designed for the existing LSL ecosystem and for
 explicit, typed integration with Rusty Morphospace.
 
-Status: source-only crate with dependency-free bounded metadata, sample-shape,
-finite raw source timestamp, optional derived timestamp, and timestamped-chunk
-contracts, plus bounded core stream descriptors, a bounded parent-before-child
-flat metadata-tree arena, a data-only descriptor/sample binding, a timestamped
-descriptor/sample composition, a non-empty timestamped descriptor/chunk
-composition, an infallible local stream-definition composition, and the
-accepted specification-level STRM-000 baseline, the LSLC-001A
-public-documentation specification corpus, and the LSLC-001B bounded XML
-legal-text and element-name value contracts, plus the LSLC-001C bounded local
-XML character-data representation, LSLC-001D leaf-only two-component
-composition, LSLC-001E bounded container/leaf hierarchy, the LSLC-001F
-consuming metadata-to-element-tree projection, and LSLC-001G bounded borrowed
-element-tree serialization. No LSL
-protocol, wire, runtime, operational, or ecosystem compatibility is implemented
-or claimed. Every historical STRM-000 catalog and damaged-case result remains
-`not-implemented`, and no official-liblsl observation has been measured.
-Every LSLC-001A oracle observation and candidate result is `not-observed` with
-null evidence.
+Status: source-only crate with dependency-free bounded local contracts through
+LSLC-001O. Accepted evidence now includes the frozen LSLC-001A specification
+corpus and the separate LSLC-001H pinned black-box observations; accepted local
+candidate surfaces include XML values, character-data representation, element
+composition/tree/serialization, static and explicit-description stream-info
+composition, and the bounded volatile data contract. The historical STRM-000
+results remain `not-implemented`, LSLC-001A's own oracle/candidate cells remain
+`not-observed`, and LSLC-001H's complete-document candidate result remains
+`not-observed`. No LSL protocol, wire, runtime, operational, or ecosystem
+compatibility is implemented or claimed.
 
 LSLC-001B adds separate validated nonzero Unicode scalar-value limits for
 `XmlText` and `XmlElementName`. `XmlText` may be empty and accepts exactly the

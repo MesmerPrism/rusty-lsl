@@ -1,5 +1,13 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001O bounded data overlay
+
+The LSLC-001O overlay binds the frozen LSLC-001A role corpus, accepted
+LSLC-001H cases/observations/provenance, and accepted LSLC-001N receipt. It
+records a local eleven-role opaque data contract and does not rewrite any
+specification or observation artifact, run the oracle, or promote the separate
+complete-document candidate role.
+
 ## LSLC-001N projection overlay
 
 The LSLC-001N overlay binds immutable LSLC-001H cases and observations plus

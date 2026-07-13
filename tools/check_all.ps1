@@ -46,6 +46,7 @@ try {
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001l.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001m.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001n.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001o.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_001.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_002.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_003.ps1

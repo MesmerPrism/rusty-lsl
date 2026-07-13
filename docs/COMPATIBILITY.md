@@ -1,5 +1,14 @@
 # Compatibility
 
+## LSLC-001O local candidate data result
+
+LSLC-001O binds its eleven-role inventory to the accepted LSLC-001H observed
+field order and implements only bounded opaque data retention. Its ownership
+classes prevent runtime-assigned identity/time/session/host data from being
+conflated with transport-owned address/port data. No provider or XML/document
+candidate is implemented, and the LSLC-001H complete-document candidate result
+remains `not-observed`.
+
 ## LSLC-001N local candidate result
 
 LSLC-001N executes the seven accepted case shapes through static composition,
@@ -55,6 +64,9 @@ behavior, protocol, wire, I/O, runtime, ecosystem, or compatibility claim.
 | Local bounded metadata construction | Implemented | CORE-001 Rust unit tests; no XML behavior |
 | Metadata XML | Not implemented | Specification cases only |
 | Stream-info document corpus | Specification only | LSLC-001A public-documentation roles; oracle and candidate evidence not observed |
+| Stream-info XML black-box observation | Observed for seven bounded cases | LSLC-001H pinned Windows binary observation; separate complete-document candidate remains not observed |
+| Local static and description stream-info element composition | Implemented | LSLC-001M/N compact local element trees only; no declaration, observed whitespace, volatile fields, or complete document |
+| Local volatile stream-info data | Implemented | LSLC-001O bounded opaque values with explicit implementation/runtime/transport classes; no provider, XML, parsing, endpoint, or runtime behavior |
 | Local XML legal-text and element-name values | Implemented | LSLC-001B Rust unit tests; bounded scalar/name validation only, with no representation or document behavior |
 | Local XML character-data representation | Implemented | LSLC-001C Rust unit tests; bounded candidate-owned `&`, `<`, and `>` replacement only, with no document or endpoint-byte claim |
 | Local XML leaf-only composition | Implemented | LSLC-001D Rust unit tests; exact accepted name plus character-data ownership only, with no tag, tree, document, mapping, or endpoint-byte claim |

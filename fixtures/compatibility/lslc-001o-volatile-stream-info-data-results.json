@@ -1,0 +1,84 @@
+{
+  "schema": "rusty-lsl.lslc-001o-volatile-stream-info-data-results.v1",
+  "provenance": {
+    "classification": "independently-authored",
+    "technical_inputs": [
+      "accepted LSLC-001A documented stream-info role inventory",
+      "accepted LSLC-001H public-safe black-box field-order observations",
+      "accepted LSLC-001N boundary receipt"
+    ],
+    "implementation_inputs": []
+  },
+  "accepted_artifact_bindings": {
+    "documentation_corpus": {
+      "path": "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json",
+      "sha256": "68331a7a5ae6d0767ae9d2eb2d317d3673595fa04352087e88d6ff1506faaa2c"
+    },
+    "case_manifest": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "sha256": "398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"
+    },
+    "observation_overlay": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json",
+      "sha256": "2b1aaa4ce3faa20722386c224e70dd7b8252fecd94b6e4437280af2bb4c5ab1e"
+    },
+    "observation_provenance": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-provenance.json",
+      "sha256": "7f1c7c80a4c749fda6303fa22cb54b0378b1894996b434b45e2969459f7f63c2"
+    },
+    "accepted_description_receipt": {
+      "path": "morphospace/receipts/rlsl-lslc-001n-standard-validation.json",
+      "sha256": "8c6ab97b4697d5e42baedc6e4330b76ad2cda043ab507e2be97d037542a273a6"
+    }
+  },
+  "fixed_role_order": [
+    "version",
+    "created_at",
+    "uid",
+    "session_id",
+    "hostname",
+    "v4address",
+    "v4data_port",
+    "v4service_port",
+    "v6address",
+    "v6data_port",
+    "v6service_port"
+  ],
+  "field_classes": {
+    "implementation-assigned": ["version"],
+    "runtime-assigned": ["created_at", "uid", "session_id", "hostname"],
+    "transport-owned": [
+      "v4address",
+      "v4data_port",
+      "v4service_port",
+      "v6address",
+      "v6data_port",
+      "v6service_port"
+    ]
+  },
+  "candidate_policy": {
+    "value_kind": "opaque-caller-owned-utf8-text",
+    "count_unit": "unicode-scalar-values",
+    "limit_classes": ["implementation-assigned", "runtime-assigned", "transport-owned"],
+    "limit_rejection_order": ["implementation-assigned", "runtime-assigned", "transport-owned"],
+    "field_rejection_order": "fixed-role-order",
+    "empty_values": "accepted",
+    "accepted_storage": "original-input-and-limits-only",
+    "semantic_validation": "none"
+  },
+  "focused_rust_tests": [
+    "lslc_001o_role_order_and_classes_are_exact_and_disjoint",
+    "lslc_001o_exact_limits_preserve_empty_unicode_and_original_allocations",
+    "lslc_001o_zero_limits_reject_in_class_order",
+    "lslc_001o_one_past_values_reject_in_fixed_role_order",
+    "lslc_001o_values_remain_opaque_without_provider_or_semantic_interpretation"
+  ],
+  "candidate_result": "implemented-local-bounded-volatile-data-contract",
+  "does_not_prove": [
+    "that any accepted value was acquired from a provider or is current, generated, unique, parsed, reachable, or operational",
+    "XML legality, character-data representation, element-tree or document composition, declaration, whitespace, empty-element spelling, or endpoint bytes",
+    "clock behavior, host inspection, identity generation, address or port semantics, networking, discovery, transport, protocol, wire, runtime, adapter, device, or feature behavior",
+    "official behavior beyond the separately accepted LSLC-001H observation or any complete-document candidate compatibility result",
+    "Manifold admission, registry, identity, route, lease, revision, replay, authorization, audit, provider epoch, transport, or product-policy authority"
+  ]
+}

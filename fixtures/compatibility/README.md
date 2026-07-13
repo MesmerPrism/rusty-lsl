@@ -1,5 +1,15 @@
 # STRM-000 compatibility fixtures
 
+## LSLC-001O volatile stream-info data contract
+
+- `lslc-001o-volatile-stream-info-data-results.json`: independently authored
+  role/class/boundary overlay for the bounded opaque accepted-data surface.
+
+It binds accepted LSLC-001A/H/N public evidence without changing it. Run
+`tools/check_lslc_001o.ps1`; the result proves no provider, XML/document,
+clock/host/identity generation, address/port semantics, networking, runtime, or
+Manifold authority behavior.
+
 ## LSLC-001H StreamInfo XML observation
 
 - `lslc-001h-stream-info-xml-cases.json`: independently authored bounded

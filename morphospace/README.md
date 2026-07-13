@@ -1,5 +1,12 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001o-volatile-stream-info-data-contract` permits only the fixed
+eleven-role bounded opaque data contract. It separates implementation-assigned
+version, runtime-assigned creation/identity/session/host, and transport-owned
+address/port data. It opens no provider, XML/document representation, clock or
+host inspection, generated identity, address/port interpretation, networking,
+runtime, adapter, feature, device, effect, or authority surface.
+
 `rlsl-lslc-001n-description-xml-composition` permits only a consuming bounded
 merge of accepted LSLC-001M static XML with a separately accepted LSLC-001F
 tree whose root is exactly the container `desc`. It preserves description
@@ -17,7 +24,7 @@ declaration, observed whitespace, `desc`, volatile field, complete document,
 protocol, wire, I/O, runtime, adapter, provider, device, feature, effect, or
 authority surface.
 
-The active `rlsl-lslc-001h-stream-info-xml-black-box-observation` unit owns
+The accepted `rlsl-lslc-001h-stream-info-xml-black-box-observation` unit owns
 only a pinned external official-binary oracle harness, append-only synthetic
 case/provenance/observation fixtures, focused validation, and public routing
 docs. It changes no production crate, dependency, feature lock, runtime effect,

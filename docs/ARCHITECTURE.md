@@ -1,5 +1,21 @@
 # Architecture
 
+## LSLC-001O volatile accepted-data layer
+
+`stream_info_volatile_fields` is a dependency-free data layer below any XML
+representation or provider. It retains eleven opaque caller-owned strings in
+the LSLC-001H observed order. `StreamInfoVolatileFieldRole` supplies the fixed
+inventory, while `StreamInfoVolatileFieldClass` separates implementation-
+assigned version data, runtime-assigned creation/identity/session/host data,
+and transport-owned address/port data.
+
+`StreamInfoVolatileFieldLimits` validates three nonzero Unicode scalar maxima
+in class order. `StreamInfoVolatileFields` then validates the complete input in
+role order and owns only those limits plus the unchanged input. It performs no
+allocation, clone, normalization, parsing, inference, provider acquisition,
+clock or host read, identity generation, address or port interpretation, XML
+operation, transport, runtime activation, or authority action.
+
 ## LSLC-001N description composition
 
 `stream_info_description_xml` is a consuming arena merge above LSLC-001M and a

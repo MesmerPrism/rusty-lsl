@@ -1,5 +1,30 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001O Bounded Volatile Stream-Info Data
+
+LSLC-001O adds only a dependency-free bounded accepted-data contract for the
+eleven volatile roles observed by LSLC-001H. Fixed role order is `version`,
+`created_at`, `uid`, `session_id`, `hostname`, `v4address`, `v4data_port`,
+`v4service_port`, `v6address`, `v6data_port`, and `v6service_port`. `version`
+is implementation-assigned; creation, identity, session, and host fields are
+runtime-assigned; address and port fields are transport-owned.
+
+Three separate nonzero maxima count Unicode scalar values for those classes.
+Limits reject in implementation, runtime, then transport order; values reject
+in fixed role order. Empty and arbitrary opaque text is accepted unchanged.
+Accepted state owns only the limits and original eleven `String` allocations.
+
+This data layer does not acquire values from a provider or assert that they are
+current, generated, unique, numeric, parsed, reachable, or operational. It
+adds no XML validation or representation, document composition, clock or host
+inspection, identity generation, address or port semantics, networking,
+protocol, wire, discovery, runtime activation, adapter, device, feature, or
+Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001o.ps1
+```
+
 ## LSLC-001N Bounded Description XML Composition
 
 LSLC-001N adds only a dependency-free consuming merge of one accepted
@@ -319,6 +344,10 @@ owner-issued descriptor open an exact runtime surface.
   oracle, or C-ABI crates only when a reviewed ownership boundary requires it.
 - Keep `unsafe_code = "forbid"` until a separately reviewed FFI or platform
   adapter demonstrates a need.
+- LSLC-001O keeps the eleven volatile values as opaque caller-owned text under
+  three explicit class bounds. The role inventory and class mapping are data
+  contracts only; they do not confer provider, representation, endpoint,
+  runtime, identity, transport, security, recovery, or authority meaning.
 - LSLC-001B uses separate nonzero Unicode scalar-value maxima for XML text and
   element names. Text accepts exactly the XML 1.0 Fifth Edition `Char`
   production; names accept the complete `NameStartChar` and `NameChar`

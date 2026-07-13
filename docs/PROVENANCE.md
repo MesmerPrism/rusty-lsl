@@ -1,5 +1,15 @@
 # Provenance
 
+## LSLC-001O local data overlay
+
+`fixtures/compatibility/lslc-001o-volatile-stream-info-data-results.json` is an
+independently authored local-results overlay. It hash-binds the frozen
+LSLC-001A corpus, accepted LSLC-001H case/observation/provenance artifacts, and
+accepted LSLC-001N receipt. Its implementation inputs are empty. The role order
+comes from public-safe black-box observations; the three ownership classes,
+bounds, validation order, and opaque retention policy are local candidate
+contracts rather than observed provider or runtime behavior.
+
 ## LSLC-001N
 
 `fixtures/compatibility/lslc-001n-description-xml-results.json` is an
