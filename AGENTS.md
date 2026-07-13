@@ -36,10 +36,19 @@ adapter and authority remain in their owning repositories.
 ## Read Order
 
 1. `README.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/COMPATIBILITY.md`
-4. `docs/PROVENANCE.md`
-5. `docs/VALIDATION.md`
+2. `morphospace/project.spec.json`
+3. `morphospace/feature.lock.json`
+4. `morphospace/workspace.state.json`
+5. the current iteration unit, if one is named by workspace state
+6. `docs/ARCHITECTURE.md`
+7. `docs/COMPATIBILITY.md`
+8. `docs/PROVENANCE.md`
+9. `docs/VALIDATION.md`
+
+The project-local workflow is planning and composition state, not LSL runtime
+or compatibility authority. A proposed unit is not ready or active. Keep the
+feature lock empty and inert until a reviewed unit and owner-issued descriptor
+open an exact surface.
 
 ## Provenance And Compatibility
 

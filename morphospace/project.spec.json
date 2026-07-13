@@ -1,0 +1,123 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/project-spec-v2.schema.json",
+  "schema": "rusty.morphospace.workflow.project_spec.v2",
+  "project_id": "rusty-lsl",
+  "revision": 1,
+  "owner": "rusty-lsl-project",
+  "purpose": "Develop an independently authored Rust implementation of Lab Streaming Layer compatibility with explicit typed Rusty Morphospace observation and proposal hooks.",
+  "activation_model": {
+    "default": "disabled",
+    "unlisted_modules": "inert",
+    "runtime_rule": "selected-lock-and-runtime-input"
+  },
+  "composition": {
+    "selected_features": [],
+    "denied_features": [],
+    "selected_modules": [],
+    "denied_modules": [],
+    "allowed_permissions": [],
+    "denied_permissions": [
+      "device access",
+      "native library loading",
+      "network access",
+      "process spawning"
+    ],
+    "data_classes": [
+      "public source",
+      "sanitized compatibility observations",
+      "synthetic fixtures"
+    ]
+  },
+  "authority_map": [
+    {
+      "parameter": "lsl.compatibility",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "morphospace.stream-authority",
+      "owner": "rusty-manifold",
+      "adapters": []
+    },
+    {
+      "parameter": "project.composition",
+      "owner": "rusty-lsl",
+      "adapters": []
+    }
+  ],
+  "repositories": [
+    {
+      "repo_id": "rusty-lsl",
+      "role": "core",
+      "path": "..",
+      "allowed_paths": [
+        ".github/",
+        "AGENTS.md",
+        "Cargo.lock",
+        "Cargo.toml",
+        "Justfile",
+        "README.md",
+        "THIRD_PARTY_NOTICES.md",
+        "crates/",
+        "docs/",
+        "fixtures/",
+        "morphospace/",
+        "tools/"
+      ]
+    }
+  ],
+  "modules": [],
+  "non_scope": [
+    "LSL protocol, wire, discovery, clock, inlet, outlet, recovery, FFI, and runtime implementation before an approved unit opens that scope.",
+    "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
+    "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
+    "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."
+  ],
+  "validation_profiles": [
+    {
+      "profile_id": "source-only",
+      "commands": [
+        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+      ]
+    },
+    {
+      "profile_id": "workflow",
+      "commands": [
+        "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+      ]
+    }
+  ],
+  "acceptance_profiles": [
+    {
+      "profile_id": "inert-default",
+      "commands": [
+        "Verify the selected feature and module sets are empty and the effect union contains no runtime effect."
+      ]
+    },
+    {
+      "profile_id": "rollback",
+      "commands": [
+        "Revert the current work-unit commit and rerun the source-only and workflow profiles."
+      ]
+    }
+  ],
+  "release_policy": {
+    "versioning": "semver",
+    "commit_policy": "Commit coherent validated source-only slices locally before integration.",
+    "push_checkpoint": "integration-batch",
+    "source_first": true,
+    "planning_last": true,
+    "force_push_allowed": false
+  },
+  "public_boundary": {
+    "mode": "public",
+    "private_overlay": "local/",
+    "prohibited_evidence": [
+      "credentials and signing material",
+      "device identities",
+      "local machine paths",
+      "private planning history",
+      "raw logs and captures"
+    ]
+  }
+}

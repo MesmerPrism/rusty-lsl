@@ -9,7 +9,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 ```
 
 The script runs formatting, locked offline metadata inspection, locked offline
-tests, the public-boundary and text-hygiene checker, and Git whitespace checks.
+tests, the public-boundary and text-hygiene checker, the dependency-free local
+project-workspace checker, and Git whitespace checks.
 
 ## Acceptance criteria
 
@@ -21,6 +22,7 @@ The scaffold passes when:
 - the only package remains unpublished at `crates/rusty-lsl`, exposes no Cargo
   feature, and has exactly one library target;
 - repository content passes the tested public-boundary rules;
+- the project-local workspace remains well-formed, source-only, and inert;
 - every visible source file passes whole-tree trailing-whitespace and terminal
   newline checks, including untracked files before commit;
 - `git diff --check` reports no additional Git whitespace errors.
@@ -40,3 +42,8 @@ Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live
 or external evidence must remain separate from source validation and must name
 its cleanup and reproducibility limits.
+
+When the portable Rusty Morphospace work-environment repository is available,
+also run its `Test-WorkflowContracts.ps1` against `morphospace/`. The local
+checker is a repository gate; it does not replace portable lifecycle or
+transition validation.

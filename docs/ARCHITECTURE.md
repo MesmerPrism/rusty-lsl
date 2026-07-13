@@ -13,6 +13,10 @@ surface from which later, evidence-backed APIs can grow. Protocol, runtime,
 testkit, oracle, and C ABI crates are deferred until a concrete ownership or
 dependency boundary justifies a split.
 
+The `morphospace/` directory is an inert planning and composition control
+surface. Its presence does not activate code, packaging, permissions, network
+access, native libraries, runtime profiles, or compatibility behavior.
+
 ## Ownership
 
 Rusty LSL owns independently authored, backend-neutral APIs and behavior for:

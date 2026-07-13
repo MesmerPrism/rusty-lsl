@@ -23,3 +23,9 @@ is not an implementation input.
 
 The first accepted milestone is a reproducible compatibility and provenance
 baseline. Runtime implementation begins only after that gate is reviewed.
+
+Development is bounded by the public project-local control surface under
+[`morphospace/`](morphospace/README.md). Its initial lock selects no feature or
+module and permits no runtime effect. The first planned compatibility-baseline
+unit is proposed only; it must pass the portable readiness transition before
+implementation begins.

@@ -12,5 +12,8 @@ test:
 boundaries:
     python tools/check_public_boundaries.py
 
+workflow:
+    python tools/check_project_workspace.py
+
 check:
     powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
