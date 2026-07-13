@@ -1,0 +1,123 @@
+Rusty LSL LSLC-001J standard validation
+========================================
+
+Unit: rlsl-lslc-001j-shallow-checkout-protected-surface-gate
+Base revision: 83bc991513717ae553d8ac2db5cb746b1dbf3e84
+Implementation HEAD: ce2e315f2e8e35513d8e4dfc4bfc99a76a01b231
+Validation authority: main Codex account
+Secondary MCP role: unrestricted bounded implementation worker, not lifecycle,
+Git integration, acceptance, publication, device, or Manifold authority
+Device validation: forbidden by the unit and not run
+
+Preserved pre-fix public failures
+---------------------------------
+
+PRESERVED GitHub Actions run 29276386135 passed all 134 Rust tests and
+          LSLC-001A through LSLC-001G, then rejected the LSLC-001H PowerShell
+          driver because Windows materialized CRLF working-tree bytes. LSLC-001I
+          corrected only that checkout-materialization defect.
+PRESERVED GitHub Actions run 29278122366 passed all 134 Rust tests and
+          LSLC-001A through LSLC-001G, then rejected because the LSLC-001H
+          protected-surface check required revision 9650de4, which was absent
+          from the depth-1 checkout.
+PRESERVED Neither failure is evidence of candidate XML, oracle, protocol, wire,
+          runtime, dependency, device, compatibility, publication, or authority
+          behavior.
+
+Corrective implementation
+-------------------------
+
+PASS The focused checker obtains the exact binary stdout of
+     git ls-tree -r --full-tree HEAD over crates/rusty-lsl, Cargo.toml,
+     Cargo.lock, morphospace/feature.lock.json, and
+     morphospace/project.spec.json.
+PASS The protected manifest has exactly 21 entries, 1,879 bytes, and SHA-256
+     ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1.
+     The checker also binds the exact path, mode, object, separator, and output
+     bytes rather than trusting only the aggregate digest.
+PASS git diff --quiet HEAD independently rejects staged or unstaged protected
+     tracked drift. A non-excluding git ls-files --others inventory rejects
+     every untracked protected path, including ignored paths.
+PASS Every Git setup or command failure rejects. No fetch, unshallow, network,
+     oracle, package, device, or protected-source-content operation is used.
+PASS The Rust crate, Cargo files, feature lock, project specification, accepted
+     oracle evidence, observations, drivers, cases, and fixtures are unchanged.
+
+Independent shallow-checkout and damage audit
+---------------------------------------------
+
+PASS Main-account verification independently reproduced the accepted protected
+     manifest at both current HEAD and historical LSLC-001H baseline 9650de4.
+     Both were byte-identical with 21 entries, 1,879 bytes, and the pinned
+     SHA-256.
+PASS A disposable one-commit shallow clone proved is-shallow-repository=true,
+     commit count 1, historical revision 9650de4 absent, and a clean focused
+     gate pass.
+PASS The branch-independent local-clone route also passed when the source
+     checkout was detached, matching GitHub Actions checkout shape.
+PASS Independent external mutations proved rejection of tracked working-tree
+     drift, staged index drift, ordinary untracked protected paths, ignored
+     untracked protected paths, and a committed exact-manifest mutation.
+PASS The permanent focused checker repeats the same clean and damage matrix in a
+     removable external temporary clone while leaving the source worktree
+     unchanged.
+
+Authoritative validation gates
+------------------------------
+
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File
+     ./tools/check_lslc_001h.ps1
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     134 Rust tests passed; all historical compatibility, public-boundary,
+     project-lifecycle, dependency/feature closure, inert-lock, shallow-clone,
+     and damaged protected-surface checks passed.
+PASS pwsh -NoProfile -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+PASS The exact pre-lifecycle changed-path envelope contained only AGENTS.md,
+     README.md, docs/PROVENANCE.md, docs/VALIDATION.md, the LSLC-001J unit, and
+     tools/check_lslc_001h.py. No staged or untracked artifact remained.
+PASS Direct HEAD comparisons and a non-excluding untracked inventory proved no
+     change under crates/rusty-lsl, Cargo.toml, Cargo.lock, the feature lock, or
+     the project specification.
+PASS Both installed shared skills were reviewed in full. Their existing
+     exact-revision, current-state, failure-preservation, fail-closed,
+     public-firewall, validation, and authority rules cover this correction and
+     required no edit.
+
+Preserved implementation and validation setup failures
+------------------------------------------------------
+
+PRESERVED The secondary worker's first shallow-clone helper asked Git for the
+          source branch through symbolic-ref. Main-account review reproduced
+          its deterministic failure from a detached source checkout before the
+          helper could test product evidence. The helper now clones current HEAD
+          without a branch name, and the detached retest passed.
+PRESERVED The first independent ignored-path probe used a nested target path that
+          this repository did not ignore. The setup assertion rejected before
+          the checker result was credited. The corrected lib.rs.bk probe was
+          independently proven ignored and then rejected by the gate.
+PRESERVED A main-account python -m py_compile setup command created a local
+          tools/__pycache__ artifact. The focused repository-boundary checker
+          rejected it as designed. The exact generated artifact was removed,
+          bytecode generation was disabled, and the clean focused and full gates
+          passed.
+PRESERVED One earlier full-gate orchestration cell became unavailable before its
+          completion result could be read. That attempt was not credited. A new
+          full invocation completed with exit code 0 and supplied the evidence
+          recorded above.
+
+Evidence limits
+---------------
+
+PASS This evidence proves only the exact protected-tree identity and clean
+     checkout-state boundary in the stated local and disposable shallow-clone
+     environments. It preserves both failed public CI attempts.
+PASS It does not inspect implementation contents, rerun the oracle, or newly
+     prove candidate XML, StreamDefinition mapping, parser, serializer,
+     protocol, wire, discovery, networking, inlet, outlet, transport, clock,
+     buffering, runtime, dependency, platform, device, adapter, provider,
+     compatibility, publication, or Manifold authority behavior.
+PASS Public CI rerun is a later integration readback after acceptance and push;
+     it is not represented as completed by this validation receipt.

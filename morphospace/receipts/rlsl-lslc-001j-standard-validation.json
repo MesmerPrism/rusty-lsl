@@ -1,0 +1,97 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-001j-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-001j-shallow-checkout-protected-surface-gate",
+  "created_at": "2026-07-13T20:02:03.3288681Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "83bc991513717ae553d8ac2db5cb746b1dbf3e84",
+      "head_revision": "ce2e315f2e8e35513d8e4dfc4bfc99a76a01b231",
+      "branch": "codex/rlsl-lslc-001j-shallow-checkout-gate"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-lslc-001j-shallow-checkout-protected-surface-gate.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001j-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001j-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001h.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-001j-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-lslc-001j-standard-validation.txt",
+      "sha256": "f13a08d63bc5582df593aabe392546e4ebba928c1122306663f4fedc37f14952"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "shallow-checkout-protected-surface-identity",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    },
+    {
+      "acceptance_id": "tracked-and-untracked-protected-surface-rejection",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    },
+    {
+      "acceptance_id": "accepted-observation-and-driver-provenance-preservation",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    },
+    {
+      "acceptance_id": "source-only-ci-parity",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    },
+    {
+      "acceptance_id": "clean-source-and-authority-separation",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    },
+    {
+      "acceptance_id": "portable-workflow-and-instruction-synchronization",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["lslc-001j-standard-log"]
+    }
+  ],
+  "device_validation": null
+}
