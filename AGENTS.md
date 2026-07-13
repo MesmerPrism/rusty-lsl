@@ -1,5 +1,31 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001M Bounded Static Stream-Info XML Composition
+
+LSLC-001M adds only a dependency-free bounded projection from one borrowed
+accepted `StreamInfoStaticFields` into one owned `XmlElementTree`. The root is
+`info`; its exactly six direct leaves remain in `name`, `type`,
+`channel_count`, `channel_format`, `source_id`, `nominal_srate` order. It
+reuses LSLC-001L numeric spellings and LSLC-001B through E value/tree
+contracts. The unchanged LSLC-001G serializer can project that tree into
+compact explicit-tag text with no inserted whitespace.
+
+Numeric-domain validation precedes the exact seven-node reserve. Every fixed
+name and static value uses a separate exact fallible copy before existing XML
+validation and character-data representation. Typed errors retain the failing
+node and unchanged delegated error. The borrowed static fields, source
+definition, original optional forms, and generic metadata remain unchanged and
+reusable.
+
+This local candidate surface is not the observed complete stream-info
+document. It adds no XML declaration, observed whitespace, self-closing form,
+`desc` mapping, volatile/runtime fields, endpoint bytes, parser, protocol,
+wire, I/O, adapter, provider, device, feature, or authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001m.ps1
+```
+
 ## LSLC-001L Bounded Static Numeric Spellings
 
 LSLC-001L adds only a dependency-free bounded lexical projection that borrows

@@ -1,5 +1,14 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001m-static-stream-info-xml-composition` permits only one
+dependency-free bounded projection from borrowed accepted static fields into a
+seven-node `info` element tree whose six direct leaves retain the accepted
+static role order and represented values. It reuses accepted B through E, G,
+K, and L behavior and performs no lifecycle transition itself. It opens no XML
+declaration, observed whitespace, `desc`, volatile field, complete document,
+protocol, wire, I/O, runtime, adapter, provider, device, feature, effect, or
+authority surface.
+
 The active `rlsl-lslc-001h-stream-info-xml-black-box-observation` unit owns
 only a pinned external official-binary oracle harness, append-only synthetic
 case/provenance/observation fixtures, focused validation, and public routing

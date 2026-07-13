@@ -1,5 +1,12 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001M projection overlay
+
+The LSLC-001M overlay binds the immutable LSLC-001H cases and observations,
+the accepted LSLC-001G element serializer, and the accepted LSLC-001K/L static
+semantic and lexical projections. It records only the seven local compact
+static-element results; it does not replace or modify the observed XML corpus.
+
 ## LSLC-001H append-only observation
 
 LSLC-001H leaves this corpus byte-for-byte frozen at SHA-256

@@ -1,5 +1,13 @@
 # Provenance
 
+## LSLC-001M
+
+`fixtures/compatibility/lslc-001m-static-stream-info-xml-results.json` is an
+independently authored local-results overlay. Its technical inputs are the
+hash-bound accepted H, G, K, and L public artifacts. Implementation inputs are
+empty: no liblsl, pylsl, rLSL, wrapper, application, generated, or external
+implementation source was used.
+
 ## LSLC-001J protected-tree identity
 
 The protected production and activation surface is identified from current

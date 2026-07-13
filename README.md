@@ -1,5 +1,16 @@
 # Rusty LSL
 
+## LSLC-001M bounded static stream-info XML composition
+
+`StreamInfoStaticXml` composes the accepted six static stream-info roles into
+one owned seven-node `XmlElementTree`. Its `info` root has direct `name`,
+`type`, `channel_count`, `channel_format`, `source_id`, and `nominal_srate`
+leaves in that exact order. The projection reuses LSLC-001L spellings and
+LSLC-001B through E contracts; the unchanged LSLC-001G serializer provides the
+tested compact explicit-tag view. It deliberately does not claim the observed
+XML declaration, whitespace, `desc`, volatile fields, complete endpoint
+document, protocol, or runtime.
+
 ## LSLC-001L bounded static numeric spellings
 
 `StreamInfoStaticNumericSpellings` borrows one accepted

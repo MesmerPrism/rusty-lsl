@@ -1,0 +1,67 @@
+{
+  "schema": "rusty.lsl.local_results_overlay.v1",
+  "overlay_id": "lslc-001m-static-stream-info-xml-results",
+  "unit_id": "rlsl-lslc-001m-static-stream-info-xml-composition",
+  "evidence_level": "local-rust-static-xml-composition-tests",
+  "implementation_status": "bounded-local-contracts",
+  "accepted_artifact_bindings": {
+    "case_manifest": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "sha256": "398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"
+    },
+    "observation_overlay": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json",
+      "sha256": "2b1aaa4ce3faa20722386c224e70dd7b8252fecd94b6e4437280af2bb4c5ab1e",
+      "preserved_candidate_result": {"status": "not-observed", "evidence": null}
+    },
+    "element_serialization_overlay": {
+      "path": "fixtures/compatibility/lslc-001g-contract-results.json",
+      "sha256": "4819c8cea026c534140104c8416cddb6dd9130c3bd433857e367aed1ff7d0e74"
+    },
+    "semantic_projection_overlay": {
+      "path": "fixtures/compatibility/lslc-001k-stream-info-static-field-results.json",
+      "sha256": "3840fdd65dd33d56f424a3c7958b0bf9294f1b44d1e62d7476f0f48ded37511a"
+    },
+    "numeric_spelling_overlay": {
+      "path": "fixtures/compatibility/lslc-001l-static-numeric-spelling-results.json",
+      "sha256": "968c91d063cfaa18edbae44bac4245d3f4c5b5ca3f34bf83f49704315c234f4a"
+    }
+  },
+  "fixed_candidate_shape": {
+    "root": "info",
+    "direct_children": ["name", "type", "channel_count", "channel_format", "source_id", "nominal_srate"],
+    "node_count": 7,
+    "root_one_depth": 2,
+    "root_direct_children": 6,
+    "serialization_policy": "unchanged-lslc-001g-explicit-tags-no-inserted-whitespace",
+    "optional_effective_policy": "only-absence-maps-to-empty-text; original-option-form-remains-on-source-view"
+  },
+  "candidate_static_xml_results": [
+    {"case_id":"irregular-float32-empty-optionals-desc","result":"implemented-local-static-element-composition","compact_xml":"<info><name>neutral-float32</name><type></type><channel_count>1</channel_count><channel_format>float32</channel_format><source_id></source_id><nominal_srate>0.000000000000000</nominal_srate></info>"},
+    {"case_id":"regular-double64-populated-optionals","result":"implemented-local-static-element-composition","compact_xml":"<info><name>neutral-double64</name><type>measurement</type><channel_count>2</channel_count><channel_format>double64</channel_format><source_id>source-double64</source_id><nominal_srate>100.0000000000000</nominal_srate></info>"},
+    {"case_id":"regular-string-unicode-sensitive-nested-desc","result":"implemented-local-static-element-composition","compact_xml":"<info><name>unicode-Ω-中-&amp;-&lt;-greater-&gt;</name><type>text-&amp;-&lt;-greater-&gt;-\"-'</type><channel_count>3</channel_count><channel_format>string</channel_format><source_id>source-雪-&amp;-&lt;-greater-&gt;</source_id><nominal_srate>59.94000000000000</nominal_srate></info>"},
+    {"case_id":"regular-int32-unit-rate","result":"implemented-local-static-element-composition","compact_xml":"<info><name>neutral-int32</name><type>integer</type><channel_count>4</channel_count><channel_format>int32</channel_format><source_id>source-int32</source_id><nominal_srate>1.000000000000000</nominal_srate></info>"},
+    {"case_id":"regular-int16-fractional-rate","result":"implemented-local-static-element-composition","compact_xml":"<info><name>neutral-int16</name><type>integer</type><channel_count>5</channel_count><channel_format>int16</channel_format><source_id>source-int16</source_id><nominal_srate>256.5000000000000</nominal_srate></info>"},
+    {"case_id":"irregular-int8","result":"implemented-local-static-element-composition","compact_xml":"<info><name>neutral-int8</name><type>integer</type><channel_count>6</channel_count><channel_format>int8</channel_format><source_id>source-int8</source_id><nominal_srate>0.000000000000000</nominal_srate></info>"},
+    {"case_id":"regular-int64-large-fractional-rate","result":"implemented-local-static-element-composition","compact_xml":"<info><name>neutral-int64</name><type>integer</type><channel_count>7</channel_count><channel_format>int64</channel_format><source_id>source-int64</source_id><nominal_srate>1000000.250000000</nominal_srate></info>"}
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json",
+      "fixtures/compatibility/lslc-001g-contract-results.json",
+      "fixtures/compatibility/lslc-001k-stream-info-static-field-results.json",
+      "fixtures/compatibility/lslc-001l-static-numeric-spelling-results.json"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "the observed XML declaration, inter-element whitespace, self-closing desc form, complete info document, or endpoint bytes",
+    "generic MetadataTree interpretation as desc, description composition, channel metadata conventions, or absent-versus-empty round trip through XML",
+    "version, created_at, uid, session, host, address, port, or any volatile/runtime provider behavior",
+    "protocol, wire, I/O, transport, FFI, adapters, providers, devices, runtime support, or broad official-liblsl compatibility",
+    "Manifold admission, identity, registry, subscription, route, lease, revision, replay, authorization, audit, command, session, topology, transport, or product-policy authority"
+  ]
+}

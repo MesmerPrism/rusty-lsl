@@ -30,6 +30,7 @@ mod stream_definition;
 mod stream_descriptor;
 mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
+mod stream_info_static_xml;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
@@ -65,6 +66,9 @@ pub use stream_descriptor::{
 pub use stream_info_static_fields::{StreamInfoStaticFieldRole, StreamInfoStaticFields};
 pub use stream_info_static_numeric_spellings::{
     StreamInfoStaticNumericSpellingError, StreamInfoStaticNumericSpellings,
+};
+pub use stream_info_static_xml::{
+    StreamInfoStaticXml, StreamInfoStaticXmlError, StreamInfoStaticXmlLimits,
 };
 pub use timestamped::{
     ChunkBound, ChunkError, ChunkLimits, DerivedTimestamp, DerivedTimestampKind,

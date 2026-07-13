@@ -1,5 +1,14 @@
 # Validation
 
+## LSLC-001M focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_001m.ps1`. The gate binds accepted dependency artifacts,
+checks the seven-node and fallible-allocation source invariants, executes all
+five focused Rust tests, verifies the seven exact candidate static values and
+compact serializations, checks documentation and protected surfaces, and
+confirms the empty dependency/feature/publication closure.
+
 ## LSLC-001J shallow-checkout protected-surface correction
 
 The focused LSLC-001H gate no longer requires historical revision `9650de4`.

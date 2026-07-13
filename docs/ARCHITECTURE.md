@@ -1,5 +1,15 @@
 # Architecture
 
+## LSLC-001M static XML composition
+
+`stream_info_static_xml` is a leaf composition layer above the accepted static
+semantic and lexical projections and below any description, volatile-field, or
+complete-document policy. `StreamInfoStaticXml::compose` first closes the
+LSLC-001L numeric domain, then reserves exactly seven nodes and delegates fixed
+names, copied logical text, represented character data, and hierarchy checks
+to the accepted XML contracts. Accepted state owns only its explicit limits
+and `XmlElementTree`; it retains no runtime or authority handle.
+
 ## LSLC-001H black-box observation boundary
 
 The oracle is a repository tool, never a production dependency or provider.

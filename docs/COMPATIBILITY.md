@@ -1,5 +1,14 @@
 # Compatibility
 
+## LSLC-001M local candidate result
+
+LSLC-001M executes all seven accepted black-box case inputs through the local
+static composition and compares each of the six represented values with the
+accepted observation. Its compact serialization is candidate evidence under
+the unchanged LSLC-001G policy, not a match claim for the observed declaration,
+whitespace, `desc`, volatile fields, or complete `info` document. The accepted
+LSLC-001H full-document candidate result remains `not-observed`.
+
 ## LSLC-001H measured serialization observation
 
 `fixtures/compatibility/lslc-001h-stream-info-xml-observations.json` is a
