@@ -9,7 +9,8 @@
 //! timestamped-chunk, core stream-descriptor, and flat metadata-tree
 //! construction, descriptor/sample shape and format binding, and timestamped
 //! descriptor/sample, non-empty descriptor/chunk, and stream-definition
-//! composition. It does not
+//! composition, plus bounded XML legal-text and element-name value contracts.
+//! It does not
 //! implement or claim LSL protocol,
 //! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
 //! behavior.
@@ -23,6 +24,7 @@ mod stream_descriptor;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
+mod xml_value;
 
 pub use descriptor_sample::{
     BoundDescriptorSample, DescriptorSampleBound, DescriptorSampleError, DescriptorSampleInput,
@@ -54,6 +56,9 @@ pub use timestamped_descriptor_chunk::{
 };
 pub use timestamped_descriptor_sample::{
     BoundTimestampedDescriptorSample, TimestampedDescriptorSampleInput,
+};
+pub use xml_value::{
+    XmlElementName, XmlNameError, XmlNameLimit, XmlText, XmlTextError, XmlTextLimit,
 };
 
 /// The implementation state exposed by the crate.
@@ -93,6 +98,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local timestamped descriptor/sample composition",
             "bounded local non-empty timestamped descriptor/chunk composition",
             "bounded local stream-definition composition",
+            "bounded local XML legal-text and element-name values",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

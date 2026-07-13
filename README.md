@@ -10,13 +10,29 @@ contracts, plus bounded core stream descriptors, a bounded parent-before-child
 flat metadata-tree arena, a data-only descriptor/sample binding, a timestamped
 descriptor/sample composition, a non-empty timestamped descriptor/chunk
 composition, an infallible local stream-definition composition, and the
-accepted specification-level STRM-000
-baseline, and the LSLC-001A public-documentation specification corpus. No LSL
+accepted specification-level STRM-000 baseline, the LSLC-001A
+public-documentation specification corpus, and the LSLC-001B bounded XML
+legal-text and element-name value contracts. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
 Every LSLC-001A oracle observation and candidate result is `not-observed` with
 null evidence.
+
+LSLC-001B adds separate validated nonzero Unicode scalar-value limits for
+`XmlText` and `XmlElementName`. `XmlText` may be empty and accepts exactly the
+XML 1.0 Fifth Edition `Char` production. `XmlElementName` is nonempty and
+accepts the complete `NameStartChar` and `NameChar` productions. Typed errors
+retain deterministic expected/actual counts or the first rejected scalar's
+zero-based index and code point. Accepted values expose their limit, borrowed
+text, and consuming `String` access while preserving the original allocation
+and exact contents.
+
+Ampersand, less-than, greater-than, and caller text containing `]]>` remain
+unchanged accepted values. Colon is accepted name syntax only and grants no
+namespace meaning. This slice adds no escaping, entity or CDATA policy,
+parsing, serialization, byte output, document assembly, LSL field mapping,
+protocol, transport, wire, runtime, or compatibility behavior.
 
 The architecture keeps LSL interoperability at a data-plane edge:
 

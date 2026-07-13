@@ -1,0 +1,63 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "lslc-001b-xml-name-text-contracts",
+  "unit_id": "rlsl-lslc-001b-xml-name-text-contracts",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "corpus_binding": {
+    "corpus_id": "lslc-001a-stream-info-document-corpus",
+    "case_ids": [
+      "spec-xml-legal-character-domain",
+      "spec-xml-character-data-handling",
+      "damaged-illegal-xml-character",
+      "damaged-invalid-element-name",
+      "damaged-excessive-text"
+    ],
+    "preserved_oracle_status": "not-observed",
+    "preserved_candidate_status": "not-observed",
+    "interpretation": "The accepted LSLC-001A cases remain public-documentation specification roles with null oracle and candidate evidence. This separate overlay records only independently authored local Rust value-contract tests."
+  },
+  "contract_results": [
+    {
+      "contract_id": "bounded-xml-legal-text",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "lslc_001b_text_char_production_boundaries",
+        "lslc_001b_text_empty_delimiters_and_allocation_are_preserved",
+        "lslc_001b_text_noncharacter_distinction_is_exact"
+      ],
+      "damaged_tests": [
+        "lslc_001b_text_limits_indexes_and_precedence_are_scalar_based"
+      ]
+    },
+    {
+      "contract_id": "bounded-xml-element-name",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "lslc_001b_colon_is_accepted_as_syntax_only",
+        "lslc_001b_name_start_range_boundaries"
+      ],
+      "damaged_tests": [
+        "lslc_001b_name_char_additional_boundaries_and_adjacent_failures",
+        "lslc_001b_name_limits_indexes_precedence_and_allocation_are_exact",
+        "lslc_001b_name_start_adjacent_failures"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json",
+      "https://www.w3.org/TR/xml/"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "XML escaping, entity or character-reference selection, or CDATA handling",
+    "XML parsing, serialization, byte output, document assembly, attributes, namespaces, schemas, queries, or canonicalization",
+    "LSL stream-info field mapping or exact endpoint representation",
+    "official liblsl behavior or an oracle observation",
+    "protocol, wire, transport, runtime, operational, or ecosystem compatibility"
+  ]
+}

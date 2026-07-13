@@ -76,6 +76,11 @@ def source_text() -> str:
     return "\n".join(path.read_text(encoding="utf-8") for path in sorted(SOURCE_ROOT.glob("*.rs")))
 
 
+def owner_source_text() -> str:
+    """Return only the CORE-002 timestamp and chunk owner module."""
+    return (SOURCE_ROOT / "timestamped.rs").read_text(encoding="utf-8")
+
+
 def validate_overlay() -> None:
     """Bind exact CORE-002 positive and damaged tests without promoting STRM-000."""
     overlay = load_object(OVERLAY_PATH)
@@ -177,7 +182,7 @@ def validate_historical_baseline() -> None:
 
 def validate_source_contract() -> None:
     """Require timestamp/chunk invariants and reject runtime or clock surfaces."""
-    source = source_text()
+    source = owner_source_text()
     for required in (
         "pub struct RawSourceTimestamp(f64)",
         "pub enum DerivedTimestampKind",
@@ -206,8 +211,9 @@ def validate_source_contract() -> None:
         is not None,
         "derived timestamp kind must remain non-exhaustive",
     )
-    require("#![forbid(unsafe_code)]" in source, "unsafe Rust is not forbidden")
-    require("#![deny(missing_docs)]" in source, "missing documentation is not denied")
+    facade = (SOURCE_ROOT / "lib.rs").read_text(encoding="utf-8")
+    require("#![forbid(unsafe_code)]" in facade, "unsafe Rust is not forbidden")
+    require("#![deny(missing_docs)]" in facade, "missing documentation is not denied")
 
     prohibited = {
         "unsafe block": re.compile(r"(?m)^\s*unsafe\s*\{"),

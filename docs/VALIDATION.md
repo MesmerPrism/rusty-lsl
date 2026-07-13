@@ -10,6 +10,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 
 The script runs formatting, locked offline metadata inspection, locked offline
 tests, the STRM-000 compatibility/provenance gate, the LSLC-001A corpus gate,
+the LSLC-001B XML value-contract gate,
 the CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
 public-boundary and text-hygiene checker, the dependency-free local
 project-workspace checker, and Git whitespace checks.
@@ -24,6 +25,12 @@ Run the focused LSLC-001A corpus gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1
+```
+
+Run the focused LSLC-001B XML value-contract gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001b.ps1
 ```
 
 Run the focused bounded-contract gate with:
@@ -96,6 +103,20 @@ The source-only slice passes when:
   unresolved, historical STRM-000 files and CORE overlays retain their baseline
   digests, all instruction rows are complete, and lifecycle parsing accepts
   only active, validating, or accepted state;
+- the LSLC-001B overlay binds only local Rust tests to accepted LSLC-001A case
+  roles while every corpus oracle observation and candidate result remains
+  `not-observed` with null evidence;
+- separate nonzero XML text and name limits count Unicode scalar values; text
+  accepts exactly the XML 1.0 Fifth Edition `Char` production and names accept
+  the complete `NameStartChar` and `NameChar` productions;
+- text length precedes illegal-scalar rejection, name rejection follows empty,
+  length, invalid start, then first invalid continuation, and indexed errors
+  retain scalar indexes and code points;
+- accepted XML values retain their private original `String` allocation and
+  exact content, including ampersand, less-than, greater-than, and `]]>`;
+- LSLC-001B opens no escaping, parsing, serialization, output, document,
+  namespace, field-mapping, dependency, feature, unsafe, I/O, protocol, wire,
+  transport, or runtime surface;
 - the separate CORE-001 overlay binds exactly `contract-metadata-bounds` and
   `contract-sample-shape` to exact-limit, one-past-limit, malformed/zero-bound,
   channel-mismatch, stable-error, and unchanged-value tests;
@@ -206,6 +227,12 @@ or publication readiness.
 The LSLC-001A gate does not prove XML parsing, serialization, exact endpoint
 output, oracle behavior, candidate behavior, protocol or query behavior, wire
 compatibility, or ecosystem compatibility.
+
+The LSLC-001B gate proves only the local bounded XML text/name value contracts
+and inert source closure. It does not prove representation policy, escaping,
+CDATA or entity handling, parsing, serialization, document well-formedness,
+LSL field mapping, exact bytes, official endpoint behavior, protocol, wire,
+transport, runtime, or ecosystem compatibility.
 
 Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live

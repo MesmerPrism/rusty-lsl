@@ -42,6 +42,22 @@ discover streams, create threads, read clocks, allocate queues, load native
 libraries, or alter process or platform state. There are no Cargo features or
 dependencies.
 
+The focused `xml_value` module owns only bounded XML 1.0 Fifth Edition value
+validation. `XmlTextLimit` and `XmlNameLimit` are separate explicit nonzero
+Unicode scalar-value maxima. `XmlText` accepts empty input and exactly the
+`Char` production. `XmlElementName` requires a `NameStartChar` followed by
+zero or more `NameChar` scalars. Both accepted types privately retain the
+validated limit and original `String`, expose borrowed text, and return the
+same allocation through consuming access.
+
+Text validation checks length before the first illegal scalar. Name validation
+checks empty, length, start, then continuation, with scalar indexes and code
+points retained in typed errors. Colon has syntax-only meaning. Ampersand,
+less-than, greater-than, and `]]>` remain caller values; no representation
+policy is selected. The module owns no parser, serializer, escaping, entity,
+CDATA, document, byte-output, attribute, namespace, schema, query, LSL mapping,
+protocol, wire, transport, runtime, or I/O API.
+
 `MetadataTree` owns a parent-before-child flat arena. Unvalidated
 `MetadataNodeInput` values use `Option<usize>` parent indices: exactly one root
 at index zero has no parent, and each later node must name a strictly earlier
@@ -175,6 +191,12 @@ metadata-tree root is not an LSL `desc` element. CORE-008 adds no XML document
 shape, channel metadata convention, runtime identity, version, creation time,
 UID, session, host, address, port, fingerprint, recovery, discovery, clock,
 buffer, provider, adapter, authority, protocol, wire, or runtime behavior.
+
+LSLC-001B implements only XML legal-text and element-name value invariants.
+Text and name maxima count Unicode scalar values rather than bytes or grapheme
+clusters. Accepted allocation and content are unchanged. The local contract
+does not interpret the generic metadata tree, create XML nodes or documents,
+or choose how accepted caller values are represented.
 
 CORE-002 implements finite raw source timestamp retention and a separately
 typed optional derived timestamp value classified as `ClockCorrected` or

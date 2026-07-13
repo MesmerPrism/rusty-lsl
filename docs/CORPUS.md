@@ -65,3 +65,13 @@ damaged tests, and dependency/activation review. No case may be promoted to a
 compatibility claim until specification, oracle evidence, and candidate result
 are independently present and the claimed evidence tier is explicitly
 accepted.
+
+## LSLC-001B local contract binding
+
+LSLC-001B consumes only the accepted legal-character and name-grammar roles as
+technical specification input for dependency-free local Rust value contracts.
+Its separate overlay binds tests to those roles but does not edit this corpus:
+all oracle observations and candidate results remain `not-observed` with null
+evidence. The value layer accepts representation-sensitive caller text
+unchanged. Escaping, CDATA handling, parsing, serialization, document assembly,
+LSL field mapping, exact output, and oracle comparison remain deferred.

@@ -135,6 +135,16 @@ contains no copied prose, implementation source, endpoint output, XML payload,
 or serialization observation. Its bounds are local future-harness policy and
 do not describe liblsl limits or behavior.
 
+`fixtures/compatibility/lslc-001b-contract-results.json` is a separate
+independently authored local-results overlay. Its only technical specification
+inputs are the accepted LSLC-001A corpus and the recorded W3C XML 1.0 Fifth
+Edition Recommendation. The source, tests, and checker use no liblsl, rLSL,
+wrapper, application, test, build, vendored, generated, or protocol
+implementation source and contain no endpoint output. The overlay records only
+bounded Rust value validation and preserves every LSLC-001A oracle/candidate
+role unchanged. It proves no representation, document, LSL, protocol, wire,
+runtime, ecosystem, or official-liblsl behavior.
+
 Each fixture family must have an adjacent machine-readable manifest recording:
 
 - stable fixture identifier and classification;

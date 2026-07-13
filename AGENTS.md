@@ -53,7 +53,11 @@ provenance-locked public-documentation corpus for documented stream-info
 document roles and XML 1.0 character constraints. Every LSLC-001A oracle
 observation and candidate result remains `not-observed` with null evidence;
 exact serialization remains unresolved for a separately approved black-box
-unit. CORE-001 opens only dependency-free local
+unit. LSLC-001B adds only dependency-free bounded XML 1.0 Fifth Edition legal
+text and element-name value contracts. It preserves caller strings unchanged,
+including representation-sensitive delimiters, and adds no escaping, parsing,
+serialization, document, LSL field-mapping, protocol, wire, or runtime behavior.
+CORE-001 opens only dependency-free local
 Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
 only finite raw source timestamps, separately typed optional derived timestamp
 values, timestamped samples, and bounded chunks. CORE-003 adds only bounded
@@ -103,6 +107,18 @@ owner-issued descriptor open an exact runtime surface.
   oracle, or C-ABI crates only when a reviewed ownership boundary requires it.
 - Keep `unsafe_code = "forbid"` until a separately reviewed FFI or platform
   adapter demonstrates a need.
+- LSLC-001B uses separate nonzero Unicode scalar-value maxima for XML text and
+  element names. Text accepts exactly the XML 1.0 Fifth Edition `Char`
+  production; names accept the complete `NameStartChar` and `NameChar`
+  productions. Accepted strings and allocations remain unchanged behind
+  private fields with borrowed and consuming access.
+- XML text length rejects before its first indexed illegal scalar. Element-name
+  rejection order is empty, length, invalid start, then first invalid
+  continuation. Colon is syntax only and grants no namespace interpretation.
+- LSLC-001B accepts ampersand, less-than, greater-than, and `]]>` as caller
+  values. It owns no representation policy, escaping, entity selection, CDATA
+  handling, parsing, serialization, byte output, document assembly, attributes,
+  namespaces, schemas, queries, or canonicalization.
 - Keep metadata, frames, channel counts, chunks, queues, timeouts, retries, and
   retained ranges explicitly bounded.
 - CORE-001 constructors validate complete inputs before returning a value,
@@ -256,6 +272,12 @@ For LSLC-001A corpus or corpus-documentation edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001a.ps1
+```
+
+For LSLC-001B XML name/text value-contract edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001b.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

@@ -7,6 +7,7 @@
 | Local bounded metadata construction | Implemented | CORE-001 Rust unit tests; no XML behavior |
 | Metadata XML | Not implemented | Specification cases only |
 | Stream-info document corpus | Specification only | LSLC-001A public-documentation roles; oracle and candidate evidence not observed |
+| Local XML legal-text and element-name values | Implemented | LSLC-001B Rust unit tests; bounded scalar/name validation only, with no representation or document behavior |
 | Discovery and resolution | Not implemented | No case or measurement |
 | Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
 | Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |
@@ -71,6 +72,12 @@ It proves no cross-component interpretation or validation, XML or LSL `desc`
 meaning, channel metadata convention, runtime identity, discovery, transport,
 protocol, wire, runtime, authority, or ecosystem behavior.
 
+LSLC-001B proves only local bounded validation against the XML 1.0 Fifth
+Edition `Char`, `NameStartChar`, and `NameChar` productions, stable validation
+precedence, and exact caller-string retention. It does not prove escaping,
+parsing, serialization, document construction, LSL field mapping, endpoint
+output, protocol, wire, runtime, oracle, or ecosystem behavior.
+
 ## Compatibility classes
 
 LSLC-001A is a separate specification corpus, not a CORE overlay or an
@@ -81,6 +88,11 @@ roles. Every observation and candidate result is `not-observed` with null
 evidence. Exact bytes, order, whitespace, empty-element form, numeric spelling,
 and channel-format wire spelling remain unresolved for a separately approved
 black-box oracle unit.
+
+The separate `lslc-001b-contract-results.json` overlay binds local Rust tests
+to the LSLC-001A legal-character, character-data, invalid-name, and bound roles
+without changing any LSLC-001A oracle observation or candidate result. Those
+roles remain `not-observed` with null evidence.
 
 Compatibility evidence is classified at four distinct levels:
 

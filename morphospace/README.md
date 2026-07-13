@@ -29,3 +29,10 @@ keeps specification, oracle observation, and
 candidate result separate; all LSLC-001A observations and results remain
 `not-observed` with null evidence. It performs no lifecycle transition and
 opens no XML, oracle, protocol, dependency, feature, effect, or runtime surface.
+
+`rlsl-lslc-001b-xml-name-text-contracts` permits only dependency-free bounded
+XML 1.0 Fifth Edition legal-text and element-name value contracts, their local
+tests and evidence overlay, deterministic validation, and documentation
+routing. It performs no lifecycle transition and opens no escaping, parsing,
+serialization, document, field-mapping, oracle, protocol, dependency, feature,
+effect, I/O, wire, transport, or runtime surface.

@@ -19,6 +19,11 @@ seven positive roles, nine damaged/planned-test roles, and explicit local
 bounds. Every oracle observation and candidate result is `not-observed` with
 null evidence. It contains no XML payload or endpoint output, and exact
 serialization remains unresolved.
+`lslc-001b-contract-results.json` is a separate independently authored local
+Rust contract overlay for bounded XML legal-text and element-name values. It
+binds accepted LSLC-001A case roles without changing their `not-observed` null
+oracle/candidate evidence and proves no escaping, parsing, serialization,
+document, LSL, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
 `core-001-contract-results.json` is a separate independently authored overlay
 for local Rust unit-test results tied to `contract-metadata-bounds` and
 `contract-sample-shape`; it is not an oracle measurement or an LSL
@@ -82,3 +87,5 @@ Run `tools/check_core_008.ps1` for the CORE-008 overlay and stream-definition
 composition implementation.
 Run `tools/check_lslc_001a.ps1` for the LSLC-001A corpus and its clean-source,
 role-separation, historical-preservation, and inert-closure checks.
+Run `tools/check_lslc_001b.ps1` for the LSLC-001B range tables, value privacy,
+test overlay, corpus separation, and inert-closure checks.
