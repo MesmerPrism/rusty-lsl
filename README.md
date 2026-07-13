@@ -7,8 +7,8 @@ explicit, typed integration with Rusty Morphospace.
 Status: source-only crate with dependency-free bounded metadata, sample-shape,
 finite raw source timestamp, optional derived timestamp, and timestamped-chunk
 contracts, plus bounded core stream descriptors, a bounded parent-before-child
-flat metadata-tree arena, and the accepted specification-level STRM-000
-baseline. No LSL
+flat metadata-tree arena, a data-only descriptor/sample binding, and the
+accepted specification-level STRM-000 baseline. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
@@ -77,6 +77,22 @@ schema, query, mutation, document assembly, protocol, wire, discovery,
 networking, transport, runtime, clock, provider, adapter, or authority behavior.
 Its tests prove only the named local Rust contract semantics.
 
+CORE-005 adds a separate descriptor/sample binding module. Its public
+unvalidated input family contains exactly seven homogeneous representations:
+`Sample<f32>`, `Sample<f64>`, `Sample<String>`, `Sample<i32>`, `Sample<i16>`,
+`Sample<i8>`, and `Sample<i64>`, mapped one-to-one to the existing data-only
+`ChannelFormat` values. Construction reuses the validated `Sample<T>` and
+`StreamDescriptor` contracts, requires the descriptor's exact format and
+channel count, and stores only a compact validated shape snapshot rather than
+copying the full descriptor.
+
+An explicit nonzero limit bounds each String channel by Unicode scalar values.
+Empty strings and all accepted text remain exact. Numeric values remain in
+order and preserve exact integer values and floating-point bits, including
+signed zero and chosen NaN payloads. CORE-005 performs no conversion, casting,
+parsing, formatting, normalization, inference, byte sizing, encoding, decoding,
+endianness, wire mapping, or runtime action.
+
 The separate STRM-000 baseline
 continues to distinguish independently authored specifications, planned
 black-box observations, and measured results; only the first exists today. See
@@ -86,8 +102,9 @@ black-box observations, and measured results; only the first exists today. See
 
 Development is bounded by the public project-local control surface under
 [`morphospace/`](morphospace/README.md). Its lock selects no feature or module
-and permits no runtime effect. Workflow state records CORE-004 as active for
+and permits no runtime effect. Workflow state records CORE-005 as active for
 this bounded implementation and validation slice. The separate CORE-001 and
 CORE-002 overlays and the separate CORE-003 and CORE-004 local-results overlays
-report only local Rust contract tests. Activity and local unit-test results are
-not LSL interoperability or runtime evidence.
+plus the separate CORE-005 local-results overlay report only local Rust contract
+tests. Activity and local unit-test results are not LSL interoperability or
+runtime evidence.

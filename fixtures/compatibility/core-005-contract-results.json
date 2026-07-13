@@ -1,0 +1,49 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-005-descriptor-sample-binding",
+  "unit_id": "rlsl-core-005-descriptor-sample-binding",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "case_id": "contract-sample-shape",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 sample-shape case remains historical specification-only evidence; this overlay records only independently authored local Rust descriptor/sample binding behavior."
+  },
+  "contract_results": [
+    {
+      "contract_id": "descriptor-sample-shape-and-format-binding",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_005_all_seven_exact_format_mappings_bind",
+        "core_005_float_bits_and_channel_order_are_preserved",
+        "core_005_integer_edges_and_channel_order_are_preserved",
+        "core_005_string_exact_unicode_scalar_limit_and_empty_value_preserved"
+      ],
+      "damaged_tests": [
+        "core_005_descriptor_sample_channel_mismatch_has_stable_error",
+        "core_005_each_input_family_has_stable_format_mismatch",
+        "core_005_first_one_past_string_channel_has_stable_indexed_error",
+        "core_005_validation_order_is_format_then_channel_then_string_bound",
+        "core_005_zero_string_limit_has_stable_error"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "numeric or string conversion, coercion, casting, parsing, formatting, or normalization",
+    "byte sizing, encoding, decoding, endianness, memory layout, or wire mapping",
+    "LSL protocol behavior",
+    "sample or descriptor transport",
+    "discovery, buffering, clocks, scheduling, recovery, providers, or runtime action",
+    "source identity, authorization, admission, routing, permission, or Morphospace authority",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

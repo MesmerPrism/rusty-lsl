@@ -84,6 +84,15 @@ material, external observations, or copied inputs. It proves no XML, document,
 query, mutation, discovery, transport, protocol, wire, runtime, ecosystem, or
 official-liblsl behavior.
 
+`fixtures/compatibility/core-005-contract-results.json` is a separate
+independently authored local-results overlay. It binds exact positive and
+damaged local Rust tests for descriptor/sample format and channel-shape
+matching, per-String-channel Unicode scalar bounds, and unchanged homogeneous
+values. Its source, tests, and gate were authored from this repository's public
+unit requirements without external implementation input. It proves no
+conversion, encoding, layout, wire, protocol, transport, runtime, ecosystem,
+or official-liblsl behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

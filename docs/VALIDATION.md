@@ -10,9 +10,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 
 The script runs formatting, locked offline metadata inspection, locked offline
 tests, the STRM-000 compatibility/provenance gate, the CORE-001, CORE-002,
-CORE-003, and CORE-004 local-contract gates, the public-boundary and text-hygiene
-checker, the dependency-free local project-workspace checker, and Git
-whitespace checks.
+CORE-003, CORE-004, and CORE-005 local-contract gates, the public-boundary and
+text-hygiene checker, the dependency-free local project-workspace checker, and
+Git whitespace checks.
 
 Run the focused baseline gate with:
 
@@ -42,6 +42,12 @@ Run the focused bounded metadata-tree gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_004.ps1
+```
+
+Run the focused descriptor/sample binding gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_005.ps1
 ```
 
 ## Acceptance criteria
@@ -86,6 +92,17 @@ The source-only slice passes when:
   validation/traversal, and no XML syntax, parsing, serialization, query,
   mutation, protocol, discovery, transport, runtime, adapter, dependency,
   feature, unsafe, authority, or compatibility-claim surface;
+- the separate CORE-005 overlay binds exact tests for all seven homogeneous
+  input mappings, each input-family format mismatch, descriptor/sample channel
+  mismatch, nonzero String limits, exact and one-past Unicode scalar bounds,
+  first-channel error indexing, empty String preservation, order preservation,
+  signed zero and NaN payload bit preservation, integer edges, and stable error
+  payloads;
+- CORE-005 retains private accepted fields and only a compact descriptor-shape
+  snapshot plus the owned validated sample, with no conversion, casting,
+  parsing, formatting, normalization, inference, byte sizing, encoding,
+  decoding, endianness, wire mapping, allocation beyond owned contract state,
+  runtime action, dependency, feature, or unsafe surface;
 - the damaged matrix, provenance fields, artifact digests, case relationships,
   source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;
@@ -106,7 +123,8 @@ clock or nominal-rate behavior, timestamp or rate derivation, sample, chunk, or
 descriptor transport, metadata-tree XML/document behavior, source identity or
 authority, channel encoding or
 conversion, protocol behavior, wire interoperability, ecosystem compatibility, network behavior,
-performance, native-library safety, platform support, official-liblsl behavior,
+performance, numeric or String conversion, memory layout, native-library safety,
+platform support, official-liblsl behavior,
 or publication readiness.
 
 Future compatibility claims require focused positive and damaged fixtures,

@@ -55,8 +55,11 @@ values, timestamped samples, and bounded chunks. CORE-003 adds only bounded
 core stream descriptors, explicit nominal-rate values, and seven data-only
 channel-format names. CORE-004 adds only a dependency-free parent-before-child
 flat metadata-tree arena with explicit structural and Unicode scalar-value
-bounds. Keep the feature lock empty and inert until a later
-reviewed unit and owner-issued descriptor open an exact runtime surface.
+bounds. CORE-005 adds only a dependency-free descriptor/sample binding for
+exactly seven homogeneous data representations, exact descriptor format and
+channel-shape checks, and bounded String channel values. Keep the feature lock
+empty and inert until a later reviewed unit and owner-issued descriptor open an
+exact runtime surface.
 
 ## Provenance And Compatibility
 
@@ -117,6 +120,18 @@ reviewed unit and owner-issued descriptor open an exact runtime surface.
 - CORE-004 implements no XML syntax, parsing, serialization, escaping,
   namespaces, attributes, entities, schemas, queries, protocol behavior,
   discovery, runtime, transport, or tree mutation.
+- CORE-005 reuses validated `StreamDescriptor` and `Sample<T>` values. Its
+  accepted state privately retains only the exact descriptor channel count and
+  data-only format plus the unchanged owned sample; it does not copy the full
+  descriptor into each binding.
+- Descriptor/sample construction checks format, then channel count, then String
+  values in zero-based channel order. Its nonzero String maximum counts Unicode
+  scalar values, accepts empty strings, and reports the first oversized channel
+  with stable expected/actual counts. Numeric values retain order and exact
+  bits, including signed zero and NaN payloads.
+- CORE-005 performs no conversion, casting, parsing, formatting, normalization,
+  inference, byte sizing, encoding, decoding, endianness, wire mapping,
+  allocation beyond owned contract state, or runtime action.
 - Timestamp value constructors do not read clocks or calculate correction,
   dejittering, smoothing, interpolation, or sample-rate timestamp derivation.
 - Discovery is observation, never identity, authorization, or activation.
@@ -169,6 +184,12 @@ For bounded metadata-tree contract edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_004.ps1
+```
+
+For descriptor/sample binding edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_005.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

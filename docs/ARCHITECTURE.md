@@ -6,6 +6,9 @@ The repository contains one `std`-only facade crate. Its public surface reports
 `BoundedLocalContracts`, declares the repository ownership boundary, and
 implements local bounded metadata, sample shape, timestamp value, timestamped
 sample, chunk, core stream-descriptor, and flat metadata-tree families.
+The separate descriptor/sample binding family accepts exactly seven
+homogeneous `Sample<T>` representations and binds each one to the matching
+data-only descriptor format and exact descriptor channel count.
 `RawSourceTimestamp` and
 `DerivedTimestamp` accept
 only finite `f64` values and preserve their bits. Every `DerivedTimestamp`
@@ -48,6 +51,18 @@ derivation. `ChannelFormat` has exactly seven independently named data-only
 variants and assigns no protocol or wire numeric discriminants; it performs no
 byte sizing, encoding, decoding, or value conversion.
 
+`DescriptorSampleInput` is public unvalidated binding input. It owns one
+already validated `Sample<T>` for exactly one of `f32`, `f64`, `String`, `i32`,
+`i16`, `i8`, or `i64`. `BoundDescriptorSample` cannot be publicly forged: it
+stores private accepted fields containing the unchanged sample and only a
+compact descriptor-shape snapshot of channel count and `ChannelFormat`.
+Construction borrows the validated descriptor and does not clone it.
+`DescriptorSampleLimits` requires a nonzero maximum Unicode scalar-value count
+for each String channel. Validation reports format mismatch, channel-count
+mismatch, or the first oversized String channel deterministically. It performs
+no conversion, casting, parsing, formatting, normalization, inference, byte
+sizing, encoding, decoding, endianness, wire mapping, or runtime action.
+
 Construction validates the complete caller-provided value before returning an
 accepted value. Invalid limit configurations, exceeded metadata or chunk
 bounds, invalid declared channel counts, value-count mismatches, non-finite
@@ -64,9 +79,9 @@ access, native libraries, runtime profiles, or compatibility behavior.
 The accepted STRM-000 baseline adds only specification-level compatibility cases, damaged-input
 expectations, an isolated black-box oracle procedure, and deterministic
 validation. These feedback-plane artifacts are neither data-plane behavior nor
-runtime receipts. CORE-001, CORE-002, CORE-003, and CORE-004 record local Rust
-contract tests in separate overlays rather than rewriting that historical
-baseline as a measurement.
+runtime receipts. CORE-001, CORE-002, CORE-003, CORE-004, and CORE-005 record
+local Rust contract tests in separate overlays rather than rewriting that
+historical baseline as a measurement.
 
 ## Ownership
 
@@ -109,6 +124,11 @@ validated construction. It does not define XML names or documents, parsing,
 serialization, escaping, namespaces, attributes, entities, schemas, queries,
 mutation, discovery, protocol, wire, transport, runtime, or authority behavior.
 
+CORE-005 makes exact descriptor format, exact descriptor/sample channel count,
+and per-String-channel Unicode scalar bounds part of accepted construction.
+Accepted strings, integer values, and floating-point bits including signed zero
+and NaN payloads remain unchanged and ordered.
+
 CORE-002 implements finite raw source timestamp retention and a separately
 typed optional derived timestamp value classified as `ClockCorrected` or
 `Smoothed`. A derived value cannot replace, hide, or mutate the raw value. The
@@ -118,8 +138,8 @@ sample-rate-derived timestamps. Provider fallback must name the selected
 candidate and retain the rejected candidate's failure.
 
 Only the metadata, sample-shape, timestamp-value, bounded-chunk, core
-stream-descriptor, and flat metadata-tree construction invariants are
-implemented. The remaining
+stream-descriptor, flat metadata-tree, and descriptor/sample binding
+construction invariants are implemented. The remaining
 invariants constrain future design; none is an LSL runtime claim.
 
 ## Dependency direction
