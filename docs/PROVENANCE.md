@@ -293,3 +293,12 @@ no endpoint output. It preserves every historical digest and all LSLC-001A
 oracle/candidate roles unchanged. It proves only the bounded local consuming
 projection, not decoding, round trips, documents, serialization, LSL mapping,
 protocol, wire, runtime, ecosystem, compatibility, or official-liblsl behavior.
+
+`fixtures/compatibility/lslc-001k-stream-info-static-field-results.json` is an
+independently authored local-results overlay. It binds the exact accepted
+LSLC-001H case-manifest and observation-overlay SHA-256 values while leaving
+those artifacts unchanged. Public black-box observations supply only the six
+static role order and seven format spellings; no liblsl, rLSL, wrapper,
+application, generated, protocol, build, vendored, or test source supplied an
+implementation input. The overlay contains semantic values only, not captured
+endpoint bytes or volatile runtime data.

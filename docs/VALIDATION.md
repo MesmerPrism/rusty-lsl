@@ -409,3 +409,23 @@ component and target bounds, precedence, exact limits, allocation failure, and
 ownership. It does not prove reverse conversion, decoding, round trips,
 document or serialization behavior, stream-info or LSL mapping, endpoint or
 official behavior, protocol, wire, transport, runtime, or compatibility.
+
+## LSLC-001K focused gate
+
+Run:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001k.ps1
+```
+
+The LSLC-001K gate checks the exact single-reference view shape, fixed six-role
+order, original and effective option/rate separation, all seven format
+mappings, pointer/source preservation tests, direct execution of the seven-case
+semantic matrix, exact LSLC-001H artifact bindings, seven-case local-results
+matrix, documentation routing, and inert dependency and feature closure. The
+rolling gate reuses the full immutable LSLC-001H corpus, case, observation,
+provenance, and driver validators. It deliberately does not reapply LSLC-001J's
+current-HEAD protected-tree pin after an authorized source unit; the accepted
+LSLC-001J receipt preserves that validation-only result. The gate does not prove
+XML, numeric formatting, runtime fields, protocol, wire, transport, I/O,
+adapters, providers, devices, or authority.

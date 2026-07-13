@@ -1,0 +1,92 @@
+{
+  "schema": "rusty.lsl.local_results_overlay.v1",
+  "overlay_id": "lslc-001k-stream-info-static-field-results",
+  "unit_id": "rlsl-lslc-001k-stream-info-static-fields",
+  "evidence_level": "local-rust-semantic-projection-tests",
+  "implementation_status": "bounded-local-contracts",
+  "accepted_artifact_bindings": {
+    "stream_definition_contract": {
+      "path": "fixtures/compatibility/core-008-contract-results.json",
+      "overlay_id": "core-008-stream-definition-composition",
+      "sha256": "8685b40dc5b3bb5ff68e3daf1c0d0be9daf4746aa52e6dad964eb2e7572f4d23"
+    },
+    "case_manifest": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "case_set_id": "lslc-001h-stream-info-xml-cases",
+      "sha256": "398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"
+    },
+    "observation_overlay": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json",
+      "overlay_id": "lslc-001h-stream-info-xml-black-box-observations",
+      "sha256": "2b1aaa4ce3faa20722386c224e70dd7b8252fecd94b6e4437280af2bb4c5ab1e",
+      "preserved_candidate_result": {"status": "not-observed", "evidence": null}
+    }
+  },
+  "static_role_order": [
+    "name",
+    "type",
+    "channel_count",
+    "channel_format",
+    "source_id",
+    "nominal_srate"
+  ],
+  "candidate_semantic_results": [
+    {
+      "case_id": "irregular-float32-empty-optionals-desc",
+      "result": "implemented-local-semantic-projection",
+      "fields": {"name": "neutral-float32", "original_type": {"form": "present", "value": ""}, "effective_type": "", "channel_count": 1, "original_channel_format": "Float32", "channel_format_spelling": "float32", "original_source_id": {"form": "present", "value": ""}, "effective_source_id": "", "original_nominal_srate": {"form": "irregular"}, "effective_nominal_srate": 0.0}
+    },
+    {
+      "case_id": "regular-double64-populated-optionals",
+      "result": "implemented-local-semantic-projection",
+      "fields": {"name": "neutral-double64", "original_type": {"form": "present", "value": "measurement"}, "effective_type": "measurement", "channel_count": 2, "original_channel_format": "Double64", "channel_format_spelling": "double64", "original_source_id": {"form": "present", "value": "source-double64"}, "effective_source_id": "source-double64", "original_nominal_srate": {"form": "regular_hz", "value": 100.0}, "effective_nominal_srate": 100.0}
+    },
+    {
+      "case_id": "regular-string-unicode-sensitive-nested-desc",
+      "result": "implemented-local-semantic-projection",
+      "fields": {"name": "unicode-Ω-中-&-<-greater->", "original_type": {"form": "present", "value": "text-&-<-greater->-\"-'"}, "effective_type": "text-&-<-greater->-\"-'", "channel_count": 3, "original_channel_format": "String", "channel_format_spelling": "string", "original_source_id": {"form": "present", "value": "source-雪-&-<-greater->"}, "effective_source_id": "source-雪-&-<-greater->", "original_nominal_srate": {"form": "regular_hz", "value": 59.94}, "effective_nominal_srate": 59.94}
+    },
+    {
+      "case_id": "regular-int32-unit-rate",
+      "result": "implemented-local-semantic-projection",
+      "fields": {"name": "neutral-int32", "original_type": {"form": "present", "value": "integer"}, "effective_type": "integer", "channel_count": 4, "original_channel_format": "Int32", "channel_format_spelling": "int32", "original_source_id": {"form": "present", "value": "source-int32"}, "effective_source_id": "source-int32", "original_nominal_srate": {"form": "regular_hz", "value": 1.0}, "effective_nominal_srate": 1.0}
+    },
+    {
+      "case_id": "regular-int16-fractional-rate",
+      "result": "implemented-local-semantic-projection",
+      "fields": {"name": "neutral-int16", "original_type": {"form": "present", "value": "integer"}, "effective_type": "integer", "channel_count": 5, "original_channel_format": "Int16", "channel_format_spelling": "int16", "original_source_id": {"form": "present", "value": "source-int16"}, "effective_source_id": "source-int16", "original_nominal_srate": {"form": "regular_hz", "value": 256.5}, "effective_nominal_srate": 256.5}
+    },
+    {
+      "case_id": "irregular-int8",
+      "result": "implemented-local-semantic-projection",
+      "fields": {"name": "neutral-int8", "original_type": {"form": "present", "value": "integer"}, "effective_type": "integer", "channel_count": 6, "original_channel_format": "Int8", "channel_format_spelling": "int8", "original_source_id": {"form": "present", "value": "source-int8"}, "effective_source_id": "source-int8", "original_nominal_srate": {"form": "irregular"}, "effective_nominal_srate": 0.0}
+    },
+    {
+      "case_id": "regular-int64-large-fractional-rate",
+      "result": "implemented-local-semantic-projection",
+      "fields": {"name": "neutral-int64", "original_type": {"form": "present", "value": "integer"}, "effective_type": "integer", "channel_count": 7, "original_channel_format": "Int64", "channel_format_spelling": "int64", "original_source_id": {"form": "present", "value": "source-int64"}, "effective_source_id": "source-int64", "original_nominal_srate": {"form": "regular_hz", "value": 1000000.25}, "effective_nominal_srate": 1000000.25}
+    }
+  ],
+  "source_relationship": {
+    "input": "one borrowed accepted StreamDefinition",
+    "allocation": "none",
+    "mutation": "none",
+    "extended_metadata": "borrowed unchanged generic MetadataTree; no desc meaning assigned"
+  },
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/core-008-contract-results.json",
+      "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "XML validation, escaping, element construction, desc mapping, serialization, parsing, decoding, numeric lexical formatting, complete documents, or endpoint bytes",
+    "volatile runtime fields, discovery, clocks, samples, chunks, buffering, recovery, protocol, wire, I/O, transport, FFI, adapters, providers, devices, or runtime support",
+    "behavior outside the exact accepted seven semantic cases or broad official-liblsl, wire, ecosystem, or platform compatibility",
+    "Manifold admission, identity, registry, subscription, route, lease, revision, replay, authorization, audit, command, session, topology, transport, or product-policy authority"
+  ]
+}

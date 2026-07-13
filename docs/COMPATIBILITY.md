@@ -270,3 +270,13 @@ observation and candidate result remains `not-observed` with null evidence.
 The evidence makes no reverse, decoding, round-trip, document, serialization,
 stream-info, LSL field-mapping, endpoint, official-liblsl, protocol, wire,
 runtime, ecosystem, or compatibility claim.
+
+## LSLC-001K local semantic-field evidence
+
+LSLC-001K binds the seven accepted LSLC-001H inputs and observations in a
+separate local-results overlay. It records only the candidate's six borrowed
+static semantic fields, original option/rate forms, effective empty/zero views,
+and seven format symbols. The accepted XML observations, runtime placeholders,
+description hierarchy, and full-document `candidate_result` remain unchanged.
+This evidence proves neither XML or numeric lexical representation nor broader
+official-liblsl, wire, runtime, or ecosystem compatibility.

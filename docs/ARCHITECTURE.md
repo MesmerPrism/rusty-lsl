@@ -333,3 +333,13 @@ become leaves. Name allocations move into accepted XML names, while represented
 character data owns the separate LSLC-001C allocation. The module owns no
 reverse conversion, decoding, defaults, mutable XML state, document or
 serialization behavior, LSL mapping, protocol, wire, or runtime authority.
+
+## LSLC-001K static semantic projection
+
+The private `stream_info_static_fields` module is an allocation-free borrowed
+view over one accepted `StreamDefinition`. It owns no copied descriptor or
+metadata state. Original option and nominal-rate forms remain observable beside
+their explicit effective views, and channel-format spelling is a total mapping
+over the existing seven variants. Borrowed extended metadata remains generic;
+the adapter assigns no XML, `desc`, document, runtime, transport, or authority
+role.

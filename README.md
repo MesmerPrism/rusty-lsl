@@ -1,5 +1,29 @@
 # Rusty LSL
 
+## LSLC-001K borrowed static stream-info fields
+
+`StreamInfoStaticFields` borrows one accepted `StreamDefinition` and exposes
+the six descriptor-owned semantic roles in the fixed order `name`, `type`,
+`channel_count`, `channel_format`, `source_id`, `nominal_srate`. It retains the
+original `Option<&str>` forms while separate effective accessors map only
+absence to `""`. It likewise retains `NominalSampleRate` while a separate
+numeric accessor maps only `Irregular` to positive `0.0` and preserves regular
+rate bits. All seven `ChannelFormat` variants map exactly to `float32`,
+`double64`, `string`, `int32`, `int16`, `int8`, and `int64`.
+
+The view owns only a reference: it allocates nothing, preserves borrowed pointer
+identity, leaves the definition reusable, and exposes the unchanged generic
+`MetadataTree` without assigning `desc` meaning. The separate LSLC-001K local
+results overlay binds the accepted seven LSLC-001H cases at semantic-field
+level and is backed by direct execution of the same seven-case Rust matrix,
+without changing their XML observations or full-document candidate status. The
+rolling gate also reuses the full immutable LSLC-001H semantic and provenance
+validators while retaining LSLC-001J as historical validation-only evidence.
+XML and numeric spelling, volatile runtime fields, protocol, transport, I/O,
+adapters, providers, devices, and Manifold authority remain out of scope.
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_001k.ps1` for the focused gate.
+
 ## LSLC-001J shallow-checkout protected-surface correction
 
 GitHub Actions runs `29276386135` and `29278122366` are preserved as distinct

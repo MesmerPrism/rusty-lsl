@@ -65,6 +65,15 @@ element, attribute, document, parser, decoder, LSL mapping, oracle, protocol,
 dependency, feature, effect, I/O, wire, transport, adapter, provider, FFI,
 device, authority, or runtime surface.
 
+`rlsl-lslc-001k-stream-info-static-fields` permits only one dependency-free,
+borrowed, allocation-free six-role semantic projection from an accepted
+`StreamDefinition`, preserving original option and nominal-rate forms beside
+explicit effective values, mapping exactly seven channel formats, retaining
+the unchanged generic metadata tree, and recording a separate seven-case local
+overlay. It performs no lifecycle transition and opens no XML, `desc`, numeric
+formatting, volatile runtime field, protocol, wire, I/O, transport, adapter,
+provider, device, feature, effect, or authority surface.
+
 `rlsl-lslc-001f-metadata-to-xml-element-tree-projection` permits only one
 dependency-free consuming projection from an accepted `MetadataTree` to an
 accepted `XmlElementTree`, with explicit component and target limits,

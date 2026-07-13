@@ -146,3 +146,12 @@ candidate result remains `not-observed` with null evidence.
 The projection assigns no reverse or round-trip behavior, complete-document,
 serialization, stream-info, `info`, `desc`, LSL field-mapping, endpoint,
 official-liblsl, protocol, wire, transport, runtime, or compatibility role.
+
+## LSLC-001K local static-field binding
+
+LSLC-001K uses the accepted LSLC-001H seven-case manifest and observation
+overlay only as public black-box semantic-field evidence. Its separate overlay
+does not edit the frozen corpus or LSLC-001H artifacts. It records a local
+borrowed `StreamDefinition` projection and keeps XML construction, `desc`
+interpretation, numeric formatting, runtime fields, protocol, and transport
+outside the candidate result.

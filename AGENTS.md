@@ -1,5 +1,32 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001K Borrowed StreamInfo Static Fields
+
+LSLC-001K adds only a borrowed, allocation-free semantic projection from one
+accepted `StreamDefinition`. Its fixed descriptor-owned role order is `name`,
+`type`, `channel_count`, `channel_format`, `source_id`, `nominal_srate`.
+Original optional content-type and source-id forms remain separately visible;
+effective access maps only absence to empty text. Original irregular or regular
+nominal-rate form also remains visible; the separate effective numeric view maps
+only irregular to positive `0.0` and preserves regular `f64` bits. The seven
+format spellings are exactly `float32`, `double64`, `string`, `int32`, `int16`,
+`int8`, and `int64`.
+
+The source definition, all borrowed text, and its generic `MetadataTree` remain
+unchanged and reusable. The metadata gains no `desc` meaning. This unit adds no
+XML construction or representation, numeric formatting, volatile fields,
+protocol, wire, I/O, runtime, adapter, provider, device, or authority behavior.
+The rolling focused gate reuses the full immutable LSLC-001H corpus, case,
+observation, provenance, and driver validators. It does not reapply LSLC-001J's
+historical current-tree pin after this explicitly authorized source addition;
+the accepted LSLC-001J receipt remains the evidence for that validation-only
+unit.
+Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001k.ps1
+```
+
 ## LSLC-001J Shallow-Checkout Protected-Surface Gate
 
 LSLC-001J is a validation-only correction for the LSLC-001H protected-source
