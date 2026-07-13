@@ -46,6 +46,17 @@ element, attribute, document, parser, decoder, LSL mapping, oracle, protocol,
 dependency, feature, effect, I/O, wire, transport, adapter, provider, FFI,
 device, authority, or runtime surface.
 
+`rlsl-lslc-001f-metadata-to-xml-element-tree-projection` permits only one
+dependency-free consuming projection from an accepted `MetadataTree` to an
+accepted `XmlElementTree`, with explicit component and target limits,
+None/container and Some-including-empty/leaf local classification, one distinct
+fallibly reserved output arena, indexed failures, focused tests, a separate
+overlay, deterministic validation, and public documentation routing. It
+performs no lifecycle transition and opens no borrowed/reverse/default
+conversion, decoding, round-trip, document, serialization, stream-info, LSL
+mapping, oracle, compatibility, protocol, feature, effect, I/O, wire,
+transport, adapter, provider, FFI, device, authority, or runtime surface.
+
 `rlsl-lslc-001e-xml-container-leaf-tree` permits only a dependency-free bounded
 parent-before-child hierarchy over accepted XML component values, with one
 fallibly reserved iterative scratch vector, exact original-arena ownership,

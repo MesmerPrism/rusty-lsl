@@ -215,3 +215,13 @@ A dependency or reference artifact may enter only after its task-specific
 purpose and license are recorded. A Cargo lockfile proves resolution, not
 dependency acceptance. Any material whose origin or redistribution rights are
 unclear remains outside the repository until resolved.
+
+`fixtures/compatibility/lslc-001f-contract-results.json` is a separate
+independently authored local-results overlay. Its only technical inputs are the
+accepted CORE-004 and LSLC-001A through LSLC-001E contract artifacts. No
+liblsl, rLSL, wrapper, application, generated, protocol, or other
+implementation source supplied implementation input, and the overlay contains
+no endpoint output. It preserves every historical digest and all LSLC-001A
+oracle/candidate roles unchanged. It proves only the bounded local consuming
+projection, not decoding, round trips, documents, serialization, LSL mapping,
+protocol, wire, runtime, ecosystem, compatibility, or official-liblsl behavior.

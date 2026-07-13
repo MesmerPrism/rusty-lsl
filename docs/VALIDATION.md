@@ -314,3 +314,20 @@ When the portable Rusty Morphospace work-environment repository is available,
 also run its `Test-WorkflowContracts.ps1` against `morphospace/`. The local
 checker is a repository gate; it does not replace portable lifecycle or
 transition validation.
+
+## LSLC-001F focused gate
+
+Run:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001f.ps1
+```
+
+The LSLC-001F gate proves only the local consuming one-way projection,
+None/Some classification, deterministic indexed failures, deliberate output
+and represented-string allocation ownership, and unchanged final hierarchy
+delegation. Its twelve focused tests cover classification, shape rejection,
+component and target bounds, precedence, exact limits, allocation failure, and
+ownership. It does not prove reverse conversion, decoding, round trips,
+document or serialization behavior, stream-info or LSL mapping, endpoint or
+official behavior, protocol, wire, transport, runtime, or compatibility.

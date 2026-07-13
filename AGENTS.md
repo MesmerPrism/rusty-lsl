@@ -69,6 +69,12 @@ private two-component state. Borrowed and consuming access preserves both
 components and their owned string allocations unchanged. It adds no tag
 spelling, tree, document, raw-byte, parser, serializer, stream-info mapping,
 protocol, wire, compatibility, or runtime behavior.
+LSLC-001F adds only a dependency-free consuming one-way projection from one
+accepted generic `MetadataTree` into one accepted `XmlElementTree`. `None`
+classifies as a container and every `Some`, including `Some("")`, classifies
+as a leaf under explicit caller-selected limits. This is local candidate
+policy, not decoding, round-trip, document, stream-info, LSL field-mapping,
+endpoint, compatibility, protocol, wire, or runtime behavior.
 CORE-001 opens only dependency-free local
 Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
 only finite raw source timestamps, separately typed optional derived timestamp
@@ -166,6 +172,16 @@ owner-issued descriptor open an exact runtime surface.
   `Clone` and expose no mutable access. The hierarchy grants no mixed-content,
   complete-document, tag-spelling, serialization, `MetadataTree`, stream-info,
   `info`, `desc`, protocol, wire, compatibility, or runtime meaning.
+- LSLC-001F rejects the target node bound first, then the first child in caller
+  order whose parent has a value, then fallibly reserves one exact distinct
+  output arena. It projects nodes in order through XML name validation,
+  optional text validation, character-data representation, and unchanged
+  `XmlElementTree` delegation.
+- The projection consumes the source without cloning. It preserves name
+  allocations and parent/order identity, while accepted character data owns
+  the separate LSLC-001C represented-string allocation. It exposes no borrowed
+  or reverse projection, `From`/`TryFrom`, default limits, decoder, mutable XML
+  ownership, source recovery, or round-trip claim.
 - Keep metadata, frames, channel counts, chunks, queues, timeouts, retries, and
   retained ranges explicitly bounded.
 - CORE-001 constructors validate complete inputs before returning a value,
@@ -343,6 +359,12 @@ For LSLC-001E XML container/leaf hierarchy edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001e.ps1
+```
+
+For LSLC-001F metadata-to-XML-element-tree projection edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001f.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

@@ -1,0 +1,93 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "lslc-001f-metadata-to-xml-element-tree-projection",
+  "unit_id": "rlsl-lslc-001f-metadata-to-xml-element-tree-projection",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "corpus_binding": {
+    "corpus_id": "lslc-001a-stream-info-document-corpus",
+    "case_ids": [
+      "spec-stream-info-xml-shape",
+      "spec-xml-character-data-handling",
+      "damaged-invalid-element-name"
+    ],
+    "preserved_oracle_status": "not-observed",
+    "preserved_candidate_status": "not-observed",
+    "interpretation": "The None/container and Some/leaf classification, represented character data, and rejection precedence are Rusty LSL local candidate policy. They assign no document, stream-info, info, desc, serialization, endpoint, oracle, or compatibility role."
+  },
+  "accepted_component_bindings": [
+    {
+      "overlay_id": "core-004-bounded-metadata-tree",
+      "contract_id": "bounded-parent-before-child-metadata-tree",
+      "public_input_type": "MetadataTree"
+    },
+    {
+      "overlay_id": "lslc-001b-xml-name-text-contracts",
+      "contract_id": "bounded-xml-name-and-text-values",
+      "public_input_type": "XmlElementName and XmlText"
+    },
+    {
+      "overlay_id": "lslc-001c-xml-character-data-representation",
+      "contract_id": "bounded-xml-character-data-representation",
+      "public_input_type": "XmlCharacterData"
+    },
+    {
+      "overlay_id": "lslc-001d-xml-leaf-element-composition",
+      "contract_id": "xml-leaf-element-composition",
+      "public_input_type": "XmlLeafElement"
+    },
+    {
+      "overlay_id": "lslc-001e-xml-container-leaf-tree",
+      "contract_id": "bounded-parent-before-child-xml-container-leaf-tree",
+      "public_input_type": "XmlElementTree"
+    }
+  ],
+  "projection": {
+    "public_function": "project_metadata_tree_to_xml_element_tree",
+    "relationship": "Consumes one accepted MetadataTree into one distinct candidate-node arena, moves each name allocation, represents each present value into a new accepted LSLC-001C String allocation, and delegates the arena unchanged to XmlElementTree.",
+    "classification": "None maps to Container; Some, including Some(empty), maps to Leaf.",
+    "direction": "one-way-only-with-no-decoding-or-round-trip-claim"
+  },
+  "contract_results": [
+    {
+      "contract_id": "consuming-metadata-to-xml-element-tree-projection",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "lslc_001f_childless_container_and_valued_leaf_root_are_accepted",
+        "lslc_001f_consuming_tree_exposes_only_accepted_target_values",
+        "lslc_001f_limits_have_no_hidden_default_policy",
+        "lslc_001f_name_allocations_parent_identity_and_distinct_arena_are_preserved",
+        "lslc_001f_none_and_some_including_empty_project_in_order"
+      ],
+      "damaged_tests": [
+        "lslc_001f_first_child_of_value_bearing_parent_rejects_before_components",
+        "lslc_001f_later_component_failure_preserves_caller_index",
+        "lslc_001f_name_then_text_then_character_data_errors_are_indexed",
+        "lslc_001f_output_allocation_helper_returns_typed_error_without_panicking",
+        "lslc_001f_retained_bytes_delegation_sees_represented_data",
+        "lslc_001f_target_hierarchy_errors_are_delegated_unchanged",
+        "lslc_001f_target_node_bound_precedes_shape_and_allocation"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/core-004-contract-results.json",
+      "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json",
+      "fixtures/compatibility/lslc-001b-contract-results.json",
+      "fixtures/compatibility/lslc-001c-contract-results.json",
+      "fixtures/compatibility/lslc-001d-contract-results.json",
+      "fixtures/compatibility/lslc-001e-contract-results.json"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "reverse conversion, decoding, logical-text recovery, source recovery on failure, bidirectional behavior, or round trips",
+    "mixed content, valued containers, synthetic roots, attributes, namespaces, declarations, comments, processing instructions, CDATA sections, schemas, queries, or general XML DOM behavior",
+    "document production or well-formedness, tag spelling, caller-order serialization meaning, parsing, mutation, serialization, canonicalization, or raw bytes",
+    "StreamDefinition or StreamDescriptor projection, info or desc roles, stream-info meaning, LSL field mapping, endpoint representation, oracle behavior, or compatibility",
+    "dependency, feature, unsafe, I/O, protocol, wire, discovery, transport, runtime, adapter, provider, FFI, device, or authority behavior"
+  ]
+}

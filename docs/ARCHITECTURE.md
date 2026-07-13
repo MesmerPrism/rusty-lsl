@@ -280,3 +280,19 @@ written independently, its fixtures have recorded provenance, oracle use is
 isolated and reproducible, negative cases are named, and the resulting claim
 is limited to the evidence actually collected. See `COMPATIBILITY.md`,
 `PROVENANCE.md`, and `VALIDATION.md`.
+
+## LSLC-001F metadata XML projection
+
+The private `metadata_xml_projection` module is a one-way adapter between the
+accepted CORE-004 arena and LSLC-001B through LSLC-001E values. Its sole public
+entry point consumes `MetadataTree` plus four explicit accepted limit values.
+It checks target node count, scans for the first child of a value-bearing
+parent, reserves one distinct output arena exactly, projects names and present
+values in caller order, and delegates the completed arena unchanged to
+`XmlElementTree`.
+
+Absent values become containers; present values, including empty strings,
+become leaves. Name allocations move into accepted XML names, while represented
+character data owns the separate LSLC-001C allocation. The module owns no
+reverse conversion, decoding, defaults, mutable XML state, document or
+serialization behavior, LSL mapping, protocol, wire, or runtime authority.

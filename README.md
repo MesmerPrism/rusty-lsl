@@ -14,7 +14,8 @@ accepted specification-level STRM-000 baseline, the LSLC-001A
 public-documentation specification corpus, and the LSLC-001B bounded XML
 legal-text and element-name value contracts, plus the LSLC-001C bounded local
 XML character-data representation, LSLC-001D leaf-only two-component
-composition, and LSLC-001E bounded container/leaf hierarchy. No LSL
+composition, LSLC-001E bounded container/leaf hierarchy, and the LSLC-001F
+consuming metadata-to-element-tree projection. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
@@ -236,3 +237,20 @@ The hierarchy is not a complete XML tree or document and assigns no mixed
 content, tag spelling, serialization order, raw bytes, parser, mutation,
 `MetadataTree` conversion, `info`/`desc` role, stream-info mapping, endpoint,
 protocol, wire, runtime, authority, or compatibility meaning.
+
+LSLC-001F adds
+`project_metadata_tree_to_xml_element_tree(source, limits)` as the sole public
+projection. It consumes an accepted `MetadataTree`; maps `None` to a
+name-only container and every `Some`, including empty text, to a represented
+leaf; preserves node order, parent indexes, root identity, and name `String`
+allocations; and delegates a distinct fallibly reserved candidate arena to
+`XmlElementTree`. `MetadataXmlProjectionLimits` contains only caller-selected
+accepted XML name, text, character-data, and element-tree limits.
+
+Target node count rejects before the first child whose parent is
+value-bearing, then output reservation precedes per-node name, optional text,
+and character-data validation. Final hierarchy errors are retained unchanged.
+This partial local classification is one-way only: there is no borrowed or
+reverse conversion, `From`/`TryFrom` or default policy, decoding, logical-text
+recovery, round-trip claim, document production, stream-info or LSL mapping,
+endpoint representation, protocol, wire, runtime, or compatibility behavior.

@@ -110,3 +110,16 @@ independently authored local Rust structural and resource tests. It does not
 edit this corpus: every oracle observation and candidate result remains
 `not-observed` with null evidence. The hierarchy assigns no stream-info,
 `info`, `desc`, complete-document, serialization, or endpoint role.
+
+## LSLC-001F local projection binding
+
+LSLC-001F consumes the accepted CORE-004 metadata arena and composes only
+accepted LSLC-001B through LSLC-001E component contracts. Its separate overlay
+records a local one-way `None`-to-container and `Some`-to-leaf policy, including
+empty present text, plus deterministic bounds, allocation, and failure
+precedence. It does not edit this corpus: every oracle observation and
+candidate result remains `not-observed` with null evidence.
+
+The projection assigns no reverse or round-trip behavior, complete-document,
+serialization, stream-info, `info`, `desc`, LSL field-mapping, endpoint,
+official-liblsl, protocol, wire, transport, runtime, or compatibility role.

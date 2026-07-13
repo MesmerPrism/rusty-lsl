@@ -20,6 +20,7 @@
 mod descriptor_sample;
 mod metadata;
 mod metadata_tree;
+mod metadata_xml_projection;
 mod sample;
 mod stream_definition;
 mod stream_descriptor;
@@ -42,6 +43,10 @@ pub use metadata::{
 pub use metadata_tree::{
     MetadataNode, MetadataNodeInput, MetadataTree, MetadataTreeBound, MetadataTreeError,
     MetadataTreeLimits, MetadataTreeTextRole,
+};
+pub use metadata_xml_projection::{
+    project_metadata_tree_to_xml_element_tree, MetadataXmlProjectionError,
+    MetadataXmlProjectionLimits,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
 pub use stream_definition::StreamDefinition;
@@ -113,6 +118,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local XML character-data representation",
             "bounded local XML leaf-element composition",
             "bounded local XML container/leaf hierarchy",
+            "bounded local metadata-to-XML-element-tree projection",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

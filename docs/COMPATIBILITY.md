@@ -228,3 +228,15 @@ named implementation, positive and damaged tests, provenance records, and
 validation instructions. Broader labels such as wire-compatible,
 ecosystem-compatible, or supported require an explicitly reviewed definition
 and evidence set; they must not be inferred from build success.
+
+## LSLC-001F local projection evidence
+
+LSLC-001F proves only the dependency-free consuming projection from one
+accepted generic metadata arena to one accepted container/leaf hierarchy.
+`None` versus `Some`, represented character data, allocation ownership, and
+failure precedence are Rusty LSL local candidate policy. Every LSLC-001A oracle
+observation and candidate result remains `not-observed` with null evidence.
+
+The evidence makes no reverse, decoding, round-trip, document, serialization,
+stream-info, LSL field-mapping, endpoint, official-liblsl, protocol, wire,
+runtime, ecosystem, or compatibility claim.
