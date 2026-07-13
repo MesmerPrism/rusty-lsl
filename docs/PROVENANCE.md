@@ -145,6 +145,17 @@ bounded Rust value validation and preserves every LSLC-001A oracle/candidate
 role unchanged. It proves no representation, document, LSL, protocol, wire,
 runtime, ecosystem, or official-liblsl behavior.
 
+`fixtures/compatibility/lslc-001c-contract-results.json` is a separate
+independently authored local-results overlay. Its only technical inputs are the
+accepted LSLC-001A character-data role and LSLC-001B bounded legal-text value
+contract. Its source, tests, and checker use no liblsl, rLSL, wrapper,
+application, test, build, vendored, generated, protocol, or other
+implementation source and contain no endpoint output. The overlay labels the
+fixed `&`, `<`, and global `>` replacements as Rusty LSL local candidate
+policy, preserves all LSLC-001A oracle/candidate roles unchanged, and proves no
+document, LSL mapping, protocol, wire, runtime, ecosystem, or official-liblsl
+behavior.
+
 Each fixture family must have an adjacent machine-readable manifest recording:
 
 - stable fixture identifier and classification;

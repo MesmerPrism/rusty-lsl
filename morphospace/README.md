@@ -36,3 +36,12 @@ tests and evidence overlay, deterministic validation, and documentation
 routing. It performs no lifecycle transition and opens no escaping, parsing,
 serialization, document, field-mapping, oracle, protocol, dependency, feature,
 effect, I/O, wire, transport, or runtime surface.
+
+`rlsl-lslc-001c-xml-character-data-representation` permits only a
+dependency-free bounded representation over borrowed accepted `XmlText`, with
+the fixed local `&amp;`, `&lt;`, and `&gt;` policy, typed checked-length/limit/fallible
+allocation errors, its local overlay and deterministic validation, and public
+documentation routing. It performs no lifecycle transition and opens no
+element, attribute, document, parser, decoder, LSL mapping, oracle, protocol,
+dependency, feature, effect, I/O, wire, transport, adapter, provider, FFI,
+device, authority, or runtime surface.

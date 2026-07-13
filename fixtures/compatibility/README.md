@@ -24,6 +24,12 @@ Rust contract overlay for bounded XML legal-text and element-name values. It
 binds accepted LSLC-001A case roles without changing their `not-observed` null
 oracle/candidate evidence and proves no escaping, parsing, serialization,
 document, LSL, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
+`lslc-001c-contract-results.json` separately binds seven focused local Rust
+tests only to the accepted LSLC-001A character-data role and LSLC-001B
+validated `XmlText` contract. It records fixed `&`, `<`, and global `>`
+replacement as local candidate policy, preserves all corpus oracle/candidate
+roles unchanged, and proves no element, document, LSL mapping, exact endpoint,
+protocol, wire, runtime, ecosystem, or official-liblsl behavior.
 `core-001-contract-results.json` is a separate independently authored overlay
 for local Rust unit-test results tied to `contract-metadata-bounds` and
 `contract-sample-shape`; it is not an oracle measurement or an LSL
@@ -89,3 +95,6 @@ Run `tools/check_lslc_001a.ps1` for the LSLC-001A corpus and its clean-source,
 role-separation, historical-preservation, and inert-closure checks.
 Run `tools/check_lslc_001b.ps1` for the LSLC-001B range tables, value privacy,
 test overlay, corpus separation, and inert-closure checks.
+Run `tools/check_lslc_001c.ps1` for the LSLC-001C exact replacements, byte
+bounds, typed fallible allocation path, test overlay, historical preservation,
+and inert-closure checks.

@@ -57,6 +57,12 @@ unit. LSLC-001B adds only dependency-free bounded XML 1.0 Fifth Edition legal
 text and element-name value contracts. It preserves caller strings unchanged,
 including representation-sensitive delimiters, and adds no escaping, parsing,
 serialization, document, LSL field-mapping, protocol, wire, or runtime behavior.
+LSLC-001C adds only a dependency-free bounded character-data representation
+over borrowed accepted `XmlText`. Its fixed local candidate policy emits `&`,
+`<`, and `>` as `&amp;`, `&lt;`, and `&gt;`, respectively, while preserving every
+other legal scalar unchanged. This policy is not observed liblsl behavior and
+adds no element, attribute, document, parser, LSL mapping, protocol, wire, or
+runtime behavior.
 CORE-001 opens only dependency-free local
 Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
 only finite raw source timestamps, separately typed optional derived timestamp
@@ -119,6 +125,16 @@ owner-issued descriptor open an exact runtime surface.
   values. It owns no representation policy, escaping, entity selection, CDATA
   handling, parsing, serialization, byte output, document assembly, attributes,
   namespaces, schemas, queries, or canonicalization.
+- LSLC-001C borrows an already validated `XmlText` without consuming,
+  mutating, reinterpreting, or revalidating it. A separate nonzero maximum
+  counts encoded UTF-8 bytes. Exact checked length precedes limit rejection,
+  which precedes a non-panicking fallible reserve; typed errors retain
+  `LengthOverflow`, exact expected/required bounds, or the requested allocation.
+- Character-data accepted state is private and exposes only its limit,
+  borrowed encoded text, and consuming allocation-preserving `String` access.
+  Quotes and apostrophes remain literal. No generic entity engine, CDATA
+  section, decoder, document assembly, or exact endpoint representation is
+  implied.
 - Keep metadata, frames, channel counts, chunks, queues, timeouts, retries, and
   retained ranges explicitly bounded.
 - CORE-001 constructors validate complete inputs before returning a value,
@@ -278,6 +294,12 @@ For LSLC-001B XML name/text value-contract edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001b.ps1
+```
+
+For LSLC-001C XML character-data representation edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001c.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

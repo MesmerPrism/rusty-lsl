@@ -12,7 +12,8 @@ descriptor/sample composition, a non-empty timestamped descriptor/chunk
 composition, an infallible local stream-definition composition, and the
 accepted specification-level STRM-000 baseline, the LSLC-001A
 public-documentation specification corpus, and the LSLC-001B bounded XML
-legal-text and element-name value contracts. No LSL
+legal-text and element-name value contracts, plus the LSLC-001C bounded local
+XML character-data representation. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
@@ -33,6 +34,21 @@ unchanged accepted values. Colon is accepted name syntax only and grants no
 namespace meaning. This slice adds no escaping, entity or CDATA policy,
 parsing, serialization, byte output, document assembly, LSL field mapping,
 protocol, transport, wire, runtime, or compatibility behavior.
+
+LSLC-001C separately borrows an accepted `XmlText` and produces
+`XmlCharacterData` under a fixed candidate-owned policy: `&`, `<`, and `>`
+become `&amp;`, `&lt;`, and `&gt;`; every other legal scalar remains byte-for-byte
+unchanged in UTF-8. Thus `&<>]]>` becomes `&amp;&lt;&gt;]]&gt;` and `&amp;` becomes
+`&amp;amp;`. Global greater-than escaping is local policy, not observed liblsl
+behavior.
+
+`XmlCharacterDataLimit` is a nonzero encoded UTF-8 byte maximum. Encoding
+calculates the exact length with checked arithmetic, rejects output exceeding
+the maximum before allocation, reserves fallibly, and returns typed overflow,
+limit, or allocation errors in that order. Private accepted state exposes `limit()`, `as_str()`, and
+allocation-preserving `into_string()`. This does not add an XML element,
+attribute, document, parser, decoder, generic entity engine, CDATA-section, LSL
+mapping, protocol, wire, transport, adapter, provider, or runtime API.
 
 The architecture keeps LSL interoperability at a data-plane edge:
 

@@ -58,6 +58,22 @@ policy is selected. The module owns no parser, serializer, escaping, entity,
 CDATA, document, byte-output, attribute, namespace, schema, query, LSL mapping,
 protocol, wire, transport, runtime, or I/O API.
 
+The focused private `xml_character_data` module composes only over borrowed
+accepted `XmlText`. `XmlCharacterDataLimit` owns a nonzero encoded UTF-8 byte
+maximum. `XmlCharacterData::encode` performs an exact checked-length pass,
+rejects an exceeded maximum before allocation, uses `String::try_reserve_exact`,
+and then writes the exact precomputed length. Its deterministic error order is
+length overflow, exceeded limit with exact expected/required byte counts, then
+allocation failure with the requested count.
+
+The candidate-owned representation maps every ampersand, less-than, and
+greater-than to `&amp;`, `&lt;`, and `&gt;`. All other legal input scalars, including
+quotes, apostrophes, whitespace, non-ASCII scalars, and legal noncharacters,
+remain unchanged. Accepted output and its limit are private; borrowed and
+consuming access preserves the output allocation. This local representation is
+not an element, attribute, document, parser, decoder, generic entity engine,
+CDATA-section API, LSL field mapping, or endpoint serialization claim.
+
 `MetadataTree` owns a parent-before-child flat arena. Unvalidated
 `MetadataNodeInput` values use `Option<usize>` parent indices: exactly one root
 at index zero has no parent, and each later node must name a strictly earlier
@@ -197,6 +213,11 @@ Text and name maxima count Unicode scalar values rather than bytes or grapheme
 clusters. Accepted allocation and content are unchanged. The local contract
 does not interpret the generic metadata tree, create XML nodes or documents,
 or choose how accepted caller values are represented.
+
+LSLC-001C composes over, but does not replace, the LSLC-001B `XmlText`
+contract. It neither revalidates nor mutates the source and owns only the fixed
+local three-character replacement policy plus exact bounded output allocation.
+Its global greater-than replacement is candidate policy, not oracle evidence.
 
 CORE-002 implements finite raw source timestamp retention and a separately
 typed optional derived timestamp value classified as `ClockCorrected` or

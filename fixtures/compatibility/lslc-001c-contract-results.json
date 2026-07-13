@@ -1,0 +1,66 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "lslc-001c-xml-character-data-representation",
+  "unit_id": "rlsl-lslc-001c-xml-character-data-representation",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "corpus_binding": {
+    "corpus_id": "lslc-001a-stream-info-document-corpus",
+    "case_ids": [
+      "spec-xml-character-data-handling"
+    ],
+    "preserved_oracle_status": "not-observed",
+    "preserved_candidate_status": "not-observed",
+    "interpretation": "The accepted LSLC-001A character-data case remains a public-documentation specification role with null oracle and candidate evidence. This overlay records only independently authored local Rust character-data representation tests."
+  },
+  "validated_value_binding": {
+    "overlay_id": "lslc-001b-xml-name-text-contracts",
+    "contract_id": "bounded-xml-legal-text",
+    "public_input_type": "XmlText",
+    "relationship": "XmlCharacterData::encode borrows an already validated XmlText without consuming, mutating, reinterpreting, or revalidating it."
+  },
+  "candidate_policy": {
+    "owner": "rusty-lsl",
+    "classification": "local-candidate-policy",
+    "observed_liblsl_behavior": false,
+    "replacements": {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;"
+    },
+    "interpretation": "Greater-than escaping is a conservative global Rusty LSL candidate choice, not an observation or compatibility claim."
+  },
+  "contract_results": [
+    {
+      "contract_id": "bounded-xml-character-data-representation",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "lslc_001c_close_delimiter_and_reference_like_text_are_represented_literally",
+        "lslc_001c_consuming_access_preserves_output_allocation",
+        "lslc_001c_empty_and_each_fixed_escape_are_exact",
+        "lslc_001c_quotes_apostrophes_whitespace_and_unicode_are_preserved",
+        "lslc_001c_source_is_unchanged_and_reusable"
+      ],
+      "damaged_tests": [
+        "lslc_001c_encoded_byte_bounds_are_exact",
+        "lslc_001c_invalid_limit_and_error_precedence_are_stable"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json",
+      "fixtures/compatibility/lslc-001b-contract-results.json"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "observed liblsl character-data or greater-than escaping behavior",
+    "XML element, attribute, declaration, comment, processing-instruction, CDATA-section, parser, decoder, generic entity engine, or complete document behavior",
+    "LSL stream-info field mapping, element order, empty-element form, numeric or channel-format spelling, or exact endpoint bytes",
+    "official liblsl behavior, an oracle observation, or candidate differential evidence",
+    "protocol, wire, discovery, transport, clock, inlet, outlet, runtime, adapter, provider, FFI, device, or Morphospace authority behavior"
+  ]
+}

@@ -75,3 +75,16 @@ all oracle observations and candidate results remain `not-observed` with null
 evidence. The value layer accepts representation-sensitive caller text
 unchanged. Escaping, CDATA handling, parsing, serialization, document assembly,
 LSL field mapping, exact output, and oracle comparison remain deferred.
+
+## LSLC-001C local representation binding
+
+LSLC-001C binds only the accepted `spec-xml-character-data-handling` role and
+the LSLC-001B bounded `XmlText` value contract. Its separate overlay records a
+Rusty LSL candidate policy that replaces every `&`, `<`, and `>` with `&amp;`,
+`&lt;`, and `&gt;`. Global greater-than replacement is explicitly local policy,
+not observed liblsl behavior. The accepted corpus is unchanged: every oracle
+observation and candidate result remains `not-observed` with null evidence.
+
+The local result proves no element or document assembly, LSL field mapping,
+exact endpoint bytes, oracle result, protocol, wire, transport, or runtime
+behavior. Those roles remain separately gated.

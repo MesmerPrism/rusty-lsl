@@ -11,6 +11,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 The script runs formatting, locked offline metadata inspection, locked offline
 tests, the STRM-000 compatibility/provenance gate, the LSLC-001A corpus gate,
 the LSLC-001B XML value-contract gate,
+the LSLC-001C XML character-data representation gate,
 the CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
 public-boundary and text-hygiene checker, the dependency-free local
 project-workspace checker, and Git whitespace checks.
@@ -31,6 +32,12 @@ Run the focused LSLC-001B XML value-contract gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001b.ps1
+```
+
+Run the focused LSLC-001C XML character-data representation gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001c.ps1
 ```
 
 Run the focused bounded-contract gate with:
@@ -117,6 +124,23 @@ The source-only slice passes when:
 - LSLC-001B opens no escaping, parsing, serialization, output, document,
   namespace, field-mapping, dependency, feature, unsafe, I/O, protocol, wire,
   transport, or runtime surface;
+- the LSLC-001C overlay binds exactly seven focused local Rust tests only to
+  the accepted LSLC-001A character-data role and LSLC-001B `XmlText` contract,
+  while all corpus oracle/candidate evidence remains unchanged and null;
+- `XmlCharacterDataLimit` rejects zero and bounds exact encoded UTF-8 bytes;
+  encoding borrows without source mutation or revalidation, uses checked
+  arithmetic, checks the maximum before `try_reserve_exact`, writes the exact
+  precomputed length, and reports `LengthOverflow`, exact `LimitExceeded`, then
+  typed `AllocationFailed` in stable order;
+- the fixed local policy emits every `&`, `<`, and `>` as `&amp;`, `&lt;`, and
+  `&gt;`, preserves every other legal scalar and output allocation, and labels
+  global greater-than escaping as candidate policy rather than observed
+  behavior;
+- LSLC-001C opens no element, attribute, document, declaration, comment,
+  processing-instruction, CDATA-section, parser, decoder, generic entity,
+  namespace, schema, query, MetadataTree mapping, LSL mapping, exact endpoint,
+  dependency, feature, unsafe, I/O, protocol, wire, transport, runtime,
+  adapter, provider, FFI, device, or authority surface;
 - the separate CORE-001 overlay binds exactly `contract-metadata-bounds` and
   `contract-sample-shape` to exact-limit, one-past-limit, malformed/zero-bound,
   channel-mismatch, stable-error, and unchanged-value tests;
@@ -232,6 +256,12 @@ The LSLC-001B gate proves only the local bounded XML text/name value contracts
 and inert source closure. It does not prove representation policy, escaping,
 CDATA or entity handling, parsing, serialization, document well-formedness,
 LSL field mapping, exact bytes, official endpoint behavior, protocol, wire,
+transport, runtime, or ecosystem compatibility.
+
+The LSLC-001C gate proves only the local bounded character-data representation,
+its source-value composition, fixed candidate replacements, typed allocation
+path, and inert source closure. It does not prove document well-formedness,
+LSL field mapping, exact endpoint output, official behavior, protocol, wire,
 transport, runtime, or ecosystem compatibility.
 
 Future compatibility claims require focused positive and damaged fixtures,

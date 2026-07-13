@@ -8,6 +8,7 @@
 | Metadata XML | Not implemented | Specification cases only |
 | Stream-info document corpus | Specification only | LSLC-001A public-documentation roles; oracle and candidate evidence not observed |
 | Local XML legal-text and element-name values | Implemented | LSLC-001B Rust unit tests; bounded scalar/name validation only, with no representation or document behavior |
+| Local XML character-data representation | Implemented | LSLC-001C Rust unit tests; bounded candidate-owned `&`, `<`, and `>` replacement only, with no document or endpoint-byte claim |
 | Discovery and resolution | Not implemented | No case or measurement |
 | Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
 | Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |
@@ -78,6 +79,14 @@ precedence, and exact caller-string retention. It does not prove escaping,
 parsing, serialization, document construction, LSL field mapping, endpoint
 output, protocol, wire, runtime, oracle, or ecosystem behavior.
 
+LSLC-001C proves only that borrowed accepted `XmlText` is represented under a
+bounded local policy that emits `&amp;`, `&lt;`, and `&gt;`, preserves all other legal
+UTF-8 input, checks exact byte length before fallible allocation, and retains
+stable typed errors and private accepted state. The global greater-than choice
+is not observed liblsl behavior. These tests prove no element, attribute,
+document, parser, LSL mapping, exact endpoint bytes, protocol, wire, runtime,
+oracle, or ecosystem behavior.
+
 ## Compatibility classes
 
 LSLC-001A is a separate specification corpus, not a CORE overlay or an
@@ -93,6 +102,12 @@ The separate `lslc-001b-contract-results.json` overlay binds local Rust tests
 to the LSLC-001A legal-character, character-data, invalid-name, and bound roles
 without changing any LSLC-001A oracle observation or candidate result. Those
 roles remain `not-observed` with null evidence.
+
+The separate `lslc-001c-contract-results.json` overlay binds only the accepted
+LSLC-001A character-data role and the LSLC-001B validated `XmlText` contract.
+It records the three fixed replacements as local candidate policy while every
+LSLC-001A oracle observation and candidate result remains `not-observed` with
+null evidence.
 
 Compatibility evidence is classified at four distinct levels:
 
