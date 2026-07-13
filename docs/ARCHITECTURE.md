@@ -21,6 +21,13 @@ sample exactly once through `BoundTimestampedDescriptorSample::new`. Its
 unforgeable accepted state owns only those limits and the ordered CORE-006
 bindings; indexed failures retain the first rejected sample location and
 unchanged delegated error.
+The focused stream-definition composition moves one already validated
+`StreamDescriptor` and one already validated generic `MetadataTree` directly
+into an unforgeable `StreamDefinition`. Its private state contains exactly
+those two owned components. Borrowed access exposes each unchanged component;
+consuming access returns both without cross-component validation,
+interpretation, normalization, inference, cloning, or allocation by the
+composition layer.
 `RawSourceTimestamp` and
 `DerivedTimestamp` accept
 only finite `f64` values and preserve their bits. Every `DerivedTimestamp`
@@ -92,7 +99,7 @@ The accepted STRM-000 baseline adds only specification-level compatibility cases
 expectations, an isolated black-box oracle procedure, and deterministic
 validation. These feedback-plane artifacts are neither data-plane behavior nor
 runtime receipts. CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006,
-and CORE-007
+CORE-007, and CORE-008
 record local Rust contract tests in separate overlays rather than rewriting
 that historical baseline as a measurement.
 
@@ -159,6 +166,16 @@ does not clone values, read clocks, calculate timestamps, sort, rewrite, split,
 merge, rechunk, buffer, queue, schedule, convert, encode, transport, or perform
 runtime work. Its empty rejection is not LSL compatibility evidence.
 
+CORE-008 composes, but does not replace or reinterpret, the CORE-003 and
+CORE-004 contracts. `StreamDefinition` retains the complete validated
+descriptor and complete validated tree rather than copying snapshots or
+creating parallel limits. Its infallible constructor moves both components
+directly and adds no error family or validation order. The generic
+metadata-tree root is not an LSL `desc` element. CORE-008 adds no XML document
+shape, channel metadata convention, runtime identity, version, creation time,
+UID, session, host, address, port, fingerprint, recovery, discovery, clock,
+buffer, provider, adapter, authority, protocol, wire, or runtime behavior.
+
 CORE-002 implements finite raw source timestamp retention and a separately
 typed optional derived timestamp value classified as `ClockCorrected` or
 `Smoothed`. A derived value cannot replace, hide, or mutate the raw value. The
@@ -169,7 +186,8 @@ candidate and retain the rejected candidate's failure.
 
 Only the metadata, sample-shape, timestamp-value, bounded-chunk, core
 stream-descriptor, flat metadata-tree, descriptor/sample binding, and
-timestamped descriptor/sample and non-empty descriptor/chunk composition
+timestamped descriptor/sample, non-empty descriptor/chunk, and
+stream-definition composition
 construction invariants are
 implemented. The remaining
 invariants constrain future design; none is an LSL runtime claim.

@@ -114,6 +114,15 @@ timestamp algorithm, splitting, merging, rechunking, buffering, queueing,
 conversion, encoding, layout, wire, protocol, transport, runtime, ecosystem,
 or official-liblsl behavior.
 
+`fixtures/compatibility/core-008-contract-results.json` is a separate
+independently authored local-results overlay. It binds exact local Rust tests
+for composing one existing validated stream descriptor with one existing
+validated generic metadata tree while retaining both contracts unchanged. Its
+source, tests, and gate were authored from this repository's public unit
+requirements without external implementation input. It gives the generic root
+no XML or LSL `desc` meaning and proves no discovery, transport, protocol,
+wire, runtime identity, authority, ecosystem, or official-liblsl behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

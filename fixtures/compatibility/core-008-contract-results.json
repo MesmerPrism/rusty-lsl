@@ -1,0 +1,42 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-008-stream-definition-composition",
+  "unit_id": "rlsl-core-008-stream-definition-composition",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "case_id": "contract-metadata-bounds",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 metadata-bounds case remains historical specification-only evidence. This local-only overlay records independently authored Rust composition of one already validated descriptor and one already validated generic metadata tree."
+  },
+  "contract_results": [
+    {
+      "contract_id": "stream-definition-composition",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_008_all_seven_channel_formats_survive_composition",
+        "core_008_borrow_access_preserves_all_component_values",
+        "core_008_construction_moves_existing_allocations_unchanged",
+        "core_008_into_parts_preserves_irregular_descriptor_and_tree_order"
+      ],
+      "damaged_tests": []
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "XML or an LSL desc-element interpretation",
+    "cross-component validation, normalization, inference, or generated channel metadata",
+    "runtime identity, version, creation time, UID, session, host, address, port, fingerprint, or recovery identity",
+    "discovery, networking, transport, protocol, wire, provider, or runtime behavior",
+    "source identity, authorization, admission, routing, permission, or Morphospace authority",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

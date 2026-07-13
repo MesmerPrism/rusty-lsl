@@ -9,7 +9,8 @@ finite raw source timestamp, optional derived timestamp, and timestamped-chunk
 contracts, plus bounded core stream descriptors, a bounded parent-before-child
 flat metadata-tree arena, a data-only descriptor/sample binding, a timestamped
 descriptor/sample composition, a non-empty timestamped descriptor/chunk
-composition, and the accepted specification-level STRM-000
+composition, an infallible local stream-definition composition, and the
+accepted specification-level STRM-000
 baseline. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
@@ -127,6 +128,21 @@ rewriting, splitting, merging, rechunking, buffering, queueing, scheduling,
 conversion, encoding, XML, discovery, networking, transport, protocol, wire,
 or runtime action.
 
+CORE-008 adds a focused `StreamDefinition` aggregate that moves one already
+validated `StreamDescriptor` and one already validated `MetadataTree` directly
+into private accepted state. Borrowed `descriptor()` and `extended_metadata()`
+accessors and consuming `into_parts()` preserve both complete components,
+including their limits, exact optional text forms, nominal-rate bits, channel
+format, flat node order, parent indices, Unicode names, and optional values.
+The infallible constructor adds no error or limit family, allocation, clone,
+normalization, inference, or cross-component validation.
+
+The generic metadata-tree root gains no LSL `desc`-element meaning. This slice
+adds no XML/document assembly, channel metadata convention, runtime identity,
+version, creation time, UID, session, host, address, port, fingerprint,
+recovery, discovery, networking, clock, buffering, provider, adapter,
+authority, protocol, wire, or runtime behavior.
+
 The separate STRM-000 baseline
 continues to distinguish independently authored specifications, planned
 black-box observations, and measured results; only the first exists today. See
@@ -136,9 +152,9 @@ black-box observations, and measured results; only the first exists today. See
 
 Development is bounded by the public project-local control surface under
 [`morphospace/`](morphospace/README.md). Its lock selects no feature or module
-and permits no runtime effect. Workflow state records CORE-007 as active for
-this bounded implementation and validation slice. The separate CORE-001 and
-CORE-002 overlays and the separate CORE-003 and CORE-004 local-results overlays
-plus the separate CORE-005, CORE-006, and CORE-007 local-results overlays report only
-local Rust contract tests. Activity and local unit-test results are not LSL
-interoperability or runtime evidence.
+and permits no runtime effect. CORE-008 bounds this local implementation and
+validation slice without asserting a particular workflow lifecycle state. The
+separate CORE-001 and CORE-002 overlays, the separate CORE-003 and CORE-004
+local-results overlays, and the separate CORE-005, CORE-006, CORE-007, and
+CORE-008 local-results overlays report only local Rust contract tests. Activity
+and local unit-test results are not LSL interoperability or runtime evidence.

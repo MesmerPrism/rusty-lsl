@@ -10,7 +10,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 
 The script runs formatting, locked offline metadata inspection, locked offline
 tests, the STRM-000 compatibility/provenance gate, the CORE-001, CORE-002,
-CORE-003, CORE-004, CORE-005, CORE-006, and CORE-007 local-contract gates, the
+CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
 public-boundary and text-hygiene checker, the dependency-free local
 project-workspace checker, and Git whitespace checks.
 
@@ -60,6 +60,12 @@ Run the focused timestamped descriptor/chunk composition gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_007.ps1
+```
+
+Run the focused stream-definition composition gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_008.ps1
 ```
 
 ## Acceptance criteria
@@ -142,6 +148,19 @@ The source-only slice passes when:
   validation or clock, algorithm, sorting, rewriting, splitting, merging,
   rechunking, buffering, queueing, runtime, conversion, dependency, feature,
   unsafe, transport, protocol, or wire surface;
+- the separate CORE-008 overlay binds exact tests for borrowed and consuming
+  access, all seven channel-format variants, irregular and exact-bit regular
+  nominal rates, descriptor limits and Unicode/optional text, metadata limits,
+  nontrivial parent-before-child node order, Unicode names and values,
+  absent-versus-empty optional values, and preservation of existing owned
+  allocations across composition;
+- CORE-008 retains private accepted fields containing exactly one complete
+  `StreamDescriptor` and one complete `MetadataTree`; its infallible constructor
+  moves both directly and adds no `Result`, error or limit family, allocation,
+  clone, normalization, inference, cross-component validation, XML or `desc`
+  interpretation, channel convention, runtime identity, dependency, feature,
+  unsafe, discovery, transport, provider, adapter, authority, protocol, wire,
+  or runtime surface;
 - the damaged matrix, provenance fields, artifact digests, case relationships,
   source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;
@@ -161,6 +180,7 @@ closure checks in the local Rust and PowerShell environment. It does not prove
 clock or nominal-rate behavior, timestamp or rate derivation, sample, chunk, or
 descriptor transport, metadata-tree XML/document behavior, source identity or
 authority, channel encoding or conversion, actual LSL empty-chunk behavior,
+stream-definition XML/document meaning or cross-component semantics,
 protocol behavior, wire interoperability, ecosystem compatibility, network behavior,
 performance, numeric or String conversion, memory layout, native-library safety,
 platform support, official-liblsl behavior,

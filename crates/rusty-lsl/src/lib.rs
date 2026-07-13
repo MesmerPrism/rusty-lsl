@@ -8,7 +8,8 @@
 //! This crate currently implements only bounded metadata, sample-shape,
 //! timestamped-chunk, core stream-descriptor, and flat metadata-tree
 //! construction, descriptor/sample shape and format binding, and timestamped
-//! descriptor/sample and non-empty descriptor/chunk composition. It does not
+//! descriptor/sample, non-empty descriptor/chunk, and stream-definition
+//! composition. It does not
 //! implement or claim LSL protocol,
 //! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
 //! behavior.
@@ -17,6 +18,7 @@ mod descriptor_sample;
 mod metadata;
 mod metadata_tree;
 mod sample;
+mod stream_definition;
 mod stream_descriptor;
 mod timestamped;
 mod timestamped_descriptor_chunk;
@@ -35,6 +37,7 @@ pub use metadata_tree::{
     MetadataTreeLimits, MetadataTreeTextRole,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
+pub use stream_definition::StreamDefinition;
 pub use stream_descriptor::{
     ChannelFormat, InvalidRegularSampleRate, NominalSampleRate, NominalSampleRateError,
     RegularSampleRate, StreamDescriptor, StreamDescriptorBound, StreamDescriptorError,
@@ -89,6 +92,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local descriptor/sample binding",
             "bounded local timestamped descriptor/sample composition",
             "bounded local non-empty timestamped descriptor/chunk composition",
+            "bounded local stream-definition composition",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

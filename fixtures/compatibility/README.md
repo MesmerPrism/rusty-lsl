@@ -52,6 +52,12 @@ empty chunk locally before delegation. It proves no actual LSL empty-chunk
 behavior, clock or timestamp algorithm, splitting, merging, rechunking,
 buffering, queueing, conversion, encoding, transport, protocol, wire, runtime,
 ecosystem, or official-liblsl behavior.
+`core-008-contract-results.json` records only local Rust tests for composing
+one already validated stream descriptor with one already validated generic
+metadata tree. It preserves both component contracts exactly and every
+historical STRM-000 result. It gives the generic root no XML or LSL `desc`
+meaning and proves no discovery, transport, protocol, wire, runtime,
+ecosystem, authority, or official-liblsl behavior.
 Run
 `tools/check_strm_000.ps1` after any edit; digest changes must be reviewed and
 recorded in the provenance manifest. Run `tools/check_core_001.ps1` for the
@@ -66,3 +72,5 @@ Run `tools/check_core_006.ps1` for the CORE-006 overlay and timestamped
 descriptor/sample composition implementation.
 Run `tools/check_core_007.ps1` for the CORE-007 overlay and timestamped
 descriptor/chunk composition implementation.
+Run `tools/check_core_008.ps1` for the CORE-008 overlay and stream-definition
+composition implementation.

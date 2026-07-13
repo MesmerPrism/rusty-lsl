@@ -64,6 +64,9 @@ retaining raw and optional derived timestamp evidence unchanged. CORE-007 adds
 only a dependency-free non-empty timestamped descriptor/chunk composition for
 those same seven representations, retaining the original chunk limits and
 delegating every ordered sample through CORE-006 with indexed unchanged errors.
+CORE-008 adds only an infallible dependency-free composition that moves one
+already validated `StreamDescriptor` and one already validated generic
+`MetadataTree` into private accepted state with borrowed and consuming access.
 Keep the feature lock empty and inert until a later reviewed unit and
 owner-issued descriptor open an exact runtime surface.
 
@@ -155,6 +158,14 @@ owner-issued descriptor open an exact runtime surface.
   String-bound, or timestamp validation and performs no splitting, merging,
   rechunking, sorting, rewriting, buffering, queueing, scheduling, conversion,
   encoding, transport, protocol, wire, or runtime action.
+- CORE-008 `StreamDefinition` privately owns exactly one existing descriptor
+  and one existing metadata tree. Construction moves both directly, performs
+  no allocation, clone, validation, normalization, inference, or interpretation,
+  and exposes only `descriptor`, `extended_metadata`, and consuming `into_parts`
+  access.
+- CORE-008 does not make the generic metadata-tree root an LSL `desc` element
+  and adds no XML/document shape, channel conventions, runtime identity,
+  discovery, protocol, transport, provider, adapter, or authority behavior.
 - Timestamp value constructors do not read clocks or calculate correction,
   dejittering, smoothing, interpolation, or sample-rate timestamp derivation.
 - Discovery is observation, never identity, authorization, or activation.
@@ -225,6 +236,12 @@ For timestamped descriptor/chunk composition edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_007.ps1
+```
+
+For stream-definition composition edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_008.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

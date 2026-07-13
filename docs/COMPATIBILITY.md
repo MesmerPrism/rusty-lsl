@@ -15,6 +15,7 @@
 | Local descriptor/sample binding | Implemented | CORE-005 Rust unit tests; exact homogeneous format and channel shape only, with bounded String values and no conversion or runtime behavior |
 | Local timestamped descriptor/sample composition | Implemented | CORE-006 Rust unit tests; exact composition of existing validated values through CORE-005, with no clock, algorithm, transport, or runtime behavior |
 | Local non-empty timestamped descriptor/chunk composition | Implemented | CORE-007 Rust unit tests; ordered composition through CORE-006 with original chunk limits and indexed delegated errors; no actual LSL empty-chunk compatibility claim |
+| Local stream-definition composition | Implemented | CORE-008 Rust unit tests; lossless composition of existing validated descriptor and generic metadata-tree values only, with no XML interpretation or runtime behavior |
 | Sample and chunk transport | Not implemented | Specification cases only |
 | Local channel-format names | Implemented | CORE-003 Rust unit tests; exactly seven data-only variants with no wire numeric mapping or conversion |
 | Protocol or wire channel formats | Not implemented | No case or measurement |
@@ -62,6 +63,13 @@ actual LSL empty-chunk behavior, clock read or algorithm, timestamp rewriting,
 splitting, merging, rechunking, buffering, queueing, conversion, encoding,
 protocol, transport, runtime, or ecosystem behavior.
 
+CORE-008 proves only local infallible composition of one already validated
+descriptor and one already validated generic metadata tree, including borrowed
+and consuming preservation of all component values and existing allocations.
+It proves no cross-component interpretation or validation, XML or LSL `desc`
+meaning, channel metadata convention, runtime identity, discovery, transport,
+protocol, wire, runtime, authority, or ecosystem behavior.
+
 ## Compatibility classes
 
 Compatibility evidence is classified at four distinct levels:
@@ -101,6 +109,10 @@ specification evidence.
 The separate `core-007-contract-results.json` overlay binds only local
 timestamped descriptor/chunk composition tests to CORE-007 while preserving
 `contract-sample-shape` as `not-implemented` historical specification evidence.
+The separate `core-008-contract-results.json` overlay binds only local
+stream-definition composition tests to CORE-008 while preserving
+`contract-metadata-bounds` as `not-implemented` historical specification
+evidence.
 Evidence at one level must not be promoted into a broader claim.
 
 Each case has three deliberately separate roles:
@@ -111,7 +123,7 @@ Each case has three deliberately separate roles:
 
 For STRM-000, `current_result` and `measured_result.status` remain
 `not-implemented`, and each measured observation remains null. CORE-001,
-CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, and CORE-007 status lives only in their
+CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 status lives only in their
 result overlays.
 
 ## Compatibility method
