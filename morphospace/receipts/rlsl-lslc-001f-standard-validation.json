@@ -1,0 +1,107 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-001f-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-001f-metadata-to-xml-element-tree-projection",
+  "created_at": "2026-07-13T17:07:29.6663016Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "0c6808bbac5d04f1f665d87a3903b1f066182a88",
+      "head_revision": "ac69c30d3d70e16990ce65e11c4fa5d3c285f087",
+      "branch": "codex/rlsl-lslc-001f-metadata-xml-projection"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/lib.rs" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/metadata_xml_projection.rs" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/CORPUS.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/lslc-001f-contract-results.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-lslc-001f-metadata-to-xml-element-tree-projection.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001f-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001f-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001f.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001f.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-001f-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-lslc-001f-standard-validation.txt",
+      "sha256": "86c158e8a4a115d5199d761224458a1eadc962585f35c12e72f6741e6830ad3f"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "one-way-consuming-metadata-xml-projection",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    },
+    {
+      "acceptance_id": "partial-structure-and-value-classification",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001f.ps1",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    },
+    {
+      "acceptance_id": "deterministic-bounded-component-projection",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001f.ps1",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    },
+    {
+      "acceptance_id": "explicit-projection-ownership-and-allocation",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    },
+    {
+      "acceptance_id": "projection-source-and-corpus-separation",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001f.ps1",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    },
+    {
+      "acceptance_id": "inert-projection-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["lslc-001f-standard-log"]
+    }
+  ],
+  "device_validation": null
+}

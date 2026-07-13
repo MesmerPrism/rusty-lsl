@@ -1,0 +1,79 @@
+Rusty LSL LSLC-001F standard validation
+========================================
+
+Unit: rlsl-lslc-001f-metadata-to-xml-element-tree-projection
+Base revision: 0c6808bbac5d04f1f665d87a3903b1f066182a88
+Implementation HEAD: ac69c30d3d70e16990ce65e11c4fa5d3c285f087
+Validation authority: main Codex account
+Secondary MCP role: unrestricted implementation proposer, not lifecycle authority
+Device validation: forbidden by the unit and not run
+
+PASS cargo +1.80.0 fmt --all -- --check
+PASS cargo +1.80.0 test --workspace --all-targets --offline --locked
+     122 passed; 0 failed; 12 LSLC-001F focused tests passed.
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001f.ps1
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     Historical compatibility checks, public-boundary checks, project lifecycle,
+     dependency/feature closure, and inert effect-lock checks passed.
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+
+Preserved failed attempt
+------------------------
+
+PRESERVED The secondary worker reported that an earlier short-timeout aggregate
+          validation invocation ended with a broken pipe after the parent command
+          stopped waiting. That interrupted attempt is not acceptance evidence.
+          The worker's complete rerun passed, and the main authority independently
+          reran every command named above after the final source repair.
+PRESERVED The first main-account RecordValidation dry run supplied a repository-
+          relative receipt path where the workflow expected a workspace-relative
+          path. Automation rejected the missing path before state mutation. This
+          was a verifier invocation setup failure, not a product validation failure.
+PRESERVED The corrected receipt dry run then reached validation under Windows
+          PowerShell 5.1, whose .NET runtime lacks System.IO.Path.GetRelativePath.
+          The verifier stopped before state mutation; the authority step was moved
+          to the installed compatible PowerShell 7.6.3 host.
+
+Independent review and repair
+-----------------------------
+
+PASS Main review found that the initial worker result duplicated target hierarchy
+     node-limit error authority as TargetNodeLimitExceeded.
+PASS Main repair removed that variant and now preserves the existing
+     XmlElementTreeError::NodeLimitExceeded payload inside the projection's
+     ElementTree wrapper, matching the final-delegation authority boundary.
+PASS Main review added exact illegal-XML-text and represented-string allocation
+     evidence and strengthened the checker against duplicate node-limit,
+     multiline borrowed, and reverse projection surfaces.
+
+Independent mutation evidence
+-----------------------------
+
+PASS Adding a TargetNodeLimitExceeded variant was rejected by
+     check_lslc_001f.py with the duplicate target-error-authority error.
+PASS Adding a public borrowed &MetadataTree projection was rejected by
+     check_lslc_001f.py with the borrowed-surface error.
+PASS Both mutations were reverted; the source and checker returned to their exact
+     pre-probe SHA-256 values before the aggregate and workflow gates ran.
+
+Boundary and provenance evidence
+--------------------------------
+
+PASS The projection consumes one accepted MetadataTree, rejects the target node
+     bound before valued-parent shape, reserves one distinct output arena exactly,
+     then validates each name, optional text, represented character data, and the
+     final hierarchy in deterministic order.
+PASS None remains a container and every Some, including Some(empty), remains a
+     leaf. Name allocations and parent/order identity are preserved; represented
+     character data owns a separate LSLC-001C allocation.
+PASS No borrowed or reverse projection, From/TryFrom, decoder, hidden default,
+     mutable XML ownership, source recovery, or round-trip surface was added.
+PASS All LSLC-001A oracle/candidate roles remain not-observed with null evidence.
+     Sixteen historical fixture digests remain unchanged, the feature/effect lock
+     is empty and inert, and no document, stream-info mapping, protocol, wire,
+     runtime, adapter, provider, FFI, device, or authority surface was added.
+PASS All four declared instruction surfaces are complete; both shared skills were
+     reviewed and required no change.
