@@ -1,0 +1,79 @@
+Rusty LSL LSLC-001G standard validation
+========================================
+
+Unit: rlsl-lslc-001g-bounded-xml-element-tree-serialization
+Base revision: 5823525973364cf1e529c20fb82f09936f001f16
+Implementation HEAD: 355a46420b96399ba02c824101cb078c8cc09195
+Validation authority: main Codex account
+Secondary MCP role: unrestricted implementation proposer, not lifecycle authority
+Device validation: forbidden by the unit and not run
+
+PASS cargo +1.80.0 fmt --all -- --check
+PASS cargo +1.80.0 test --workspace --all-targets --offline --locked
+     134 passed; 0 failed; 12 LSLC-001G focused tests passed.
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001g.ps1
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     Historical compatibility checks, public-boundary checks, project lifecycle,
+     dependency/feature closure, and inert effect-lock checks passed.
+PASS pwsh -NoProfile -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+
+Preserved failed and setup attempts
+-----------------------------------
+
+PRESERVED The secondary worker reported that its initial compile used direct
+          private-field access. Rust rejected it; the worker corrected the code
+          to use the existing read-only accessor before completing validation.
+PRESERVED The secondary worker's initial focused checker falsely matched write!
+          in the Display implementation. The matcher was narrowed to the serializer
+          body before the complete focused and aggregate runs passed.
+PRESERVED The secondary worker reported bounded patch-context setup retries that
+          made no partial changes. They are not acceptance evidence.
+
+Independent review and repair
+-----------------------------
+
+PASS Main review found that the worker's event stack rescanned the entire accepted
+     arena for every container. The 16,384-node deep focused test took 9.51 seconds,
+     demonstrating quadratic traversal cost despite bounded memory.
+PASS Main repair retained the same public API, exact length and allocation order,
+     one fallibly reserved node-count-bounded traversal-frame Vec, and one fallibly
+     reserved output String. A single forward parent-index pass now records direct-
+     child and next-sibling links, followed by non-recursive linear traversal.
+PASS The same deep test completed in 0.02 seconds after repair. Main also added
+     nested empty-container evidence and strengthened the checker against arena
+     rescanning, extra scratch/output allocations, self-closing spelling, and direct
+     recursive serialization.
+
+Independent mutation evidence
+-----------------------------
+
+PASS Changing an empty container to self-closing output was rejected by
+     check_lslc_001g.py with the self-closing-spelling error.
+PASS Adding a direct recursive Self::serialize call was rejected by
+     check_lslc_001g.py with the recursive-serialization error.
+PASS Both mutations were reverted; the source and checker returned to their exact
+     pre-probe SHA-256 values before the aggregate and workflow gates ran.
+
+Boundary and provenance evidence
+--------------------------------
+
+PASS The serializer borrows one accepted XmlElementTree and returns accepted state
+     containing exactly the caller-selected nonzero output-byte limit and one owned
+     UTF-8 String. Source component values and allocations remain unchanged.
+PASS Exact checked byte length and limit rejection precede one traversal-frame
+     reservation and one output reservation. Every node uses explicit start/end
+     tags, no whitespace is inserted, hierarchy order is depth-first with ascending
+     arena-index siblings, and accepted XmlCharacterData is emitted verbatim once.
+PASS The CORE-004 through LSLC-001F through LSLC-001G composition path passes.
+     No parsing, decoding, source consumption, reverse conversion, hidden limit,
+     complete LSL document, stream-info field mapping, endpoint representation,
+     oracle behavior, protocol, wire, I/O, runtime, adapter, provider, FFI, device,
+     or authority surface was added.
+PASS Every LSLC-001A oracle/candidate role remains not-observed with null evidence;
+     seventeen historical fixture digests remain unchanged and the feature/effect
+     lock remains empty and inert.
+PASS All four declared instruction surfaces are complete; both shared skills were
+     reviewed and required no change.
