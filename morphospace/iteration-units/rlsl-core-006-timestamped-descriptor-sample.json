@@ -1,0 +1,106 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "unit_id": "rlsl-core-006-timestamped-descriptor-sample",
+  "project_id": "rusty-lsl",
+  "status": "proposed",
+  "objective": "Implement a dependency-free accepted contract that binds one existing timestamped homogeneous sample to a validated stream descriptor, preserving raw and optional derived timestamp evidence exactly while reusing CORE-005 format, channel-count, and string-value validation without adding clock, algorithm, transport, or runtime behavior.",
+  "tags": ["descriptor", "sample", "timestamps", "types"],
+  "change_categories": ["implementation", "validation"],
+  "instruction_impact": "update",
+  "instruction_surfaces": [
+    {
+      "surface_kind": "agents",
+      "path": "AGENTS.md",
+      "owner": "rusty-lsl",
+      "change_reason": "Route timestamped descriptor/sample binding while keeping timestamp authority, algorithms, buffering, wire, and runtime surfaces closed.",
+      "action": "update",
+      "status": "planned",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "skill_id": null
+    },
+    {
+      "surface_kind": "readme",
+      "path": "README.md",
+      "owner": "rusty-lsl",
+      "change_reason": "Describe only exact local timestamp/sample/descriptor evidence preservation without claiming clock behavior, postprocessing, transport, protocol, or ecosystem support.",
+      "action": "update",
+      "status": "planned",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "skill_id": null
+    },
+    {
+      "surface_kind": "skill",
+      "path": "<skills-root>/system-engineering/SKILL.md",
+      "owner": "workflow-maintainer",
+      "change_reason": "Review whether composition of previously validated evidence-bearing contracts exposes a reusable rule; avoid adding Rusty-LSL-specific timestamp recipes when existing evidence and authority guidance is sufficient.",
+      "action": "update",
+      "status": "planned",
+      "validation": "Review the installed skill and run its instruction-surface whitespace check.",
+      "skill_id": "system-engineering"
+    }
+  ],
+  "instruction_none_justification": null,
+  "prerequisites": ["rlsl-core-005-descriptor-sample-binding"],
+  "allowed_repositories": [
+    {
+      "repo_id": "rusty-lsl",
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/",
+        "docs/",
+        "fixtures/compatibility/",
+        "morphospace/",
+        "tools/"
+      ]
+    }
+  ],
+  "non_scope": [
+    "Clock reads, clock correction, dejittering, smoothing, interpolation, timestamp derivation, nominal-rate enforcement, scheduling, timestamp sorting, timestamp rewriting, or postprocessing algorithms.",
+    "Numeric or string conversion, byte sizing, encoding, decoding, endianness, memory layout, XML, discovery, networking, sockets, inlets, outlets, transport, buffering, queues, threads, recovery, providers, FFI, native loading, or language bindings.",
+    "Cargo dependencies, Cargo features, unsafe Rust, additional crates, generated protocol material, copied or translated liblsl or rLSL source, and production liblsl integration.",
+    "Morphospace adapters, Manifold admission or stream authority, platform lifecycle, Quest or Hostess behavior, device validation, and any algorithmic, protocol, wire, runtime, performance, layout, or ecosystem compatibility claim."
+  ],
+  "acceptance": [
+    {
+      "acceptance_id": "timestamped-descriptor-sample-composition",
+      "proof": "One public input family covers exactly the seven existing TimestampedSample<T> representations and accepted state reuses CORE-005 exact descriptor format, channel count, and per-string Unicode-scalar bounds rather than duplicating or weakening them.",
+      "command": "cargo test --workspace --all-targets --offline --locked"
+    },
+    {
+      "acceptance_id": "timestamp-evidence-preservation",
+      "proof": "Accepted state preserves the mandatory raw source timestamp bits, optional derived timestamp absence or presence, derived kind, derived value bits, homogeneous sample values, and order exactly without reading clocks, calculating timestamps, sorting, or rewriting evidence.",
+      "command": "cargo test --workspace --all-targets --offline --locked"
+    },
+    {
+      "acceptance_id": "timestamped-binding-damaged-cases",
+      "proof": "Focused tests cover all seven exact mappings, format and channel mismatches, zero and one-past string bounds, raw-only and both derived kinds, signed timestamp zero, stable bit preservation, validation precedence, and stable delegated error payloads.",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_006.ps1"
+    },
+    {
+      "acceptance_id": "inert-core-closure",
+      "proof": "The crate remains one unpublished std-only package with no dependencies, features, unsafe code, clock reads, timestamp algorithms, conversion, encoding, XML, runtime effects, protocol implementation, or compatibility overclaim.",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    }
+  ],
+  "risk_tier": "standard",
+  "device_requirement": "forbidden",
+  "validation": [
+    {
+      "profile_id": "source-only",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+    }
+  ],
+  "outputs": [
+    "Dependency-free timestamped descriptor/sample input, accepted-state, and typed deterministic delegated-error APIs for exactly seven homogeneous value families.",
+    "Positive and damaged tests plus a separate CORE-006 local-results overlay preserving every historical STRM-000 result.",
+    "Deterministic CORE-006 validation entrypoint and public status updates that do not claim clocks, timestamp algorithms, conversion, encoding, protocol, transport, runtime, wire, or ecosystem support."
+  ],
+  "commit_policy": "Commit the accepted timestamped descriptor/sample composition separately from clocks, timestamp algorithms, chunks, buffering, XML, discovery, protocol, transport, adapters, providers, or runtime work.",
+  "push_checkpoint": "integration-batch"
+}
