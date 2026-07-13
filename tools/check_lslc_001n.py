@@ -35,6 +35,11 @@ TESTS = {
     "lslc_001n_target_node_bound_rejects_before_merged_allocation",
     "lslc_001n_component_allocations_move_and_consuming_tree_preserves_arena",
 }
+EXPECTED_NESTED_DESC = (
+    "<desc><ordered><first>alpha-α-&amp;-&lt;-greater-&gt;-\"-'</first>"
+    "<second>beta-β-]]&gt;</second><nested><third>tail-尾-&amp;-&lt;-greater-&gt;"
+    "</third></nested></ordered></desc>"
+)
 
 
 def require(condition: bool, message: str) -> None:
@@ -123,6 +128,8 @@ def validate_overlay() -> None:
         require((compact != "<desc></desc>") == expected_nonempty,
                 f"description emptiness drifted: {case_id}")
         if expected_nonempty:
+            require(compact == EXPECTED_NESTED_DESC,
+                    f"nested description order or structure drifted: {case_id}")
             spellings = observation.get("observed_dimensions", {}).get(
                 "character_data_spellings", {}).get("description_values", [])
             for spelling in spellings:
