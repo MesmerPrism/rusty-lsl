@@ -1,0 +1,96 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-001b-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-001b-xml-name-text-contracts",
+  "created_at": "2026-07-13T14:52:01Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "e7964cd299f06d3dc0be60c77a0155f8f4d96f14",
+      "head_revision": "c9e081ffc97218450f029205ef6407a2b25f0f24",
+      "branch": "codex/rlsl-lslc-001b-xml-contracts"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/lib.rs" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/xml_value.rs" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/CORPUS.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/lslc-001b-contract-results.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-lslc-001b-xml-name-text-contracts.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001b-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001b-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_core_002.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001b.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001b.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-001b-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-lslc-001b-standard-validation.txt",
+      "sha256": "b6ef7f4f6b750b981a67d1770eb3bd834c06ce39f3221c40e7b56bfc19985963"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "bounded-xml-legal-text-contract",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["lslc-001b-standard-log"]
+    },
+    {
+      "acceptance_id": "bounded-xml-name-contract",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["lslc-001b-standard-log"]
+    },
+    {
+      "acceptance_id": "xml-name-text-damaged-boundaries",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001b.ps1",
+      "evidence_refs": ["lslc-001b-standard-log"]
+    },
+    {
+      "acceptance_id": "corpus-and-inert-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001b-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001b-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001b-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["lslc-001b-standard-log"]
+    }
+  ],
+  "device_validation": null
+}

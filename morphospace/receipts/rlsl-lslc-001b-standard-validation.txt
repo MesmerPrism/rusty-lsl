@@ -1,0 +1,43 @@
+Rusty LSL LSLC-001B standard validation evidence
+Created: 2026-07-13T14:52:01Z
+Project: rusty-lsl
+Unit: rlsl-lslc-001b-xml-name-text-contracts
+Branch: codex/rlsl-lslc-001b-xml-contracts
+Base revision: e7964cd299f06d3dc0be60c77a0155f8f4d96f14
+HEAD revision: c9e081ffc97218450f029205ef6407a2b25f0f24
+
+PASS bounded-xml-legal-text-contract
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: XmlText uses a separate nonzero Unicode-scalar maximum, accepts empty text and exactly the XML 1.0 Fifth Edition Char production, reports the first illegal scalar by zero-based scalar index and code point, and checks length before scalar legality. U+FDD0 and U+1FFFE remain legal while U+FFFE and U+FFFF are rejected. Accepted caller strings, allocations, ampersand, less-than, greater-than, and ]]> remain unchanged.
+
+PASS bounded-xml-name-contract
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: XmlElementName applies the complete XML 1.0 Fifth Edition NameStartChar and NameChar tables under a separate nonzero Unicode-scalar maximum. Empty, length, invalid-start, and invalid-continuation failures have stable precedence and scalar-indexed typed errors. Colon is accepted as syntax only and grants no namespace semantics.
+
+PASS xml-name-text-damaged-boundaries
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001b.ps1
+Result: Nine focused tests cover every accepted range boundary, literal adjacent failures including U+2000, U+E000, and U+002C, continuation-only characters, exact and one-past limits, scalar indexing, typed precedence, value retention, and allocation-preserving consuming access. Main-account review removed an unreachable constructor expect and tightened the adjacent-boundary cases.
+
+PASS corpus-and-inert-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full gate passed in validating state with 89 Rust tests, zero failures, zero Cargo dependencies and features, no unsafe or activation effects, every historical STRM/CORE/LSLC gate, public-boundary checks, project-workspace checks, and Git whitespace checks. LSLC-001A retains not-observed null oracle/candidate roles. The CORE-002 public-surface checker is now scoped to its timestamped.rs owner while crate-level unsafe and documentation policy remains enforced at the facade.
+
+PASS mutation resistance
+Command: disposable detached-worktree mutation runs against focused LSLC-001B and CORE-002 gates
+Result: Seven independent mutations were rejected: accepting illegal U+0000, widening names above U+EFFFF, exposing an accepted-state field, rejecting caller ]]>, broadening the historical CORE-002 owner scan, promoting the preserved oracle role, and opening a Cargo feature. Every mutation was reverted and the disposable worktree was clean before removal.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, architecture, compatibility, corpus, provenance, validation, fixture index, and project-workspace routes are complete and lifecycle-neutral. Existing rusty-morphospace-context and system-engineering guidance already covers public/private boundaries, independent source provenance, value-versus-representation separation, closed activation, and contract ownership, so no shared-skill edit was required.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only independently authored bounded XML legal-text and element-name values plus deterministic local validation. It does not prove escaping, entity or CDATA representation, parsing, serialization, document assembly, LSL field mapping, exact endpoint bytes, oracle or candidate behavior, protocol, wire, transport, runtime, operational, ecosystem, or official-liblsl compatibility.
