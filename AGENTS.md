@@ -1,5 +1,27 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001G Bounded Element-Tree Serialization
+
+LSLC-001G adds only a dependency-free borrowed, explicitly byte-bounded,
+fallible, non-recursive projection from one accepted `XmlElementTree` to one
+owned UTF-8 `String`. Fixed local policy emits explicit start and end tags,
+inserts no whitespace, visits children depth-first with direct siblings in
+ascending arena index, and emits accepted `XmlCharacterData` verbatim.
+
+Exact checked output length and limit rejection precede one exact fallible
+traversal-frame-stack reserve and one exact fallible `String` reserve. The
+frames index direct-child and next-sibling links once before linear traversal.
+Errors retain
+the failing node or exact expected, required, and requested counts. Accepted
+state owns exactly the limit and output string; the source remains borrowed and
+unchanged. This adds no complete-document, stream-info, field-mapping,
+endpoint, oracle, parser, decoder, protocol, wire, I/O, runtime, adapter,
+provider, device, or authority meaning. Run the focused gate with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001g.ps1
+```
+
 Rusty LSL is a public Rusty Morphospace repository for an independently
 authored Rust implementation of Lab Streaming Layer compatibility. Keep every
 committed file portable, public-safe, and free of private paths, product names,

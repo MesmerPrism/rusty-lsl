@@ -1,5 +1,19 @@
 # Validation
 
+## LSLC-001G focused gate
+
+Run:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001g.ps1
+```
+
+The focused gate checks twelve local Rust tests, exact byte and allocation
+precedence, iterative traversal, source ownership, the independent overlay,
+historical fixture digests, corpus null states, inert closure, and public
+routing. It proves no complete document, parser, decoder, LSL mapping, endpoint
+or official behavior, protocol, wire, I/O, runtime, or compatibility.
+
 ## Entry point
 
 Run the full source-only gate from the repository root:

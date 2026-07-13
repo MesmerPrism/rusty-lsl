@@ -1,5 +1,16 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001g-bounded-xml-element-tree-serialization` permits only one
+dependency-free borrowed, explicitly byte-bounded, fallible, non-recursive
+projection from an accepted `XmlElementTree` to an owned UTF-8 `String`, with
+fixed explicit start/end tags, no inserted whitespace, depth-first hierarchy
+order, ascending arena-index siblings, verbatim accepted character data,
+checked exact length, and exactly one fallible stack and output reserve. It
+performs no lifecycle transition and opens no complete-document, parsing,
+decoding, round-trip, stream-info, LSL mapping, oracle, compatibility, protocol,
+feature, effect, I/O, wire, transport, adapter, provider, FFI, device,
+authority, or runtime surface.
+
 This public, project-local workspace is the control surface for bounded Rusty
 LSL iteration. It does not grant runtime authority or indicate compatibility.
 The closed feature lock selects no feature or module and has an empty effect

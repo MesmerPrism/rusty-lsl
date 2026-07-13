@@ -1,5 +1,24 @@
 # Architecture
 
+## LSLC-001G element-tree serialization
+
+The private `xml_element_serialization` module borrows one accepted
+`XmlElementTree` and derives one owned UTF-8 `String` under a separate explicit
+nonzero output-byte maximum. A checked length pass accounts for two copies of
+each accepted name, five tag-punctuation bytes per node, and leaf character
+data. Limit rejection occurs before allocation, followed by one exact fallible
+reserve for a node-count-bounded traversal-frame stack and one exact fallible reserve
+for the output string.
+
+One forward pass over the accepted parent indexes records each direct-child and
+next-sibling link in that stack. The serializer then performs depth-first linear
+traversal without recursion, emitting siblings by ascending original arena
+index. Start and end tags are always explicit, no whitespace is inserted, and
+accepted character data is copied verbatim. The module neither consumes nor
+mutates the source and owns no parsing, decoding, document, stream-info, LSL
+mapping, endpoint, protocol, wire, I/O, runtime, adapter, provider, or authority
+behavior.
+
 ## Current slice
 
 The repository contains one `std`-only facade crate. Its public surface reports

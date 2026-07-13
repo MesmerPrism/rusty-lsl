@@ -1,5 +1,12 @@
 # STRM-000 compatibility fixtures
 
+Run `tools/check_lslc_001g.ps1` for the LSLC-001G borrowed bounded serializer,
+fixed explicit-tag and hierarchy-order policy, exact byte/allocation
+precedence, source preservation, local overlay, historical preservation, and
+inert-closure checks. Its overlay proves no complete document, parsing,
+decoding, LSL mapping, endpoint, protocol, wire, I/O, runtime, ecosystem,
+compatibility, or official-liblsl behavior.
+
 These small JSON documents are independently authored, deterministic planning
 fixtures. They contain behavior specifications, bounded damaged cases, and a
 provenance record. They contain no measured interoperability result, captured

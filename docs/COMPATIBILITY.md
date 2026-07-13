@@ -1,5 +1,18 @@
 # Compatibility
 
+## LSLC-001G local serialization evidence
+
+LSLC-001G proves only a borrowed, bounded, iterative projection of an accepted
+local element hierarchy into a UTF-8 `String`. Explicit start/end spelling, no
+inserted whitespace, depth-first traversal, and ascending arena-index sibling
+order are Rusty LSL local candidate policy. Accepted LSLC-001C character data
+is emitted verbatim once. Every LSLC-001A oracle observation and candidate
+result remains `not-observed` with null evidence.
+
+This evidence proves no complete XML or LSL document, parsing, decoding,
+round-trip behavior, stream-info or field mapping, endpoint or official-liblsl
+behavior, protocol, wire, I/O, runtime, ecosystem, or compatibility claim.
+
 ## Current evidence matrix
 
 | Surface | Implementation status | Current evidence |
@@ -11,6 +24,7 @@
 | Local XML character-data representation | Implemented | LSLC-001C Rust unit tests; bounded candidate-owned `&`, `<`, and `>` replacement only, with no document or endpoint-byte claim |
 | Local XML leaf-only composition | Implemented | LSLC-001D Rust unit tests; exact accepted name plus character-data ownership only, with no tag, tree, document, mapping, or endpoint-byte claim |
 | Local XML container/leaf hierarchy | Implemented | LSLC-001E Rust unit tests; bounded caller-owned parent-before-child accepted-component arena only, with no complete-document, serialization, mapping, or endpoint-byte claim |
+| Local XML element-tree string serialization | Implemented | LSLC-001G Rust unit tests; bounded borrowed local spelling and hierarchy order only, with no complete-document, LSL mapping, endpoint, oracle, wire, or compatibility claim |
 | Discovery and resolution | Not implemented | No case or measurement |
 | Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
 | Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |

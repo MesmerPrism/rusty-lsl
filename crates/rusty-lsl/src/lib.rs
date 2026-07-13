@@ -11,7 +11,8 @@
 //! descriptor/sample, non-empty descriptor/chunk, and stream-definition
 //! composition, plus bounded XML legal-text, element-name, and character-data
 //! representation contracts, leaf-only XML value composition, and a bounded
-//! parent-before-child XML container/leaf hierarchy.
+//! parent-before-child XML container/leaf hierarchy, plus bounded borrowed
+//! element-tree string serialization.
 //! It does not
 //! implement or claim LSL protocol,
 //! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
@@ -28,6 +29,7 @@ mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
 mod xml_character_data;
+mod xml_element_serialization;
 mod xml_element_tree;
 mod xml_leaf_element;
 mod xml_value;
@@ -68,6 +70,9 @@ pub use timestamped_descriptor_sample::{
     BoundTimestampedDescriptorSample, TimestampedDescriptorSampleInput,
 };
 pub use xml_character_data::{XmlCharacterData, XmlCharacterDataError, XmlCharacterDataLimit};
+pub use xml_element_serialization::{
+    XmlElementSerialization, XmlElementSerializationError, XmlElementSerializationLimit,
+};
 pub use xml_element_tree::{
     XmlElementNodeInput, XmlElementNodeValue, XmlElementTree, XmlElementTreeBound,
     XmlElementTreeError, XmlElementTreeLimits,
@@ -119,6 +124,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local XML leaf-element composition",
             "bounded local XML container/leaf hierarchy",
             "bounded local metadata-to-XML-element-tree projection",
+            "bounded local XML element-tree serialization",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

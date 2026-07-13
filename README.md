@@ -1,5 +1,26 @@
 # Rusty LSL
 
+## LSLC-001G bounded element-tree serialization
+
+`XmlElementSerialization::serialize` borrows an accepted `XmlElementTree` and
+returns one byte-bounded owned UTF-8 `String`. Fixed local policy emits explicit
+start and end tags for every node, inserts no whitespace, visits container
+children depth-first with siblings in ascending original arena index, and
+copies accepted `XmlCharacterData` verbatim without decoding or re-escaping.
+Exact checked length and limit rejection precede one exact fallible traversal-
+frame-stack reserve and one exact fallible output reserve. The frames index
+direct-child and next-sibling links once, so traversal is linear in node count.
+The source remains owned by the
+caller; accepted output exposes only its limit, borrowed text, and
+allocation-preserving consuming access.
+
+This local string projection is not a complete XML or LSL stream-info
+document. It assigns no `info` or `desc` role, field mapping, endpoint or
+official-liblsl behavior, round-trip claim, protocol, wire, I/O, runtime,
+adapter, provider, or authority meaning. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001g.ps1`
+for the focused gate.
+
 Rusty LSL is an independently authored Rust implementation of Lab Streaming
 Layer compatibility. It is designed for the existing LSL ecosystem and for
 explicit, typed integration with Rusty Morphospace.
@@ -14,8 +35,9 @@ accepted specification-level STRM-000 baseline, the LSLC-001A
 public-documentation specification corpus, and the LSLC-001B bounded XML
 legal-text and element-name value contracts, plus the LSLC-001C bounded local
 XML character-data representation, LSLC-001D leaf-only two-component
-composition, LSLC-001E bounded container/leaf hierarchy, and the LSLC-001F
-consuming metadata-to-element-tree projection. No LSL
+composition, LSLC-001E bounded container/leaf hierarchy, the LSLC-001F
+consuming metadata-to-element-tree projection, and LSLC-001G bounded borrowed
+element-tree serialization. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.

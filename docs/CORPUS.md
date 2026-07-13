@@ -1,5 +1,18 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001G local serialization binding
+
+LSLC-001G borrows only the accepted LSLC-001E hierarchy and preserves accepted
+LSLC-001B through LSLC-001D components. Its separate overlay records explicit
+start/end tags, no inserted whitespace, depth-first traversal, ascending
+arena-index sibling order, and verbatim represented character data as local
+candidate policy. It does not edit this corpus: every oracle observation and
+candidate result remains `not-observed` with null evidence.
+
+The bounded string projection assigns no complete-document, stream-info,
+`info`, `desc`, LSL field-mapping, endpoint, official-liblsl, parsing, decoding,
+round-trip, protocol, wire, I/O, runtime, or compatibility role.
+
 LSLC-001A is an independently authored specification corpus. It records a
 small set of public documentation claims and bounded future test roles; it is
 not an XML implementation, endpoint capture, serialization fixture, or

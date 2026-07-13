@@ -1,5 +1,17 @@
 # Provenance
 
+## LSLC-001G local overlay
+
+`fixtures/compatibility/lslc-001g-contract-results.json` is a separate
+independently authored local-results overlay. Its technical inputs are the
+accepted LSLC-001A through LSLC-001F contract artifacts. No liblsl, rLSL,
+wrapper, application, generated, protocol, or other implementation source
+supplied implementation input, and it contains no endpoint output. It
+preserves every historical digest and every LSLC-001A oracle/candidate null
+state. It proves only bounded borrowed local string serialization, not complete
+documents, parsing, decoding, LSL mapping, protocol, wire, runtime, ecosystem,
+compatibility, or official-liblsl behavior.
+
 ## Policy
 
 Project-owned source and documentation are licensed `AGPL-3.0-or-later`.
