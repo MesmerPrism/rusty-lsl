@@ -53,7 +53,9 @@ Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
 only finite raw source timestamps, separately typed optional derived timestamp
 values, timestamped samples, and bounded chunks. CORE-003 adds only bounded
 core stream descriptors, explicit nominal-rate values, and seven data-only
-channel-format names. Keep the feature lock empty and inert until a later
+channel-format names. CORE-004 adds only a dependency-free parent-before-child
+flat metadata-tree arena with explicit structural and Unicode scalar-value
+bounds. Keep the feature lock empty and inert until a later
 reviewed unit and owner-issued descriptor open an exact runtime surface.
 
 ## Provenance And Compatibility
@@ -103,6 +105,18 @@ reviewed unit and owner-issued descriptor open an exact runtime surface.
 - `ChannelFormat` has exactly seven data-only variants: `Float32`, `Double64`,
   `String`, `Int32`, `Int16`, `Int8`, and `Int64`. They have no wire numeric
   discriminants and perform no byte sizing, encoding, decoding, or conversion.
+- CORE-004 accepts exactly one root at index zero and requires every later node
+  to name a strictly earlier parent. Root depth is one. Total nodes, depth,
+  direct children per node, name Unicode scalar values, and optional value
+  Unicode scalar values have explicit nonzero maxima.
+- Metadata-tree names are required and nonempty. Optional values preserve
+  `None` versus `Some("")`; accepted node order, parent indices, names, and
+  optional values are retained exactly behind private fields and read-only
+  accessors. Validation and storage use a flat arena with no recursive public
+  ownership or recursive validation/traversal.
+- CORE-004 implements no XML syntax, parsing, serialization, escaping,
+  namespaces, attributes, entities, schemas, queries, protocol behavior,
+  discovery, runtime, transport, or tree mutation.
 - Timestamp value constructors do not read clocks or calculate correction,
   dejittering, smoothing, interpolation, or sample-rate timestamp derivation.
 - Discovery is observation, never identity, authorization, or activation.
@@ -149,6 +163,12 @@ For stream-descriptor contract edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_003.ps1
+```
+
+For bounded metadata-tree contract edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_004.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

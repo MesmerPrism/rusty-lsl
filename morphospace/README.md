@@ -13,7 +13,8 @@ Resume in this order:
 4. the current iteration unit, if one is named
 5. only the event tail and receipts referenced by state
 
-`rlsl-strm-000-compatibility-baseline` is the active documentation-and-
-validation unit. Active workflow state permits only the unit's bounded paths
-and does not claim protocol implementation, compatibility, oracle measurement,
-or runtime activation.
+`rlsl-core-004-bounded-metadata-tree` is the active source-and-validation unit.
+It permits only a dependency-free bounded flat metadata-tree contract and its
+tests, overlay, documentation, and gates. Active workflow state does not claim
+XML, protocol implementation, compatibility, oracle measurement, or runtime
+activation.

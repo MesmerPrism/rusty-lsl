@@ -1,0 +1,54 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-004-bounded-metadata-tree",
+  "unit_id": "rlsl-core-004-bounded-metadata-tree",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "case_id": "contract-metadata-bounds",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 metadata case remains historical specification-only evidence; this overlay records only independently authored local Rust flat-arena construction behavior."
+  },
+  "contract_results": [
+    {
+      "contract_id": "bounded-parent-before-child-metadata-tree",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_004_absent_and_empty_values_remain_distinct",
+        "core_004_child_fanout_at_limit",
+        "core_004_deep_parent_chain_at_depth_limit",
+        "core_004_tree_exact_limits_preserve_flat_state",
+        "core_004_unicode_scalar_counts_not_bytes"
+      ],
+      "damaged_tests": [
+        "core_004_empty_arena_has_stable_error",
+        "core_004_empty_name_has_stable_indexed_error",
+        "core_004_extra_root_has_stable_indexed_error",
+        "core_004_invalid_root_parent_has_stable_error",
+        "core_004_one_past_child_limit_has_stable_indexed_error",
+        "core_004_one_past_depth_limit_has_stable_indexed_error",
+        "core_004_one_past_node_limit_has_stable_error",
+        "core_004_one_past_text_limits_have_stable_indexed_errors",
+        "core_004_self_forward_and_out_of_range_parents_are_distinct",
+        "core_004_zero_limits_reject_in_argument_order"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "XML syntax, parsing, serialization, escaping, namespaces, schemas, or queries",
+    "recursive tree ownership, recursive traversal, or tree mutation",
+    "LSL metadata document or protocol behavior",
+    "discovery, resolution, recovery, or runtime identity",
+    "sample, metadata, or descriptor transport",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

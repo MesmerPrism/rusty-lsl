@@ -5,7 +5,8 @@
 The repository contains one `std`-only facade crate. Its public surface reports
 `BoundedLocalContracts`, declares the repository ownership boundary, and
 implements local bounded metadata, sample shape, timestamp value, timestamped
-sample, chunk, and core stream-descriptor families. `RawSourceTimestamp` and
+sample, chunk, core stream-descriptor, and flat metadata-tree families.
+`RawSourceTimestamp` and
 `DerivedTimestamp` accept
 only finite `f64` values and preserve their bits. Every `DerivedTimestamp`
 stores an explicit non-exhaustive `DerivedTimestampKind`: currently
@@ -18,6 +19,18 @@ collection. It does not parse or serialize XML, open sockets,
 discover streams, create threads, read clocks, allocate queues, load native
 libraries, or alter process or platform state. There are no Cargo features or
 dependencies.
+
+`MetadataTree` owns a parent-before-child flat arena. Unvalidated
+`MetadataNodeInput` values use `Option<usize>` parent indices: exactly one root
+at index zero has no parent, and each later node must name a strictly earlier
+parent. Accepted nodes do not own children. One forward pass computes depths
+and direct-child counts in vectors, so construction uses no recursive public
+ownership and no recursive validation or traversal. Root depth is one.
+`MetadataTreeLimits` requires nonzero maxima for nodes, depth, direct children,
+name Unicode scalar values, and optional value Unicode scalar values. Required
+names are nonempty; optional values preserve absence versus an empty string.
+Accepted flat order, parent indices, text, whitespace, and optional-value form
+are unchanged and available only through read-only or consuming accessors.
 
 `StreamDescriptor` requires a nonempty stream name, a positive bounded channel
 count, and explicit nonzero maxima for name, content-type, source-id Unicode
@@ -51,9 +64,9 @@ access, native libraries, runtime profiles, or compatibility behavior.
 The accepted STRM-000 baseline adds only specification-level compatibility cases, damaged-input
 expectations, an isolated black-box oracle procedure, and deterministic
 validation. These feedback-plane artifacts are neither data-plane behavior nor
-runtime receipts. CORE-001, CORE-002, and CORE-003 record local Rust contract
-tests in separate overlays rather than rewriting that historical baseline as a
-measurement.
+runtime receipts. CORE-001, CORE-002, CORE-003, and CORE-004 record local Rust
+contract tests in separate overlays rather than rewriting that historical
+baseline as a measurement.
 
 ## Ownership
 
@@ -90,6 +103,12 @@ metadata size and depth, channel count, frame and chunk size, queue capacity,
 timeout, retry count, and retained timestamp range. Invalid or oversized input
 must return a typed error rather than trigger unbounded work.
 
+CORE-004 makes flat metadata-tree node count, root/parent structure, depth,
+direct child fanout, required names, and optional-value text bounds part of
+validated construction. It does not define XML names or documents, parsing,
+serialization, escaping, namespaces, attributes, entities, schemas, queries,
+mutation, discovery, protocol, wire, transport, runtime, or authority behavior.
+
 CORE-002 implements finite raw source timestamp retention and a separately
 typed optional derived timestamp value classified as `ClockCorrected` or
 `Smoothed`. A derived value cannot replace, hide, or mutate the raw value. The
@@ -98,8 +117,9 @@ calculate correction, dejittering, smoothing, interpolation, or
 sample-rate-derived timestamps. Provider fallback must name the selected
 candidate and retain the rejected candidate's failure.
 
-Only the metadata, sample-shape, timestamp-value, bounded-chunk, and core
-stream-descriptor construction invariants are implemented. The remaining
+Only the metadata, sample-shape, timestamp-value, bounded-chunk, core
+stream-descriptor, and flat metadata-tree construction invariants are
+implemented. The remaining
 invariants constrain future design; none is an LSL runtime claim.
 
 ## Dependency direction

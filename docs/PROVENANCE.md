@@ -75,6 +75,15 @@ protocol material, or other implementation source as input. They prove no XML,
 discovery, recovery, timing algorithm, transport, protocol, wire, runtime,
 ecosystem, or official-liblsl behavior.
 
+`fixtures/compatibility/core-004-contract-results.json` is a separate
+independently authored local-results overlay. It binds exact positive and
+damaged local Rust tests for a bounded parent-before-child flat metadata-tree
+arena. Its API, tests, and validation gate were authored from this repository's
+public unit requirements without liblsl or rLSL source, generated protocol
+material, external observations, or copied inputs. It proves no XML, document,
+query, mutation, discovery, transport, protocol, wire, runtime, ecosystem, or
+official-liblsl behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

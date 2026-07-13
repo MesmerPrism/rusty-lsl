@@ -28,9 +28,16 @@ stream descriptors, nominal-rate values, and seven data-only channel-format
 names. Its optional source correlation is opaque caller data, not identity,
 discovery, recovery, routing, permission, admission, or authority. It proves no
 XML, transport, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
+`core-004-contract-results.json` records only local Rust tests for a bounded
+parent-before-child flat metadata-tree arena. It preserves root/parent indexes,
+node order, names, and absent-versus-empty optional values without XML
+interpretation. It proves no XML, document, query, mutation, discovery,
+transport, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
 Run
 `tools/check_strm_000.ps1` after any edit; digest changes must be reviewed and
 recorded in the provenance manifest. Run `tools/check_core_001.ps1` for the
 CORE-001 overlay and `tools/check_core_002.ps1` for the CORE-002 overlay and
 timestamped-chunk implementation. Run `tools/check_core_003.ps1` for the
 CORE-003 overlay and stream-descriptor implementation.
+Run `tools/check_core_004.ps1` for the CORE-004 overlay and bounded flat
+metadata-tree implementation.

@@ -9,9 +9,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 ```
 
 The script runs formatting, locked offline metadata inspection, locked offline
-tests, the STRM-000 compatibility/provenance gate, the CORE-001, CORE-002, and
-CORE-003 local-contract gates, the public-boundary and text-hygiene checker, the
-dependency-free local project-workspace checker, and Git whitespace checks.
+tests, the STRM-000 compatibility/provenance gate, the CORE-001, CORE-002,
+CORE-003, and CORE-004 local-contract gates, the public-boundary and text-hygiene
+checker, the dependency-free local project-workspace checker, and Git
+whitespace checks.
 
 Run the focused baseline gate with:
 
@@ -35,6 +36,12 @@ Run the focused stream-descriptor gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_003.ps1
+```
+
+Run the focused bounded metadata-tree gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_004.ps1
 ```
 
 ## Acceptance criteria
@@ -69,6 +76,16 @@ The source-only slice passes when:
 - CORE-003 opens no XML/query/tree mutation, discovery, resolution, runtime
   identity, recovery, clock, scheduling, transport, buffering, encoding,
   conversion, wire numeric format, adapter, FFI, or authority surface;
+- the separate CORE-004 overlay binds the exact focused positive and damaged
+  Rust tests for exactly one root, strictly earlier parents, exact and one-past
+  node/depth/child/text bounds, nonzero limits, required nonempty names,
+  Unicode scalar counts, deep chains, child fanout, stable indexed errors, and
+  absent-versus-empty optional values;
+- CORE-004 retains a flat parent-before-child arena with private accepted
+  fields and read-only accessors, no recursive public ownership or recursive
+  validation/traversal, and no XML syntax, parsing, serialization, query,
+  mutation, protocol, discovery, transport, runtime, adapter, dependency,
+  feature, unsafe, authority, or compatibility-claim surface;
 - the damaged matrix, provenance fields, artifact digests, case relationships,
   source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;
@@ -86,7 +103,8 @@ A passing source-only gate proves that this revision satisfies the local Rust
 contract semantics, historical specification-level STRM-000 checks, and inert
 closure checks in the local Rust and PowerShell environment. It does not prove
 clock or nominal-rate behavior, timestamp or rate derivation, sample, chunk, or
-descriptor transport, source identity or authority, channel encoding or
+descriptor transport, metadata-tree XML/document behavior, source identity or
+authority, channel encoding or
 conversion, protocol behavior, wire interoperability, ecosystem compatibility, network behavior,
 performance, native-library safety, platform support, official-liblsl behavior,
 or publication readiness.

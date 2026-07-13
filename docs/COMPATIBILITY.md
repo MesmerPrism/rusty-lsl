@@ -11,6 +11,7 @@
 | Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |
 | Local bounded timestamped chunks | Implemented | CORE-002 Rust unit tests, including empty bounded collections; no buffering or transport behavior |
 | Local core stream descriptors | Implemented | CORE-003 Rust unit tests; bounded opaque text and values only, with no XML, discovery, or runtime identity |
+| Local bounded metadata tree | Implemented | CORE-004 Rust unit tests; flat parent-before-child arena only, with no XML or runtime behavior |
 | Sample and chunk transport | Not implemented | Specification cases only |
 | Local channel-format names | Implemented | CORE-003 Rust unit tests; exactly seven data-only variants with no wire numeric mapping or conversion |
 | Protocol or wire channel formats | Not implemented | No case or measurement |
@@ -24,8 +25,8 @@
 | Wire compatibility | Not implemented and not claimed | Planned observations only |
 | Operational/ecosystem compatibility | Not implemented and not claimed | Planned observations only |
 
-The CORE-001, CORE-002, and CORE-003 tests prove only local Rust contract semantics for the
-named constructors on the tested toolchain. CORE-002 validates caller-provided
+The CORE-001, CORE-002, CORE-003, and CORE-004 tests prove only local Rust
+contract semantics for the named constructors on the tested toolchain. CORE-002 validates caller-provided
 finite values and preserves explicit `ClockCorrected` or `Smoothed`
 classifications; it does not read clocks, derive timestamps, or implement those
 algorithms. These tests do not prove LSL behavior, interoperability,
@@ -34,6 +35,11 @@ opaque optional text retention, explicit irregular or finite positive regular
 rate values, and the seven named channel-format values. Source correlation is
 not identity or authority, and no clock, XML, discovery, recovery, transport,
 encoding, conversion, or runtime behavior is exercised.
+CORE-004 proves only bounded flat-arena construction, exactly one root,
+strictly earlier parents, iterative depth and child accounting, Unicode scalar
+text bounds, and preservation of absent-versus-empty optional values. It proves
+no XML, document, query, mutation, discovery, transport, protocol, wire,
+runtime, or ecosystem behavior.
 
 ## Compatibility classes
 
@@ -61,6 +67,9 @@ the bounded-chunk contract without turning either into a measured oracle result.
 The separate `core-003-contract-results.json` overlay binds local descriptor,
 nominal-rate, and channel-format tests to CORE-003 while preserving
 `semantic-observation-not-authority` as `not-implemented` historical evidence.
+The separate `core-004-contract-results.json` overlay binds only flat bounded
+metadata-tree tests to CORE-004 while preserving `contract-metadata-bounds` as
+`not-implemented` historical specification evidence.
 Evidence at one level must not be promoted into a broader claim.
 
 Each case has three deliberately separate roles:
@@ -71,7 +80,7 @@ Each case has three deliberately separate roles:
 
 For STRM-000, `current_result` and `measured_result.status` remain
 `not-implemented`, and each measured observation remains null. CORE-001,
-CORE-002, and CORE-003 status lives only in their result overlays.
+CORE-002, CORE-003, and CORE-004 status lives only in their result overlays.
 
 ## Compatibility method
 

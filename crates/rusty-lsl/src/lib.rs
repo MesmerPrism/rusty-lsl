@@ -6,11 +6,13 @@
 //! Dependency-free local contracts for Rusty LSL.
 //!
 //! This crate currently implements only bounded metadata, sample-shape,
-//! timestamped-chunk, and core stream-descriptor construction. It does not
+//! timestamped-chunk, core stream-descriptor, and flat metadata-tree
+//! construction. It does not
 //! implement or claim LSL protocol, runtime, wire, discovery, clock, inlet,
 //! outlet, FFI, or Morphospace adapter behavior.
 
 mod metadata;
+mod metadata_tree;
 mod sample;
 mod stream_descriptor;
 mod timestamped;
@@ -18,6 +20,10 @@ mod timestamped;
 pub use metadata::{
     BoundedMetadata, MetadataBound, MetadataDescription, MetadataError, MetadataField,
     MetadataLimits, MetadataTextRole,
+};
+pub use metadata_tree::{
+    MetadataNode, MetadataNodeInput, MetadataTree, MetadataTreeBound, MetadataTreeError,
+    MetadataTreeLimits, MetadataTreeTextRole,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
 pub use stream_descriptor::{
@@ -35,7 +41,7 @@ pub use timestamped::{
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum ImplementationStatus {
-    /// Only local bounded metadata, sample, timestamped-chunk, and descriptor contracts exist.
+    /// Only local bounded metadata, sample, timestamped-chunk, descriptor, and tree contracts exist.
     BoundedLocalContracts,
 }
 
@@ -63,6 +69,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local sample-shape construction",
             "bounded local timestamped-sample and chunk construction",
             "bounded local core stream-descriptor construction",
+            "bounded local flat metadata-tree construction",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
