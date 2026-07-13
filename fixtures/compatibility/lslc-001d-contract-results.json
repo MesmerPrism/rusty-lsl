@@ -1,0 +1,71 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "lslc-001d-xml-leaf-element-composition",
+  "unit_id": "rlsl-lslc-001d-xml-leaf-element-composition",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "corpus_binding": {
+    "corpus_id": "lslc-001a-stream-info-document-corpus",
+    "case_ids": [
+      "spec-xml-character-data-handling",
+      "damaged-invalid-element-name"
+    ],
+    "preserved_oracle_status": "not-observed",
+    "preserved_candidate_status": "not-observed",
+    "interpretation": "The accepted LSLC-001A roles remain public-documentation specifications with null oracle and candidate evidence. This overlay records only independently authored local Rust composition tests."
+  },
+  "accepted_component_bindings": [
+    {
+      "overlay_id": "lslc-001b-xml-name-text-contracts",
+      "contract_id": "bounded-xml-element-name",
+      "public_input_type": "XmlElementName"
+    },
+    {
+      "overlay_id": "lslc-001c-xml-character-data-representation",
+      "contract_id": "bounded-xml-character-data-representation",
+      "public_input_type": "XmlCharacterData"
+    }
+  ],
+  "composition": {
+    "public_type": "XmlLeafElement",
+    "relationship": "XmlLeafElement::new infallibly moves exactly one accepted XmlElementName and one accepted XmlCharacterData without cloning, validation, representation, or interpretation policy."
+  },
+  "candidate_policy": {
+    "owner": "rusty-lsl",
+    "classification": "preserved-lslc-001c-local-candidate-policy",
+    "observed_liblsl_behavior": false,
+    "interpretation": "The existing LSLC-001C global greater-than replacement remains local candidate policy and is not changed or promoted by composition."
+  },
+  "contract_results": [
+    {
+      "contract_id": "xml-leaf-element-composition",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "lslc_001d_empty_character_data_and_colon_name_are_preserved",
+        "lslc_001d_into_parts_preserves_both_owned_allocations",
+        "lslc_001d_unicode_and_represented_reference_text_are_preserved"
+      ],
+      "damaged_tests": [
+        "lslc_001d_damaged_character_data_remains_representation_authority_rejection",
+        "lslc_001d_damaged_name_remains_name_authority_rejection"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json",
+      "fixtures/compatibility/lslc-001b-contract-results.json",
+      "fixtures/compatibility/lslc-001c-contract-results.json"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "start-tag, end-tag, or empty-element spelling; attributes, children, mixed content, trees, roots, or documents",
+    "new name validation, character-data representation, namespace interpretation, parsing, decoding, serialization, raw-byte output, or canonicalization policy",
+    "LSL stream-info mapping, field order, omission rules, numeric or channel-format spelling, or exact endpoint bytes",
+    "official liblsl behavior, an oracle observation, candidate differential evidence, or compatibility",
+    "protocol, wire, discovery, transport, clock, inlet, outlet, runtime, adapter, provider, FFI, device, or Morphospace authority behavior"
+  ]
+}

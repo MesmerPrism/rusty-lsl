@@ -63,6 +63,12 @@ over borrowed accepted `XmlText`. Its fixed local candidate policy emits `&`,
 other legal scalar unchanged. This policy is not observed liblsl behavior and
 adds no element, attribute, document, parser, LSL mapping, protocol, wire, or
 runtime behavior.
+LSLC-001D adds only an infallible dependency-free leaf-only composition that
+moves one accepted `XmlElementName` and one accepted `XmlCharacterData` into
+private two-component state. Borrowed and consuming access preserves both
+components and their owned string allocations unchanged. It adds no tag
+spelling, tree, document, raw-byte, parser, serializer, stream-info mapping,
+protocol, wire, compatibility, or runtime behavior.
 CORE-001 opens only dependency-free local
 Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
 only finite raw source timestamps, separately typed optional derived timestamp
@@ -135,6 +141,16 @@ owner-issued descriptor open an exact runtime surface.
   Quotes and apostrophes remain literal. No generic entity engine, CDATA
   section, decoder, document assembly, or exact endpoint representation is
   implied.
+- LSLC-001D accepts only the existing `XmlElementName` and `XmlCharacterData`
+  types. Its infallible constructor moves them directly without cloning,
+  allocation, validation, re-encoding, normalization, or interpretation.
+- `XmlLeafElement` has exactly two private fields and exposes only borrowed
+  `name` and `character_data` access plus allocation-preserving `into_parts`.
+  Colon remains syntax only, and existing greater-than escaping remains
+  LSLC-001C local candidate policy rather than observed liblsl behavior.
+- LSLC-001D adds no raw-string entrypoint, limits, errors, tag spelling,
+  attributes, children, mixed content, trees, roots, documents, namespaces,
+  raw bytes, parsing, serialization, or LSL field mapping.
 - Keep metadata, frames, channel counts, chunks, queues, timeouts, retries, and
   retained ranges explicitly bounded.
 - CORE-001 constructors validate complete inputs before returning a value,
@@ -300,6 +316,12 @@ For LSLC-001C XML character-data representation edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001c.ps1
+```
+
+For LSLC-001D XML leaf-element composition edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001d.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

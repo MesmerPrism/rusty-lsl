@@ -74,6 +74,20 @@ consuming access preserves the output allocation. This local representation is
 not an element, attribute, document, parser, decoder, generic entity engine,
 CDATA-section API, LSL field mapping, or endpoint serialization claim.
 
+The focused private `xml_leaf_element` module adds only a leaf-only composition
+over one accepted `XmlElementName` and one accepted `XmlCharacterData`.
+`XmlLeafElement` owns exactly those two private components. Its infallible
+constructor moves both directly, borrowed access returns each unchanged, and
+`into_parts` returns both with their existing limits, contents, and string
+allocations preserved. Validation remains owned by LSLC-001B and representation
+remains owned by LSLC-001C.
+
+This composition assigns no tag spelling, namespace meaning, tree position,
+document role, metadata-tree meaning, or stream-info mapping. It adds no raw
+string or byte entrypoint, allocation, error or limit family, attributes,
+children, mixed content, roots, parser, serializer, protocol, wire, transport,
+runtime, or compatibility behavior.
+
 `MetadataTree` owns a parent-before-child flat arena. Unvalidated
 `MetadataNodeInput` values use `Option<usize>` parent indices: exactly one root
 at index zero has no parent, and each later node must name a strictly earlier

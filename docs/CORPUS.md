@@ -88,3 +88,16 @@ observation and candidate result remains `not-observed` with null evidence.
 The local result proves no element or document assembly, LSL field mapping,
 exact endpoint bytes, oracle result, protocol, wire, transport, or runtime
 behavior. Those roles remain separately gated.
+
+## LSLC-001D local composition binding
+
+LSLC-001D composes only the accepted LSLC-001B `XmlElementName` and LSLC-001C
+`XmlCharacterData` values. Its separate overlay records independently authored
+local Rust tests for exact two-component ownership and recovery. It does not
+edit this corpus: every oracle observation and candidate result remains
+`not-observed` with null evidence, and LSLC-001C greater-than replacement
+remains local candidate policy.
+
+The composition proves no tag spelling, element tree, root or document shape,
+raw bytes, parsing, serialization, stream-info mapping, exact endpoint output,
+oracle behavior, protocol, wire, transport, or runtime behavior.

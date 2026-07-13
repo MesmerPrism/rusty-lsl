@@ -9,6 +9,7 @@
 | Stream-info document corpus | Specification only | LSLC-001A public-documentation roles; oracle and candidate evidence not observed |
 | Local XML legal-text and element-name values | Implemented | LSLC-001B Rust unit tests; bounded scalar/name validation only, with no representation or document behavior |
 | Local XML character-data representation | Implemented | LSLC-001C Rust unit tests; bounded candidate-owned `&`, `<`, and `>` replacement only, with no document or endpoint-byte claim |
+| Local XML leaf-only composition | Implemented | LSLC-001D Rust unit tests; exact accepted name plus character-data ownership only, with no tag, tree, document, mapping, or endpoint-byte claim |
 | Discovery and resolution | Not implemented | No case or measurement |
 | Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
 | Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |
@@ -87,6 +88,13 @@ is not observed liblsl behavior. These tests prove no element, attribute,
 document, parser, LSL mapping, exact endpoint bytes, protocol, wire, runtime,
 oracle, or ecosystem behavior.
 
+LSLC-001D proves only that one accepted `XmlElementName` and one accepted
+`XmlCharacterData` can be moved into and recovered from a private two-component
+`XmlLeafElement` without changing their allocations or state. It does not
+spell a tag, create a tree or document, map stream-info fields, emit bytes, or
+measure official-liblsl behavior. Every LSLC-001A oracle observation and
+candidate result remains `not-observed` with null evidence.
+
 ## Compatibility classes
 
 LSLC-001A is a separate specification corpus, not a CORE overlay or an
@@ -108,6 +116,12 @@ LSLC-001A character-data role and the LSLC-001B validated `XmlText` contract.
 It records the three fixed replacements as local candidate policy while every
 LSLC-001A oracle observation and candidate result remains `not-observed` with
 null evidence.
+
+The separate `lslc-001d-contract-results.json` overlay binds local Rust tests
+only to the accepted LSLC-001B element-name and LSLC-001C character-data
+contracts. It preserves the LSLC-001C representation as local candidate policy
+and leaves every LSLC-001A oracle observation and candidate result
+`not-observed` with null evidence.
 
 Compatibility evidence is classified at four distinct levels:
 

@@ -45,3 +45,13 @@ documentation routing. It performs no lifecycle transition and opens no
 element, attribute, document, parser, decoder, LSL mapping, oracle, protocol,
 dependency, feature, effect, I/O, wire, transport, adapter, provider, FFI,
 device, authority, or runtime surface.
+
+`rlsl-lslc-001d-xml-leaf-element-composition` permits only an infallible
+dependency-free composition of one accepted `XmlElementName` and one accepted
+`XmlCharacterData`, with exact private two-component state, borrowed access,
+allocation-preserving consuming recovery, focused tests, local overlay,
+deterministic validation, and public documentation routing. It performs no
+lifecycle transition and opens no tag spelling, tree, document, raw-byte,
+parser, serializer, stream-info mapping, oracle, compatibility, protocol,
+dependency, feature, effect, I/O, wire, transport, adapter, provider, FFI,
+device, authority, or runtime surface.

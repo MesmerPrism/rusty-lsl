@@ -30,6 +30,12 @@ validated `XmlText` contract. It records fixed `&`, `<`, and global `>`
 replacement as local candidate policy, preserves all corpus oracle/candidate
 roles unchanged, and proves no element, document, LSL mapping, exact endpoint,
 protocol, wire, runtime, ecosystem, or official-liblsl behavior.
+`lslc-001d-contract-results.json` separately binds five focused local Rust
+tests to the accepted LSLC-001B element-name and LSLC-001C character-data
+contracts. It records only exact leaf-only two-component composition, preserves
+all corpus oracle/candidate roles and LSLC-001C candidate policy unchanged,
+and proves no tag, tree, document, LSL mapping, exact endpoint, protocol, wire,
+runtime, ecosystem, or official-liblsl behavior.
 `core-001-contract-results.json` is a separate independently authored overlay
 for local Rust unit-test results tied to `contract-metadata-bounds` and
 `contract-sample-shape`; it is not an oracle measurement or an LSL
@@ -98,3 +104,6 @@ test overlay, corpus separation, and inert-closure checks.
 Run `tools/check_lslc_001c.ps1` for the LSLC-001C exact replacements, byte
 bounds, typed fallible allocation path, test overlay, historical preservation,
 and inert-closure checks.
+Run `tools/check_lslc_001d.ps1` for the LSLC-001D private two-component shape,
+direct move construction, allocation preservation, component-authority tests,
+historical preservation, and inert-closure checks.

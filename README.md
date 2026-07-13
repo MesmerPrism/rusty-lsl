@@ -13,7 +13,8 @@ composition, an infallible local stream-definition composition, and the
 accepted specification-level STRM-000 baseline, the LSLC-001A
 public-documentation specification corpus, and the LSLC-001B bounded XML
 legal-text and element-name value contracts, plus the LSLC-001C bounded local
-XML character-data representation. No LSL
+XML character-data representation and LSLC-001D leaf-only two-component
+composition. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
@@ -49,6 +50,21 @@ limit, or allocation errors in that order. Private accepted state exposes `limit
 allocation-preserving `into_string()`. This does not add an XML element,
 attribute, document, parser, decoder, generic entity engine, CDATA-section, LSL
 mapping, protocol, wire, transport, adapter, provider, or runtime API.
+
+LSLC-001D adds `XmlLeafElement`, an infallible composition of exactly one
+accepted `XmlElementName` and one accepted `XmlCharacterData`. Construction
+moves both components directly into private state. Borrowed `name()` and
+`character_data()` access and consuming `into_parts()` preserve their limits,
+exact contents, and owned string allocations without cloning, allocation,
+revalidation, re-encoding, normalization, or interpretation.
+
+The value is leaf-only contract state, not tag syntax or a serialized XML
+element. It adds no raw-string entrypoint, start/end/empty-element spelling,
+attributes, children, mixed content, parent, root, tree, or document structure,
+namespace meaning, parser, serializer, raw bytes, metadata-tree or stream-info
+mapping, protocol, wire, runtime, or compatibility claim. Colon remains name
+syntax only, and global greater-than escaping remains LSLC-001C local candidate
+policy rather than observed liblsl behavior.
 
 The architecture keeps LSL interoperability at a data-plane edge:
 

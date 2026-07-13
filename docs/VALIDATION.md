@@ -12,6 +12,7 @@ The script runs formatting, locked offline metadata inspection, locked offline
 tests, the STRM-000 compatibility/provenance gate, the LSLC-001A corpus gate,
 the LSLC-001B XML value-contract gate,
 the LSLC-001C XML character-data representation gate,
+the LSLC-001D XML leaf-element composition gate,
 the CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
 public-boundary and text-hygiene checker, the dependency-free local
 project-workspace checker, and Git whitespace checks.
@@ -38,6 +39,12 @@ Run the focused LSLC-001C XML character-data representation gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001c.ps1
+```
+
+Run the focused LSLC-001D XML leaf-element composition gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001d.ps1
 ```
 
 Run the focused bounded-contract gate with:
@@ -141,6 +148,18 @@ The source-only slice passes when:
   namespace, schema, query, MetadataTree mapping, LSL mapping, exact endpoint,
   dependency, feature, unsafe, I/O, protocol, wire, transport, runtime,
   adapter, provider, FFI, device, or authority surface;
+- the LSLC-001D overlay binds exactly five focused local Rust tests to the
+  existing accepted `XmlElementName` and `XmlCharacterData` contracts while
+  all LSLC-001A oracle/candidate evidence remains unchanged and null;
+- `XmlLeafElement` owns exactly two private fields, has an infallible direct
+  move constructor, borrowed component accessors, and allocation-preserving
+  `into_parts`, with no raw-string entrypoint, limit, error, allocation,
+  clone, validation, re-encoding, normalization, or interpretation policy;
+- LSLC-001D opens no tag spelling, attribute, child, parent, mixed-content,
+  root, tree, document, namespace, raw-byte, parser, serializer, decoder,
+  metadata-tree, stream-info mapping, dependency, feature, unsafe, I/O,
+  protocol, wire, transport, runtime, adapter, provider, FFI, device,
+  authority, or compatibility-claim surface;
 - the separate CORE-001 overlay binds exactly `contract-metadata-bounds` and
   `contract-sample-shape` to exact-limit, one-past-limit, malformed/zero-bound,
   channel-mismatch, stable-error, and unchanged-value tests;
@@ -263,6 +282,12 @@ its source-value composition, fixed candidate replacements, typed allocation
 path, and inert source closure. It does not prove document well-formedness,
 LSL field mapping, exact endpoint output, official behavior, protocol, wire,
 transport, runtime, or ecosystem compatibility.
+
+The LSLC-001D gate proves only exact local composition of the two existing
+accepted component types, borrowed access, consuming recovery, allocation
+preservation, and inert source closure. It does not prove XML tag or document
+syntax, LSL field mapping, exact endpoint output, official behavior, protocol,
+wire, transport, runtime, or ecosystem compatibility.
 
 Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live

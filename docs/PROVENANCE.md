@@ -156,6 +156,16 @@ policy, preserves all LSLC-001A oracle/candidate roles unchanged, and proves no
 document, LSL mapping, protocol, wire, runtime, ecosystem, or official-liblsl
 behavior.
 
+`fixtures/compatibility/lslc-001d-contract-results.json` is a separate
+independently authored local-results overlay. Its only technical inputs are the
+accepted LSLC-001A roles and the LSLC-001B/LSLC-001C accepted component
+contracts. Its source, tests, and checker use no liblsl, rLSL, wrapper,
+application, test, build, vendored, generated, protocol, or other
+implementation source and contain no endpoint output. The overlay preserves
+all LSLC-001A oracle/candidate roles unchanged and proves only exact local
+two-component composition, not tag, tree, document, LSL mapping, protocol,
+wire, runtime, ecosystem, or official-liblsl behavior.
+
 Each fixture family must have an adjacent machine-readable manifest recording:
 
 - stable fixture identifier and classification;
