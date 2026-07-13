@@ -130,6 +130,8 @@ def validate_overlay() -> None:
                 f"compact static envelope drifted: {case_id}")
         require("<?xml" not in compact and "<desc" not in compact and "\n" not in compact,
                 f"complete-document or whitespace policy leaked: {case_id}")
+        positions = [compact.index(f"<{name}>") for name in STATIC_NAMES]
+        require(positions == sorted(positions), f"static child order drifted: {case_id}")
         observed = observation.get("public_xml_utf8", "")
         for name in STATIC_NAMES:
             require(element_text(compact, name) == element_text(observed, name),
