@@ -139,7 +139,7 @@ fn validate_static_description_shape(
         || nodes[0]
             .value()
             .as_container()
-            .is_none_or(|name| name.as_str() != INFO_ROOT_NAME)
+            .map_or(true, |name| name.as_str() != INFO_ROOT_NAME)
     {
         return Err(StreamInfoOrderedXmlError::StaticDescriptionShape);
     }
@@ -148,7 +148,7 @@ fn validate_static_description_shape(
             || node
                 .value()
                 .as_leaf()
-                .is_none_or(|leaf| leaf.name().as_str() != expected_name)
+                .map_or(true, |leaf| leaf.name().as_str() != expected_name)
         {
             return Err(StreamInfoOrderedXmlError::StaticDescriptionShape);
         }
@@ -158,7 +158,7 @@ fn validate_static_description_shape(
         || description_root
             .value()
             .as_container()
-            .is_none_or(|name| name.as_str() != DESCRIPTION_ROOT_NAME)
+            .map_or(true, |name| name.as_str() != DESCRIPTION_ROOT_NAME)
     {
         return Err(StreamInfoOrderedXmlError::StaticDescriptionShape);
     }
@@ -172,7 +172,7 @@ fn validate_volatile_shape(tree: &XmlElementTree) -> Result<(), StreamInfoOrdere
         || nodes[0]
             .value()
             .as_container()
-            .is_none_or(|name| name.as_str() != INFO_ROOT_NAME)
+            .map_or(true, |name| name.as_str() != INFO_ROOT_NAME)
     {
         return Err(StreamInfoOrderedXmlError::VolatileShape);
     }
@@ -181,7 +181,7 @@ fn validate_volatile_shape(tree: &XmlElementTree) -> Result<(), StreamInfoOrdere
             || node
                 .value()
                 .as_leaf()
-                .is_none_or(|leaf| leaf.name().as_str() != expected_name)
+                .map_or(true, |leaf| leaf.name().as_str() != expected_name)
         {
             return Err(StreamInfoOrderedXmlError::VolatileShape);
         }
