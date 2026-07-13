@@ -10,6 +10,7 @@
 | Local XML legal-text and element-name values | Implemented | LSLC-001B Rust unit tests; bounded scalar/name validation only, with no representation or document behavior |
 | Local XML character-data representation | Implemented | LSLC-001C Rust unit tests; bounded candidate-owned `&`, `<`, and `>` replacement only, with no document or endpoint-byte claim |
 | Local XML leaf-only composition | Implemented | LSLC-001D Rust unit tests; exact accepted name plus character-data ownership only, with no tag, tree, document, mapping, or endpoint-byte claim |
+| Local XML container/leaf hierarchy | Implemented | LSLC-001E Rust unit tests; bounded caller-owned parent-before-child accepted-component arena only, with no complete-document, serialization, mapping, or endpoint-byte claim |
 | Discovery and resolution | Not implemented | No case or measurement |
 | Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
 | Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |
@@ -198,6 +199,14 @@ implementation-derived protocol bytes.
 
 Agreement on one case supports only that case. A collection of passing cases
 does not by itself establish wire or ecosystem compatibility.
+
+LSLC-001E proves only deterministic local validation and ownership preservation
+for a bounded caller-owned container/leaf arena. Retained UTF-8 bytes are a
+component-storage resource count, not serialized bytes. It proves no mixed
+content, complete XML/document shape, caller-order serialization, `MetadataTree`
+conversion, stream-info mapping, endpoint output, official behavior, protocol,
+wire, runtime, or compatibility. Every LSLC-001A oracle observation and
+candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 

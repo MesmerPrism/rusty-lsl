@@ -13,8 +13,8 @@ composition, an infallible local stream-definition composition, and the
 accepted specification-level STRM-000 baseline, the LSLC-001A
 public-documentation specification corpus, and the LSLC-001B bounded XML
 legal-text and element-name value contracts, plus the LSLC-001C bounded local
-XML character-data representation and LSLC-001D leaf-only two-component
-composition. No LSL
+XML character-data representation, LSLC-001D leaf-only two-component
+composition, and LSLC-001E bounded container/leaf hierarchy. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
@@ -216,3 +216,23 @@ separate CORE-001 and CORE-002 overlays, the separate CORE-003 and CORE-004
 local-results overlays, and the separate CORE-005, CORE-006, CORE-007, and
 CORE-008 local-results overlays report only local Rust contract tests. Activity
 and local unit-test results are not LSL interoperability or runtime evidence.
+
+LSLC-001E adds a dependency-free bounded parent-before-child hierarchy over
+accepted XML components. `XmlElementNodeValue` contains either a name-only
+container or an accepted `XmlLeafElement`; index zero is the sole root, every
+later parent is strictly earlier and a container, and root-one depth and direct
+child counts are checked iteratively.
+
+`XmlElementTreeLimits` bounds nodes, depth, children per container, and retained
+UTF-8 bytes. Retained bytes are the checked sum of owned container names, leaf
+names, and represented character data; they are an arena resource count, not
+serialized or wire size. Validation fallibly reserves one private scratch
+`Vec`. Accepted `XmlElementTree` state keeps the original caller node vector
+and component allocations, provides read-only inspection and consuming
+recovery, and exposes neither mutable access nor `Clone` on owning candidate
+node, value, or tree types.
+
+The hierarchy is not a complete XML tree or document and assigns no mixed
+content, tag spelling, serialization order, raw bytes, parser, mutation,
+`MetadataTree` conversion, `info`/`desc` role, stream-info mapping, endpoint,
+protocol, wire, runtime, authority, or compatibility meaning.

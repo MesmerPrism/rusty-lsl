@@ -199,6 +199,16 @@ Do not commit local filesystem paths, host or device identities, endpoint
 addresses from private runs, raw captures, credentials, signing material, or
 private planning history.
 
+`fixtures/compatibility/lslc-001e-contract-results.json` is a separate
+independently authored local-results overlay. Its only technical inputs are the
+accepted LSLC-001A structural roles and LSLC-001B through LSLC-001D component
+contracts. Its source, tests, and checker use no liblsl, rLSL, wrapper,
+application, generated, protocol, or other implementation source and contain
+no endpoint output. It preserves every historical digest and all LSLC-001A
+oracle/candidate roles unchanged. It proves only the bounded local hierarchy,
+not document, serialization, LSL mapping, protocol, wire, runtime, ecosystem,
+compatibility, or official-liblsl behavior.
+
 ## Review gate
 
 A dependency or reference artifact may enter only after its task-specific

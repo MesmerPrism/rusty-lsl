@@ -101,3 +101,12 @@ remains local candidate policy.
 The composition proves no tag spelling, element tree, root or document shape,
 raw bytes, parsing, serialization, stream-info mapping, exact endpoint output,
 oracle behavior, protocol, wire, transport, or runtime behavior.
+
+## LSLC-001E local hierarchy binding
+
+LSLC-001E composes accepted LSLC-001B through LSLC-001D values into a bounded
+caller-owned parent-before-child arena. Its separate overlay records only
+independently authored local Rust structural and resource tests. It does not
+edit this corpus: every oracle observation and candidate result remains
+`not-observed` with null evidence. The hierarchy assigns no stream-info,
+`info`, `desc`, complete-document, serialization, or endpoint role.

@@ -107,3 +107,8 @@ and inert-closure checks.
 Run `tools/check_lslc_001d.ps1` for the LSLC-001D private two-component shape,
 direct move construction, allocation preservation, component-authority tests,
 historical preservation, and inert-closure checks.
+Run `tools/check_lslc_001e.ps1` for the LSLC-001E structural and resource
+precedence, fallible scratch allocation, ownership preservation, local overlay,
+historical preservation, and inert-closure checks. The overlay proves no
+complete XML/document, serialization, LSL mapping, endpoint, protocol, wire,
+runtime, ecosystem, compatibility, or official-liblsl behavior.

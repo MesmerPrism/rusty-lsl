@@ -46,6 +46,13 @@ element, attribute, document, parser, decoder, LSL mapping, oracle, protocol,
 dependency, feature, effect, I/O, wire, transport, adapter, provider, FFI,
 device, authority, or runtime surface.
 
+`rlsl-lslc-001e-xml-container-leaf-tree` permits only a dependency-free bounded
+parent-before-child hierarchy over accepted XML component values, with one
+fallibly reserved iterative scratch vector, exact original-arena ownership,
+focused local tests, and a separate overlay. It performs no lifecycle
+transition and assigns no complete-document, serialization, `MetadataTree`,
+stream-info, protocol, wire, compatibility, authority, or runtime meaning.
+
 `rlsl-lslc-001d-xml-leaf-element-composition` permits only an infallible
 dependency-free composition of one accepted `XmlElementName` and one accepted
 `XmlCharacterData`, with exact private two-component state, borrowed access,

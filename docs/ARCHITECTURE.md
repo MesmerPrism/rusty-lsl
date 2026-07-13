@@ -249,6 +249,17 @@ construction invariants are
 implemented. The remaining
 invariants constrain future design; none is an LSL runtime claim.
 
+The private `xml_element_tree` module is a bounded parent-before-child arena
+over accepted component values. Accepted state contains exactly its limits and
+the original caller node `Vec`; it allocates no replacement arena. One private
+scratch `Vec` is fallibly reserved before per-node validation and iteratively
+tracks root-one depth and child counts. Checked retained bytes cover only owned
+container names, leaf names, and represented character data.
+
+This arena is not recursive public ownership, a general DOM, mixed content, a
+document, serialization order, raw-byte output, `MetadataTree` conversion, or
+an LSL `info`, `desc`, or stream-info projection.
+
 ## Dependency direction
 
 The default production closure is currently:

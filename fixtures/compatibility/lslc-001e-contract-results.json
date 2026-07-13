@@ -1,0 +1,76 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "lslc-001e-xml-container-leaf-tree",
+  "unit_id": "rlsl-lslc-001e-xml-container-leaf-tree",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "corpus_binding": {
+    "corpus_id": "lslc-001a-stream-info-document-corpus",
+    "case_ids": [
+      "spec-stream-info-xml-shape",
+      "spec-xml-character-data-handling",
+      "damaged-invalid-element-name"
+    ],
+    "preserved_oracle_status": "not-observed",
+    "preserved_candidate_status": "not-observed",
+    "interpretation": "Accepted public-documentation roles remain unchanged with null oracle and candidate evidence. The hierarchy assigns no stream-info, info, desc, serialization, or endpoint role."
+  },
+  "accepted_component_bindings": [
+    {
+      "overlay_id": "lslc-001b-xml-name-text-contracts",
+      "contract_id": "bounded-xml-element-name",
+      "public_input_type": "XmlElementName"
+    },
+    {
+      "overlay_id": "lslc-001d-xml-leaf-element-composition",
+      "contract_id": "xml-leaf-element-composition",
+      "public_input_type": "XmlLeafElement"
+    }
+  ],
+  "composition": {
+    "public_type": "XmlElementTree",
+    "relationship": "XmlElementTree validates the original caller-owned parent-before-child candidate-node Vec containing accepted name-only containers and accepted leaves, then retains that Vec unchanged beside validated limits."
+  },
+  "resource_policy": {
+    "retained_utf8_bytes": "Checked sum of owned container names, leaf names, and represented character data.",
+    "classification": "arena-resource-bound-not-serialized-or-wire-size",
+    "scratch": "One private iterative Vec is fallibly reserved before per-node validation."
+  },
+  "contract_results": [
+    {
+      "contract_id": "bounded-parent-before-child-xml-container-leaf-tree",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "lslc_001e_exact_limits_preserve_hierarchy_and_component_values",
+        "lslc_001e_original_vector_and_component_allocations_are_preserved",
+        "lslc_001e_root_may_be_a_leaf_but_a_leaf_cannot_parent"
+      ],
+      "damaged_tests": [
+        "lslc_001e_allocation_and_overflow_helpers_return_typed_errors",
+        "lslc_001e_depth_and_child_one_past_errors_follow_parent_kind",
+        "lslc_001e_empty_node_and_root_parent_precedence_is_stable",
+        "lslc_001e_parent_identity_errors_are_distinct_and_indexed",
+        "lslc_001e_retained_utf8_byte_bound_is_exact_and_last",
+        "lslc_001e_zero_limits_reject_in_argument_order"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "technical_specification_inputs": [
+      "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json",
+      "fixtures/compatibility/lslc-001b-contract-results.json",
+      "fixtures/compatibility/lslc-001c-contract-results.json",
+      "fixtures/compatibility/lslc-001d-contract-results.json"
+    ],
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "mixed content, complete XML tree or document behavior, attributes, namespaces, declarations, comments, processing instructions, CDATA sections, schemas, or queries",
+    "tag spelling, caller-order serialization meaning, parsing, decoding, mutation, serialization, canonicalization, or raw-byte output",
+    "MetadataTree conversion, StreamDefinition or StreamDescriptor projection, info or desc roles, stream-info meaning, or LSL field mapping",
+    "official liblsl behavior, oracle observation, candidate differential evidence, endpoint representation, or compatibility",
+    "dependency, feature, unsafe, I/O, protocol, wire, discovery, transport, runtime, adapter, provider, FFI, device, or authority behavior"
+  ]
+}

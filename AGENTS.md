@@ -151,6 +151,21 @@ owner-issued descriptor open an exact runtime surface.
 - LSLC-001D adds no raw-string entrypoint, limits, errors, tag spelling,
   attributes, children, mixed content, trees, roots, documents, namespaces,
   raw bytes, parsing, serialization, or LSL field mapping.
+- LSLC-001E accepts one root at index zero and requires every later node to
+  name a strictly earlier container parent. Leaves cannot parent children.
+  Four nonzero maxima bound nodes, root-one depth, direct children per
+  container, and retained UTF-8 bytes across owned container names, leaf names,
+  and represented character data. Retained bytes are an arena resource bound,
+  not serialized or wire size.
+- Hierarchy rejection order is empty arena, node bound, root-parent shape, one
+  fallible scratch reservation, then each later node in caller order for
+  parent identity, parent kind, depth, and child bound, followed by checked
+  retained-byte calculation and its bound. Failures are typed and non-panicking.
+- Accepted `XmlElementTree` state owns only its limits and the original
+  candidate-node `Vec`. Owning candidate node, value, and tree types are not
+  `Clone` and expose no mutable access. The hierarchy grants no mixed-content,
+  complete-document, tag-spelling, serialization, `MetadataTree`, stream-info,
+  `info`, `desc`, protocol, wire, compatibility, or runtime meaning.
 - Keep metadata, frames, channel counts, chunks, queues, timeouts, retries, and
   retained ranges explicitly bounded.
 - CORE-001 constructors validate complete inputs before returning a value,
@@ -322,6 +337,12 @@ For LSLC-001D XML leaf-element composition edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001d.ps1
+```
+
+For LSLC-001E XML container/leaf hierarchy edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001e.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

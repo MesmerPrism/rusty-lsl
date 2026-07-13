@@ -13,6 +13,7 @@ tests, the STRM-000 compatibility/provenance gate, the LSLC-001A corpus gate,
 the LSLC-001B XML value-contract gate,
 the LSLC-001C XML character-data representation gate,
 the LSLC-001D XML leaf-element composition gate,
+the LSLC-001E XML container/leaf hierarchy gate,
 the CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
 public-boundary and text-hygiene checker, the dependency-free local
 project-workspace checker, and Git whitespace checks.
@@ -45,6 +46,12 @@ Run the focused LSLC-001D XML leaf-element composition gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001d.ps1
+```
+
+Run the focused LSLC-001E XML container/leaf hierarchy gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001e.ps1
 ```
 
 Run the focused bounded-contract gate with:
@@ -288,6 +295,15 @@ accepted component types, borrowed access, consuming recovery, allocation
 preservation, and inert source closure. It does not prove XML tag or document
 syntax, LSL field mapping, exact endpoint output, official behavior, protocol,
 wire, transport, runtime, or ecosystem compatibility.
+
+The LSLC-001E gate proves only the local bounded container/leaf hierarchy,
+deterministic iterative validation, ownership preservation, and inert source
+closure. Its nine focused tests cover exact and one-past bounds, root/parent
+shape, leaf parents, allocation and overflow helpers, precedence, and vector
+and component allocation preservation. It does not prove complete XML or
+document behavior, serialization or raw bytes, `MetadataTree` conversion,
+stream-info mapping, exact endpoint output, official behavior, protocol, wire,
+transport, runtime, or ecosystem compatibility.
 
 Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live
