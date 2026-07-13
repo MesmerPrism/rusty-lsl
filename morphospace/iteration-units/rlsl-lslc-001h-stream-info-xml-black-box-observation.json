@@ -1,0 +1,135 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "unit_id": "rlsl-lslc-001h-stream-info-xml-black-box-observation",
+  "project_id": "rusty-lsl",
+  "status": "proposed",
+  "objective": "Record one reproducible, bounded, public-safe black-box observation set for official liblsl StreamInfo XML serialization through a pinned Windows pylsl binary distribution, resolving only observed core-field order, whitespace, empty-element form, nominal-rate spelling, channel-format spelling, character-data representation, and extended-description placement without inspecting implementation source, changing production dependencies, implementing candidate behavior, opening networking, or transferring stream authority from Manifold.",
+  "prerequisites": [
+    "rlsl-lslc-001a-stream-info-document-corpus",
+    "rlsl-lslc-001g-bounded-xml-element-tree-serialization",
+    "rlsl-core-008-stream-definition-composition"
+  ],
+  "allowed_repositories": [
+    {
+      "repo_id": "rusty-lsl",
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/",
+        "fixtures/compatibility/",
+        "morphospace/",
+        "tools/"
+      ]
+    }
+  ],
+  "change_categories": [
+    "implementation",
+    "validation",
+    "public-private-boundary"
+  ],
+  "device_requirement": "forbidden",
+  "risk_tier": "standard",
+  "push_checkpoint": "integration-batch",
+  "commit_policy": "Commit the isolated black-box oracle harness and provenance-bound observation overlay separately from candidate StreamDefinition projection, production dependencies, native artifacts, parser or serializer changes, protocol, transport, discovery, outlet or inlet creation, adapters, providers, and runtime work.",
+  "outputs": [
+    "A fail-closed tools/oracle LSLC-001H driver that creates or reuses only an explicitly external temporary Python environment, acquires one exact Windows pylsl binary distribution, verifies package and native-library identities, invokes only documented public StreamInfo and XML-element APIs, and records typed setup, capture, normalization, and public-boundary results without inspecting package or liblsl source.",
+    "A separate independently authored LSLC-001H black-box observation overlay and bounded synthetic case manifest that bind the frozen LSLC-001A corpus by digest and record raw-output SHA-256 values, public-safe exact or explicitly normalized XML, exact normalization operations, oracle/library/tool/platform identities, commands, timestamps, limitations, and does-not-prove statements.",
+    "Positive cases covering irregular and finite regular nominal rates, all seven supported data-only channel formats, empty and populated optional core text, XML-sensitive and Unicode text, an empty description, ordered nested extended metadata, and repeated deterministic capture; damaged cases covering artifact/hash drift, wrong architecture or version, missing native library, nonzero oracle exit, unbounded output, nondeterministic repeated output, and prohibited public evidence.",
+    "A focused deterministic checker, aggregate-gate routing, and public documentation that preserve every accepted historical artifact while distinguishing specification, black-box observation, local candidate policy, and future candidate result."
+  ],
+  "acceptance": [
+    {
+      "acceptance_id": "pinned-isolated-black-box-oracle",
+      "command": "pwsh -NoProfile -File ./tools/oracle/Invoke-Lslc001hOracle.ps1 -Mode Capture",
+      "proof": "The driver uses an external temporary root outside the repository, pins one exact pylsl Windows binary distribution and its SHA-256, records the loaded liblsl version and native-library SHA-256, rejects version, architecture, digest, native-library, or command drift, invokes only documented public APIs, and commits no wheel, DLL, executable, virtual environment, package cache, raw machine-specific output, or production dependency."
+    },
+    {
+      "acceptance_id": "bounded-stream-info-serialization-observations",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "proof": "The observation overlay covers bounded synthetic cases for the six documented caller core roles, irregular and finite regular nominal rates, all seven supported data-only channel formats, empty and populated optional text, XML-sensitive and Unicode text, empty and nested desc content, and two identical captures per deterministic case. It records observed element order, whitespace, empty-element form, numeric spelling, channel-format spelling, character-data representation, and desc placement without inferring unobserved endpoint, protocol, or runtime behavior."
+    },
+    {
+      "acceptance_id": "append-only-provenance-and-normalization",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "proof": "The frozen LSLC-001A corpus and all accepted historical fixtures retain their prior digests. A separate overlay binds its exact base digest and records raw-output digests, exact public-safe output or byte-positioned normalization operations, acquisition and capture commands, official package/library identities, sanitized environment fields, timestamps, failure history, limitations, and a nonempty does-not-prove list. Normalization never changes core-field order, whitespace, tag form, numeric spelling, channel-format spelling, character-data bytes, or desc placement."
+    },
+    {
+      "acceptance_id": "oracle-public-private-firewall",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "proof": "The committed observation contains only synthetic neutral values and rejects local paths, usernames, host or device identities, addresses, credentials, configuration payloads, private project names, raw captures, and native artifacts. Any machine-specific runtime or session value remains only in external raw evidence and is represented publicly by an explicit typed normalization plus the raw SHA-256."
+    },
+    {
+      "acceptance_id": "clean-source-and-authority-separation",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "proof": "No liblsl, rLSL, pylsl, wrapper, application, test, build, vendored, generated-protocol, or other implementation source is inspected, copied, translated, or used as candidate implementation input. The Rust crate, Cargo graph, feature lock, and effect union remain unchanged, dependency-free, and inert; no candidate StreamDefinition mapping, networking, discovery, inlet, outlet, transport, runtime, adapter, provider, device, or Manifold authority behavior is added."
+    },
+    {
+      "acceptance_id": "oracle-setup-and-failure-evidence",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "proof": "Artifact/hash drift, wrong version or architecture, missing native library, nonzero process exit, output bound violation, repeated-output mismatch, malformed evidence, and public-boundary violations fail with stable typed stages. A later successful capture does not erase an earlier setup or capture failure, and the committed overlay names exactly which dimensions were and were not observed."
+    }
+  ],
+  "validation": [
+    {
+      "profile_id": "source-only",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+    }
+  ],
+  "instruction_impact": "update",
+  "instruction_none_justification": null,
+  "instruction_surfaces": [
+    {
+      "surface_kind": "agents",
+      "owner": "rusty-lsl",
+      "path": "AGENTS.md",
+      "skill_id": null,
+      "action": "update",
+      "status": "planned",
+      "change_reason": "Route the isolated official-binary oracle, source-inspection prohibition, external-evidence boundary, append-only observation role, and strict no-candidate/no-runtime/no-authority boundary.",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "surface_kind": "readme",
+      "owner": "rusty-lsl",
+      "path": "README.md",
+      "skill_id": null,
+      "action": "update",
+      "status": "planned",
+      "change_reason": "Describe the measured serialization dimensions, exact oracle identity and limits, preservation of frozen specification artifacts, and the absence of candidate implementation, protocol, wire, runtime, or broad compatibility claims.",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "surface_kind": "skill",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/system-engineering/SKILL.md",
+      "skill_id": "system-engineering",
+      "action": "update",
+      "status": "planned",
+      "change_reason": "Review whether the isolated external-oracle, append-only observation, failure-preservation, and normalization receipts add reusable evidence guidance; retain the installed skill unchanged if its current rules are sufficient.",
+      "validation": "Review the installed skill and run its instruction-surface whitespace check."
+    },
+    {
+      "surface_kind": "skill",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/rusty-morphospace-context/SKILL.md",
+      "skill_id": "rusty-morphospace-context",
+      "action": "update",
+      "status": "planned",
+      "change_reason": "Review the clean-source, public-evidence, official-binary oracle, and future LSL adapter boundary; retain the installed router unchanged if its current rules cover the unit.",
+      "validation": "Review the installed skill and run its instruction-surface whitespace check."
+    }
+  ],
+  "non_scope": [
+    "Candidate Rust XML or StreamDefinition projection, modification of crates/rusty-lsl or Cargo manifests, parser or decoder behavior, from_xml, round-trip claims, XML declarations, encodings other than UTF-8, general DOM behavior, attributes, namespaces, schemas, XPath, queries, mutation, or canonicalization.",
+    "Inspection, copying, translation, decompilation, disassembly, tracing, or implementation-input use of liblsl, rLSL, pylsl, wrappers, applications, tests, build files, vendored dependencies, generated protocol material, packet captures, or source repositories. Public API documentation and black-box return values are the only technical oracle inputs.",
+    "Committing wheels, DLLs, executables, virtual environments, package caches, raw machine-specific XML, local paths, usernames, host or device identities, addresses, credentials, configuration payloads, private project names, or private planning history.",
+    "Opening outlets or inlets, discovery, resolution, networking, sockets, multicast, sample or chunk transfer, clocks, time correction, buffering, queues, threads beyond oracle-process execution, recovery, providers, production FFI or native loading, adapters, language bindings, devices, or runtime activation.",
+    "Claims about protocol bytes, wire framing, live endpoint metadata, runtime-assigned identity or timestamps, host/session behavior, network behavior, ecosystem compatibility, all liblsl versions or platforms, publication readiness, or behavior beyond the exact pinned Windows oracle and named cases.",
+    "Manifold stream admission, registry, subscriptions, routes, leases, revisions, replay, identity, authorization, audit, Morphospace-native transport, Quest or Hostess behavior, platform lifecycle, product policy, commands derived from samples, or any transfer of stream authority."
+  ]
+}
