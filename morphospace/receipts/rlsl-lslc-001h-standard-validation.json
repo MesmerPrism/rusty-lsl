@@ -1,0 +1,110 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-001h-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-001h-stream-info-xml-black-box-observation",
+  "created_at": "2026-07-13T18:51:10.4980176Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "9650de4674a243f07ce5b1c2349c15341098105e",
+      "head_revision": "d31bcbfa69f3879b64cd318ab5987ad191eb92f8",
+      "branch": "codex/rlsl-lslc-001h-oracle-observation"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/CORPUS.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/ORACLE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/lslc-001h-stream-info-xml-observations.json" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/lslc-001h-stream-info-xml-provenance.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-lslc-001h-stream-info-xml-black-box-observation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001h-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-001h-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001h.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_lslc_001h.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/oracle/Invoke-Lslc001hOracle.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/oracle/lslc_001h_capture.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-001h-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-lslc-001h-standard-validation.txt",
+      "sha256": "6bb1924bf49fbf1042e62c5cb350dd844c87dd2855b781a694833dd03da552dc"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "pinned-isolated-black-box-oracle",
+      "status": "pass",
+      "command": "pwsh -NoProfile -File ./tools/oracle/Invoke-Lslc001hOracle.ps1 -Mode Capture",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    },
+    {
+      "acceptance_id": "bounded-stream-info-serialization-observations",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    },
+    {
+      "acceptance_id": "append-only-provenance-and-normalization",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    },
+    {
+      "acceptance_id": "oracle-public-private-firewall",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    },
+    {
+      "acceptance_id": "clean-source-and-authority-separation",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    },
+    {
+      "acceptance_id": "oracle-setup-and-failure-evidence",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["lslc-001h-standard-log"]
+    }
+  ],
+  "device_validation": null
+}

@@ -1,0 +1,108 @@
+Rusty LSL LSLC-001H standard validation
+========================================
+
+Unit: rlsl-lslc-001h-stream-info-xml-black-box-observation
+Base revision: 9650de4674a243f07ce5b1c2349c15341098105e
+Implementation HEAD: d31bcbfa69f3879b64cd318ab5987ad191eb92f8
+Validation authority: main Codex account
+Secondary MCP role: unrestricted evidence worker, not lifecycle authority
+Device validation: forbidden by the unit and not run
+
+Accepted external oracle identity
+---------------------------------
+
+PASS pylsl 1.18.2 Windows AMD64 wheel
+     SHA-256 3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1
+PASS public liblsl library version 117
+     Native DLL SHA-256 8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff
+PASS CPython 3.12.10, Windows AMD64, 64-bit
+PASS Seven synthetic data-only cases, two raw captures per case, were
+     byte-identical within each case. Fourteen external raw XML captures were
+     reconstructed exactly into the committed public-safe XML by replaying the
+     recorded typed byte-range normalizations.
+PASS No outlet, inlet, discovery, network, device, source inspection, candidate
+     implementation, native artifact, production dependency, or authority
+     behavior entered the repository.
+
+Validation gates
+----------------
+
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File
+     ./tools/check_lslc_001h.ps1 -ExternalRoot <accepted-external-root>
+     Capture record, wheel, DLL, stdout, stderr, fourteen raw XML files,
+     normalization ranges, reconstructed public XML, and cleanup state matched.
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     134 Rust tests passed; all historical compatibility, public-boundary,
+     project lifecycle, dependency/feature closure, and inert effect-lock checks
+     passed.
+PASS pwsh -NoProfile -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+PASS The changed-path envelope contained only nineteen permitted AGENTS, README,
+     docs, compatibility-fixture, morphospace, and tools paths. No crate, Cargo,
+     feature-lock, or project-spec path changed in the implementation commit.
+
+Preserved nonaccepted and failed attempts
+----------------------------------------
+
+PRESERVED The worker's preliminary external setup root was not accepted because
+          its existing package-cache state could not prove a fresh, direct,
+          no-cache acquisition. Its output is not acceptance evidence. The final
+          accepted root used a fresh external environment, direct HTTPS artifact
+          acquisition, external cache/temp locations, and no package cache.
+PRESERVED The first main-account mutation assertion expected one specific
+          direct-order error phrase. The checker rejected the mutation with the
+          equivalent independently derived public-XML child-order error; the
+          assertion was broadened without changing the checker or evidence.
+PRESERVED Importing the Python checker for mutation tests created an untracked
+          tools/__pycache__ bytecode artifact. The focused and aggregate firewall
+          correctly failed on that .pyc. The generated artifact was removed,
+          bytecode generation was disabled, and all final gates passed.
+
+Independent review and repair
+-----------------------------
+
+PASS Main review found that the worker checker hard-coded active unit state and
+     prohibited legitimate workflow-state/event changes. The checker now accepts
+     active, validating, and accepted lifecycle states while permanently guarding
+     the crate, Cargo graph, feature lock, and project specification.
+PASS Main review found several observation fields were trusted rather than derived.
+     The checker now parses each committed public XML document independently and
+     verifies exact child order, core text, numeric and format spellings, whitespace
+     digest, desc placement/form, nested metadata order/values, and character-data
+     representation against the synthetic cases.
+PASS External validation independently verifies the accepted capture record,
+     artifact identities, all raw hashes and bounds, exact raw byte ranges, cleanup
+     state, and byte-for-byte reconstruction of every committed public XML document.
+PASS Native/package scanning now includes tracked and untracked nonignored paths.
+
+Independent mutation evidence
+-----------------------------
+
+PASS Coordinated public-XML direct-child reordering plus matching claimed-order and
+     digest changes was rejected from independently parsed XML structure.
+PASS Nested description-node reordering plus matching claimed-order and digest
+     changes was rejected against the synthetic case structure.
+PASS A false whitespace digest claim was rejected against recomputed XML bytes.
+PASS An untracked fixtures/compatibility/*.dll mutation was rejected as a native
+     artifact. The mutation file was removed before final validation.
+
+Boundary, provenance, and limitations
+-------------------------------------
+
+PASS The frozen LSLC-001A corpus and every accepted historical fixture retained its
+     prior digest. LSLC-001H is a separate append-only black-box observation layer.
+PASS The committed overlay contains only neutral synthetic values and typed runtime
+     placeholders. Raw machine-specific values and raw XML remain external.
+PASS Exact observed dimensions are limited to the pinned Windows binary and seven
+     named data-only cases: direct field order, whitespace, empty desc form, finite
+     nominal-rate spelling, seven channel-format spellings, character-data spelling,
+     and ordered nested desc placement.
+PASS This evidence does not prove protocol or wire bytes, live endpoint metadata,
+     runtime-assigned values, networking, discovery, transport, cross-version or
+     cross-platform compatibility, parsing, candidate Rust behavior, publication
+     readiness, or Manifold admission/session/route/lease/revision/audit semantics.
+PASS All four declared instruction surfaces are complete. Both installed shared
+     skills were reviewed; their existing clean-source, public/private, append-only
+     evidence, failure-preservation, and reasoner/authority rules required no edit.
