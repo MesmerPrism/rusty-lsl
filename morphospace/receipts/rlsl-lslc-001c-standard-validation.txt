@@ -1,0 +1,42 @@
+Rusty LSL LSLC-001C standard validation
+========================================
+
+Unit: rlsl-lslc-001c-xml-character-data-representation
+Implementation HEAD: 80275aa5518d1e5d24148107765620d0e57d8cfc
+Validation authority: main Codex account
+Secondary MCP role: independent proposer/reviewer only
+Device validation: forbidden by the unit and not run
+
+PASS cargo +1.80.0 fmt --all -- --check
+PASS cargo +1.80.0 test --workspace --all-targets --offline --locked
+     96 passed; 0 failed; 7 LSLC-001C focused tests passed.
+PASS pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001c.ps1
+PASS pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     Historical compatibility checks, public-boundary checks, project lifecycle,
+     dependency/feature closure, and inert effect-lock checks passed.
+PASS pwsh -NoProfile -ExecutionPolicy Bypass -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+
+Independent mutation evidence
+-----------------------------
+
+PASS Mutating the greater-than replacement from &gt; to a literal > was rejected
+     by lslc_001c_close_delimiter_and_reference_like_text_are_represented_literally.
+PASS Moving fallible allocation ahead of the encoded-byte limit check was rejected
+     by check_lslc_001c.py's required validation-order invariant.
+PASS Both mutations were reverted before the aggregate and workflow gates ran.
+
+Adversarial MCP review
+----------------------
+
+PASS The secondary account found one validation-evidence defect: the original
+     allocation-failure test did not force try_reserve_exact to fail. It repaired
+     the private focused test to request usize::MAX and added the corresponding
+     checker invariant. The production encoding contract was unchanged.
+PASS Main-account inspection confirmed private state, exact fixed escaping,
+     bound-before-allocation order, typed non-panicking errors, empty dependency
+     and feature closure, preserved historical evidence, and no parser, document,
+     protocol, wire, transport, runtime, adapter, provider, FFI, or device surface.
+PASS All four declared instruction surfaces are complete.
