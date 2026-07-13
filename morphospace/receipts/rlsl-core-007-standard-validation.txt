@@ -1,0 +1,41 @@
+Rusty LSL CORE-007 standard validation evidence
+Created: 2026-07-13T13:34:41Z
+Project: rusty-lsl
+Unit: rlsl-core-007-timestamped-descriptor-chunk
+Branch: codex/rlsl-core-contracts-007
+Base revision: 7449952e6e41a416f81978a196b5ec6affe48182
+HEAD revision: 42f34be2dec997f8aff85919385b3861fd6ca64e
+
+PASS timestamped-descriptor-chunk-composition
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Exactly seven TimestampedChunk<T> input families map transitively through CORE-006 and CORE-005 to the existing data-only channel formats. Accepted non-empty state privately retains only the original ChunkLimits and caller-ordered Vec<BoundTimestampedDescriptorSample>. One generic path rejects emptiness before allocation and delegates each sample exactly once. The full locked offline 76-test workspace suite passed.
+
+PASS chunk-evidence-order-and-pairing
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Original chunk limits, sample count and order, raw timestamp bits, derived None/Some and both kinds, derived bits, signed-zero and chosen NaN sample payloads, all integer edge values, String allocations and order, and per-sample timestamp pairing were preserved exactly. Construction performs no cloning, intermediate converted-vector collection, clock read, timestamp calculation, splitting, merging, sorting, buffering, or rewriting.
+
+PASS indexed-delegated-chunk-errors
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_007.ps1
+Result: Eleven focused tests passed with deterministic empty rejection, exact sample-zero format and channel errors, later sample and channel indexes, first-failing-sample order, and unchanged lower-layer error payloads and precedence. Five detached-copy validator mutations were rejected for their intended reasons: chunk-family mapping drift, a public accepted-state field, a constant sample index, promotion of a historical STRM-000 result, and Cargo feature activation.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed in validating state with 76 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe or runtime-effect surface, historical STRM-000 and CORE-001/002/003/004/005/006 integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, architecture, compatibility, provenance, validation, fixture-index, and project-workspace updates passed check_all. Existing system-engineering guidance already requires ordered evidence composition to retain original authority and location-qualified failures, so no shared-skill edit was required. Relevant instruction surfaces passed terminal-newline and trailing-whitespace checks.
+
+Repaired validation issues: the implementation worker corrected two String fixtures whose scalar bounds obscured their intended assertions and repaired a rustfmt-sensitive structural regex. Main-account review added direct retained-value assertions for all integer families and made the focused lifecycle check valid through active, validating, and accepted states.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust composition of a non-empty validated timestamped chunk with descriptor/sample contracts. It does not prove actual LSL empty-chunk behavior, clocks or timestamp algorithms, splitting, merging, rechunking, buffering, queues, transport, protocol, wire interoperability, ecosystem compatibility, performance, platform behavior, or Morphospace authority.
