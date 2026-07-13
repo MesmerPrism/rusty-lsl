@@ -1,5 +1,28 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001H StreamInfo XML Black-Box Observation
+
+LSLC-001H is an append-only, bounded black-box observation through the exact
+official PyPI Windows AMD64 `pylsl 1.18.2` wheel. Its external-only harness
+verifies the wheel, public liblsl version, and loaded DLL digest; invokes only
+documented `StreamInfo`, metadata-element, and XML-return APIs; creates no
+outlet or inlet; makes no discovery or networking call; and retains wheels,
+DLLs, environments, caches, native diagnostics, and raw XML outside the
+repository.
+
+The separate observation overlay binds the frozen LSLC-001A corpus by SHA-256
+without changing its `not-observed` oracle or candidate roles. Public XML is
+committed only after exact byte-positioned replacement of runtime/session/host/
+address/port character data and a fail-closed boundary scan. Those operations
+preserve observed core order, whitespace, tag form, numeric and format
+spelling, caller character data, and `desc` placement. This adds no candidate
+mapping or serialization, parser, protocol, wire, runtime, adapter, provider,
+device, or Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001h.ps1
+```
+
 ## LSLC-001G Bounded Element-Tree Serialization
 
 LSLC-001G adds only a dependency-free borrowed, explicitly byte-bounded,

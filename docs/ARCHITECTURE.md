@@ -1,5 +1,23 @@
 # Architecture
 
+## LSLC-001H black-box observation boundary
+
+The oracle is a repository tool, never a production dependency or provider.
+Its PowerShell layer owns the explicit external root, exact wheel acquisition,
+hash and architecture checks, dependency-free isolated installation, bounded
+process capture, and append-only failure history. Its Python layer imports the
+pinned distribution only at capture time, calls documented public
+`StreamInfo` and metadata-element APIs, takes two bounded `as_xml()`
+snapshots of each unchanged object, and verifies exact repeat identity.
+
+Raw XML, stderr, wheel, DLL, environment, and cache files remain external.
+Only public-safe XML enters the append-only overlay. Ten runtime or
+machine-specific text ranges are replaced by byte position; markup, whitespace,
+core character data, numeric/format spelling, and description structure are
+otherwise unchanged. This observation plane neither feeds the LSLC-001G local
+serializer nor opens a StreamDefinition mapping, endpoint, runtime, provider,
+adapter, discovery, networking, inlet, outlet, or Manifold authority plane.
+
 ## LSLC-001G element-tree serialization
 
 The private `xml_element_serialization` module borrows one accepted

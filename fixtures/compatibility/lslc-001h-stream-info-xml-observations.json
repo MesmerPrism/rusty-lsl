@@ -1,0 +1,1115 @@
+{
+  "schema": "rusty.lsl.compatibility.stream_info_xml_black_box_observations.v1",
+  "overlay_id": "lslc-001h-stream-info-xml-black-box-observations",
+  "unit_id": "rlsl-lslc-001h-stream-info-xml-black-box-observation",
+  "evidence_level": "black-box-observed-exact-pinned-oracle",
+  "origin_classification": "black-box-observed",
+  "license_expression": "AGPL-3.0-or-later",
+  "corpus_binding": {
+    "corpus_id": "lslc-001a-stream-info-document-corpus",
+    "sha256": "68331a7a5ae6d0767ae9d2eb2d317d3673595fa04352087e88d6ff1506faaa2c",
+    "preservation": "append-only; corpus bytes and not-observed oracle/candidate roles remain unchanged"
+  },
+  "case_manifest_binding": {
+    "case_set_id": "lslc-001h-stream-info-xml-cases",
+    "sha256": "398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"
+  },
+  "oracle_binding": {
+    "distribution": "pylsl",
+    "distribution_version": "1.18.2",
+    "wheel_filename": "pylsl-1.18.2-py2.py3-none-win_amd64.whl",
+    "wheel_sha256": "3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1",
+    "liblsl_public_library_version": 117,
+    "native_dll_sha256": "8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff",
+    "python_implementation": "CPython",
+    "python_version": "3.12.10",
+    "python_architecture": "AMD64",
+    "python_bits": 64,
+    "platform": "Windows"
+  },
+  "capture_window": {
+    "started_at_utc": "2026-07-13T18:32:24.584092+00:00",
+    "finished_at_utc": "2026-07-13T18:32:24.745482+00:00"
+  },
+  "capture_policy": {
+    "calls": [
+      "pylsl.StreamInfo",
+      "pylsl.StreamInfo.desc",
+      "pylsl.XMLElement.append_child",
+      "pylsl.XMLElement.append_child_value",
+      "pylsl.StreamInfo.as_xml",
+      "pylsl.library_version"
+    ],
+    "stream_info_before_outlet_or_inlet": true,
+    "outlets_created": 0,
+    "inlets_created": 0,
+    "discovery_calls": 0,
+    "network_calls": 0,
+    "captures_per_case": 2,
+    "raw_evidence_location": "external-only",
+    "failure_history": "one append-only external failure-history.jsonl shared by setup and capture stages; no failure record was present for the accepted capture"
+  },
+  "observations": [
+    {
+      "case_id": "irregular-float32-empty-optionals-desc",
+      "classification": "accepted",
+      "captures": [
+        {
+          "capture_index": 1,
+          "sha256": "07c21328ee8ee6b24501b3270617ce7b6f3b5f43718e7b6e48b28e141d017c28",
+          "byte_length": 570,
+          "external_file_name": "irregular-float32-empty-optionals-desc-capture-1.xml"
+        },
+        {
+          "capture_index": 2,
+          "sha256": "07c21328ee8ee6b24501b3270617ce7b6f3b5f43718e7b6e48b28e141d017c28",
+          "byte_length": 570,
+          "external_file_name": "irregular-float32-empty-optionals-desc-capture-2.xml"
+        }
+      ],
+      "repeat_comparison": "raw-and-normalized-byte-identical",
+      "normalization_operations": [
+        {
+          "field": "created_at",
+          "raw_start_byte": 276,
+          "raw_end_byte_exclusive": 293,
+          "raw_length_bytes": 17,
+          "replacement_utf8": "NORMALIZED_CREATED_AT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "uid",
+          "raw_start_byte": 313,
+          "raw_end_byte_exclusive": 313,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_UID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "session_id",
+          "raw_start_byte": 333,
+          "raw_end_byte_exclusive": 333,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_SESSION_ID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "hostname",
+          "raw_start_byte": 358,
+          "raw_end_byte_exclusive": 358,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_HOSTNAME",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4address",
+          "raw_start_byte": 382,
+          "raw_end_byte_exclusive": 382,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V4ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4data_port",
+          "raw_start_byte": 409,
+          "raw_end_byte_exclusive": 410,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4service_port",
+          "raw_start_byte": 442,
+          "raw_end_byte_exclusive": 443,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6address",
+          "raw_start_byte": 473,
+          "raw_end_byte_exclusive": 473,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V6ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6data_port",
+          "raw_start_byte": 500,
+          "raw_end_byte_exclusive": 501,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6service_port",
+          "raw_start_byte": 533,
+          "raw_end_byte_exclusive": 534,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        }
+      ],
+      "public_xml_utf8": "<?xml version=\"1.0\"?>\n<info>\n\t<name>neutral-float32</name>\n\t<type></type>\n\t<channel_count>1</channel_count>\n\t<channel_format>float32</channel_format>\n\t<source_id></source_id>\n\t<nominal_srate>0.000000000000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>NORMALIZED_CREATED_AT</created_at>\n\t<uid>NORMALIZED_UID</uid>\n\t<session_id>NORMALIZED_SESSION_ID</session_id>\n\t<hostname>NORMALIZED_HOSTNAME</hostname>\n\t<v4address>NORMALIZED_V4ADDRESS</v4address>\n\t<v4data_port>NORMALIZED_V4DATA_PORT</v4data_port>\n\t<v4service_port>NORMALIZED_V4SERVICE_PORT</v4service_port>\n\t<v6address>NORMALIZED_V6ADDRESS</v6address>\n\t<v6data_port>NORMALIZED_V6DATA_PORT</v6data_port>\n\t<v6service_port>NORMALIZED_V6SERVICE_PORT</v6service_port>\n\t<desc />\n</info>\n",
+      "public_xml_sha256": "987166a5c95eb96c0340fcf76a6c08481fb19fb9a6de21efe652ccfa14e99201",
+      "public_xml_byte_length": 758,
+      "observed_dimensions": {
+        "direct_info_child_order": [
+          "name",
+          "type",
+          "channel_count",
+          "channel_format",
+          "source_id",
+          "nominal_srate",
+          "version",
+          "created_at",
+          "uid",
+          "session_id",
+          "hostname",
+          "v4address",
+          "v4data_port",
+          "v4service_port",
+          "v6address",
+          "v6data_port",
+          "v6service_port",
+          "desc"
+        ],
+        "whitespace_between_markup": "present",
+        "whitespace_run_sha256": "e4d06f43fb1185799a0d1c02e83c0f4aadb4a3156745abd94a124e9c266e016d",
+        "empty_desc_form": "<desc />",
+        "channel_count_spelling": "1",
+        "nominal_srate_spelling": "0.000000000000000",
+        "channel_format_spelling": "float32",
+        "expected_channel_format_spelling": "float32",
+        "desc_direct_child_index": 17,
+        "character_data_inputs": {
+          "name": "neutral-float32",
+          "type": "",
+          "source_id": "",
+          "description_values": []
+        },
+        "character_data_spellings": {
+          "name": "neutral-float32",
+          "type": "",
+          "source_id": "",
+          "description_values": []
+        },
+        "description_leaf_order": []
+      }
+    },
+    {
+      "case_id": "regular-double64-populated-optionals",
+      "classification": "accepted",
+      "captures": [
+        {
+          "capture_index": 1,
+          "sha256": "6f65970d5e7688246a647b21e94aa48610171080460a44657a6bdb4ecba9f639",
+          "byte_length": 598,
+          "external_file_name": "regular-double64-populated-optionals-capture-1.xml"
+        },
+        {
+          "capture_index": 2,
+          "sha256": "6f65970d5e7688246a647b21e94aa48610171080460a44657a6bdb4ecba9f639",
+          "byte_length": 598,
+          "external_file_name": "regular-double64-populated-optionals-capture-2.xml"
+        }
+      ],
+      "repeat_comparison": "raw-and-normalized-byte-identical",
+      "normalization_operations": [
+        {
+          "field": "created_at",
+          "raw_start_byte": 304,
+          "raw_end_byte_exclusive": 321,
+          "raw_length_bytes": 17,
+          "replacement_utf8": "NORMALIZED_CREATED_AT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "uid",
+          "raw_start_byte": 341,
+          "raw_end_byte_exclusive": 341,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_UID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "session_id",
+          "raw_start_byte": 361,
+          "raw_end_byte_exclusive": 361,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_SESSION_ID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "hostname",
+          "raw_start_byte": 386,
+          "raw_end_byte_exclusive": 386,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_HOSTNAME",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4address",
+          "raw_start_byte": 410,
+          "raw_end_byte_exclusive": 410,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V4ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4data_port",
+          "raw_start_byte": 437,
+          "raw_end_byte_exclusive": 438,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4service_port",
+          "raw_start_byte": 470,
+          "raw_end_byte_exclusive": 471,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6address",
+          "raw_start_byte": 501,
+          "raw_end_byte_exclusive": 501,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V6ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6data_port",
+          "raw_start_byte": 528,
+          "raw_end_byte_exclusive": 529,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6service_port",
+          "raw_start_byte": 561,
+          "raw_end_byte_exclusive": 562,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        }
+      ],
+      "public_xml_utf8": "<?xml version=\"1.0\"?>\n<info>\n\t<name>neutral-double64</name>\n\t<type>measurement</type>\n\t<channel_count>2</channel_count>\n\t<channel_format>double64</channel_format>\n\t<source_id>source-double64</source_id>\n\t<nominal_srate>100.0000000000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>NORMALIZED_CREATED_AT</created_at>\n\t<uid>NORMALIZED_UID</uid>\n\t<session_id>NORMALIZED_SESSION_ID</session_id>\n\t<hostname>NORMALIZED_HOSTNAME</hostname>\n\t<v4address>NORMALIZED_V4ADDRESS</v4address>\n\t<v4data_port>NORMALIZED_V4DATA_PORT</v4data_port>\n\t<v4service_port>NORMALIZED_V4SERVICE_PORT</v4service_port>\n\t<v6address>NORMALIZED_V6ADDRESS</v6address>\n\t<v6data_port>NORMALIZED_V6DATA_PORT</v6data_port>\n\t<v6service_port>NORMALIZED_V6SERVICE_PORT</v6service_port>\n\t<desc />\n</info>\n",
+      "public_xml_sha256": "10777dfb9396bd6a067afbc09856b06559aab21f70147ddb00f7686d6aea3d0a",
+      "public_xml_byte_length": 786,
+      "observed_dimensions": {
+        "direct_info_child_order": [
+          "name",
+          "type",
+          "channel_count",
+          "channel_format",
+          "source_id",
+          "nominal_srate",
+          "version",
+          "created_at",
+          "uid",
+          "session_id",
+          "hostname",
+          "v4address",
+          "v4data_port",
+          "v4service_port",
+          "v6address",
+          "v6data_port",
+          "v6service_port",
+          "desc"
+        ],
+        "whitespace_between_markup": "present",
+        "whitespace_run_sha256": "e4d06f43fb1185799a0d1c02e83c0f4aadb4a3156745abd94a124e9c266e016d",
+        "empty_desc_form": "<desc />",
+        "channel_count_spelling": "2",
+        "nominal_srate_spelling": "100.0000000000000",
+        "channel_format_spelling": "double64",
+        "expected_channel_format_spelling": "double64",
+        "desc_direct_child_index": 17,
+        "character_data_inputs": {
+          "name": "neutral-double64",
+          "type": "measurement",
+          "source_id": "source-double64",
+          "description_values": []
+        },
+        "character_data_spellings": {
+          "name": "neutral-double64",
+          "type": "measurement",
+          "source_id": "source-double64",
+          "description_values": []
+        },
+        "description_leaf_order": []
+      }
+    },
+    {
+      "case_id": "regular-string-unicode-sensitive-nested-desc",
+      "classification": "accepted",
+      "captures": [
+        {
+          "capture_index": 1,
+          "sha256": "9876ddc40330326c7ade95029fa5ebfa0d452faae9419722fd8d1e009fcfc99b",
+          "byte_length": 857,
+          "external_file_name": "regular-string-unicode-sensitive-nested-desc-capture-1.xml"
+        },
+        {
+          "capture_index": 2,
+          "sha256": "9876ddc40330326c7ade95029fa5ebfa0d452faae9419722fd8d1e009fcfc99b",
+          "byte_length": 857,
+          "external_file_name": "regular-string-unicode-sensitive-nested-desc-capture-2.xml"
+        }
+      ],
+      "repeat_comparison": "raw-and-normalized-byte-identical",
+      "normalization_operations": [
+        {
+          "field": "created_at",
+          "raw_start_byte": 364,
+          "raw_end_byte_exclusive": 381,
+          "raw_length_bytes": 17,
+          "replacement_utf8": "NORMALIZED_CREATED_AT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "uid",
+          "raw_start_byte": 401,
+          "raw_end_byte_exclusive": 401,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_UID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "session_id",
+          "raw_start_byte": 421,
+          "raw_end_byte_exclusive": 421,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_SESSION_ID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "hostname",
+          "raw_start_byte": 446,
+          "raw_end_byte_exclusive": 446,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_HOSTNAME",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4address",
+          "raw_start_byte": 470,
+          "raw_end_byte_exclusive": 470,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V4ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4data_port",
+          "raw_start_byte": 497,
+          "raw_end_byte_exclusive": 498,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4service_port",
+          "raw_start_byte": 530,
+          "raw_end_byte_exclusive": 531,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6address",
+          "raw_start_byte": 561,
+          "raw_end_byte_exclusive": 561,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V6ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6data_port",
+          "raw_start_byte": 588,
+          "raw_end_byte_exclusive": 589,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6service_port",
+          "raw_start_byte": 621,
+          "raw_end_byte_exclusive": 622,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        }
+      ],
+      "public_xml_utf8": "<?xml version=\"1.0\"?>\n<info>\n\t<name>unicode-Ω-中-&amp;-&lt;-greater-&gt;</name>\n\t<type>text-&amp;-&lt;-greater-&gt;-\"-'</type>\n\t<channel_count>3</channel_count>\n\t<channel_format>string</channel_format>\n\t<source_id>source-雪-&amp;-&lt;-greater-&gt;</source_id>\n\t<nominal_srate>59.94000000000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>NORMALIZED_CREATED_AT</created_at>\n\t<uid>NORMALIZED_UID</uid>\n\t<session_id>NORMALIZED_SESSION_ID</session_id>\n\t<hostname>NORMALIZED_HOSTNAME</hostname>\n\t<v4address>NORMALIZED_V4ADDRESS</v4address>\n\t<v4data_port>NORMALIZED_V4DATA_PORT</v4data_port>\n\t<v4service_port>NORMALIZED_V4SERVICE_PORT</v4service_port>\n\t<v6address>NORMALIZED_V6ADDRESS</v6address>\n\t<v6data_port>NORMALIZED_V6DATA_PORT</v6data_port>\n\t<v6service_port>NORMALIZED_V6SERVICE_PORT</v6service_port>\n\t<desc>\n\t\t<ordered>\n\t\t\t<first>alpha-α-&amp;-&lt;-greater-&gt;-\"-'</first>\n\t\t\t<second>beta-β-]]&gt;</second>\n\t\t\t<nested>\n\t\t\t\t<third>tail-尾-&amp;-&lt;-greater-&gt;</third>\n\t\t\t</nested>\n\t\t</ordered>\n\t</desc>\n</info>\n",
+      "public_xml_sha256": "312cee1cdbda4b1f86b8c11ec4937e99707fd9224fa35d25eedc2732f5fa4c72",
+      "public_xml_byte_length": 1045,
+      "observed_dimensions": {
+        "direct_info_child_order": [
+          "name",
+          "type",
+          "channel_count",
+          "channel_format",
+          "source_id",
+          "nominal_srate",
+          "version",
+          "created_at",
+          "uid",
+          "session_id",
+          "hostname",
+          "v4address",
+          "v4data_port",
+          "v4service_port",
+          "v6address",
+          "v6data_port",
+          "v6service_port",
+          "desc"
+        ],
+        "whitespace_between_markup": "present",
+        "whitespace_run_sha256": "986816fd790677e3ba000e235514fafb9b8768bb40eeb0c87622f65b2737d581",
+        "empty_desc_form": null,
+        "channel_count_spelling": "3",
+        "nominal_srate_spelling": "59.94000000000000",
+        "channel_format_spelling": "string",
+        "expected_channel_format_spelling": "string",
+        "desc_direct_child_index": 17,
+        "character_data_inputs": {
+          "name": "unicode-Ω-中-&-<-greater->",
+          "type": "text-&-<-greater->-\"-'",
+          "source_id": "source-雪-&-<-greater->",
+          "description_values": [
+            "alpha-α-&-<-greater->-\"-'",
+            "beta-β-]]>",
+            "tail-尾-&-<-greater->"
+          ]
+        },
+        "character_data_spellings": {
+          "name": "unicode-Ω-中-&amp;-&lt;-greater-&gt;",
+          "type": "text-&amp;-&lt;-greater-&gt;-\"-'",
+          "source_id": "source-雪-&amp;-&lt;-greater-&gt;",
+          "description_values": [
+            "alpha-α-&amp;-&lt;-greater-&gt;-\"-'",
+            "beta-β-]]&gt;",
+            "tail-尾-&amp;-&lt;-greater-&gt;"
+          ]
+        },
+        "description_leaf_order": [
+          "first",
+          "second",
+          "third"
+        ]
+      }
+    },
+    {
+      "case_id": "regular-int32-unit-rate",
+      "classification": "accepted",
+      "captures": [
+        {
+          "capture_index": 1,
+          "sha256": "42b25d5feac960418fd156a17c0be92aacae3b4b3b811a63476d203de5506a9d",
+          "byte_length": 585,
+          "external_file_name": "regular-int32-unit-rate-capture-1.xml"
+        },
+        {
+          "capture_index": 2,
+          "sha256": "42b25d5feac960418fd156a17c0be92aacae3b4b3b811a63476d203de5506a9d",
+          "byte_length": 585,
+          "external_file_name": "regular-int32-unit-rate-capture-2.xml"
+        }
+      ],
+      "repeat_comparison": "raw-and-normalized-byte-identical",
+      "normalization_operations": [
+        {
+          "field": "created_at",
+          "raw_start_byte": 291,
+          "raw_end_byte_exclusive": 308,
+          "raw_length_bytes": 17,
+          "replacement_utf8": "NORMALIZED_CREATED_AT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "uid",
+          "raw_start_byte": 328,
+          "raw_end_byte_exclusive": 328,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_UID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "session_id",
+          "raw_start_byte": 348,
+          "raw_end_byte_exclusive": 348,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_SESSION_ID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "hostname",
+          "raw_start_byte": 373,
+          "raw_end_byte_exclusive": 373,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_HOSTNAME",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4address",
+          "raw_start_byte": 397,
+          "raw_end_byte_exclusive": 397,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V4ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4data_port",
+          "raw_start_byte": 424,
+          "raw_end_byte_exclusive": 425,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4service_port",
+          "raw_start_byte": 457,
+          "raw_end_byte_exclusive": 458,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6address",
+          "raw_start_byte": 488,
+          "raw_end_byte_exclusive": 488,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V6ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6data_port",
+          "raw_start_byte": 515,
+          "raw_end_byte_exclusive": 516,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6service_port",
+          "raw_start_byte": 548,
+          "raw_end_byte_exclusive": 549,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        }
+      ],
+      "public_xml_utf8": "<?xml version=\"1.0\"?>\n<info>\n\t<name>neutral-int32</name>\n\t<type>integer</type>\n\t<channel_count>4</channel_count>\n\t<channel_format>int32</channel_format>\n\t<source_id>source-int32</source_id>\n\t<nominal_srate>1.000000000000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>NORMALIZED_CREATED_AT</created_at>\n\t<uid>NORMALIZED_UID</uid>\n\t<session_id>NORMALIZED_SESSION_ID</session_id>\n\t<hostname>NORMALIZED_HOSTNAME</hostname>\n\t<v4address>NORMALIZED_V4ADDRESS</v4address>\n\t<v4data_port>NORMALIZED_V4DATA_PORT</v4data_port>\n\t<v4service_port>NORMALIZED_V4SERVICE_PORT</v4service_port>\n\t<v6address>NORMALIZED_V6ADDRESS</v6address>\n\t<v6data_port>NORMALIZED_V6DATA_PORT</v6data_port>\n\t<v6service_port>NORMALIZED_V6SERVICE_PORT</v6service_port>\n\t<desc />\n</info>\n",
+      "public_xml_sha256": "b2128cf025f22c2c888dc77e752ddac9137d52da350ccc9bd8cbaed1625ba7e3",
+      "public_xml_byte_length": 773,
+      "observed_dimensions": {
+        "direct_info_child_order": [
+          "name",
+          "type",
+          "channel_count",
+          "channel_format",
+          "source_id",
+          "nominal_srate",
+          "version",
+          "created_at",
+          "uid",
+          "session_id",
+          "hostname",
+          "v4address",
+          "v4data_port",
+          "v4service_port",
+          "v6address",
+          "v6data_port",
+          "v6service_port",
+          "desc"
+        ],
+        "whitespace_between_markup": "present",
+        "whitespace_run_sha256": "e4d06f43fb1185799a0d1c02e83c0f4aadb4a3156745abd94a124e9c266e016d",
+        "empty_desc_form": "<desc />",
+        "channel_count_spelling": "4",
+        "nominal_srate_spelling": "1.000000000000000",
+        "channel_format_spelling": "int32",
+        "expected_channel_format_spelling": "int32",
+        "desc_direct_child_index": 17,
+        "character_data_inputs": {
+          "name": "neutral-int32",
+          "type": "integer",
+          "source_id": "source-int32",
+          "description_values": []
+        },
+        "character_data_spellings": {
+          "name": "neutral-int32",
+          "type": "integer",
+          "source_id": "source-int32",
+          "description_values": []
+        },
+        "description_leaf_order": []
+      }
+    },
+    {
+      "case_id": "regular-int16-fractional-rate",
+      "classification": "accepted",
+      "captures": [
+        {
+          "capture_index": 1,
+          "sha256": "53ba0aef5327ef9f36a55304ec97c1e01e05bfef56fb9c58d46c16c979955c90",
+          "byte_length": 585,
+          "external_file_name": "regular-int16-fractional-rate-capture-1.xml"
+        },
+        {
+          "capture_index": 2,
+          "sha256": "53ba0aef5327ef9f36a55304ec97c1e01e05bfef56fb9c58d46c16c979955c90",
+          "byte_length": 585,
+          "external_file_name": "regular-int16-fractional-rate-capture-2.xml"
+        }
+      ],
+      "repeat_comparison": "raw-and-normalized-byte-identical",
+      "normalization_operations": [
+        {
+          "field": "created_at",
+          "raw_start_byte": 291,
+          "raw_end_byte_exclusive": 308,
+          "raw_length_bytes": 17,
+          "replacement_utf8": "NORMALIZED_CREATED_AT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "uid",
+          "raw_start_byte": 328,
+          "raw_end_byte_exclusive": 328,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_UID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "session_id",
+          "raw_start_byte": 348,
+          "raw_end_byte_exclusive": 348,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_SESSION_ID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "hostname",
+          "raw_start_byte": 373,
+          "raw_end_byte_exclusive": 373,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_HOSTNAME",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4address",
+          "raw_start_byte": 397,
+          "raw_end_byte_exclusive": 397,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V4ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4data_port",
+          "raw_start_byte": 424,
+          "raw_end_byte_exclusive": 425,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4service_port",
+          "raw_start_byte": 457,
+          "raw_end_byte_exclusive": 458,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6address",
+          "raw_start_byte": 488,
+          "raw_end_byte_exclusive": 488,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V6ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6data_port",
+          "raw_start_byte": 515,
+          "raw_end_byte_exclusive": 516,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6service_port",
+          "raw_start_byte": 548,
+          "raw_end_byte_exclusive": 549,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        }
+      ],
+      "public_xml_utf8": "<?xml version=\"1.0\"?>\n<info>\n\t<name>neutral-int16</name>\n\t<type>integer</type>\n\t<channel_count>5</channel_count>\n\t<channel_format>int16</channel_format>\n\t<source_id>source-int16</source_id>\n\t<nominal_srate>256.5000000000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>NORMALIZED_CREATED_AT</created_at>\n\t<uid>NORMALIZED_UID</uid>\n\t<session_id>NORMALIZED_SESSION_ID</session_id>\n\t<hostname>NORMALIZED_HOSTNAME</hostname>\n\t<v4address>NORMALIZED_V4ADDRESS</v4address>\n\t<v4data_port>NORMALIZED_V4DATA_PORT</v4data_port>\n\t<v4service_port>NORMALIZED_V4SERVICE_PORT</v4service_port>\n\t<v6address>NORMALIZED_V6ADDRESS</v6address>\n\t<v6data_port>NORMALIZED_V6DATA_PORT</v6data_port>\n\t<v6service_port>NORMALIZED_V6SERVICE_PORT</v6service_port>\n\t<desc />\n</info>\n",
+      "public_xml_sha256": "5b88ca28e4ca1ede1337f739b96452b1ccda88d24223148883c3cf6337d6f807",
+      "public_xml_byte_length": 773,
+      "observed_dimensions": {
+        "direct_info_child_order": [
+          "name",
+          "type",
+          "channel_count",
+          "channel_format",
+          "source_id",
+          "nominal_srate",
+          "version",
+          "created_at",
+          "uid",
+          "session_id",
+          "hostname",
+          "v4address",
+          "v4data_port",
+          "v4service_port",
+          "v6address",
+          "v6data_port",
+          "v6service_port",
+          "desc"
+        ],
+        "whitespace_between_markup": "present",
+        "whitespace_run_sha256": "e4d06f43fb1185799a0d1c02e83c0f4aadb4a3156745abd94a124e9c266e016d",
+        "empty_desc_form": "<desc />",
+        "channel_count_spelling": "5",
+        "nominal_srate_spelling": "256.5000000000000",
+        "channel_format_spelling": "int16",
+        "expected_channel_format_spelling": "int16",
+        "desc_direct_child_index": 17,
+        "character_data_inputs": {
+          "name": "neutral-int16",
+          "type": "integer",
+          "source_id": "source-int16",
+          "description_values": []
+        },
+        "character_data_spellings": {
+          "name": "neutral-int16",
+          "type": "integer",
+          "source_id": "source-int16",
+          "description_values": []
+        },
+        "description_leaf_order": []
+      }
+    },
+    {
+      "case_id": "irregular-int8",
+      "classification": "accepted",
+      "captures": [
+        {
+          "capture_index": 1,
+          "sha256": "a93d6396a147c63667b176e614ad6da31de6e9912520b10a0b4b224282b79444",
+          "byte_length": 582,
+          "external_file_name": "irregular-int8-capture-1.xml"
+        },
+        {
+          "capture_index": 2,
+          "sha256": "a93d6396a147c63667b176e614ad6da31de6e9912520b10a0b4b224282b79444",
+          "byte_length": 582,
+          "external_file_name": "irregular-int8-capture-2.xml"
+        }
+      ],
+      "repeat_comparison": "raw-and-normalized-byte-identical",
+      "normalization_operations": [
+        {
+          "field": "created_at",
+          "raw_start_byte": 288,
+          "raw_end_byte_exclusive": 305,
+          "raw_length_bytes": 17,
+          "replacement_utf8": "NORMALIZED_CREATED_AT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "uid",
+          "raw_start_byte": 325,
+          "raw_end_byte_exclusive": 325,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_UID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "session_id",
+          "raw_start_byte": 345,
+          "raw_end_byte_exclusive": 345,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_SESSION_ID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "hostname",
+          "raw_start_byte": 370,
+          "raw_end_byte_exclusive": 370,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_HOSTNAME",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4address",
+          "raw_start_byte": 394,
+          "raw_end_byte_exclusive": 394,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V4ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4data_port",
+          "raw_start_byte": 421,
+          "raw_end_byte_exclusive": 422,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4service_port",
+          "raw_start_byte": 454,
+          "raw_end_byte_exclusive": 455,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6address",
+          "raw_start_byte": 485,
+          "raw_end_byte_exclusive": 485,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V6ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6data_port",
+          "raw_start_byte": 512,
+          "raw_end_byte_exclusive": 513,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6service_port",
+          "raw_start_byte": 545,
+          "raw_end_byte_exclusive": 546,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        }
+      ],
+      "public_xml_utf8": "<?xml version=\"1.0\"?>\n<info>\n\t<name>neutral-int8</name>\n\t<type>integer</type>\n\t<channel_count>6</channel_count>\n\t<channel_format>int8</channel_format>\n\t<source_id>source-int8</source_id>\n\t<nominal_srate>0.000000000000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>NORMALIZED_CREATED_AT</created_at>\n\t<uid>NORMALIZED_UID</uid>\n\t<session_id>NORMALIZED_SESSION_ID</session_id>\n\t<hostname>NORMALIZED_HOSTNAME</hostname>\n\t<v4address>NORMALIZED_V4ADDRESS</v4address>\n\t<v4data_port>NORMALIZED_V4DATA_PORT</v4data_port>\n\t<v4service_port>NORMALIZED_V4SERVICE_PORT</v4service_port>\n\t<v6address>NORMALIZED_V6ADDRESS</v6address>\n\t<v6data_port>NORMALIZED_V6DATA_PORT</v6data_port>\n\t<v6service_port>NORMALIZED_V6SERVICE_PORT</v6service_port>\n\t<desc />\n</info>\n",
+      "public_xml_sha256": "b2d84213358d658c686c6802af5a219a89c31619b8676ce639df498c75b8dccf",
+      "public_xml_byte_length": 770,
+      "observed_dimensions": {
+        "direct_info_child_order": [
+          "name",
+          "type",
+          "channel_count",
+          "channel_format",
+          "source_id",
+          "nominal_srate",
+          "version",
+          "created_at",
+          "uid",
+          "session_id",
+          "hostname",
+          "v4address",
+          "v4data_port",
+          "v4service_port",
+          "v6address",
+          "v6data_port",
+          "v6service_port",
+          "desc"
+        ],
+        "whitespace_between_markup": "present",
+        "whitespace_run_sha256": "e4d06f43fb1185799a0d1c02e83c0f4aadb4a3156745abd94a124e9c266e016d",
+        "empty_desc_form": "<desc />",
+        "channel_count_spelling": "6",
+        "nominal_srate_spelling": "0.000000000000000",
+        "channel_format_spelling": "int8",
+        "expected_channel_format_spelling": "int8",
+        "desc_direct_child_index": 17,
+        "character_data_inputs": {
+          "name": "neutral-int8",
+          "type": "integer",
+          "source_id": "source-int8",
+          "description_values": []
+        },
+        "character_data_spellings": {
+          "name": "neutral-int8",
+          "type": "integer",
+          "source_id": "source-int8",
+          "description_values": []
+        },
+        "description_leaf_order": []
+      }
+    },
+    {
+      "case_id": "regular-int64-large-fractional-rate",
+      "classification": "accepted",
+      "captures": [
+        {
+          "capture_index": 1,
+          "sha256": "3fa68b6d24d42f466f4e9760af0c2fa273bde2debdec342ed241539a032f0aa1",
+          "byte_length": 585,
+          "external_file_name": "regular-int64-large-fractional-rate-capture-1.xml"
+        },
+        {
+          "capture_index": 2,
+          "sha256": "3fa68b6d24d42f466f4e9760af0c2fa273bde2debdec342ed241539a032f0aa1",
+          "byte_length": 585,
+          "external_file_name": "regular-int64-large-fractional-rate-capture-2.xml"
+        }
+      ],
+      "repeat_comparison": "raw-and-normalized-byte-identical",
+      "normalization_operations": [
+        {
+          "field": "created_at",
+          "raw_start_byte": 291,
+          "raw_end_byte_exclusive": 308,
+          "raw_length_bytes": 17,
+          "replacement_utf8": "NORMALIZED_CREATED_AT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "uid",
+          "raw_start_byte": 328,
+          "raw_end_byte_exclusive": 328,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_UID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "session_id",
+          "raw_start_byte": 348,
+          "raw_end_byte_exclusive": 348,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_SESSION_ID",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "hostname",
+          "raw_start_byte": 373,
+          "raw_end_byte_exclusive": 373,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_HOSTNAME",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4address",
+          "raw_start_byte": 397,
+          "raw_end_byte_exclusive": 397,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V4ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4data_port",
+          "raw_start_byte": 424,
+          "raw_end_byte_exclusive": 425,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v4service_port",
+          "raw_start_byte": 457,
+          "raw_end_byte_exclusive": 458,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V4SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6address",
+          "raw_start_byte": 488,
+          "raw_end_byte_exclusive": 488,
+          "raw_length_bytes": 0,
+          "replacement_utf8": "NORMALIZED_V6ADDRESS",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6data_port",
+          "raw_start_byte": 515,
+          "raw_end_byte_exclusive": 516,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6DATA_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        },
+        {
+          "field": "v6service_port",
+          "raw_start_byte": 548,
+          "raw_end_byte_exclusive": 549,
+          "raw_length_bytes": 1,
+          "replacement_utf8": "NORMALIZED_V6SERVICE_PORT",
+          "reason": "runtime-or-machine-specific-character-data-outside-observed-dimensions"
+        }
+      ],
+      "public_xml_utf8": "<?xml version=\"1.0\"?>\n<info>\n\t<name>neutral-int64</name>\n\t<type>integer</type>\n\t<channel_count>7</channel_count>\n\t<channel_format>int64</channel_format>\n\t<source_id>source-int64</source_id>\n\t<nominal_srate>1000000.250000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>NORMALIZED_CREATED_AT</created_at>\n\t<uid>NORMALIZED_UID</uid>\n\t<session_id>NORMALIZED_SESSION_ID</session_id>\n\t<hostname>NORMALIZED_HOSTNAME</hostname>\n\t<v4address>NORMALIZED_V4ADDRESS</v4address>\n\t<v4data_port>NORMALIZED_V4DATA_PORT</v4data_port>\n\t<v4service_port>NORMALIZED_V4SERVICE_PORT</v4service_port>\n\t<v6address>NORMALIZED_V6ADDRESS</v6address>\n\t<v6data_port>NORMALIZED_V6DATA_PORT</v6data_port>\n\t<v6service_port>NORMALIZED_V6SERVICE_PORT</v6service_port>\n\t<desc />\n</info>\n",
+      "public_xml_sha256": "1ca160af5359b578eb1fa8c1eed563f0abc3aa1867823bf4d20f0f8f35b3a26b",
+      "public_xml_byte_length": 773,
+      "observed_dimensions": {
+        "direct_info_child_order": [
+          "name",
+          "type",
+          "channel_count",
+          "channel_format",
+          "source_id",
+          "nominal_srate",
+          "version",
+          "created_at",
+          "uid",
+          "session_id",
+          "hostname",
+          "v4address",
+          "v4data_port",
+          "v4service_port",
+          "v6address",
+          "v6data_port",
+          "v6service_port",
+          "desc"
+        ],
+        "whitespace_between_markup": "present",
+        "whitespace_run_sha256": "e4d06f43fb1185799a0d1c02e83c0f4aadb4a3156745abd94a124e9c266e016d",
+        "empty_desc_form": "<desc />",
+        "channel_count_spelling": "7",
+        "nominal_srate_spelling": "1000000.250000000",
+        "channel_format_spelling": "int64",
+        "expected_channel_format_spelling": "int64",
+        "desc_direct_child_index": 17,
+        "character_data_inputs": {
+          "name": "neutral-int64",
+          "type": "integer",
+          "source_id": "source-int64",
+          "description_values": []
+        },
+        "character_data_spellings": {
+          "name": "neutral-int64",
+          "type": "integer",
+          "source_id": "source-int64",
+          "description_values": []
+        },
+        "description_leaf_order": []
+      }
+    }
+  ],
+  "observed_dimensions": [
+    "direct info child order",
+    "inter-element whitespace",
+    "empty desc element form",
+    "channel-count and nominal-rate spelling",
+    "channel-format spelling",
+    "character-data representation",
+    "desc placement and ordered nested metadata"
+  ],
+  "candidate_result": {
+    "status": "not-observed",
+    "evidence": null
+  },
+  "does_not_prove": [
+    "Candidate Rust serialization or StreamDefinition mapping",
+    "Behavior outside pylsl 1.18.2 with public liblsl library version 117 on the recorded Windows AMD64 environment",
+    "Protocol bytes, wire framing, discovery, networking, inlet, outlet, transport, clock, buffering, recovery, runtime, adapter, provider, or ecosystem compatibility",
+    "Runtime-assigned identity, timestamp, session, host, address, or port semantics",
+    "Manifold admission, registry, subscription, route, lease, revision, replay, identity, authorization, or audit authority"
+  ]
+}

@@ -1,5 +1,17 @@
 # STRM-000 compatibility fixtures
 
+## LSLC-001H StreamInfo XML observation
+
+- `lslc-001h-stream-info-xml-cases.json`: independently authored bounded
+  positive and damaged case manifest.
+- `lslc-001h-stream-info-xml-observations.json`: exact pinned-oracle
+  black-box observations and public-safe normalized XML.
+- `lslc-001h-stream-info-xml-provenance.json`: wheel/library/tool/environment,
+  external raw-output digest, normalization, and failure-policy provenance.
+
+Raw XML, native stderr, wheel, DLL, virtual environment, and cache artifacts
+are external-only. Run `tools/check_lslc_001h.ps1` for the focused gate.
+
 Run `tools/check_lslc_001g.ps1` for the LSLC-001G borrowed bounded serializer,
 fixed explicit-tag and hierarchy-order policy, exact byte/allocation
 precedence, source preservation, local overlay, historical preservation, and

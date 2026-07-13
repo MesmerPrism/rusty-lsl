@@ -1,5 +1,34 @@
 # Rusty LSL
 
+## LSLC-001H pinned StreamInfo XML observation
+
+LSLC-001H records seven bounded synthetic `StreamInfo.as_xml()` black-box
+cases from the official Windows AMD64 `pylsl 1.18.2` wheel (SHA-256
+`3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1`),
+public liblsl library version `117`, and native DLL SHA-256
+`8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff`.
+The run used CPython 3.12.10 AMD64, called no discovery/network API, and
+created no outlet or inlet.
+
+Across all seven data-only formats, the direct `info` order was
+`name`, `type`, `channel_count`, `channel_format`, `source_id`,
+`nominal_srate`, the runtime/misc fields, then `desc`. Serialization
+contained inter-element whitespace; an empty description was `<desc />`;
+rates used fixed 16-significant-digit decimal spellings; formats were
+`float32`, `double64`, `string`, `int32`, `int16`, `int8`, and
+`int64`. In caller character data, `&`, `<`, and `>` appeared as
+`&amp;`, `&lt;`, and `&gt;`; quotes, apostrophes, and Unicode stayed
+literal, and `]]>` appeared as `]]&gt;`. Ordered nested metadata remained
+under the final `desc`.
+
+Raw XML and native diagnostics remain external because they can contain
+machine/runtime values. The committed exact public XML replaces only the
+character data of ten runtime/session/host/address/port fields, with every
+raw byte range recorded. The frozen LSLC-001A corpus remains byte-identical
+and unresolved candidate evidence remains `not-observed`. This observation
+does not implement candidate XML, StreamDefinition mapping, protocol, wire,
+runtime, broad compatibility, or stream authority.
+
 ## LSLC-001G bounded element-tree serialization
 
 `XmlElementSerialization::serialize` borrows an accepted `XmlElementTree` and

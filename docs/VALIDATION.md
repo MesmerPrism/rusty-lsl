@@ -1,5 +1,28 @@
 # Validation
 
+## LSLC-001H oracle observation gate
+
+Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001h.ps1
+```
+
+The focused gate verifies all historical fixture digests, the frozen corpus
+binding, case coverage and bounds, two-capture identity, exact public XML and
+normalization records, oracle/package/library identities, public-boundary
+scans, typed failure coverage, external-artifact exclusion, inert production
+closure, documentation routing, and main-account-only skill closure. It does
+not rerun the external oracle.
+
+To acquire and capture the pinned oracle separately:
+
+```powershell
+pwsh -NoProfile -File .\tools\oracle\Invoke-Lslc001hOracle.ps1 -Mode Capture
+```
+
+That command writes only below its explicit external root.
+
 ## LSLC-001G focused gate
 
 Run:

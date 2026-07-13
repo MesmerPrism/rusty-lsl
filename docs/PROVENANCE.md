@@ -1,5 +1,20 @@
 # Provenance
 
+## LSLC-001H black-box observation
+
+`fixtures/compatibility/lslc-001h-stream-info-xml-provenance.json` records the
+official wheel URL/version/SHA-256, public library version, native DLL digest,
+Python identity, bounded command vectors, sanitized environment, driver and
+case/corpus bindings, external stdout/stderr and capture-record digests,
+raw-output hashes, normalization policy, and append-only typed failure policy.
+No wheel, DLL, environment, cache, raw XML, native diagnostics, or package/
+native source is committed or used as implementation input.
+
+`fixtures/compatibility/lslc-001h-stream-info-xml-observations.json` is
+`black-box-observed`; the case manifest and tools are independently authored.
+The observed overlay neither changes the `independently-authored` frozen
+LSLC-001A corpus nor promotes local LSLC-001C/G candidate policy.
+
 ## LSLC-001G local overlay
 
 `fixtures/compatibility/lslc-001g-contract-results.json` is a separate

@@ -1,0 +1,252 @@
+{
+  "schema": "rusty.lsl.provenance.oracle_observation.v1",
+  "manifest_id": "lslc-001h-stream-info-xml-black-box-provenance",
+  "unit_id": "rlsl-lslc-001h-stream-info-xml-black-box-observation",
+  "origin_classification": "black-box-observed",
+  "license_expression": "AGPL-3.0-or-later",
+  "observation_date": "2026-07-13",
+  "source_boundary": {
+    "source_code_used": false,
+    "implementation_input": false,
+    "package_or_native_source_inspected": false,
+    "public_documentation_and_black_box_returns_only": true
+  },
+  "distribution": {
+    "project": "pylsl",
+    "version": "1.18.2",
+    "canonical_index": "https://pypi.org/project/pylsl/1.18.2/",
+    "wheel_url": "https://files.pythonhosted.org/packages/8a/a8/8ccb88b3cd65140e57966472038baa0cebb56bde5e86ad51852faed99cad/pylsl-1.18.2-py2.py3-none-win_amd64.whl",
+    "wheel_filename": "pylsl-1.18.2-py2.py3-none-win_amd64.whl",
+    "wheel_sha256": "3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1",
+    "package_type": "official-PyPI-Windows-x86-64-binary-wheel",
+    "installed_with_dependencies": false,
+    "license_expression": "MIT",
+    "redistribution_decision": "wheel and installed files remain external and are not redistributed"
+  },
+  "native_library": {
+    "public_library_version": 117,
+    "dll_sha256": "8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff",
+    "license_expression": "MIT",
+    "redistribution_decision": "native DLL remains external and is not redistributed"
+  },
+  "environment": {
+    "os_family": "Windows",
+    "architecture": "AMD64",
+    "python_implementation": "CPython",
+    "python_version": "3.12.10",
+    "python_bits": 64,
+    "locale_class": "not-used-for-case-generation",
+    "timezone_recording": "UTC timestamps; no time behavior is interpreted",
+    "network_topology": "not-observed; no discovery, resolution, inlet, outlet, or networking API was invoked"
+  },
+  "commands": {
+    "acquisition": [
+      "pwsh",
+      "Invoke-WebRequest",
+      "-UseBasicParsing",
+      "-Uri",
+      "<exact-official-wheel-url>",
+      "-OutFile",
+      "<external-root>/wheelhouse/pylsl-1.18.2-py2.py3-none-win_amd64.whl"
+    ],
+    "installation": [
+      "<external-root>/venv/Scripts/python.exe",
+      "-m",
+      "pip",
+      "install",
+      "--disable-pip-version-check",
+      "--no-cache-dir",
+      "--no-deps",
+      "--no-index",
+      "--force-reinstall",
+      "<external-root>/wheelhouse/pylsl-1.18.2-py2.py3-none-win_amd64.whl"
+    ],
+    "capture": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "./tools/oracle/Invoke-Lslc001hOracle.ps1",
+      "-Mode",
+      "Capture",
+      "-ExternalRoot",
+      "<external-root>"
+    ]
+  },
+  "bindings": {
+    "corpus": {
+      "path": "fixtures/compatibility/lslc-001a-stream-info-document-corpus.json",
+      "sha256": "68331a7a5ae6d0767ae9d2eb2d317d3673595fa04352087e88d6ff1506faaa2c"
+    },
+    "case_manifest": {
+      "path": "fixtures/compatibility/lslc-001h-stream-info-xml-cases.json",
+      "sha256": "398adef9dab9fc7aed44991168734dbc29b270616833586acbe0b3b48f8d9d17"
+    },
+    "powershell_driver": {
+      "path": "tools/oracle/Invoke-Lslc001hOracle.ps1",
+      "sha256": "edf07ba073c7947558ac32c38e608fbbd3d344c715b88baa37512cfa5cd37e0f"
+    },
+    "python_driver": {
+      "path": "tools/oracle/lslc_001h_capture.py",
+      "sha256": "0e064fcd78f4352268cf37e6be8edd1510bfbfa2cbe029c9ecce83d8a9a25b40"
+    }
+  },
+  "external_evidence": {
+    "capture_record_sha256": "5e278971aec68c5261cfb1de6c30d9db231ca12b8ba725e7b97a7d78f8a9d69a",
+    "capture_record_bytes": 44389,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_bytes": 0,
+    "stderr_sha256": "63cb87d91d14671ffc7ec7530467fe3f1d90b19d39cd6fd3db1d7534c32f5cdd",
+    "stderr_bytes": 1297,
+    "raw_xml_committed": false,
+    "reason": "raw output contains runtime or machine-specific fields and remains external",
+    "raw_outputs": [
+      {
+        "case_id": "irregular-float32-empty-optionals-desc",
+        "capture_index": 1,
+        "sha256": "07c21328ee8ee6b24501b3270617ce7b6f3b5f43718e7b6e48b28e141d017c28",
+        "byte_length": 570
+      },
+      {
+        "case_id": "irregular-float32-empty-optionals-desc",
+        "capture_index": 2,
+        "sha256": "07c21328ee8ee6b24501b3270617ce7b6f3b5f43718e7b6e48b28e141d017c28",
+        "byte_length": 570
+      },
+      {
+        "case_id": "regular-double64-populated-optionals",
+        "capture_index": 1,
+        "sha256": "6f65970d5e7688246a647b21e94aa48610171080460a44657a6bdb4ecba9f639",
+        "byte_length": 598
+      },
+      {
+        "case_id": "regular-double64-populated-optionals",
+        "capture_index": 2,
+        "sha256": "6f65970d5e7688246a647b21e94aa48610171080460a44657a6bdb4ecba9f639",
+        "byte_length": 598
+      },
+      {
+        "case_id": "regular-string-unicode-sensitive-nested-desc",
+        "capture_index": 1,
+        "sha256": "9876ddc40330326c7ade95029fa5ebfa0d452faae9419722fd8d1e009fcfc99b",
+        "byte_length": 857
+      },
+      {
+        "case_id": "regular-string-unicode-sensitive-nested-desc",
+        "capture_index": 2,
+        "sha256": "9876ddc40330326c7ade95029fa5ebfa0d452faae9419722fd8d1e009fcfc99b",
+        "byte_length": 857
+      },
+      {
+        "case_id": "regular-int32-unit-rate",
+        "capture_index": 1,
+        "sha256": "42b25d5feac960418fd156a17c0be92aacae3b4b3b811a63476d203de5506a9d",
+        "byte_length": 585
+      },
+      {
+        "case_id": "regular-int32-unit-rate",
+        "capture_index": 2,
+        "sha256": "42b25d5feac960418fd156a17c0be92aacae3b4b3b811a63476d203de5506a9d",
+        "byte_length": 585
+      },
+      {
+        "case_id": "regular-int16-fractional-rate",
+        "capture_index": 1,
+        "sha256": "53ba0aef5327ef9f36a55304ec97c1e01e05bfef56fb9c58d46c16c979955c90",
+        "byte_length": 585
+      },
+      {
+        "case_id": "regular-int16-fractional-rate",
+        "capture_index": 2,
+        "sha256": "53ba0aef5327ef9f36a55304ec97c1e01e05bfef56fb9c58d46c16c979955c90",
+        "byte_length": 585
+      },
+      {
+        "case_id": "irregular-int8",
+        "capture_index": 1,
+        "sha256": "a93d6396a147c63667b176e614ad6da31de6e9912520b10a0b4b224282b79444",
+        "byte_length": 582
+      },
+      {
+        "case_id": "irregular-int8",
+        "capture_index": 2,
+        "sha256": "a93d6396a147c63667b176e614ad6da31de6e9912520b10a0b4b224282b79444",
+        "byte_length": 582
+      },
+      {
+        "case_id": "regular-int64-large-fractional-rate",
+        "capture_index": 1,
+        "sha256": "3fa68b6d24d42f466f4e9760af0c2fa273bde2debdec342ed241539a032f0aa1",
+        "byte_length": 585
+      },
+      {
+        "case_id": "regular-int64-large-fractional-rate",
+        "capture_index": 2,
+        "sha256": "3fa68b6d24d42f466f4e9760af0c2fa273bde2debdec342ed241539a032f0aa1",
+        "byte_length": 585
+      }
+    ]
+  },
+  "normalization": {
+    "classification": "byte-positioned-character-data-replacement",
+    "operations_recorded_with_each_observation": true,
+    "discarded_dimensions": [
+      "runtime-created-at value",
+      "runtime UID value",
+      "session value",
+      "host value",
+      "address values",
+      "runtime port values"
+    ],
+    "preserved_dimensions": [
+      "core-field order",
+      "all markup and tag spelling",
+      "all whitespace",
+      "empty-element form",
+      "channel-count and nominal-rate spelling",
+      "channel-format spelling",
+      "caller-supplied character-data bytes",
+      "desc placement and nested metadata order"
+    ]
+  },
+  "failure_policy": {
+    "history_path": "<external-root>/failure-history.jsonl",
+    "append_only": true,
+    "shared_by_setup_and_capture_stages": true,
+    "successful_capture_must_not_remove_prior_failures": true,
+    "accepted_capture_failure_count": 0,
+    "typed_stages": [
+      "wheel-digest",
+      "python-architecture",
+      "python-version",
+      "pylsl-version",
+      "native-library-presence",
+      "native-library-version",
+      "native-library-digest",
+      "oracle-process-exit",
+      "capture-output-bound",
+      "capture-repeat",
+      "evidence-shape",
+      "public-boundary"
+    ]
+  },
+  "implementation_inputs": [],
+  "prohibited_source_inputs": [
+    "liblsl",
+    "rLSL",
+    "pylsl",
+    "wrappers",
+    "applications",
+    "tests",
+    "build files",
+    "vendored dependencies",
+    "generated protocol material",
+    "source repositories"
+  ],
+  "does_not_prove": [
+    "Candidate Rust serialization or StreamDefinition mapping",
+    "Behavior outside pylsl 1.18.2 with public liblsl library version 117 on the recorded Windows AMD64 environment",
+    "Protocol bytes, wire framing, discovery, networking, inlet, outlet, transport, clock, buffering, recovery, runtime, adapter, provider, or ecosystem compatibility",
+    "Runtime-assigned identity, timestamp, session, host, address, or port semantics",
+    "Manifold admission, registry, subscription, route, lease, revision, replay, identity, authorization, or audit authority"
+  ]
+}

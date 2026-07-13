@@ -1,5 +1,15 @@
 # LSLC-001A stream-info document corpus
 
+## LSLC-001H append-only observation
+
+LSLC-001H leaves this corpus byte-for-byte frozen at SHA-256
+`68331a7a5ae6d0767ae9d2eb2d317d3673595fa04352087e88d6ff1506faaa2c`.
+Specification cases retain null `not-observed` oracle and candidate roles.
+The new bounded synthetic cases, provenance, and measured official-oracle
+results live in three separate `lslc-001h-*` artifacts. Observed endpoint
+bytes therefore do not rewrite specification, LSLC-001C/G local candidate
+policy, or any future candidate result.
+
 ## LSLC-001G local serialization binding
 
 LSLC-001G borrows only the accepted LSLC-001E hierarchy and preserves accepted

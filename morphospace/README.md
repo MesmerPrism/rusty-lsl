@@ -1,5 +1,13 @@
 # Rusty LSL project workflow
 
+The active `rlsl-lslc-001h-stream-info-xml-black-box-observation` unit owns
+only a pinned external official-binary oracle harness, append-only synthetic
+case/provenance/observation fixtures, focused validation, and public routing
+docs. It changes no production crate, dependency, feature lock, runtime effect,
+protocol, networking, provider, adapter, or authority surface. Repository
+instruction rows may complete here; installed skill review remains for the
+main account.
+
 `rlsl-lslc-001g-bounded-xml-element-tree-serialization` permits only one
 dependency-free borrowed, explicitly byte-bounded, fallible, non-recursive
 projection from an accepted `XmlElementTree` to an owned UTF-8 `String`, with

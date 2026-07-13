@@ -1,5 +1,22 @@
 # Official liblsl black-box oracle procedure
 
+## LSLC-001H pinned execution
+
+The first measured procedure uses only the official PyPI Windows AMD64
+`pylsl 1.18.2` binary wheel, installed with `--no-deps` under an explicit
+external temporary root. The harness verifies wheel SHA-256, CPython AMD64,
+the pylsl version, public liblsl library version `117`, and the loaded native
+DLL SHA-256 before accepting evidence. It invokes only public `StreamInfo`,
+metadata-element, `as_xml`, and library-version APIs before any outlet or
+inlet exists; it calls no resolution, discovery, or networking API.
+
+Each case is captured twice from the same bounded object and must be byte
+identical. Nonzero exit, over-bound output, missing/wrong artifacts,
+version/architecture drift, repeat mismatch, malformed evidence, or prohibited
+public content fails at a typed stage. Failure history is append-only. Machine-
+specific raw XML and native stderr remain external; public normalization is
+limited to recorded byte ranges of runtime/session/host/address/port text.
+
 ## Role and limit
 
 Official liblsl may serve only as an MIT-licensed black-box reference endpoint.

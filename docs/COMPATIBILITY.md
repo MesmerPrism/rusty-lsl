@@ -1,5 +1,21 @@
 # Compatibility
 
+## LSLC-001H measured serialization observation
+
+`fixtures/compatibility/lslc-001h-stream-info-xml-observations.json` is a
+separate black-box-observed overlay for one exact official Windows oracle. It
+binds, but does not edit or promote, the frozen LSLC-001A specification corpus.
+It covers all seven data-only formats, irregular and finite regular rates,
+empty/populated optional core text, Unicode and XML-sensitive caller text,
+empty `desc`, and ordered nested metadata.
+
+The overlay records exact normalized public XML, raw-output SHA-256 values,
+repeat identity, byte-positioned normalization operations, and the observed
+order, whitespace, empty-element, numeric, format, character-data, and
+description-placement dimensions. It is not candidate differential evidence
+and does not support claims about other versions/platforms, protocol, wire,
+networking, runtime, or ecosystem compatibility.
+
 ## LSLC-001G local serialization evidence
 
 LSLC-001G proves only a borrowed, bounded, iterative projection of an accepted

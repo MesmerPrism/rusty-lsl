@@ -1,0 +1,112 @@
+{
+  "schema": "rusty.lsl.compatibility.stream_info_xml_black_box_cases.v1",
+  "case_set_id": "lslc-001h-stream-info-xml-cases",
+  "unit_id": "rlsl-lslc-001h-stream-info-xml-black-box-observation",
+  "origin_classification": "independently-authored",
+  "license_expression": "AGPL-3.0-or-later",
+  "bounds": {
+    "max_cases": 16,
+    "captures_per_case": 2,
+    "max_xml_bytes_per_capture": 16384,
+    "max_stdout_bytes": 65536,
+    "max_stderr_bytes": 65536,
+    "max_desc_nodes": 32,
+    "max_desc_depth": 8,
+    "max_text_code_points": 512
+  },
+  "positive_cases": [
+    {
+      "case_id": "irregular-float32-empty-optionals-desc",
+      "name": "neutral-float32",
+      "type": "",
+      "channel_count": 1,
+      "nominal_srate": 0.0,
+      "channel_format_symbol": "cf_float32",
+      "source_id": "",
+      "description": []
+    },
+    {
+      "case_id": "regular-double64-populated-optionals",
+      "name": "neutral-double64",
+      "type": "measurement",
+      "channel_count": 2,
+      "nominal_srate": 100.0,
+      "channel_format_symbol": "cf_double64",
+      "source_id": "source-double64",
+      "description": []
+    },
+    {
+      "case_id": "regular-string-unicode-sensitive-nested-desc",
+      "name": "unicode-Ω-中-&-<-greater->",
+      "type": "text-&-<-greater->-\"-'",
+      "channel_count": 3,
+      "nominal_srate": 59.94,
+      "channel_format_symbol": "cf_string",
+      "source_id": "source-雪-&-<-greater->",
+      "description": [
+        {"path": ["ordered"], "name": "first", "value": "alpha-α-&-<-greater->-\"-'"},
+        {"path": ["ordered"], "name": "second", "value": "beta-β-]]>"},
+        {"path": ["ordered", "nested"], "name": "third", "value": "tail-尾-&-<-greater->"}
+      ]
+    },
+    {
+      "case_id": "regular-int32-unit-rate",
+      "name": "neutral-int32",
+      "type": "integer",
+      "channel_count": 4,
+      "nominal_srate": 1.0,
+      "channel_format_symbol": "cf_int32",
+      "source_id": "source-int32",
+      "description": []
+    },
+    {
+      "case_id": "regular-int16-fractional-rate",
+      "name": "neutral-int16",
+      "type": "integer",
+      "channel_count": 5,
+      "nominal_srate": 256.5,
+      "channel_format_symbol": "cf_int16",
+      "source_id": "source-int16",
+      "description": []
+    },
+    {
+      "case_id": "irregular-int8",
+      "name": "neutral-int8",
+      "type": "integer",
+      "channel_count": 6,
+      "nominal_srate": 0.0,
+      "channel_format_symbol": "cf_int8",
+      "source_id": "source-int8",
+      "description": []
+    },
+    {
+      "case_id": "regular-int64-large-fractional-rate",
+      "name": "neutral-int64",
+      "type": "integer",
+      "channel_count": 7,
+      "nominal_srate": 1000000.25,
+      "channel_format_symbol": "cf_int64",
+      "source_id": "source-int64",
+      "description": []
+    }
+  ],
+  "damaged_cases": [
+    {"case_id": "damaged-wheel-digest-drift", "expected_stage": "wheel-digest"},
+    {"case_id": "damaged-python-architecture", "expected_stage": "python-architecture"},
+    {"case_id": "damaged-pylsl-version", "expected_stage": "pylsl-version"},
+    {"case_id": "damaged-native-library-missing", "expected_stage": "native-library-presence"},
+    {"case_id": "damaged-native-library-digest", "expected_stage": "native-library-digest"},
+    {"case_id": "damaged-oracle-nonzero-exit", "expected_stage": "oracle-process-exit"},
+    {"case_id": "damaged-output-bound", "expected_stage": "capture-output-bound"},
+    {"case_id": "damaged-repeat-mismatch", "expected_stage": "capture-repeat"},
+    {"case_id": "damaged-malformed-evidence", "expected_stage": "evidence-shape"},
+    {"case_id": "damaged-prohibited-public-content", "expected_stage": "public-boundary"}
+  ],
+  "does_not_prove": [
+    "Behavior outside the exact pinned Windows oracle and bounded cases",
+    "Candidate Rust serialization or StreamDefinition mapping",
+    "Protocol, wire, discovery, networking, inlet, outlet, transport, clock, runtime, or ecosystem compatibility",
+    "Runtime-assigned identity, session, host, address, or port semantics",
+    "Manifold admission, identity, authorization, routing, subscription, lease, revision, or audit authority"
+  ]
+}
