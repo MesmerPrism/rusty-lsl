@@ -13,6 +13,7 @@
 | Local core stream descriptors | Implemented | CORE-003 Rust unit tests; bounded opaque text and values only, with no XML, discovery, or runtime identity |
 | Local bounded metadata tree | Implemented | CORE-004 Rust unit tests; flat parent-before-child arena only, with no XML or runtime behavior |
 | Local descriptor/sample binding | Implemented | CORE-005 Rust unit tests; exact homogeneous format and channel shape only, with bounded String values and no conversion or runtime behavior |
+| Local timestamped descriptor/sample composition | Implemented | CORE-006 Rust unit tests; exact composition of existing validated values through CORE-005, with no clock, algorithm, transport, or runtime behavior |
 | Sample and chunk transport | Not implemented | Specification cases only |
 | Local channel-format names | Implemented | CORE-003 Rust unit tests; exactly seven data-only variants with no wire numeric mapping or conversion |
 | Protocol or wire channel formats | Not implemented | No case or measurement |
@@ -46,6 +47,12 @@ an exact validated descriptor shape, String Unicode scalar bounds, stable
 errors, and unchanged value order and floating-point bits. It proves no
 conversion, layout, encoding, wire, protocol, transport, runtime, or ecosystem
 behavior.
+CORE-006 proves only local composition of seven homogeneous
+`TimestampedSample<T>` families with an exact descriptor binding, preservation
+of raw and optional derived timestamp evidence, and unchanged delegated
+CORE-005 errors. It proves no clock read or algorithm, timestamp derivation or
+rewriting, buffering, conversion, encoding, protocol, transport, runtime, or
+ecosystem behavior.
 
 ## Compatibility classes
 
@@ -79,6 +86,10 @@ metadata-tree tests to CORE-004 while preserving `contract-metadata-bounds` as
 The separate `core-005-contract-results.json` overlay binds only local
 descriptor/sample binding tests to CORE-005 while preserving
 `contract-sample-shape` as `not-implemented` historical specification evidence.
+The separate `core-006-contract-results.json` overlay binds only local
+timestamped descriptor/sample composition tests to CORE-006 while preserving
+`semantic-raw-timestamp-preserved` as `not-implemented` historical
+specification evidence.
 Evidence at one level must not be promoted into a broader claim.
 
 Each case has three deliberately separate roles:
@@ -89,8 +100,8 @@ Each case has three deliberately separate roles:
 
 For STRM-000, `current_result` and `measured_result.status` remain
 `not-implemented`, and each measured observation remains null. CORE-001,
-CORE-002, CORE-003, CORE-004, and CORE-005 status lives only in their result
-overlays.
+CORE-002, CORE-003, CORE-004, CORE-005, and CORE-006 status lives only in their
+result overlays.
 
 ## Compatibility method
 

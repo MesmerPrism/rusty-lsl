@@ -38,6 +38,12 @@ of exactly seven homogeneous validated samples to an exact descriptor format
 and channel count, with bounded String channel values. It preserves all
 historical STRM-000 results and proves no conversion, encoding, layout,
 transport, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
+`core-006-contract-results.json` records only local Rust tests for composing
+one of exactly seven existing timestamped homogeneous samples with an exact
+CORE-005 descriptor/sample binding. It preserves raw and optional derived
+timestamp evidence and unchanged delegated errors. It proves no clock read,
+timestamp algorithm or rewriting, buffering, conversion, encoding, transport,
+protocol, wire, runtime, ecosystem, or official-liblsl behavior.
 Run
 `tools/check_strm_000.ps1` after any edit; digest changes must be reviewed and
 recorded in the provenance manifest. Run `tools/check_core_001.ps1` for the
@@ -48,3 +54,5 @@ Run `tools/check_core_004.ps1` for the CORE-004 overlay and bounded flat
 metadata-tree implementation.
 Run `tools/check_core_005.ps1` for the CORE-005 overlay and descriptor/sample
 binding implementation.
+Run `tools/check_core_006.ps1` for the CORE-006 overlay and timestamped
+descriptor/sample composition implementation.

@@ -7,8 +7,9 @@ explicit, typed integration with Rusty Morphospace.
 Status: source-only crate with dependency-free bounded metadata, sample-shape,
 finite raw source timestamp, optional derived timestamp, and timestamped-chunk
 contracts, plus bounded core stream descriptors, a bounded parent-before-child
-flat metadata-tree arena, a data-only descriptor/sample binding, and the
-accepted specification-level STRM-000 baseline. No LSL
+flat metadata-tree arena, a data-only descriptor/sample binding, a timestamped
+descriptor/sample composition, and the accepted specification-level STRM-000
+baseline. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
 `not-implemented`, and no official-liblsl observation has been measured.
@@ -93,6 +94,23 @@ signed zero and chosen NaN payloads. CORE-005 performs no conversion, casting,
 parsing, formatting, normalization, inference, byte sizing, encoding, decoding,
 endianness, wire mapping, or runtime action.
 
+CORE-006 adds a separate timestamped descriptor/sample composition whose
+public unvalidated input family contains exactly seven homogeneous
+`TimestampedSample<T>` variants corresponding to the existing data-only
+formats. Construction moves the timestamped sample apart once and delegates
+the unchanged sample to `BoundDescriptorSample::new`, preserving CORE-005
+format, descriptor/sample channel-count, String Unicode-scalar validation,
+error payloads, and format → channel-count → String-bound precedence.
+
+Accepted state privately owns the resulting binding plus the mandatory raw
+source timestamp and optional derived timestamp evidence. It preserves raw
+source timestamp bits, optional derived `None` versus `Some`, derived kind and
+bits, sample values and order, and their exact pairing without cloning or
+recalculation. This composition reads no clock and performs no timestamp
+derivation, correction, smoothing, dejittering, interpolation, sorting,
+rewriting, scheduling, buffering, conversion, encoding, transport, protocol,
+wire, or runtime action.
+
 The separate STRM-000 baseline
 continues to distinguish independently authored specifications, planned
 black-box observations, and measured results; only the first exists today. See
@@ -102,9 +120,9 @@ black-box observations, and measured results; only the first exists today. See
 
 Development is bounded by the public project-local control surface under
 [`morphospace/`](morphospace/README.md). Its lock selects no feature or module
-and permits no runtime effect. Workflow state records CORE-005 as active for
+and permits no runtime effect. Workflow state records CORE-006 as active for
 this bounded implementation and validation slice. The separate CORE-001 and
 CORE-002 overlays and the separate CORE-003 and CORE-004 local-results overlays
-plus the separate CORE-005 local-results overlay report only local Rust contract
-tests. Activity and local unit-test results are not LSL interoperability or
-runtime evidence.
+plus the separate CORE-005 and CORE-006 local-results overlays report only
+local Rust contract tests. Activity and local unit-test results are not LSL
+interoperability or runtime evidence.

@@ -1,0 +1,52 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-006-timestamped-descriptor-sample",
+  "unit_id": "rlsl-core-006-timestamped-descriptor-sample",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "case_id": "semantic-raw-timestamp-preserved",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 semantic timestamp case remains historical specification-only evidence; this overlay records only independently authored local Rust composition of previously validated descriptor, sample, and timestamp values."
+  },
+  "contract_results": [
+    {
+      "contract_id": "timestamped-descriptor-sample-composition",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_006_all_seven_timestamped_format_mappings_bind_exactly",
+        "core_006_float_nan_payloads_and_timestamp_pairing_survive_consumption",
+        "core_006_integer_edges_and_order_are_preserved",
+        "core_006_raw_only_and_both_derived_kinds_preserve_exact_bits",
+        "core_006_string_exact_bound_and_accessors_preserve_pairing"
+      ],
+      "damaged_tests": [
+        "core_006_delegated_validation_precedence_is_unchanged",
+        "core_006_delegates_channel_mismatch_without_rewriting_error",
+        "core_006_delegates_first_one_past_string_error_exactly",
+        "core_006_delegates_format_mismatch_without_rewriting_error",
+        "core_006_zero_string_limit_retains_delegated_typed_error"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "clock reading, clock correction, dejittering, smoothing, interpolation, or timestamp derivation",
+    "timestamp sorting, rewriting, scheduling, buffering, or postprocessing",
+    "numeric or string conversion, coercion, casting, parsing, formatting, or normalization",
+    "byte sizing, encoding, decoding, endianness, memory layout, or wire mapping",
+    "LSL protocol behavior",
+    "sample, descriptor, or timestamp transport",
+    "discovery, recovery, providers, or runtime action",
+    "source identity, authorization, admission, routing, permission, or Morphospace authority",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

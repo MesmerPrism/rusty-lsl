@@ -93,6 +93,16 @@ unit requirements without external implementation input. It proves no
 conversion, encoding, layout, wire, protocol, transport, runtime, ecosystem,
 or official-liblsl behavior.
 
+`fixtures/compatibility/core-006-contract-results.json` is a separate
+independently authored local-results overlay. It binds exact positive and
+damaged local Rust tests for composing the existing timestamped-sample and
+descriptor/sample contracts while retaining their exact values and delegated
+errors. Its source, tests, and gate were authored from this repository's public
+unit requirements without external implementation input. It proves no clock
+read or timestamp algorithm, rewriting, buffering, conversion, encoding,
+layout, wire, protocol, transport, runtime, ecosystem, or official-liblsl
+behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

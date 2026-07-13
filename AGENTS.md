@@ -57,9 +57,12 @@ channel-format names. CORE-004 adds only a dependency-free parent-before-child
 flat metadata-tree arena with explicit structural and Unicode scalar-value
 bounds. CORE-005 adds only a dependency-free descriptor/sample binding for
 exactly seven homogeneous data representations, exact descriptor format and
-channel-shape checks, and bounded String channel values. Keep the feature lock
-empty and inert until a later reviewed unit and owner-issued descriptor open an
-exact runtime surface.
+channel-shape checks, and bounded String channel values. CORE-006 adds only a
+separate dependency-free timestamped descriptor/sample composition for those
+same seven representations, delegating all sample validation to CORE-005 while
+retaining raw and optional derived timestamp evidence unchanged. Keep the
+feature lock empty and inert until a later reviewed unit and owner-issued
+descriptor open an exact runtime surface.
 
 ## Provenance And Compatibility
 
@@ -132,6 +135,14 @@ exact runtime surface.
 - CORE-005 performs no conversion, casting, parsing, formatting, normalization,
   inference, byte sizing, encoding, decoding, endianness, wire mapping,
   allocation beyond owned contract state, or runtime action.
+- CORE-006 moves one existing `TimestampedSample<T>` apart without cloning or
+  recalculation, delegates its sample unchanged to `BoundDescriptorSample::new`,
+  and privately retains the accepted binding plus the exact raw source and
+  optional derived timestamp evidence. Its public input family has exactly the
+  same seven type-to-format mappings as CORE-005.
+- CORE-006 adds no timestamp algorithm, clock read, correction, smoothing,
+  dejittering, interpolation, sorting, rewriting, scheduling, buffering,
+  conversion, encoding, transport, protocol, wire, or runtime action.
 - Timestamp value constructors do not read clocks or calculate correction,
   dejittering, smoothing, interpolation, or sample-rate timestamp derivation.
 - Discovery is observation, never identity, authorization, or activation.
@@ -190,6 +201,12 @@ For descriptor/sample binding edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_005.ps1
+```
+
+For timestamped descriptor/sample composition edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_006.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,

@@ -40,6 +40,7 @@ try {
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_003.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_004.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_005.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_006.ps1
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked python tools/check_project_workspace.py
     Invoke-Checked git diff --check

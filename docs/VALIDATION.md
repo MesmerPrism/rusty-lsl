@@ -10,9 +10,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 
 The script runs formatting, locked offline metadata inspection, locked offline
 tests, the STRM-000 compatibility/provenance gate, the CORE-001, CORE-002,
-CORE-003, CORE-004, and CORE-005 local-contract gates, the public-boundary and
-text-hygiene checker, the dependency-free local project-workspace checker, and
-Git whitespace checks.
+CORE-003, CORE-004, CORE-005, and CORE-006 local-contract gates, the
+public-boundary and text-hygiene checker, the dependency-free local
+project-workspace checker, and Git whitespace checks.
 
 Run the focused baseline gate with:
 
@@ -48,6 +48,12 @@ Run the focused descriptor/sample binding gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_005.ps1
+```
+
+Run the focused timestamped descriptor/sample composition gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_006.ps1
 ```
 
 ## Acceptance criteria
@@ -103,6 +109,18 @@ The source-only slice passes when:
   parsing, formatting, normalization, inference, byte sizing, encoding,
   decoding, endianness, wire mapping, allocation beyond owned contract state,
   runtime action, dependency, feature, or unsafe surface;
+- the separate CORE-006 overlay binds exact tests for all seven timestamped
+  homogeneous mappings, raw-only and both derived kinds, raw and derived signed
+  zero and finite bit patterns, sample NaN payloads, integer edges, exact and
+  one-past String bounds, format and channel mismatch, delegated validation
+  precedence and errors, consuming and read-only accessors, and exact
+  timestamp/sample pairing;
+- CORE-006 retains private accepted fields containing only a
+  `BoundDescriptorSample` plus unchanged raw and optional derived timestamp
+  evidence, delegates exactly once to `BoundDescriptorSample::new`, duplicates
+  no CORE-005 validation, and opens no clock, timestamp algorithm, sorting,
+  rewriting, scheduling, buffering, conversion, encoding, dependency, feature,
+  unsafe, transport, protocol, wire, or runtime surface;
 - the damaged matrix, provenance fields, artifact digests, case relationships,
   source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;

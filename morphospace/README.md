@@ -13,10 +13,12 @@ Resume in this order:
 4. the current iteration unit, if one is named
 5. only the event tail and receipts referenced by state
 
-`rlsl-core-005-descriptor-sample-binding` is the active source-and-validation
-unit. It permits only a dependency-free binding between validated descriptors
-and exactly seven homogeneous validated sample representations, with exact
-format and channel-count checks, bounded String values, tests, overlay,
-documentation, and gates. Active workflow state does not claim conversion,
+`rlsl-core-006-timestamped-descriptor-sample` is the active
+source-and-validation unit. It permits only a dependency-free composition of
+one validated descriptor with one of exactly seven existing timestamped
+homogeneous sample representations. The composition delegates format,
+channel-count, and String bounds to CORE-005 and retains raw and optional
+derived timestamp evidence unchanged. Active workflow state does not claim
+clock reads or algorithms, timestamp rewriting, buffering, conversion,
 encoding, wire or protocol implementation, compatibility, oracle measurement,
 or runtime activation.

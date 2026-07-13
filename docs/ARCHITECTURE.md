@@ -9,6 +9,11 @@ sample, chunk, core stream-descriptor, and flat metadata-tree families.
 The separate descriptor/sample binding family accepts exactly seven
 homogeneous `Sample<T>` representations and binds each one to the matching
 data-only descriptor format and exact descriptor channel count.
+The separate timestamped descriptor/sample composition family accepts the
+same seven `TimestampedSample<T>` representations, moves each apart once, and
+delegates the unchanged sample to `BoundDescriptorSample::new`. Its unforgeable
+accepted state owns only that compact binding plus the unchanged raw source and
+optional derived timestamp evidence.
 `RawSourceTimestamp` and
 `DerivedTimestamp` accept
 only finite `f64` values and preserve their bits. Every `DerivedTimestamp`
@@ -79,9 +84,9 @@ access, native libraries, runtime profiles, or compatibility behavior.
 The accepted STRM-000 baseline adds only specification-level compatibility cases, damaged-input
 expectations, an isolated black-box oracle procedure, and deterministic
 validation. These feedback-plane artifacts are neither data-plane behavior nor
-runtime receipts. CORE-001, CORE-002, CORE-003, CORE-004, and CORE-005 record
-local Rust contract tests in separate overlays rather than rewriting that
-historical baseline as a measurement.
+runtime receipts. CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, and CORE-006
+record local Rust contract tests in separate overlays rather than rewriting
+that historical baseline as a measurement.
 
 ## Ownership
 
@@ -129,6 +134,14 @@ and per-String-channel Unicode scalar bounds part of accepted construction.
 Accepted strings, integer values, and floating-point bits including signed zero
 and NaN payloads remain unchanged and ordered.
 
+CORE-006 composes, but does not replace, the CORE-002 and CORE-005 contracts.
+It preserves mandatory raw source timestamp bits, optional derived absence or
+presence, derived kind and bits, homogeneous values and order, and their exact
+pairing. Format, then channel count, then per-String Unicode scalar validation
+remains owned by CORE-005 and returns its unchanged typed errors. CORE-006 does
+not clone values, read clocks, derive or rewrite timestamps, sort, schedule,
+buffer, convert, encode, transport, or perform runtime work.
+
 CORE-002 implements finite raw source timestamp retention and a separately
 typed optional derived timestamp value classified as `ClockCorrected` or
 `Smoothed`. A derived value cannot replace, hide, or mutate the raw value. The
@@ -138,8 +151,9 @@ sample-rate-derived timestamps. Provider fallback must name the selected
 candidate and retain the rejected candidate's failure.
 
 Only the metadata, sample-shape, timestamp-value, bounded-chunk, core
-stream-descriptor, flat metadata-tree, and descriptor/sample binding
-construction invariants are implemented. The remaining
+stream-descriptor, flat metadata-tree, descriptor/sample binding, and
+timestamped descriptor/sample composition construction invariants are
+implemented. The remaining
 invariants constrain future design; none is an LSL runtime claim.
 
 ## Dependency direction
