@@ -9,8 +9,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 ```
 
 The script runs formatting, locked offline metadata inspection, locked offline
-tests, the public-boundary and text-hygiene checker, the dependency-free local
-project-workspace checker, and Git whitespace checks.
+tests, the STRM-000 compatibility/provenance gate, the public-boundary and
+text-hygiene checker, the dependency-free local project-workspace checker, and
+Git whitespace checks.
+
+Run the focused baseline gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1
+```
 
 ## Acceptance criteria
 
@@ -22,6 +29,10 @@ The scaffold passes when:
 - the only package remains unpublished at `crates/rusty-lsl`, exposes no Cargo
   feature, and has exactly one library target;
 - repository content passes the tested public-boundary rules;
+- all four compatibility classes have bounded cases, all current results remain
+  `not-implemented`, and specification/planned/measured roles remain separate;
+- the damaged matrix, provenance fields, artifact digests, case relationships,
+  source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;
 - every visible source file passes whole-tree trailing-whitespace and terminal
   newline checks, including untracked files before commit;
@@ -33,10 +44,11 @@ than silent addition.
 
 ## Evidence limits
 
-A passing source-only gate proves that this revision satisfies the scaffold
-checks in the local Rust and PowerShell environment. It does not prove protocol
-behavior, wire interoperability, ecosystem compatibility, network behavior,
-performance, native-library safety, platform support, or publication readiness.
+A passing source-only gate proves that this revision satisfies the scaffold and
+specification-level STRM-000 checks in the local Rust and PowerShell
+environment. It does not prove protocol behavior, wire interoperability,
+ecosystem compatibility, network behavior, performance, native-library safety,
+platform support, official-liblsl behavior, or publication readiness.
 
 Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live

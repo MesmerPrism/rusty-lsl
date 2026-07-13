@@ -1,0 +1,175 @@
+{
+  "schema": "rusty.lsl.compatibility.behavior_catalog.v1",
+  "catalog_id": "strm-000-baseline",
+  "evidence_level": "specification-only",
+  "cases": [
+    {
+      "case_id": "contract-metadata-bounds",
+      "compatibility_class": "contract",
+      "specification": {
+        "behavior": "A metadata description is accepted only when every declared collection and text field is within caller-visible bounds.",
+        "bounded_inputs": {
+          "descriptions": 4,
+          "fields_per_description": 16,
+          "text_code_points_per_field": 256
+        }
+      },
+      "planned_observation": {
+        "endpoint": "rusty-lsl-future-contract-harness",
+        "observable": "typed acceptance or bounded-input rejection"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    },
+    {
+      "case_id": "contract-sample-shape",
+      "compatibility_class": "contract",
+      "specification": {
+        "behavior": "A sample shape must agree with its declared channel count before it can enter any queue.",
+        "bounded_inputs": {
+          "declared_channels": 8,
+          "sample_values": 7,
+          "queue_capacity": 4
+        }
+      },
+      "planned_observation": {
+        "endpoint": "rusty-lsl-future-contract-harness",
+        "observable": "typed shape-mismatch rejection with no queue mutation"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    },
+    {
+      "case_id": "semantic-observation-not-authority",
+      "compatibility_class": "semantic-bridge",
+      "specification": {
+        "behavior": "An observed LSL stream may produce a typed proposal but cannot admit, authorize, or activate a Morphospace stream.",
+        "bounded_inputs": {
+          "observations": 2,
+          "proposal_fields": 12,
+          "authority_mutations": 0
+        }
+      },
+      "planned_observation": {
+        "endpoint": "rusty-lsl-future-semantic-harness",
+        "observable": "proposal contents and absence of accepted-state mutation"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    },
+    {
+      "case_id": "semantic-raw-timestamp-preserved",
+      "compatibility_class": "semantic-bridge",
+      "specification": {
+        "behavior": "A raw source timestamp remains addressable when a separately labelled derived timestamp view is requested.",
+        "bounded_inputs": {
+          "samples": 3,
+          "derived_views_per_sample": 1,
+          "retained_raw_timestamps": 3
+        }
+      },
+      "planned_observation": {
+        "endpoint": "rusty-lsl-future-semantic-harness",
+        "observable": "distinct raw and derived timestamp fields"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    },
+    {
+      "case_id": "wire-metadata-exchange",
+      "compatibility_class": "wire",
+      "specification": {
+        "behavior": "A future independently authored peer exchange will compare one bounded metadata description with a black-box oracle endpoint.",
+        "bounded_inputs": {
+          "peers": 2,
+          "descriptions": 1,
+          "observation_seconds": 5
+        }
+      },
+      "planned_observation": {
+        "endpoint": "official-liblsl-black-box",
+        "observable": "normalized endpoint classification and public metadata fields"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    },
+    {
+      "case_id": "wire-sample-exchange",
+      "compatibility_class": "wire",
+      "specification": {
+        "behavior": "A future independently authored peer exchange will compare a bounded synthetic sample sequence without retaining implementation-derived protocol bytes.",
+        "bounded_inputs": {
+          "channels": 2,
+          "samples": 4,
+          "observation_seconds": 5
+        }
+      },
+      "planned_observation": {
+        "endpoint": "official-liblsl-black-box",
+        "observable": "normalized sample count, values, and endpoint classification"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    },
+    {
+      "case_id": "operational-interrupted-peer",
+      "compatibility_class": "operational-ecosystem",
+      "specification": {
+        "behavior": "A future bounded run will record how an endpoint classifies an interrupted peer without treating reconnection as authority recovery.",
+        "bounded_inputs": {
+          "peers": 2,
+          "interruptions": 1,
+          "observation_seconds": 10
+        }
+      },
+      "planned_observation": {
+        "endpoint": "official-liblsl-black-box",
+        "observable": "normalized interruption, timeout, and terminal-state classifications"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    },
+    {
+      "case_id": "operational-provider-fallback",
+      "compatibility_class": "operational-ecosystem",
+      "specification": {
+        "behavior": "A future provider selection test must preserve the rejected candidate evidence when an explicit fallback is selected.",
+        "bounded_inputs": {
+          "provider_candidates": 2,
+          "fallbacks": 1,
+          "retained_failures": 1
+        }
+      },
+      "planned_observation": {
+        "endpoint": "rusty-lsl-future-provider-harness",
+        "observable": "selected provider identity and retained failed-candidate classification"
+      },
+      "current_result": "not-implemented",
+      "measured_result": {
+        "status": "not-implemented",
+        "observation": null
+      }
+    }
+  ]
+}

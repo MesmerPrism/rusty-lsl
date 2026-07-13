@@ -1,0 +1,34 @@
+Rusty LSL STRM-000 standard validation evidence
+Created: 2026-07-13T10:41:00Z
+Project: rusty-lsl
+Unit: rlsl-strm-000-compatibility-baseline
+Branch: codex/rlsl-scaffold-001
+Base and HEAD revision: aabc992ed8a81c9d90b2c0569b5a7a84bb37320b
+
+PASS compatibility-classes
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1
+Result: Four required classes each have at least two bounded specification cases; every current and measured status remains not-implemented.
+
+PASS oracle-provenance
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1
+Result: Catalog/matrix relationships, classifications, source-input prohibitions, public fixture shape, and SHA-256 bindings passed. Five in-memory damaged self-checks rejected overclaims, missing class coverage, unreviewed observations, stale digests, and prohibited implementation input.
+
+PASS inert-dependency-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Offline locked metadata, two Rust tests, zero dependencies/features, public-boundary validation, lifecycle/inert-lock validation, and Git whitespace validation passed.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS/README changes passed check_all; the installed Rusty Morphospace routing skill contains the Rusty LSL lane; existing system-engineering authority/evidence guidance was reviewed as sufficient; relevant instruction files passed terminal-newline and trailing-whitespace checks.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only the source-level STRM-000 specification and provenance baseline. It does not prove protocol behavior, wire or ecosystem compatibility, runtime support, official-liblsl behavior, networking, performance, or platform support.

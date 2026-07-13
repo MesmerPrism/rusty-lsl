@@ -1,0 +1,79 @@
+{
+  "schema": "rusty.lsl.provenance.manifest.v1",
+  "manifest_id": "strm-000-public-baseline",
+  "case_catalog_id": "strm-000-baseline",
+  "origin_classification": "independently-authored",
+  "license_expression": "AGPL-3.0-or-later",
+  "created_on": "2026-07-13",
+  "artifacts": [
+    {
+      "path": "fixtures/compatibility/behavior-catalog.json",
+      "role": "behavior-catalog",
+      "origin_classification": "independently-authored",
+      "license_expression": "AGPL-3.0-or-later",
+      "sha256": "e31d1ce0dceaec294ae932479815fa6072b35263f680df0ec5046dfc3ab602ee"
+    },
+    {
+      "path": "fixtures/compatibility/negative-case-matrix.json",
+      "role": "negative-case-matrix",
+      "origin_classification": "independently-authored",
+      "license_expression": "AGPL-3.0-or-later",
+      "sha256": "1f88d6557eed93525fc52c76024b7531c79acc95cfe28302529abe5d95e3a6a1"
+    }
+  ],
+  "toolchain": {
+    "manifest_writer": "manual-json-v1",
+    "validator": "tools/check_strm_000.py",
+    "oracle_endpoint": "official-liblsl-black-box",
+    "oracle_version": "not-selected"
+  },
+  "environment": {
+    "execution_state": "not-run",
+    "operating_system": "record-at-execution",
+    "architecture": "record-at-execution",
+    "locale": "record-at-execution",
+    "time_zone": "record-at-execution",
+    "network_topology": "record-at-execution"
+  },
+  "case_ids": [
+    "contract-metadata-bounds",
+    "contract-sample-shape",
+    "operational-interrupted-peer",
+    "operational-provider-fallback",
+    "semantic-observation-not-authority",
+    "semantic-raw-timestamp-preserved",
+    "wire-metadata-exchange",
+    "wire-sample-exchange"
+  ],
+  "negative_case_ids": [
+    "negative-authority-escalation",
+    "negative-fallback-evidence-lost",
+    "negative-interrupted-peer-timeout",
+    "negative-metadata-field-count",
+    "negative-raw-timestamp-omitted",
+    "negative-sample-shape",
+    "negative-wire-oversized-description",
+    "negative-wire-truncated-sequence"
+  ],
+  "observations": [],
+  "implementation_inputs": [],
+  "source_input_prohibitions": [
+    "liblsl-source",
+    "rlsl-source",
+    "implementation-derived-protocol-bytes",
+    "private-captures",
+    "native-binaries"
+  ],
+  "normalization": {
+    "performed": false,
+    "semantic_detail_discarded": false,
+    "procedure": "docs/ORACLE.md"
+  },
+  "does_not_prove": [
+    "protocol behavior",
+    "wire compatibility",
+    "ecosystem compatibility",
+    "runtime support",
+    "official liblsl behavior"
+  ]
+}

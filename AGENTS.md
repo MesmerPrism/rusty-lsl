@@ -46,9 +46,11 @@ adapter and authority remain in their owning repositories.
 9. `docs/VALIDATION.md`
 
 The project-local workflow is planning and composition state, not LSL runtime
-or compatibility authority. A proposed unit is not ready or active. Keep the
-feature lock empty and inert until a reviewed unit and owner-issued descriptor
-open an exact surface.
+or compatibility authority. STRM-000 being active means only that its bounded
+documentation, fixtures, and validation may be implemented. It does not make a
+planned observation measured or a compatibility case implemented. Keep the
+feature lock empty and inert until a later reviewed unit and owner-issued
+descriptor open an exact runtime surface.
 
 ## Provenance And Compatibility
 
@@ -56,6 +58,9 @@ open an exact surface.
 - Do not use rLSL source as an implementation input.
 - Official liblsl is an MIT-licensed compatibility oracle and reference
   endpoint, not a source template.
+- Keep specification, planned observation, and measured result separate. For
+  the STRM-000 baseline every current result is `not-implemented` and every
+  measured observation is absent.
 - Record every fixture or observation as independently authored, generated,
   black-box observed, adapted, or copied. Copied material requires an explicit
   license and notice review.
@@ -98,5 +103,12 @@ Run:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_all.ps1
 ```
 
-Until that entrypoint exists on the scaffold branch, run `git diff --check`
-and inspect every committed path for public-boundary leakage.
+For compatibility-baseline edits, also run the focused gate directly:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_strm_000.ps1
+```
+
+The gates prove only the source-level baseline and inert dependency/activation
+closure. They do not prove protocol behavior, interoperability, or runtime
+support.

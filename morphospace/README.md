@@ -13,5 +13,7 @@ Resume in this order:
 4. the current iteration unit, if one is named
 5. only the event tail and receipts referenced by state
 
-`rlsl-strm-000-compatibility-baseline` is proposed, not ready or active. It
-must pass the portable readiness transition before implementation begins.
+`rlsl-strm-000-compatibility-baseline` is the active documentation-and-
+validation unit. Active workflow state permits only the unit's bounded paths
+and does not claim protocol implementation, compatibility, oracle measurement,
+or runtime activation.

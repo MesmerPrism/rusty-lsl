@@ -17,6 +17,11 @@ The `morphospace/` directory is an inert planning and composition control
 surface. Its presence does not activate code, packaging, permissions, network
 access, native libraries, runtime profiles, or compatibility behavior.
 
+STRM-000 adds only specification-level compatibility cases, damaged-input
+expectations, an isolated black-box oracle procedure, and deterministic
+validation. These feedback-plane artifacts are neither data-plane behavior nor
+runtime receipts.
+
 ## Ownership
 
 Rusty LSL owns independently authored, backend-neutral APIs and behavior for:

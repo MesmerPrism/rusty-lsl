@@ -1,0 +1,100 @@
+{
+  "schema": "rusty.lsl.compatibility.negative_case_matrix.v1",
+  "matrix_id": "strm-000-negative-baseline",
+  "evidence_level": "specification-only",
+  "negative_cases": [
+    {
+      "negative_case_id": "negative-metadata-field-count",
+      "case_id": "contract-metadata-bounds",
+      "bounded_input": {
+        "configured_field_limit": 16,
+        "presented_fields": 17
+      },
+      "expected_oracle_classification": "reject-input",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    },
+    {
+      "negative_case_id": "negative-sample-shape",
+      "case_id": "contract-sample-shape",
+      "bounded_input": {
+        "declared_channels": 8,
+        "presented_values": 7
+      },
+      "expected_oracle_classification": "reject-input",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    },
+    {
+      "negative_case_id": "negative-authority-escalation",
+      "case_id": "semantic-observation-not-authority",
+      "bounded_input": {
+        "proposals": 1,
+        "requested_authority_mutations": 1,
+        "permitted_authority_mutations": 0
+      },
+      "expected_oracle_classification": "reject-authority-escalation",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    },
+    {
+      "negative_case_id": "negative-raw-timestamp-omitted",
+      "case_id": "semantic-raw-timestamp-preserved",
+      "bounded_input": {
+        "samples": 3,
+        "raw_timestamps_present": 2
+      },
+      "expected_oracle_classification": "reject-semantic-loss",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    },
+    {
+      "negative_case_id": "negative-wire-oversized-description",
+      "case_id": "wire-metadata-exchange",
+      "bounded_input": {
+        "configured_text_code_points": 256,
+        "presented_text_code_points": 257,
+        "observation_seconds": 5
+      },
+      "expected_oracle_classification": "reject-input",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    },
+    {
+      "negative_case_id": "negative-wire-truncated-sequence",
+      "case_id": "wire-sample-exchange",
+      "bounded_input": {
+        "planned_samples": 4,
+        "presented_samples": 3,
+        "observation_seconds": 5
+      },
+      "expected_oracle_classification": "incomplete-observation",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    },
+    {
+      "negative_case_id": "negative-interrupted-peer-timeout",
+      "case_id": "operational-interrupted-peer",
+      "bounded_input": {
+        "interruptions": 1,
+        "timeout_seconds": 2,
+        "retry_attempts": 1
+      },
+      "expected_oracle_classification": "timeout",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    },
+    {
+      "negative_case_id": "negative-fallback-evidence-lost",
+      "case_id": "operational-provider-fallback",
+      "bounded_input": {
+        "provider_candidates": 2,
+        "failed_candidates": 1,
+        "retained_failures": 0
+      },
+      "expected_oracle_classification": "reject-evidence-loss",
+      "current_result": "not-implemented",
+      "measured_observation": null
+    }
+  ]
+}

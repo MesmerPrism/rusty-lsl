@@ -1,0 +1,91 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-strm-000-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-strm-000-compatibility-baseline",
+  "created_at": "2026-07-13T10:42:00Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "aabc992ed8a81c9d90b2c0569b5a7a84bb37320b",
+      "head_revision": "aabc992ed8a81c9d90b2c0569b5a7a84bb37320b",
+      "branch": "codex/rlsl-scaffold-001"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/ORACLE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/baseline-provenance.json" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/behavior-catalog.json" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/negative-case-matrix.json" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-strm-000-compatibility-baseline.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-strm-000-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-strm-000-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "THIRD_PARTY_NOTICES.md" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_project_workspace.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_strm_000.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_strm_000.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "strm-000-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-strm-000-standard-validation.txt",
+      "sha256": "03656aaf611e932e8215f40a75f104a725de9fb876d16988a62b79d3635b3c3d"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "compatibility-classes",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1",
+      "evidence_refs": ["strm-000-standard-log"]
+    },
+    {
+      "acceptance_id": "oracle-provenance",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1",
+      "evidence_refs": ["strm-000-standard-log"]
+    },
+    {
+      "acceptance_id": "inert-dependency-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["strm-000-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["strm-000-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["strm-000-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["strm-000-standard-log"]
+    }
+  ],
+  "device_validation": null
+}
