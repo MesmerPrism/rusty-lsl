@@ -190,8 +190,9 @@ composition/tree/serialization, static and explicit-description stream-info
 composition, and the bounded volatile data contract. The historical STRM-000
 results remain `not-implemented`, LSLC-001A's own oracle/candidate cells remain
 `not-observed`, and LSLC-001H's complete-document candidate result remains
-`not-observed`. No LSL protocol, wire, runtime, operational, or ecosystem
-compatibility is implemented or claimed.
+`not-observed`. No LSL
+protocol, wire, runtime, operational, or ecosystem compatibility is implemented
+or claimed.
 
 LSLC-001B adds separate validated nonzero Unicode scalar-value limits for
 `XmlText` and `XmlElementName`. `XmlText` may be empty and accepts exactly the
