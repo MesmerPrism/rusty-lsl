@@ -1,0 +1,107 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "unit_id": "rlsl-core-007-timestamped-descriptor-chunk",
+  "project_id": "rusty-lsl",
+  "status": "proposed",
+  "objective": "Implement a dependency-free accepted contract that binds one existing non-empty timestamped homogeneous chunk to a validated stream descriptor by delegating every ordered sample through CORE-006, preserving chunk limits, values, timestamps, order, pairings, and indexed delegated errors without adding buffering, clocks, algorithms, transport, or runtime behavior.",
+  "tags": ["chunk", "descriptor", "sample", "timestamps", "types"],
+  "change_categories": ["implementation", "validation"],
+  "instruction_impact": "update",
+  "instruction_surfaces": [
+    {
+      "surface_kind": "agents",
+      "path": "AGENTS.md",
+      "owner": "rusty-lsl",
+      "change_reason": "Route timestamped descriptor/chunk binding while keeping chunk ownership data-only and buffering, clock, wire, transport, and runtime authority closed.",
+      "action": "update",
+      "status": "planned",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "skill_id": null
+    },
+    {
+      "surface_kind": "readme",
+      "path": "README.md",
+      "owner": "rusty-lsl",
+      "change_reason": "Describe only ordered local chunk composition, exact evidence preservation, and indexed delegated errors without claiming queues, buffering, transport, protocol, or ecosystem support.",
+      "action": "update",
+      "status": "planned",
+      "validation": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "skill_id": null
+    },
+    {
+      "surface_kind": "skill",
+      "path": "<skills-root>/system-engineering/SKILL.md",
+      "owner": "workflow-maintainer",
+      "change_reason": "Review whether ordered composition and indexed delegated failure add reusable evidence guidance; avoid adding Rusty-LSL-specific chunk recipes when existing contract-composition guidance is sufficient.",
+      "action": "update",
+      "status": "planned",
+      "validation": "Review the installed skill and run its instruction-surface whitespace check.",
+      "skill_id": "system-engineering"
+    }
+  ],
+  "instruction_none_justification": null,
+  "prerequisites": ["rlsl-core-006-timestamped-descriptor-sample"],
+  "allowed_repositories": [
+    {
+      "repo_id": "rusty-lsl",
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/",
+        "docs/",
+        "fixtures/compatibility/",
+        "morphospace/",
+        "tools/"
+      ]
+    }
+  ],
+  "non_scope": [
+    "Empty-chunk compatibility behavior, implicit descriptor validation without a sample, chunk splitting or merging, rechunking, buffering, queues, capacity planning, backpressure, timeouts, scheduling, retries, recovery, or runtime lifecycle.",
+    "Clock reads, clock correction, dejittering, smoothing, interpolation, timestamp derivation, nominal-rate enforcement, timestamp sorting, timestamp rewriting, or postprocessing algorithms.",
+    "Numeric or string conversion, byte sizing, encoding, decoding, endianness, memory layout, XML, discovery, networking, sockets, inlets, outlets, transport, threads, providers, FFI, native loading, or language bindings.",
+    "Cargo dependencies, Cargo features, unsafe Rust, additional crates, generated protocol material, copied or translated liblsl or rLSL source, and production liblsl integration.",
+    "Morphospace adapters, Manifold admission or stream authority, platform lifecycle, Quest or Hostess behavior, device validation, and any algorithmic, protocol, wire, runtime, performance, layout, or ecosystem compatibility claim."
+  ],
+  "acceptance": [
+    {
+      "acceptance_id": "timestamped-descriptor-chunk-composition",
+      "proof": "One public input family covers exactly the seven existing TimestampedChunk<T> representations. Accepted non-empty state retains the original ChunkLimits and an ordered vector of unforgeable CORE-006 bindings, with every input sample delegated exactly once through BoundTimestampedDescriptorSample::new.",
+      "command": "cargo test --workspace --all-targets --offline --locked"
+    },
+    {
+      "acceptance_id": "chunk-evidence-order-and-pairing",
+      "proof": "Accepted state preserves sample count, homogeneous values, channel order, raw timestamp bits, optional derived absence or presence, derived kind and bits, per-sample pairing, chunk order, and original chunk limits exactly without cloning values, reading clocks, calculating timestamps, sorting, splitting, merging, or rewriting evidence.",
+      "command": "cargo test --workspace --all-targets --offline --locked"
+    },
+    {
+      "acceptance_id": "indexed-delegated-chunk-errors",
+      "proof": "Focused tests cover all seven exact chunk mappings, deterministic non-empty rejection, multi-sample order and pairing, format and channel mismatches at sample zero, a later String-bound failure with exact sample and channel indexes, first-failure sample order, and unchanged delegated CORE-006 error payloads and precedence.",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_007.ps1"
+    },
+    {
+      "acceptance_id": "inert-core-closure",
+      "proof": "The crate remains one unpublished std-only package with no dependencies, features, unsafe code, clocks, timestamp algorithms, conversion, encoding, XML, buffering, queueing, runtime effects, protocol implementation, or compatibility overclaim.",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    }
+  ],
+  "risk_tier": "standard",
+  "device_requirement": "forbidden",
+  "validation": [
+    {
+      "profile_id": "source-only",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+    },
+    {
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+    }
+  ],
+  "outputs": [
+    "Dependency-free timestamped descriptor/chunk input, accepted-state, and typed deterministic indexed delegated-error APIs for exactly seven homogeneous chunk families.",
+    "Positive and damaged tests plus a separate CORE-007 local-results overlay preserving every historical STRM-000 result.",
+    "Deterministic CORE-007 validation entrypoint and public status updates that do not claim empty-chunk compatibility, clocks, timestamp algorithms, conversion, buffering, queues, protocol, transport, runtime, wire, or ecosystem support."
+  ],
+  "commit_policy": "Commit the accepted timestamped descriptor/chunk composition separately from empty-chunk compatibility, clocks, timestamp algorithms, splitting, merging, buffering, queues, XML, discovery, protocol, transport, adapters, providers, or runtime work.",
+  "push_checkpoint": "integration-batch"
+}
