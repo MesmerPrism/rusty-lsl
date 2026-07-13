@@ -1,0 +1,108 @@
+Rusty LSL LSLC-001I standard validation
+========================================
+
+Unit: rlsl-lslc-001i-portable-driver-provenance
+Base revision: 1c13d0bc18377cef18fc0c52edd8008b161477f3
+Implementation HEAD: 6e098c480346c2c3c3f3b4a5c86771f46f9655a1
+Validation authority: main Codex account
+Secondary MCP role: unrestricted bounded implementation worker, not lifecycle,
+Git integration, acceptance, publication, device, or Manifold authority
+Device validation: forbidden by the unit and not run
+
+Preserved pre-fix failure
+-------------------------
+
+PRESERVED GitHub Actions run 29276386135 failed on accepted public main before
+          this correction. All 134 Rust tests and LSLC-001A through LSLC-001G
+          passed; only the LSLC-001H PowerShell driver provenance check failed.
+PRESERVED The committed canonical LF PowerShell driver SHA-256 is
+          edf07ba073c7947558ac32c38e608fbbd3d344c715b88baa37512cfa5cd37e0f.
+          The Windows checkout materialized complete CRLF working-tree bytes with
+          SHA-256 03287a0e4f2b4312071c5d613cf3f135512e2e58532106bd4a6366fb8ae85194.
+          The Python driver's working-tree and canonical LF bytes already matched
+          its unchanged SHA-256
+          0e064fcd78f4352268cf37e6be8edd1510bfbfa2cbe029c9ecce83d8a9a25b40.
+PRESERVED The failed run is evidence of a checkout-materialization defect in the
+          source-validation gate. It is not evidence of candidate XML, oracle,
+          protocol, wire, runtime, dependency, device, or authority failure.
+
+Corrective implementation
+-------------------------
+
+PASS The checker reads current working-tree bytes for both provenance-bound text
+     drivers. It does not trust a Git blob or ignore uncommitted source drift.
+PASS Complete LF and byte-equivalent complete CRLF materializations canonicalize
+     to LF bytes and match the two unchanged recorded SHA-256 values.
+PASS Mixed LF/CRLF, lone carriage returns, and all tested non-line-ending byte
+     mutations fail closed. Canonicalization replaces only CRLF pairs with LF;
+     it performs no decoding, trimming, semantic comparison, or other rewrite.
+PASS Both provenance bindings now state
+     digest_basis=canonical-lf-source-bytes. Removing only those two additive
+     fields made the current provenance object exactly equal to the accepted
+     pre-unit object.
+PASS Oracle drivers, accepted observations, raw capture hashes, normalization
+     operations, external identities, historical fixtures, crates, Cargo graph,
+     project specification, feature lock, runtime surfaces, and authority
+     boundaries remained unchanged.
+
+Independent mutation and preservation audit
+-------------------------------------------
+
+PASS Main-account tests imported the focused checker with bytecode generation
+     disabled and exercised both actual bound driver sources through external
+     temporary working-tree files.
+PASS Each driver's complete LF and complete CRLF bytes were accepted and returned
+     the same canonical LF bytes and expected SHA-256.
+PASS Each driver's mixed newline form, lone-CR form, and a non-line-ending content
+     mutation were rejected by the complete bound-source validation path.
+PASS A deep JSON comparison proved that only the two digest_basis fields changed
+     in the accepted provenance manifest.
+PASS The exact changed-path envelope from the claim baseline contained only
+     AGENTS.md, README.md, docs/PROVENANCE.md, docs/VALIDATION.md, the LSLC-001H
+     provenance manifest, the LSLC-001I unit, and tools/check_lslc_001h.py before
+     lifecycle evidence was added. No untracked artifact remained.
+
+Authoritative validation gates
+------------------------------
+
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File
+     ./tools/check_lslc_001h.ps1
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     134 Rust tests passed; all historical compatibility, public-boundary,
+     project-lifecycle, dependency/feature closure, and inert-lock checks passed.
+PASS powershell -NoProfile -ExecutionPolicy Bypass -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+PASS No untracked files remained after validation.
+PASS Both installed shared skills were reviewed. Their existing exact-revision,
+     current-state, public-firewall, scoped-evidence, failure-preservation, and
+     reasoner/authority rules already cover this correction and required no edit.
+
+Preserved implementation setup failures
+---------------------------------------
+
+PRESERVED One attempted multi-file patch could not match the unit's single-line
+          JSON representation and made no change.
+PRESERVED Two dynamic patch setup attempts found that their scripting runtime did
+          not provide atob or TextDecoder. Neither attempt changed repository
+          files; the final edit used the repository editing path and validated.
+PRESERVED The first RecordValidation invocation used Windows PowerShell 5.1,
+          whose runtime does not provide System.IO.Path.GetRelativePath. Receipt
+          validation stopped before any pass transition. The same owner workflow
+          was rerun under PowerShell 7; this was verifier-host setup failure, not
+          product or receipt-evidence failure.
+
+Evidence limits
+---------------
+
+PASS This evidence proves checkout-portable provenance validation for exactly the
+     two bound text drivers and the stated damaged forms in the local Windows
+     environment. It preserves the pre-fix public CI failure.
+PASS It does not rerun the external oracle and does not change or newly prove any
+     accepted observation, raw capture, candidate XML, StreamDefinition mapping,
+     parser, serializer, protocol, wire, discovery, networking, inlet, outlet,
+     transport, clock, buffering, runtime, dependency, platform, device, adapter,
+     provider, publication, or Manifold authority behavior.
+PASS Public CI rerun is a later integration readback after acceptance and push;
+     it is not represented as completed by this validation receipt.
