@@ -8,7 +8,8 @@
 //! This crate currently implements only bounded metadata, sample-shape,
 //! timestamped-chunk, core stream-descriptor, and flat metadata-tree
 //! construction, descriptor/sample shape and format binding, and timestamped
-//! descriptor/sample composition. It does not implement or claim LSL protocol,
+//! descriptor/sample and non-empty descriptor/chunk composition. It does not
+//! implement or claim LSL protocol,
 //! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
 //! behavior.
 
@@ -18,6 +19,7 @@ mod metadata_tree;
 mod sample;
 mod stream_descriptor;
 mod timestamped;
+mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
 
 pub use descriptor_sample::{
@@ -42,6 +44,10 @@ pub use timestamped::{
     ChunkBound, ChunkError, ChunkLimits, DerivedTimestamp, DerivedTimestampKind,
     NonFiniteTimestamp, RawSourceTimestamp, TimestampError, TimestampRole, TimestampedChunk,
     TimestampedSample,
+};
+pub use timestamped_descriptor_chunk::{
+    BoundTimestampedDescriptorChunk, TimestampedDescriptorChunkError,
+    TimestampedDescriptorChunkInput,
 };
 pub use timestamped_descriptor_sample::{
     BoundTimestampedDescriptorSample, TimestampedDescriptorSampleInput,
@@ -82,6 +88,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local flat metadata-tree construction",
             "bounded local descriptor/sample binding",
             "bounded local timestamped descriptor/sample composition",
+            "bounded local non-empty timestamped descriptor/chunk composition",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

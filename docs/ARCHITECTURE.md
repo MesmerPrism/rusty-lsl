@@ -14,6 +14,13 @@ same seven `TimestampedSample<T>` representations, moves each apart once, and
 delegates the unchanged sample to `BoundDescriptorSample::new`. Its unforgeable
 accepted state owns only that compact binding plus the unchanged raw source and
 optional derived timestamp evidence.
+The separate timestamped descriptor/chunk composition family accepts the same
+seven `TimestampedChunk<T>` representations. It rejects an empty existing chunk
+before delegation, retains the original chunk limits, and moves every ordered
+sample exactly once through `BoundTimestampedDescriptorSample::new`. Its
+unforgeable accepted state owns only those limits and the ordered CORE-006
+bindings; indexed failures retain the first rejected sample location and
+unchanged delegated error.
 `RawSourceTimestamp` and
 `DerivedTimestamp` accept
 only finite `f64` values and preserve their bits. Every `DerivedTimestamp`
@@ -84,7 +91,8 @@ access, native libraries, runtime profiles, or compatibility behavior.
 The accepted STRM-000 baseline adds only specification-level compatibility cases, damaged-input
 expectations, an isolated black-box oracle procedure, and deterministic
 validation. These feedback-plane artifacts are neither data-plane behavior nor
-runtime receipts. CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, and CORE-006
+runtime receipts. CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006,
+and CORE-007
 record local Rust contract tests in separate overlays rather than rewriting
 that historical baseline as a measurement.
 
@@ -142,6 +150,15 @@ remains owned by CORE-005 and returns its unchanged typed errors. CORE-006 does
 not clone values, read clocks, derive or rewrite timestamps, sort, schedule,
 buffer, convert, encode, transport, or perform runtime work.
 
+CORE-007 composes, but does not replace, the CORE-002, CORE-005, and CORE-006
+contracts. It adds only local non-empty acceptance, original `ChunkLimits`
+retention, caller-order iteration, and zero-based first-failure indexing.
+Format, channel count, String bounds, values, raw and derived timestamp
+evidence, and their pairings remain owned by the delegated contracts. CORE-007
+does not clone values, read clocks, calculate timestamps, sort, rewrite, split,
+merge, rechunk, buffer, queue, schedule, convert, encode, transport, or perform
+runtime work. Its empty rejection is not LSL compatibility evidence.
+
 CORE-002 implements finite raw source timestamp retention and a separately
 typed optional derived timestamp value classified as `ClockCorrected` or
 `Smoothed`. A derived value cannot replace, hide, or mutate the raw value. The
@@ -152,7 +169,8 @@ candidate and retain the rejected candidate's failure.
 
 Only the metadata, sample-shape, timestamp-value, bounded-chunk, core
 stream-descriptor, flat metadata-tree, descriptor/sample binding, and
-timestamped descriptor/sample composition construction invariants are
+timestamped descriptor/sample and non-empty descriptor/chunk composition
+construction invariants are
 implemented. The remaining
 invariants constrain future design; none is an LSL runtime claim.
 

@@ -44,6 +44,14 @@ CORE-005 descriptor/sample binding. It preserves raw and optional derived
 timestamp evidence and unchanged delegated errors. It proves no clock read,
 timestamp algorithm or rewriting, buffering, conversion, encoding, transport,
 protocol, wire, runtime, ecosystem, or official-liblsl behavior.
+`core-007-contract-results.json` records only local Rust tests for composing
+one of exactly seven existing timestamped homogeneous chunks with an exact
+descriptor by delegating every ordered sample through CORE-006. It retains the
+original chunk limits, pairings, and indexed unchanged errors, and rejects an
+empty chunk locally before delegation. It proves no actual LSL empty-chunk
+behavior, clock or timestamp algorithm, splitting, merging, rechunking,
+buffering, queueing, conversion, encoding, transport, protocol, wire, runtime,
+ecosystem, or official-liblsl behavior.
 Run
 `tools/check_strm_000.ps1` after any edit; digest changes must be reviewed and
 recorded in the provenance manifest. Run `tools/check_core_001.ps1` for the
@@ -56,3 +64,5 @@ Run `tools/check_core_005.ps1` for the CORE-005 overlay and descriptor/sample
 binding implementation.
 Run `tools/check_core_006.ps1` for the CORE-006 overlay and timestamped
 descriptor/sample composition implementation.
+Run `tools/check_core_007.ps1` for the CORE-007 overlay and timestamped
+descriptor/chunk composition implementation.

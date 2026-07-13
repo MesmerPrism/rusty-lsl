@@ -14,6 +14,7 @@
 | Local bounded metadata tree | Implemented | CORE-004 Rust unit tests; flat parent-before-child arena only, with no XML or runtime behavior |
 | Local descriptor/sample binding | Implemented | CORE-005 Rust unit tests; exact homogeneous format and channel shape only, with bounded String values and no conversion or runtime behavior |
 | Local timestamped descriptor/sample composition | Implemented | CORE-006 Rust unit tests; exact composition of existing validated values through CORE-005, with no clock, algorithm, transport, or runtime behavior |
+| Local non-empty timestamped descriptor/chunk composition | Implemented | CORE-007 Rust unit tests; ordered composition through CORE-006 with original chunk limits and indexed delegated errors; no actual LSL empty-chunk compatibility claim |
 | Sample and chunk transport | Not implemented | Specification cases only |
 | Local channel-format names | Implemented | CORE-003 Rust unit tests; exactly seven data-only variants with no wire numeric mapping or conversion |
 | Protocol or wire channel formats | Not implemented | No case or measurement |
@@ -53,6 +54,13 @@ of raw and optional derived timestamp evidence, and unchanged delegated
 CORE-005 errors. It proves no clock read or algorithm, timestamp derivation or
 rewriting, buffering, conversion, encoding, protocol, transport, runtime, or
 ecosystem behavior.
+CORE-007 proves only local non-empty composition of seven homogeneous
+`TimestampedChunk<T>` families with an exact descriptor, original chunk-limit
+retention, caller-order CORE-006 delegation, exact evidence pairing, and the
+first failing sample index around an unchanged delegated error. It proves no
+actual LSL empty-chunk behavior, clock read or algorithm, timestamp rewriting,
+splitting, merging, rechunking, buffering, queueing, conversion, encoding,
+protocol, transport, runtime, or ecosystem behavior.
 
 ## Compatibility classes
 
@@ -90,6 +98,9 @@ The separate `core-006-contract-results.json` overlay binds only local
 timestamped descriptor/sample composition tests to CORE-006 while preserving
 `semantic-raw-timestamp-preserved` as `not-implemented` historical
 specification evidence.
+The separate `core-007-contract-results.json` overlay binds only local
+timestamped descriptor/chunk composition tests to CORE-007 while preserving
+`contract-sample-shape` as `not-implemented` historical specification evidence.
 Evidence at one level must not be promoted into a broader claim.
 
 Each case has three deliberately separate roles:
@@ -100,7 +111,7 @@ Each case has three deliberately separate roles:
 
 For STRM-000, `current_result` and `measured_result.status` remain
 `not-implemented`, and each measured observation remains null. CORE-001,
-CORE-002, CORE-003, CORE-004, CORE-005, and CORE-006 status lives only in their
+CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, and CORE-007 status lives only in their
 result overlays.
 
 ## Compatibility method

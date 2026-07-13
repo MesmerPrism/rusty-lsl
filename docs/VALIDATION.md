@@ -10,7 +10,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 
 The script runs formatting, locked offline metadata inspection, locked offline
 tests, the STRM-000 compatibility/provenance gate, the CORE-001, CORE-002,
-CORE-003, CORE-004, CORE-005, and CORE-006 local-contract gates, the
+CORE-003, CORE-004, CORE-005, CORE-006, and CORE-007 local-contract gates, the
 public-boundary and text-hygiene checker, the dependency-free local
 project-workspace checker, and Git whitespace checks.
 
@@ -54,6 +54,12 @@ Run the focused timestamped descriptor/sample composition gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_006.ps1
+```
+
+Run the focused timestamped descriptor/chunk composition gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_007.ps1
 ```
 
 ## Acceptance criteria
@@ -121,6 +127,21 @@ The source-only slice passes when:
   no CORE-005 validation, and opens no clock, timestamp algorithm, sorting,
   rewriting, scheduling, buffering, conversion, encoding, dependency, feature,
   unsafe, transport, protocol, wire, or runtime surface;
+- the separate CORE-007 overlay binds exact tests for all seven timestamped
+  chunk mappings, original `ChunkLimits`, multi-sample order and pairing, raw
+  only and both derived kinds, signed-zero and finite timestamp bits, f32/f64
+  signed zero and NaN payloads, integer edges, String allocation/value/order
+  preservation, deterministic empty rejection, sample-zero format and channel
+  mismatch, later indexed String failure, and first-failure delegated
+  precedence;
+- CORE-007 retains private accepted fields containing only the original
+  `ChunkLimits` and ordered `Vec<BoundTimestampedDescriptorSample>`, rejects
+  emptiness before sample delegation, delegates exactly once per sample through
+  the single generic call to `BoundTimestampedDescriptorSample::new`, preserves
+  unchanged indexed `DescriptorSampleError` values, and duplicates no lower
+  validation or clock, algorithm, sorting, rewriting, splitting, merging,
+  rechunking, buffering, queueing, runtime, conversion, dependency, feature,
+  unsafe, transport, protocol, or wire surface;
 - the damaged matrix, provenance fields, artifact digests, case relationships,
   source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;
@@ -139,8 +160,8 @@ contract semantics, historical specification-level STRM-000 checks, and inert
 closure checks in the local Rust and PowerShell environment. It does not prove
 clock or nominal-rate behavior, timestamp or rate derivation, sample, chunk, or
 descriptor transport, metadata-tree XML/document behavior, source identity or
-authority, channel encoding or
-conversion, protocol behavior, wire interoperability, ecosystem compatibility, network behavior,
+authority, channel encoding or conversion, actual LSL empty-chunk behavior,
+protocol behavior, wire interoperability, ecosystem compatibility, network behavior,
 performance, numeric or String conversion, memory layout, native-library safety,
 platform support, official-liblsl behavior,
 or publication readiness.

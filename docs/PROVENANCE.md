@@ -103,6 +103,17 @@ read or timestamp algorithm, rewriting, buffering, conversion, encoding,
 layout, wire, protocol, transport, runtime, ecosystem, or official-liblsl
 behavior.
 
+`fixtures/compatibility/core-007-contract-results.json` is a separate
+independently authored local-results overlay. It binds exact positive and
+damaged local Rust tests for composing an existing non-empty timestamped chunk
+with a descriptor through CORE-006 while retaining original limits, order,
+pairings, and indexed unchanged delegated errors. Its source, tests, and gate
+were authored from this repository's public unit requirements without external
+implementation input. It proves no actual LSL empty-chunk behavior, clock or
+timestamp algorithm, splitting, merging, rechunking, buffering, queueing,
+conversion, encoding, layout, wire, protocol, transport, runtime, ecosystem,
+or official-liblsl behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

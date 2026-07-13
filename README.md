@@ -8,7 +8,8 @@ Status: source-only crate with dependency-free bounded metadata, sample-shape,
 finite raw source timestamp, optional derived timestamp, and timestamped-chunk
 contracts, plus bounded core stream descriptors, a bounded parent-before-child
 flat metadata-tree arena, a data-only descriptor/sample binding, a timestamped
-descriptor/sample composition, and the accepted specification-level STRM-000
+descriptor/sample composition, a non-empty timestamped descriptor/chunk
+composition, and the accepted specification-level STRM-000
 baseline. No LSL
 protocol, wire, runtime, operational, or ecosystem compatibility is implemented
 or claimed. Every historical STRM-000 catalog and damaged-case result remains
@@ -111,6 +112,21 @@ derivation, correction, smoothing, dejittering, interpolation, sorting,
 rewriting, scheduling, buffering, conversion, encoding, transport, protocol,
 wire, or runtime action.
 
+CORE-007 adds a separate timestamped descriptor/chunk composition whose public
+input family contains exactly seven homogeneous `TimestampedChunk<T>` variants.
+It rejects an empty existing chunk before delegation, retains the original
+chunk limits exactly, and moves every sample in caller order exactly once
+through `BoundTimestampedDescriptorSample::new`. Accepted private state owns
+only those original limits and the ordered CORE-006 bindings. The first
+delegated failure reports its zero-based sample index and unchanged
+`DescriptorSampleError`.
+
+This local non-empty requirement is not a claim about actual LSL empty-chunk
+compatibility. CORE-007 performs no clock read or timestamp algorithm, sorting,
+rewriting, splitting, merging, rechunking, buffering, queueing, scheduling,
+conversion, encoding, XML, discovery, networking, transport, protocol, wire,
+or runtime action.
+
 The separate STRM-000 baseline
 continues to distinguish independently authored specifications, planned
 black-box observations, and measured results; only the first exists today. See
@@ -120,9 +136,9 @@ black-box observations, and measured results; only the first exists today. See
 
 Development is bounded by the public project-local control surface under
 [`morphospace/`](morphospace/README.md). Its lock selects no feature or module
-and permits no runtime effect. Workflow state records CORE-006 as active for
+and permits no runtime effect. Workflow state records CORE-007 as active for
 this bounded implementation and validation slice. The separate CORE-001 and
 CORE-002 overlays and the separate CORE-003 and CORE-004 local-results overlays
-plus the separate CORE-005 and CORE-006 local-results overlays report only
+plus the separate CORE-005, CORE-006, and CORE-007 local-results overlays report only
 local Rust contract tests. Activity and local unit-test results are not LSL
 interoperability or runtime evidence.

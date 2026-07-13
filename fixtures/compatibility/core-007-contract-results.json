@@ -1,0 +1,53 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-007-timestamped-descriptor-chunk",
+  "unit_id": "rlsl-core-007-timestamped-descriptor-chunk",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "case_id": "contract-sample-shape",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 chunk-shape case remains historical specification-only evidence; this overlay records only independently authored local Rust composition of previously validated timestamped chunks, descriptors, and descriptor/sample bindings."
+  },
+  "contract_results": [
+    {
+      "contract_id": "timestamped-descriptor-chunk-composition",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_007_all_seven_timestamped_chunk_mappings_bind_exactly",
+        "core_007_float_signed_zero_and_nan_payload_bits_are_preserved",
+        "core_007_integer_edges_and_order_are_preserved",
+        "core_007_multi_sample_order_and_timestamp_pairing_are_exact",
+        "core_007_original_chunk_limits_survive_read_only_and_consuming_accessors",
+        "core_007_string_values_order_and_allocations_are_moved_unchanged"
+      ],
+      "damaged_tests": [
+        "core_007_channel_mismatch_at_sample_zero_is_unchanged",
+        "core_007_empty_chunk_rejects_before_sample_delegation",
+        "core_007_first_failure_order_and_delegated_precedence_are_unchanged",
+        "core_007_format_mismatch_at_sample_zero_is_unchanged",
+        "core_007_later_string_failure_retains_sample_and_channel_indexes"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "actual LSL empty-chunk compatibility behavior",
+    "clock reading, clock correction, dejittering, smoothing, interpolation, or timestamp derivation",
+    "timestamp sorting, rewriting, scheduling, buffering, queueing, or postprocessing",
+    "chunk splitting, merging, rechunking, recovery, or runtime lifecycle",
+    "numeric or string conversion, coercion, casting, parsing, formatting, or normalization",
+    "byte sizing, encoding, decoding, endianness, memory layout, or wire mapping",
+    "XML, discovery, networking, transport, protocol, providers, or runtime action",
+    "source identity, authorization, admission, routing, permission, or Morphospace authority",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

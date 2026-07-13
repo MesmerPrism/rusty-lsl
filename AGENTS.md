@@ -60,9 +60,12 @@ exactly seven homogeneous data representations, exact descriptor format and
 channel-shape checks, and bounded String channel values. CORE-006 adds only a
 separate dependency-free timestamped descriptor/sample composition for those
 same seven representations, delegating all sample validation to CORE-005 while
-retaining raw and optional derived timestamp evidence unchanged. Keep the
-feature lock empty and inert until a later reviewed unit and owner-issued
-descriptor open an exact runtime surface.
+retaining raw and optional derived timestamp evidence unchanged. CORE-007 adds
+only a dependency-free non-empty timestamped descriptor/chunk composition for
+those same seven representations, retaining the original chunk limits and
+delegating every ordered sample through CORE-006 with indexed unchanged errors.
+Keep the feature lock empty and inert until a later reviewed unit and
+owner-issued descriptor open an exact runtime surface.
 
 ## Provenance And Compatibility
 
@@ -143,6 +146,15 @@ descriptor open an exact runtime surface.
 - CORE-006 adds no timestamp algorithm, clock read, correction, smoothing,
   dejittering, interpolation, sorting, rewriting, scheduling, buffering,
   conversion, encoding, transport, protocol, wire, or runtime action.
+- CORE-007 rejects an empty existing `TimestampedChunk<T>` before delegation,
+  then moves each sample in caller order exactly once through
+  `BoundTimestampedDescriptorSample::new`. Accepted private state contains only
+  the original `ChunkLimits` and the ordered accepted sample bindings.
+- CORE-007 reports the zero-based first failing sample and unchanged
+  `DescriptorSampleError`. It duplicates no CORE-005/006 format, channel-count,
+  String-bound, or timestamp validation and performs no splitting, merging,
+  rechunking, sorting, rewriting, buffering, queueing, scheduling, conversion,
+  encoding, transport, protocol, wire, or runtime action.
 - Timestamp value constructors do not read clocks or calculate correction,
   dejittering, smoothing, interpolation, or sample-rate timestamp derivation.
 - Discovery is observation, never identity, authorization, or activation.
@@ -207,6 +219,12 @@ For timestamped descriptor/sample composition edits, also run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_006.ps1
+```
+
+For timestamped descriptor/chunk composition edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_007.ps1
 ```
 
 The gates prove only the source-level baseline, local Rust contract semantics,
