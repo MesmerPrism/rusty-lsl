@@ -8,9 +8,11 @@
 | Metadata XML | Not implemented | Specification cases only |
 | Discovery and resolution | Not implemented | No case or measurement |
 | Local sample-shape construction | Implemented | CORE-001 Rust unit tests; no transport behavior |
+| Local timestamp value and sample construction | Implemented | CORE-002 Rust unit tests; caller-provided finite values and derived kinds only |
+| Local bounded timestamped chunks | Implemented | CORE-002 Rust unit tests, including empty bounded collections; no buffering or transport behavior |
 | Sample and chunk transport | Not implemented | Specification cases only |
 | Channel formats | Not implemented | No case or measurement |
-| Source and local timestamps | Not implemented | Specification cases only |
+| Clock-sourced or protocol timestamps | Not implemented | Specification cases only |
 | Clock correction and smoothing | Not implemented | No case or measurement |
 | Buffering and post-processing | Not implemented | No case or measurement |
 | Cancellation and timeouts | Not implemented | Damaged-case expectation only |
@@ -20,9 +22,12 @@
 | Wire compatibility | Not implemented and not claimed | Planned observations only |
 | Operational/ecosystem compatibility | Not implemented and not claimed | Planned observations only |
 
-The CORE-001 tests prove only local Rust contract semantics for the two named
-constructors on the tested toolchain. They do not prove LSL behavior,
-interoperability, performance, or platform support.
+The CORE-001 and CORE-002 tests prove only local Rust contract semantics for the
+named constructors on the tested toolchain. CORE-002 validates caller-provided
+finite values and preserves explicit `ClockCorrected` or `Smoothed`
+classifications; it does not read clocks, derive timestamps, or implement those
+algorithms. These tests do not prove LSL behavior, interoperability,
+performance, or platform support.
 
 ## Compatibility classes
 
@@ -38,14 +43,16 @@ Compatibility evidence is classified at four distinct levels:
 - **Operational/ecosystem compatibility:** documented applications, wrappers,
   platforms, recovery paths, and long-running behavior pass their named gates.
 
-Only the two named local contract cases are implemented, and only as local Rust
+Only the named local contract slices are implemented, and only as local Rust
 API behavior. No LSL protocol, wire, runtime, operational, or ecosystem
 compatibility is implemented or claimed. The canonical STRM-000 catalog is
 `fixtures/compatibility/behavior-catalog.json`; it remains accepted historical
 specification-only evidence with at least two bounded cases for each class.
 The separate `core-001-contract-results.json` overlay binds local unit tests to
-the two case IDs without turning them into measured oracle results. Evidence at
-one level must not be promoted into a broader claim.
+the two CORE-001 case IDs. The `core-002-contract-results.json` overlay binds
+local timestamp preservation to `semantic-raw-timestamp-preserved` and records
+the bounded-chunk contract without turning either into a measured oracle result.
+Evidence at one level must not be promoted into a broader claim.
 
 Each case has three deliberately separate roles:
 
@@ -54,8 +61,8 @@ Each case has three deliberately separate roles:
 - `measured_result` records evidence only after a reviewed run.
 
 For STRM-000, `current_result` and `measured_result.status` remain
-`not-implemented`, and each measured observation remains null. CORE-001 status
-lives only in its result overlay.
+`not-implemented`, and each measured observation remains null. CORE-001 and
+CORE-002 status lives only in their result overlays.
 
 ## Compatibility method
 

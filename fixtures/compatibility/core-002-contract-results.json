@@ -1,0 +1,57 @@
+{
+  "schema": "rusty.lsl.contract_result_overlay.v1",
+  "overlay_id": "core-002-timestamped-chunk-contracts",
+  "unit_id": "rlsl-core-002-timestamped-chunk-contracts",
+  "evidence_level": "local-rust-contract-tests",
+  "implementation_status": "bounded-local-contracts",
+  "baseline_binding": {
+    "catalog_id": "strm-000-baseline",
+    "case_id": "semantic-raw-timestamp-preserved",
+    "preserved_result": "not-implemented",
+    "interpretation": "The accepted STRM-000 semantic timestamp case remains historical specification-only evidence; this overlay records only independently authored local Rust value and construction behavior."
+  },
+  "contract_results": [
+    {
+      "contract_id": "raw-and-derived-timestamp-values",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_002_raw_and_optional_derived_timestamps_remain_distinct",
+        "core_002_raw_remains_unchanged_beside_each_derived_kind",
+        "core_002_timestamp_values_preserve_finite_bits"
+      ],
+      "damaged_tests": [
+        "core_002_non_finite_timestamps_have_stable_typed_errors"
+      ]
+    },
+    {
+      "contract_id": "bounded-timestamped-chunk",
+      "result": "implemented-local-contract",
+      "positive_tests": [
+        "core_002_chunk_exact_limits_preserve_order_values_and_timestamp_pairing",
+        "core_002_empty_chunk_accepts_and_retains_valid_nonzero_limits"
+      ],
+      "damaged_tests": [
+        "core_002_chunk_inconsistent_channel_shape_has_stable_error",
+        "core_002_chunk_one_past_channel_limit_has_stable_error",
+        "core_002_chunk_one_past_sample_limit_has_stable_error",
+        "core_002_chunk_zero_limits_reject_in_argument_order"
+      ]
+    }
+  ],
+  "provenance": {
+    "origin_classification": "independently-authored",
+    "license_expression": "AGPL-3.0-or-later",
+    "implementation_inputs": []
+  },
+  "does_not_prove": [
+    "clock reading or clock correction",
+    "clock-correction or smoothing algorithm behavior",
+    "dejittering, smoothing, interpolation, or sample-rate timestamp derivation",
+    "LSL protocol behavior",
+    "sample or chunk transport",
+    "wire compatibility",
+    "runtime support",
+    "ecosystem compatibility",
+    "official liblsl behavior"
+  ]
+}

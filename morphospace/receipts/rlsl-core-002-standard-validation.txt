@@ -1,0 +1,38 @@
+Rusty LSL CORE-002 standard validation evidence
+Created: 2026-07-13T11:31:15Z
+Project: rusty-lsl
+Unit: rlsl-core-002-timestamped-chunk-contracts
+Branch: codex/rlsl-core-contracts-002
+Base and HEAD revision: d91a9f66eef9e224b54f930af4c87d318d1f9471
+
+PASS raw-timestamp-preservation
+Command: cargo test --workspace --all-targets --offline --locked
+Result: Finite raw source timestamps preserve exact floating-point bits. Optional derived timestamps require an explicit ClockCorrected or Smoothed caller-supplied classification and coexist without replacing, hiding, or mutating the mandatory raw timestamp. No timestamp algorithm is implemented.
+
+PASS bounded-chunk-contract
+Command: cargo test --workspace --all-targets --offline --locked
+Result: Explicit nonzero sample/channel maxima, exact-limit acceptance, empty bounded collection acceptance, per-sample shape consistency, value/timestamp pairing, order preservation, one-past rejection, and stable typed errors passed.
+
+PASS timestamp-chunk-damaged-cases
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_002.ps1
+Result: Ten focused contract tests passed. Five independent in-memory validator mutations were rejected: promoted historical baseline, missing damaged test, license drift, prohibited clock public surface, and missing derived timestamp kind.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed with 22 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe or runtime-effect surfaces, historical STRM-000 baseline integrity, CORE-001 integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS and README updates passed check_all. Existing system-engineering guidance already separates authoritative sources, derived views, proposals, and evidence, so no skill change was required. Relevant instruction surfaces passed terminal-newline and trailing-whitespace checks.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust timestamp values, timestamped samples, and bounded chunk construction. It does not prove clock reading, correction or smoothing algorithms, dejittering, interpolation, LSL timeout sentinels, buffering, transport, protocol, wire, runtime, interoperability, performance, platform behavior, or Morphospace authority.

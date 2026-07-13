@@ -49,9 +49,11 @@ The project-local workflow is planning and composition state, not LSL runtime
 or compatibility authority. The accepted STRM-000 baseline remains historical
 specification-only evidence: its planned observations are not measured and its
 results remain `not-implemented`. CORE-001 opens only dependency-free local
-Rust contract semantics for bounded metadata and sample shape. Keep the feature
-lock empty and inert until a later reviewed unit and owner-issued descriptor
-open an exact runtime surface.
+Rust contract semantics for bounded metadata and sample shape. CORE-002 adds
+only finite raw source timestamps, separately typed optional derived timestamp
+values, timestamped samples, and bounded chunks. Keep the feature lock empty
+and inert until a later reviewed unit and owner-issued descriptor open an exact
+runtime surface.
 
 ## Provenance And Compatibility
 
@@ -83,8 +85,13 @@ open an exact runtime surface.
 - CORE-001 constructors validate complete inputs before returning a value,
   reject invalid zero limit configurations, preserve accepted caller values,
   and report stable expected/actual error payloads.
-- Preserve raw source timestamps. Corrected and smoothed timestamps are derived
-  views.
+- CORE-002 preserves every accepted raw source timestamp bit-for-bit beside any
+  separately labelled derived value. `ClockCorrected` and `Smoothed` are
+  caller-provided classifications only, not implemented algorithms. It rejects
+  non-finite timestamps, invalid chunk maxima, one-past maxima, and inconsistent
+  channel shapes atomically. An empty chunk is valid under nonzero maxima.
+- Timestamp value constructors do not read clocks or calculate correction,
+  dejittering, smoothing, interpolation, or sample-rate timestamp derivation.
 - Discovery is observation, never identity, authorization, or activation.
 - No inbound sample may apply a command directly.
 - No high-rate media belongs in the generic LSL sample path.
@@ -119,6 +126,12 @@ For bounded-contract edits, also run:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_001.ps1
 ```
 
+For timestamped-chunk contract edits, also run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_002.ps1
+```
+
 The gates prove only the source-level baseline, local Rust contract semantics,
 and inert dependency/activation closure. They do not prove protocol behavior,
-interoperability, or runtime support.
+interoperability, clock behavior, transport, or runtime support.

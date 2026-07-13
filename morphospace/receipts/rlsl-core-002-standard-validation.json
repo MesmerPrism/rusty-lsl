@@ -1,0 +1,93 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-core-002-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-core-002-timestamped-chunk-contracts",
+  "created_at": "2026-07-13T11:31:15Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "d91a9f66eef9e224b54f930af4c87d318d1f9471",
+      "head_revision": "d91a9f66eef9e224b54f930af4c87d318d1f9471",
+      "branch": "codex/rlsl-core-contracts-002"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/lib.rs" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/timestamped.rs" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/core-002-contract-results.json" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-core-002-timestamped-chunk-contracts.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-core-002-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-core-002-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_core_002.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_core_002.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "core-002-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-core-002-standard-validation.txt",
+      "sha256": "fc9eb1d30d1090b00ed99df94ef3eb719fb8c0dbb9af777e20023a8b1e9ee7aa"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "raw-timestamp-preservation",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["core-002-standard-log"]
+    },
+    {
+      "acceptance_id": "bounded-chunk-contract",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["core-002-standard-log"]
+    },
+    {
+      "acceptance_id": "timestamp-chunk-damaged-cases",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_002.ps1",
+      "evidence_refs": ["core-002-standard-log"]
+    },
+    {
+      "acceptance_id": "inert-core-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["core-002-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["core-002-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["core-002-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["core-002-standard-log"]
+    }
+  ],
+  "device_validation": null
+}

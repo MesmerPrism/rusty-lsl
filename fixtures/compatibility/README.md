@@ -16,7 +16,14 @@ All STRM-000 baseline results remain `not-implemented`.
 `core-001-contract-results.json` is a separate independently authored overlay
 for local Rust unit-test results tied to `contract-metadata-bounds` and
 `contract-sample-shape`; it is not an oracle measurement or an LSL
-compatibility result. Run
+compatibility result. `core-002-contract-results.json` separately records local
+Rust contract tests for finite raw and optional derived timestamp values,
+explicit `ClockCorrected` and `Smoothed` classifications, and bounded
+timestamped chunks including the empty-collection case. The classifications do
+not implement either algorithm. The overlay preserves the historical semantic
+timestamp case as `not-implemented` and proves no clock, transport, protocol,
+wire, runtime, ecosystem, or official-liblsl behavior. Run
 `tools/check_strm_000.ps1` after any edit; digest changes must be reviewed and
 recorded in the provenance manifest. Run `tools/check_core_001.ps1` for the
-overlay and local-contract implementation.
+CORE-001 overlay and `tools/check_core_002.ps1` for the CORE-002 overlay and
+timestamped-chunk implementation.

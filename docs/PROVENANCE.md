@@ -54,6 +54,17 @@ STRM-000 contract case identifiers while leaving the accepted baseline and its
 digest manifest unchanged. It records no external input or observation and
 proves no XML, protocol, wire, runtime, ecosystem, or official-liblsl behavior.
 
+`fixtures/compatibility/core-002-contract-results.json` is a separate
+independently authored local-result overlay. It binds exact positive and damaged
+local Rust contract tests to raw/derived timestamp values and bounded
+timestamped chunks. Its semantic timestamp binding preserves the STRM-000
+`not-implemented` result. The `ClockCorrected` and `Smoothed` kinds are
+independently authored classifications of caller-provided values, not copied or
+observed algorithm behavior. It uses no external implementation input and
+proves no clock behavior, timestamp derivation, correction or smoothing
+algorithm, transport, protocol, wire, runtime, ecosystem, or official-liblsl
+behavior.
+
 ## Required fixture record
 
 Each fixture family must have an adjacent machine-readable manifest recording:

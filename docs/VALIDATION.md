@@ -9,9 +9,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
 ```
 
 The script runs formatting, locked offline metadata inspection, locked offline
-tests, the STRM-000 compatibility/provenance gate, the CORE-001 local-contract
-gate, the public-boundary and text-hygiene checker, the dependency-free local
-project-workspace checker, and Git whitespace checks.
+tests, the STRM-000 compatibility/provenance gate, the CORE-001 and CORE-002
+local-contract gates, the public-boundary and text-hygiene checker, the
+dependency-free local project-workspace checker, and Git whitespace checks.
 
 Run the focused baseline gate with:
 
@@ -23,6 +23,12 @@ Run the focused bounded-contract gate with:
 
 ```text
 powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_001.ps1
+```
+
+Run the focused timestamped-chunk gate with:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_002.ps1
 ```
 
 ## Acceptance criteria
@@ -40,6 +46,15 @@ The source-only slice passes when:
 - the separate CORE-001 overlay binds exactly `contract-metadata-bounds` and
   `contract-sample-shape` to exact-limit, one-past-limit, malformed/zero-bound,
   channel-mismatch, stable-error, and unchanged-value tests;
+- the separate CORE-002 overlay binds exact local Rust contract tests for finite
+  raw and optional derived timestamp values, explicit `ClockCorrected` and
+  `Smoothed` classification, bit preservation, raw/derived coexistence, empty
+  chunk acceptance under valid nonzero limits, exact chunk maxima, one-past
+  maxima, zero maxima, inconsistent shapes, stable error payloads, and unchanged
+  sample/time pairing and order;
+- CORE-002 opens no clock-reading, correction, dejittering, smoothing,
+  interpolation, sample-rate derivation, buffering, transport, protocol, or
+  runtime surface;
 - the damaged matrix, provenance fields, artifact digests, case relationships,
   source-input prohibitions, and oracle isolation contract remain valid;
 - the project-local workspace remains well-formed, source-only, and inert;
@@ -56,9 +71,10 @@ than silent addition.
 A passing source-only gate proves that this revision satisfies the local Rust
 contract semantics, historical specification-level STRM-000 checks, and inert
 closure checks in the local Rust and PowerShell environment. It does not prove
-protocol behavior, wire interoperability, ecosystem compatibility, network
-behavior, performance, native-library safety, platform support, official-liblsl
-behavior, or publication readiness.
+clock behavior, timestamp derivation, sample or chunk transport, protocol
+behavior, wire interoperability, ecosystem compatibility, network behavior,
+performance, native-library safety, platform support, official-liblsl behavior,
+or publication readiness.
 
 Future compatibility claims require focused positive and damaged fixtures,
 oracle versioning, normalized differential results, and platform details. Live
