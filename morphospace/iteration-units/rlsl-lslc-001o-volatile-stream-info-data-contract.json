@@ -1,0 +1,62 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "unit_id": "rlsl-lslc-001o-volatile-stream-info-data-contract",
+  "project_id": "rusty-lsl",
+  "status": "proposed",
+  "objective": "Add one dependency-free bounded accepted-data contract for the eleven volatile stream-info roles observed by LSLC-001H, preserving caller-owned opaque text unchanged while distinguishing implementation-assigned version data, runtime-assigned creation/identity/session/host data, and transport-owned address/port data, without adding provider acquisition, XML or document representation, clocks, host inspection, identity generation, address or port interpretation, networking, runtime activation, or Manifold authority.",
+  "prerequisites": [
+    "rlsl-lslc-001a-stream-info-document-corpus",
+    "rlsl-lslc-001h-stream-info-xml-black-box-observation",
+    "rlsl-lslc-001n-description-xml-composition"
+  ],
+  "outputs": [
+    "A fixed eleven-role data inventory in accepted LSLC-001H order with explicit implementation-assigned, runtime-assigned, and transport-owned classifications.",
+    "One unvalidated owning input and one privately accepted value retaining all eleven caller-provided Strings unchanged under three explicit nonzero Unicode scalar-value maxima.",
+    "Deterministic limit validation in classification order and field validation in fixed role order, with typed errors retaining the exact failed class or role and expected/actual counts.",
+    "Focused positive and damaged evidence that binds accepted public role observations, proves opaque preservation and boundary closure, and reconciles stale public status prose inside the declared instruction update."
+  ],
+  "acceptance": [
+    {"acceptance_id":"bounded-volatile-stream-info-data-contract","command":"cargo test --workspace --all-targets --offline --locked","proof":"The contract validates three nonzero scalar-value maxima, checks all eleven fields in fixed observed role order, returns typed deterministic errors, and accepts only complete caller-owned input without allocation, clone, normalization, parsing, or inference."},
+    {"acceptance_id":"role-order-and-ownership-separation","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001o.ps1","proof":"The exact version, created_at, uid, session_id, hostname, v4address, v4data_port, v4service_port, v6address, v6data_port, and v6service_port order is bound to accepted LSLC-001H evidence, while implementation-assigned, runtime-assigned, and transport-owned classifications remain explicit and disjoint."},
+    {"acceptance_id":"opaque-value-and-allocation-preservation","command":"cargo test --workspace --all-targets --offline --locked","proof":"Empty, Unicode, delimiter-sensitive, and deliberately non-numeric/non-address text remains unchanged, and consuming access returns the original eleven String allocations in role order."},
+    {"acceptance_id":"data-provider-representation-and-authority-boundary","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001o.ps1","proof":"The implementation and evidence add no provider trait or acquisition, clock or host read, generated identity, XML validation or representation, address/port semantics, transport behavior, runtime activation, device behavior, or Manifold authority."},
+    {"acceptance_id":"source-only-feature-and-provenance-closure","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","proof":"Cargo files, dependencies, feature lock, effect union, accepted oracle fixtures and drivers, external-source boundary, devices, and runtime surfaces remain unchanged and inert."},
+    {"acceptance_id":"portable-workflow-and-status-reconciliation","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","proof":"Public instructions and status prose accurately route the accepted observation, static/description composition, and new volatile data layer while preserving distinct specification, observation, candidate-data, representation, provider, and authority roles."}
+  ],
+  "validation": [
+    {"profile_id":"source-only","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"},
+    {"profile_id":"workflow","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"}
+  ],
+  "allowed_repositories": [{
+    "repo_id": "rusty-lsl",
+    "allowed_paths": [
+      "AGENTS.md", "README.md", "crates/rusty-lsl/src/lib.rs",
+      "crates/rusty-lsl/src/stream_info_volatile_fields.rs", "docs/",
+      "fixtures/compatibility/lslc-001o-volatile-stream-info-data-results.json",
+      "fixtures/compatibility/README.md", "morphospace/", "tools/check_all.ps1",
+      "tools/check_lslc_001o.ps1", "tools/check_lslc_001o.py"
+    ]
+  }],
+  "change_categories": ["implementation", "validation", "public-private-boundary"],
+  "commit_policy": "Commit the bounded volatile accepted-data contract separately from XML or complete-document representation, providers, clocks, host inspection, generated identity, address or port interpretation, transport, discovery, adapters, runtime activation, features, devices, or external integration.",
+  "push_checkpoint": "integration-batch",
+  "risk_tier": "standard",
+  "device_requirement": "forbidden",
+  "instruction_impact": "update",
+  "instruction_none_justification": null,
+  "instruction_surfaces": [
+    {"surface_kind":"agents","path":"AGENTS.md","owner":"rusty-lsl","skill_id":null,"action":"update","status":"planned","change_reason":"Route the eleven-role bounded data contract, its three ownership classes, validation order, and strict provider/representation/runtime/authority boundary.","validation":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"},
+    {"surface_kind":"readme","path":"README.md","owner":"rusty-lsl","skill_id":null,"action":"update","status":"planned","change_reason":"Describe the new volatile data layer and reconcile stale status prose that predates accepted LSLC-001H through LSLC-001N evidence and implementations.","validation":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"},
+    {"surface_kind":"skill","path":"<skills-root>/system-engineering/SKILL.md","owner":"workflow-maintainer","skill_id":"system-engineering","action":"update","status":"planned","change_reason":"Review whether the explicit data/provider/representation and ownership split adds reusable guidance; retain unchanged if existing artifact-role and authority rules cover it.","validation":"Review the installed skill and run its instruction-surface whitespace check."},
+    {"surface_kind":"skill","path":"<skills-root>/rusty-morphospace-context/SKILL.md","owner":"workflow-maintainer","skill_id":"rusty-morphospace-context","action":"update","status":"planned","change_reason":"Review whether this source-only Rusty LSL contract changes repo-family routing; retain unchanged if current public-source, activation, and Manifold boundaries cover it.","validation":"Review the installed skill and run its instruction-surface whitespace check."}
+  ],
+  "non_scope": [
+    "Any change to Cargo.toml, Cargo.lock, project or feature locks, accepted fixtures, oracle drivers, dependencies, Cargo features, unsafe Rust, generated protocol material, native libraries, or implementation-source inputs.",
+    "XML names, legal-character validation, escaping, tree construction, serialization, declaration, whitespace, empty-element spelling, complete-document composition, parsing, decoding, canonicalization, endpoint bytes, or compatibility result promotion.",
+    "Provider traits or selection, acquisition callbacks, clock reads, time calculation, host or environment inspection, random or generated identifiers, address-family validation, address parsing, port parsing or range checks, socket ownership, networking, discovery, inlet, outlet, transport, buffering, recovery, FFI, adapters, or runtime activation.",
+    "Interpreting the eleven opaque values as protocol, wire, endpoint, globally unique identity, security, recovery, authorization, routing, permission, admission, or accepted runtime facts.",
+    "Oracle execution, network access, external implementation-source inspection, devices, Quest, Hostess, platform lifecycle, product policy, or operational/ecosystem compatibility claims.",
+    "Manifold admission, registry, subscription, route, lease, revision, replay, identity, authorization, audit, command, session, topology, transport, provider epoch, or product-policy authority."
+  ]
+}
