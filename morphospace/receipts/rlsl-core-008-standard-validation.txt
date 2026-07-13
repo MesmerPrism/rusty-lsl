@@ -1,0 +1,39 @@
+Rusty LSL CORE-008 standard validation evidence
+Created: 2026-07-13T13:58:28Z
+Project: rusty-lsl
+Unit: rlsl-core-008-stream-definition-composition
+Branch: codex/rlsl-core-contracts-008
+Base revision: f3d1b9eb689884aee04a5a7585cfbd3d319a77bb
+HEAD revision: 3ca3d0dfbbd1ecc1abae4b0680451a21031a7a1b
+
+PASS validated-stream-definition-composition
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: One public StreamDefinition privately owns exactly one already validated StreamDescriptor and one already validated MetadataTree. The infallible constructor moves both directly into accepted state without Result, error or limit families, allocation, clone, normalization, inference, interpretation, or cross-component validation. The full locked offline 80-test workspace suite passed.
+
+PASS definition-value-and-boundary-preservation
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Borrowed and consuming access retained descriptor and metadata limits, exact Unicode and optional text forms, irregular form, regular-rate bits, all seven channel formats, flat node order, parent indices, names, values, and existing owned String allocations. The composition layer added no parallel snapshot or allocation.
+
+PASS stream-definition-focused-contracts
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_008.ps1
+Result: Four focused tests passed with 76 filtered. Five detached-copy validator mutations were rejected for their intended reasons: a public accepted-state field, constructor cloning, consuming-access cloning, promotion of a historical STRM-000 result, and Cargo feature activation. The restored focused gate passed with a clean disposable worktree before that worktree was removed.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed in validating state with 80 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe or runtime-effect surface, historical STRM-000 and CORE-001/002/003/004/005/006/007 integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, architecture, compatibility, provenance, validation, fixture-index, and project-workspace updates passed check_all. Existing system-engineering guidance already covers composition of validated contracts and closed authority boundaries, so no shared-skill edit was required. Main-account review made README and project-workspace wording lifecycle-neutral so acceptance cannot immediately stale the public prose.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust composition of one validated stream descriptor and one validated generic metadata tree. It does not give the generic root LSL desc meaning and does not prove XML document behavior, channel conventions, runtime identity, discovery, networking, clocks, buffering, providers, adapters, authority, protocol, transport, wire interoperability, ecosystem compatibility, performance, platform behavior, or official-liblsl behavior.

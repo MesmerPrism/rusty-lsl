@@ -1,0 +1,94 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-core-008-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-core-008-stream-definition-composition",
+  "created_at": "2026-07-13T13:58:28Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "f3d1b9eb689884aee04a5a7585cfbd3d319a77bb",
+      "head_revision": "3ca3d0dfbbd1ecc1abae4b0680451a21031a7a1b",
+      "branch": "codex/rlsl-core-contracts-008"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/lib.rs" },
+    { "repo_id": "rusty-lsl", "path": "crates/rusty-lsl/src/stream_definition.rs" },
+    { "repo_id": "rusty-lsl", "path": "docs/ARCHITECTURE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/COMPATIBILITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/PROVENANCE.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/README.md" },
+    { "repo_id": "rusty-lsl", "path": "fixtures/compatibility/core-008-contract-results.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/README.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-core-008-stream-definition-composition.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-core-008-standard-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-core-008-standard-validation.txt" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_core_008.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_core_008.py" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "core-008-standard-log",
+      "kind": "validation-log",
+      "path": "rlsl-core-008-standard-validation.txt",
+      "sha256": "7bb54aeadea5631353e8af3d1b9fc39320c98b3dd54ab2ca6a55ac2dbae8d31c"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "validated-stream-definition-composition",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["core-008-standard-log"]
+    },
+    {
+      "acceptance_id": "definition-value-and-boundary-preservation",
+      "status": "pass",
+      "command": "cargo test --workspace --all-targets --offline --locked",
+      "evidence_refs": ["core-008-standard-log"]
+    },
+    {
+      "acceptance_id": "stream-definition-focused-contracts",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_008.ps1",
+      "evidence_refs": ["core-008-standard-log"]
+    },
+    {
+      "acceptance_id": "inert-core-closure",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["core-008-standard-log"]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "evidence_refs": ["core-008-standard-log"]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": ["core-008-standard-log"]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": ["core-008-standard-log"]
+    }
+  ],
+  "device_validation": null
+}
