@@ -1,0 +1,39 @@
+Rusty LSL CORE-005 standard validation evidence
+Created: 2026-07-13T12:44:11Z
+Project: rusty-lsl
+Unit: rlsl-core-005-descriptor-sample-binding
+Branch: codex/rlsl-core-contracts-005
+Base revision: 5500a2a2451f043918146524ac2542e39a124763
+HEAD revision: 3b404179293825a99ce18f892e6d6b1aa1a819be
+
+PASS homogeneous-descriptor-sample-binding
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Exactly seven homogeneous input families map one-to-one from f32, f64, String, i32, i16, i8, and i64 samples to the existing data-only ChannelFormat values. Accepted state is privately constructed from an already validated Sample and a borrowed StreamDescriptor, retains only descriptor shape evidence, and requires exact format and channel count without conversion or inference. The full 55-test workspace suite passed.
+
+PASS sample-value-preservation-and-string-bounds
+Command: cargo +1.80.0 test --workspace --all-targets --offline --locked
+Result: Floating-point signed zero and chosen NaN payload bits, integer edge values, channel order, empty strings, whitespace, and Unicode text were preserved exactly. A nonzero per-string Unicode-scalar maximum accepted exact bounds and rejected the first one-past channel with a stable index and counts.
+
+PASS descriptor-sample-damaged-cases
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_005.ps1
+Result: Nine focused tests passed, including a combined-defect case proving deterministic format-before-channel-before-string validation order. Five detached-copy validator mutations were rejected for their intended reasons: format-map drift, a public accepted-state field, a numeric value cast, promotion of the historical STRM-000 result, and Cargo feature activation.
+
+PASS inert-core-closure
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: The full source-only gate passed with 55 tests on the pinned Rust 1.80 toolchain, zero Cargo dependencies and features, no unsafe, conversion, encoding, or runtime-effect surfaces, historical STRM-000 and CORE-001/002/003/004 integrity, public-boundary checks, lifecycle checks, and Git whitespace checks.
+
+PASS validation-source-only
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+Result: Full source-only entrypoint passed in validating state.
+
+PASS validation-workflow
+Command: powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace
+Result: Portable workflow examples and the Rusty LSL project workspace passed.
+
+PASS instruction-synchronization
+Command: Verify every declared instruction surface is complete and validated.
+Result: Repository AGENTS, README, architecture, compatibility, provenance, validation, fixture-index, and project-workspace updates passed check_all. Existing system-engineering guidance already covers bounded contracts, shape-versus-authority separation, closed activation, and deterministic evidence; the seven Rust primitive mappings remain repository-specific, so no shared-skill change was required. Relevant instruction surfaces passed terminal-newline and trailing-whitespace checks.
+
+Device validation: forbidden; no device operation was run.
+
+Evidence limit: This receipt proves only dependency-free local Rust descriptor/sample shape and data-family binding. It does not prove numeric or string conversion, parsing, formatting, byte sizing, encoding, decoding, endianness, memory layout, XML, discovery, buffering, clocks, transport, protocol, wire interoperability, ecosystem compatibility, performance, platform behavior, or Morphospace authority.
