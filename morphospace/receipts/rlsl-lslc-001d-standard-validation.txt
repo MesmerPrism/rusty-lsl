@@ -1,0 +1,53 @@
+Rusty LSL LSLC-001D standard validation
+========================================
+
+Unit: rlsl-lslc-001d-xml-leaf-element-composition
+Implementation HEAD: 5c758a665809c926954ff94a4b09b55fab6c2418
+Validation authority: main Codex account
+Secondary MCP role: unrestricted implementation proposer, not lifecycle authority
+Device validation: forbidden by the unit and not run
+
+PASS cargo +1.80.0 fmt --all -- --check
+PASS cargo +1.80.0 test --workspace --all-targets --offline --locked
+     101 passed; 0 failed; 5 LSLC-001D focused tests passed.
+PASS pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001d.ps1
+PASS pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+     Historical compatibility checks, public-boundary checks, project lifecycle,
+     dependency/feature closure, and inert effect-lock checks passed.
+PASS pwsh -NoProfile -ExecutionPolicy Bypass -File
+     <work-environment-root>/scripts/Test-WorkflowContracts.ps1
+     -WorkspaceRoot <project-root>/morphospace
+PASS git diff --check
+
+Independent review and repair
+-----------------------------
+
+PASS Main review found and removed an unintended public Clone implementation on
+     XmlLeafElement. Clone would have exposed allocation duplication despite the
+     accepted unit allowing only borrowed access and consuming recovery.
+PASS The focused checker now rejects any Clone derivation on XmlLeafElement.
+PASS No other production, evidence, instruction, or authority defect remained.
+
+Independent mutation evidence
+-----------------------------
+
+PASS Reintroducing Clone was rejected by check_lslc_001d.py with the exact
+     allocation-cloning surface error.
+PASS Replacing direct move construction with cloned component construction was
+     rejected by lslc_001d_into_parts_preserves_both_owned_allocations.
+PASS Both mutations were reverted before the aggregate and workflow gates ran.
+
+Boundary and provenance evidence
+--------------------------------
+
+PASS Private state contains exactly XmlElementName and XmlCharacterData.
+PASS Construction is infallible and moves both accepted values without cloning,
+     allocation, validation, re-encoding, normalization, or interpretation.
+PASS All LSLC-001A oracle/candidate roles remain not-observed with null evidence;
+     LSLC-001C greater-than escaping remains candidate-owned local policy.
+PASS Historical fixture digests remain unchanged, the feature/effect lock is
+     empty and inert, and no tag, tree, document, raw-byte, parser, serializer,
+     stream-info mapping, dependency, feature, unsafe, I/O, protocol, wire,
+     runtime, adapter, provider, FFI, device, or authority surface was added.
+PASS All four declared instruction surfaces are complete; both shared skills were
+     reviewed and required no change.
