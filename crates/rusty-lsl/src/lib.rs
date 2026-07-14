@@ -39,6 +39,7 @@ mod documented_discovery_query_proposal;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
+mod raw_clock_exchange;
 mod sample;
 mod short_info_query_wire;
 mod short_info_response_envelope;
@@ -90,6 +91,10 @@ pub use metadata_tree::{
 pub use metadata_xml_projection::{
     project_metadata_tree_to_xml_element_tree, MetadataXmlProjectionError,
     MetadataXmlProjectionLimits,
+};
+pub use raw_clock_exchange::{
+    RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,
+    RawClockExchangeFormulaStage, RawClockExchangeInputError, RawClockExchangeTimestampRole,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
 pub use short_info_query_wire::{
@@ -241,6 +246,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local short-info response-envelope contract",
             "documented discovery-destination data contract",
             "inert documented discovery-query proposal composition",
+            "finite raw clock-exchange formula contract",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -283,5 +289,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"inert documented discovery-query proposal composition"));
+        assert!(declaration
+            .owns
+            .contains(&"finite raw clock-exchange formula contract"));
     }
 }

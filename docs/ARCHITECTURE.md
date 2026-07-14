@@ -458,6 +458,11 @@ an LSL `info`, `desc`, or stream-info projection.
 
 ## Dependency direction
 
+LSLC-002M is an allocation-free numeric data/formula leaf. Raw finite values
+are admitted separately from fallible arithmetic results. No provider,
+packet, clock, scheduling, filter, mapping, or activation edge is introduced.
+
+
 LSLC-002K is a data-plane proposal composition from the accepted query wire
 and one caller-selected documented destination label. It has no control-plane
 selection policy and no runtime/effect edge; any socket adoption remains a

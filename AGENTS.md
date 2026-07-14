@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002M Raw Clock-Exchange Formula Contract
+
+LSLC-002M owns only four finite opaque `f64` values in `t0` through `t3` role
+order and a separate fallible evaluation of the LSLC-002L-documented RTT and
+OFS formulas. Inputs retain exact bits; non-finite inputs reject in role order,
+and non-finite arithmetic rejects at the first typed intermediate stage.
+
+It imposes no timestamp ordering or clock-domain meaning and adds no packet,
+clock/timer read, I/O, UDP, retry, scheduling, eight-exchange collection,
+filter/minimum selection, history, correction/mapping, smoothing, dejitter,
+currentness, runtime, dependency, device, unsafe/FFI, or Manifold authority.
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002m.ps1`.
+
 ## LSLC-002L Clock-Offset Public Documentation Evidence
 
 LSLC-002L records only pinned official documentation facts: eight exchanges by

@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-002M admits four finite opaque `f64` timestamp-role values and separately
+evaluates the documented RTT/OFS formulas with first-stage non-finite errors.
+It preserves input bits and adds no packet, clock, timer, filter, correction,
+currentness, networking, or runtime behavior.
+
 LSLC-002L records pinned official documentation evidence for the default eight
 clock-offset exchanges, exact RTT/OFS formulas, minimum-RTT selection,
 symmetric-delay limitation, and recipient-owned timestamp mapping. It adds no

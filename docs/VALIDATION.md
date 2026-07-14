@@ -523,6 +523,14 @@ also run its `Test-WorkflowContracts.ps1` against `morphospace/`. The local
 checker is a repository gate; it does not replace portable lifecycle or
 transition validation.
 
+## LSLC-002M focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_002m.ps1`. It executes finite valid formulas, signed-zero
+bit preservation, first non-finite input roles, every reachable first
+non-finite arithmetic stage, ownership routing, and the LSLC-002L evidence
+gate. It proves no packet, clock, filtering, correction, or runtime behavior.
+
 ## LSLC-002L focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File

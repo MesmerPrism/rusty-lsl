@@ -366,6 +366,14 @@ candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 
+## LSLC-002M raw exchange formula candidate
+
+The candidate implements only the two documented formulas over caller-supplied
+finite values. Passing arithmetic cases prove no timestamp origin, packet
+exchange, clock accuracy, minimum-RTT filtering, correction, runtime, or
+interoperability.
+
+
 ## LSLC-002L clock-offset documentation evidence
 
 The pinned formulas and selection wording are specification evidence, not an
