@@ -81,7 +81,7 @@
       "validation": "Reviewed installed skill without public mutation."
     },
     {
-      "action": "review",
+      "action": "update",
       "change_reason": "Review artifact roles, bounded rejection evidence, closed activation, and authority separation for the new parser contract.",
       "owner": "workflow-maintainer",
       "path": "<skills-root>/system-engineering/SKILL.md",
