@@ -1,6 +1,6 @@
 # LSLC-002G Standard validation
 
-Result: pass at `494e597f6fea86725a68674b7eed25194e923643`.
+Result: pass, refreshed at `293fd8f55653d024d1cd01faab8684905066dc12`.
 
 - 211 Rust tests passed, including the named second-CRLF regression.
 - Focused LSLC-002F/002G gates passed.
