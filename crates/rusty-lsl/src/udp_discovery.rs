@@ -12,6 +12,42 @@ use std::net::{SocketAddr, UdpSocket};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
+/// Feature identity selected by the LSLC-002P lock.
+pub const UDP_DISCOVERY_FEATURE_ID: &str = "udp-discovery";
+/// Effective marker required as explicit runtime input.
+pub const UDP_DISCOVERY_EFFECTIVE_MARKER: &str = "rusty.lsl.udp_discovery.effective";
+
+/// Nominal proof that the caller supplied the selected feature and runtime marker.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct UdpDiscoveryActivation {
+    private: (),
+}
+
+impl UdpDiscoveryActivation {
+    /// Admits only the exact selected feature identity and effective marker.
+    pub fn new(
+        feature_id: &str,
+        effective_marker: &str,
+    ) -> Result<Self, UdpDiscoveryActivationError> {
+        if feature_id != UDP_DISCOVERY_FEATURE_ID {
+            return Err(UdpDiscoveryActivationError::FeatureMismatch);
+        }
+        if effective_marker != UDP_DISCOVERY_EFFECTIVE_MARKER {
+            return Err(UdpDiscoveryActivationError::EffectiveMarkerMismatch);
+        }
+        Ok(Self { private: () })
+    }
+}
+
+/// Rejected explicit runtime activation input.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum UdpDiscoveryActivationError {
+    /// The selected feature identity did not match.
+    FeatureMismatch,
+    /// The effective marker did not match.
+    EffectiveMarkerMismatch,
+}
+
 /// Nonzero finite resource and time limits for one discovery call.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct UdpDiscoveryLimits {
@@ -237,6 +273,7 @@ pub enum UdpDiscoveryError {
 
 /// Executes one explicitly configured UDP discovery exchange.
 pub fn run_udp_discovery(
+    _activation: UdpDiscoveryActivation,
     config: UdpDiscoveryConfig,
     query: &ShortInfoQueryWire,
     cancelled: &AtomicBool,
@@ -357,6 +394,11 @@ mod tests {
     use std::sync::Arc;
     use std::thread;
 
+    fn activation() -> UdpDiscoveryActivation {
+        UdpDiscoveryActivation::new(UDP_DISCOVERY_FEATURE_ID, UDP_DISCOVERY_EFFECTIVE_MARKER)
+            .unwrap()
+    }
+
     fn body() -> String {
         let names = [
             "name",
@@ -461,6 +503,7 @@ mod tests {
         });
         let cancelled = AtomicBool::new(false);
         let run = run_udp_discovery(
+            activation(),
             config(
                 "127.0.0.1:0".parse().unwrap(),
                 destination,
@@ -486,6 +529,7 @@ mod tests {
         let destination: SocketAddr = "127.0.0.1:9".parse().unwrap();
         let cancelled = AtomicBool::new(true);
         let run = run_udp_discovery(
+            activation(),
             config(
                 "127.0.0.1:0".parse().unwrap(),
                 destination,
@@ -512,6 +556,7 @@ mod tests {
             signal.store(true, Ordering::Release);
         });
         let run = run_udp_discovery(
+            activation(),
             config(
                 "127.0.0.1:0".parse().unwrap(),
                 destination,
@@ -540,6 +585,7 @@ mod tests {
             sink.recv_from(&mut bytes).unwrap();
         });
         let run = run_udp_discovery(
+            activation(),
             config(
                 bind_address,
                 destination,
@@ -583,6 +629,7 @@ mod tests {
                 server.send_to(&payload, source).unwrap();
             });
             let error = run_udp_discovery(
+                activation(),
                 config(
                     "127.0.0.1:0".parse().unwrap(),
                     destination,
@@ -610,6 +657,7 @@ mod tests {
             server.send_to(b"7\ninvalid", source).unwrap();
         });
         let error = run_udp_discovery(
+            activation(),
             config(
                 "127.0.0.1:0".parse().unwrap(),
                 destination,
@@ -628,6 +676,18 @@ mod tests {
             UdpDiscoveryError::InvalidEnvelope(
                 ShortInfoResponseEnvelopeParseError::InvalidDelimiter { offset: 1 }
             )
+        );
+    }
+
+    #[test]
+    fn lslc_002p_mismatched_activation_rejects_before_runtime() {
+        assert_eq!(
+            UdpDiscoveryActivation::new("other-feature", UDP_DISCOVERY_EFFECTIVE_MARKER),
+            Err(UdpDiscoveryActivationError::FeatureMismatch)
+        );
+        assert_eq!(
+            UdpDiscoveryActivation::new(UDP_DISCOVERY_FEATURE_ID, "other.marker"),
+            Err(UdpDiscoveryActivationError::EffectiveMarkerMismatch)
         );
     }
 

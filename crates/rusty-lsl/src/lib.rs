@@ -194,8 +194,10 @@ pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
 };
 pub use udp_discovery::{
-    run_udp_discovery, UdpDiscoveryConfig, UdpDiscoveryError, UdpDiscoveryLimitError,
-    UdpDiscoveryLimits, UdpDiscoveryResponse, UdpDiscoveryRun, UdpDiscoveryTermination,
+    run_udp_discovery, UdpDiscoveryActivation, UdpDiscoveryActivationError, UdpDiscoveryConfig,
+    UdpDiscoveryError, UdpDiscoveryLimitError, UdpDiscoveryLimits, UdpDiscoveryResponse,
+    UdpDiscoveryRun, UdpDiscoveryTermination, UDP_DISCOVERY_EFFECTIVE_MARKER,
+    UDP_DISCOVERY_FEATURE_ID,
 };
 pub use xml_character_data::{XmlCharacterData, XmlCharacterDataError, XmlCharacterDataLimit};
 pub use xml_element_serialization::{
