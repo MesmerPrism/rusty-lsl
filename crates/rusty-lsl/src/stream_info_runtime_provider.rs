@@ -126,6 +126,11 @@ impl StreamInfoRuntimeValues {
     pub fn hostname(&self) -> &str {
         &self.hostname
     }
+    /// Moves all four original allocations out in fixed runtime role order.
+    #[must_use]
+    pub fn into_parts(self) -> (String, String, String, String) {
+        (self.created_at, self.uid, self.session_id, self.hostname)
+    }
 }
 
 /// One provider result containing one shared witness and all four values.
@@ -222,6 +227,11 @@ impl StreamInfoRuntimeAcquisition {
     #[must_use]
     pub const fn values(&self) -> &StreamInfoRuntimeValues {
         &self.values
+    }
+    /// Moves the separately retained witness and grouped runtime values apart.
+    #[must_use]
+    pub fn into_parts(self) -> (StreamInfoRuntimeWitness, StreamInfoRuntimeValues) {
+        (self.witness, self.values)
     }
     /// Moves the four original allocations into exactly the LSLC-001S runtime lane.
     #[must_use]

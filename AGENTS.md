@@ -1,5 +1,21 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001X Three-Owner Acquisition Snapshot Composition
+
+LSLC-001X consumes one already accepted T, U, and V acquisition. Their
+implementation, runtime, and transport witnesses move into three separately
+inspectable owner artifacts while all eleven original opaque value allocations
+move through the three fixed LSLC-001S lanes into one complete admitted
+snapshot. The composer compares or combines no owner identity, epoch, or
+revision and infers no cross-owner atomicity, freshness, currentness,
+authorization, or activation. It performs no acquisition, ambient inspection,
+socket/network operation, runtime effect, device behavior, dependency/feature
+activation, or Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001x.ps1
+```
+
 ## LSLC-001V Transport-Owned Acquisition Evidence
 
 LSLC-001V calls one explicit caller-selected provider once to acquire opaque

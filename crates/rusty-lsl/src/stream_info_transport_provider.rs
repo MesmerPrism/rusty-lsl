@@ -142,6 +142,18 @@ impl StreamInfoTransportValues {
     pub fn v6service_port(&self) -> &str {
         &self.v6service_port
     }
+    /// Moves all six original allocations out in fixed transport role order.
+    #[must_use]
+    pub fn into_parts(self) -> (String, String, String, String, String, String) {
+        (
+            self.v4address,
+            self.v4data_port,
+            self.v4service_port,
+            self.v6address,
+            self.v6data_port,
+            self.v6service_port,
+        )
+    }
 }
 
 /// One provider result containing one shared witness and all six values.
@@ -252,6 +264,11 @@ impl StreamInfoTransportAcquisition {
     #[must_use]
     pub const fn values(&self) -> &StreamInfoTransportValues {
         &self.values
+    }
+    /// Moves the separately retained witness and grouped transport values apart.
+    #[must_use]
+    pub fn into_parts(self) -> (StreamInfoTransportWitness, StreamInfoTransportValues) {
+        (self.witness, self.values)
     }
     /// Moves the six original allocations into exactly the LSLC-001S transport lane.
     #[must_use]

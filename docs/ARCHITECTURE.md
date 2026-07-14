@@ -1,5 +1,14 @@
 # Architecture
 
+## LSLC-001X three-owner composition boundary
+
+`stream_info_three_owner_snapshot` is a consuming composition edge above the
+accepted T/U/V acquisition contracts and S admission. Owner evidence remains
+three nominal witness objects; value allocations alone move into S's fixed
+implementation, runtime, and transport lanes. The module performs no provider
+call and establishes no relation among owner epochs or revisions. Acquisition,
+activation, platform/network behavior, and Manifold authority remain outside.
+
 ## LSLC-001V transport-owner boundary
 
 `stream_info_transport_provider` keeps six same-owner endpoint strings atomic

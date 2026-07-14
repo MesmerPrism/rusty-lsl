@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-001X adds `StreamInfoThreeOwnerSnapshot`, a consuming composition of one
+accepted T, U, and V acquisition into complete S admission. It retains the
+three witnesses separately and moves the original eleven value allocations
+without comparing owner identities, epochs, or revisions. This proves no
+cross-owner atomicity/currentness, ambient acquisition, authorization,
+activation, runtime effect, networking, or Manifold authority.
+
 LSLC-001V adds `StreamInfoTransportProvider`: one explicit synchronous call
 returns all six transport-owned endpoint strings with one shared owner witness.
 `StreamInfoTransportAcquisition` retains that witness separately, matches it

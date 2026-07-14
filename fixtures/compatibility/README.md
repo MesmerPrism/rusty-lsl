@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+LSLC-001X records synthetic local three-owner composition evidence only. It
+contains no acquired clock, host, interface, network, endpoint, authorization,
+device, runtime-effect, or Manifold authority evidence.
+
 LSLC-001V contains synthetic local transport-owner provider evidence only. It
 records no acquired interface, address, port, socket, network, reachability,
 authorization, device, runtime, or Manifold authority data.

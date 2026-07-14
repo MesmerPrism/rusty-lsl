@@ -1,5 +1,11 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001x-three-owner-acquisition-snapshot-composition` permits only
+consuming accepted T/U/V acquisitions into complete S admission while retaining
+three separate witnesses. Cross-owner atomicity/currentness, ambient
+acquisition, networking, activation, devices, effects, and authority stay
+closed.
+
 `rlsl-lslc-001v-transport-owned-acquisition-evidence` permits one explicit
 provider call for all six transport-owned values under one shared exact owner
 witness, then only an S transport-lane projection. Interface and platform

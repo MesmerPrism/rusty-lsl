@@ -1,5 +1,11 @@
 # Compatibility
 
+LSLC-001X proves only local composition of accepted T/U/V values into one S
+snapshot while separately retaining their three witnesses and preserving value
+allocations. It does not prove common acquisition time, cross-owner atomicity,
+freshness/currentness, endpoint operation, runtime behavior, protocol/wire
+behavior, official behavior, or ecosystem compatibility.
+
 LSLC-001V proves only local one-call grouping, exact shared transport-owner
 witness matching, O-bound ordering, typed failures, allocation preservation,
 and S transport-lane projection. It does not prove endpoint syntax, interface

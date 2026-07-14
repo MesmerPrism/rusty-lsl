@@ -109,6 +109,11 @@ impl StreamInfoImplementationVersionProviderOutput {
     pub fn version(&self) -> &str {
         &self.version
     }
+    /// Moves the separately retained witness and original version allocation apart.
+    #[must_use]
+    pub fn into_parts(self) -> (StreamInfoImplementationVersionWitness, String) {
+        (self.witness, self.version)
+    }
 }
 
 /// A caller-selected synchronous provider for one implementation version.
@@ -186,6 +191,11 @@ impl StreamInfoImplementationVersionAcquisition {
     #[must_use]
     pub fn into_provider_value(self) -> StreamInfoVolatileProviderValue {
         StreamInfoVolatileProviderValue::new(StreamInfoVolatileFieldRole::Version, self.version)
+    }
+    /// Moves the separately retained witness and original version allocation apart.
+    #[must_use]
+    pub fn into_parts(self) -> (StreamInfoImplementationVersionWitness, String) {
+        (self.witness, self.version)
     }
 }
 
