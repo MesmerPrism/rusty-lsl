@@ -1,5 +1,15 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002I Default Discovery Destination Evidence
+
+LSLC-002I records only pinned official public-documentation facts for default
+settings: UDP broadcasts and/or multicast on decimal port 16571 and seven exact
+displayed destination spellings. It preserves the unusual `FF08113D...`
+spelling and presentation parentheses without parsing, normalization, or
+correction. This is specification evidence, not observation, candidate
+contract, socket behavior, discovery runtime, or interoperability. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_002i.ps1`.
+
 ## LSLC-002H Typed Short-Info Response Observation
 
 LSLC-002H consumes one accepted response envelope into its unchanged

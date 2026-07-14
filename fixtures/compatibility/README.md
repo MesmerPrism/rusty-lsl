@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+`lslc-002i-default-discovery-destination-evidence.json` contains only pinned
+official-documentation specification facts. Parsing, selection, observation,
+sockets, runtime discovery, and interoperability remain unclaimed.
+
 `lslc-002e-short-info-response-observation.json` contains only sanitized
 black-box framing facts and provenance hashes. It contains no raw response,
 XML document, endpoint value, native diagnostic, or machine path.

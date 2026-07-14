@@ -1,5 +1,8 @@
 # Validation
 
+LSLC-002I pins the official source revision/hash, exact port, seven displayed
+spellings, evidence role, unusual spelling, and fail-closed limitations.
+
 LSLC-002G records primary review's rejection of the otherwise passing LSLC-002F
 feature head: its unit claimed an explicit extra-delimiter damaged case without
 a named second-CRLF regression, and its crate-level status/ownership prose did

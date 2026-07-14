@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-002I adds provenance-locked official documentation evidence for default
+UDP discovery port 16571 and seven displayed destination spellings. It adds no
+parsed address, destination policy, socket, interface behavior, discovery
+runtime, or compatibility claim.
+
 LSLC-002H explicitly consumes an accepted response envelope into the existing
 typed document admission while retaining the identifier as uninterpreted data.
 This closes local caller orchestration only; it adds no query correlation,

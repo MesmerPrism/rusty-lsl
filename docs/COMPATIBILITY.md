@@ -1,5 +1,8 @@
 # Compatibility
 
+LSLC-002I is specification evidence only. Its port and destination strings are
+neither observed behavior nor an implemented candidate contract.
+
 LSLC-002E observed two synthetic loopback short-info responses from the pinned
 official protocol-110 endpoint. Both shared `decimal query id + CRLF + observed
 document`, and both bodies passed LSLC-002A/002B. This is bounded black-box

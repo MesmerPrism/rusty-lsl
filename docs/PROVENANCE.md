@@ -1,5 +1,10 @@
 # Provenance
 
+LSLC-002I reuses the pinned official network-connectivity document and exact
+UTF-8 SHA-256 already admitted by LSLC-002C/D, extracting only displayed
+default-settings UDP port and destination spellings. No implementation source
+or black-box endpoint was inspected.
+
 ## LSLC-002E response observation
 
 The observation used the official PyPI Windows AMD64 `pylsl 1.18.2` wheel
