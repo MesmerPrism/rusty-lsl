@@ -1,6 +1,6 @@
 # LSLC-002F Standard validation
 
-Result: pass at `f8f9c74f1705aaf1632353077520ea3ee6c4c8ee`.
+Result: pass, refreshed at `7099c2c2772847f76af735a149282b327603a0b3`.
 
 - Focused LSLC-002F gate: pass; 210 Rust tests.
 - Full source-only owner/public-boundary/inert-lock gate: pass.
