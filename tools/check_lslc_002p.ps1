@@ -29,6 +29,21 @@ try {
     if (@($lock.effect_union.inputs) -notcontains 'explicit caller UDP discovery configuration') {
         throw 'LSLC-002P lock lacks the explicit runtime input.'
     }
+    $feature = @($lock.features)[0]
+    if ([string]$feature.descriptor.path -cne 'morphospace/features/udp-discovery.json') {
+        throw 'LSLC-002P descriptor path must remain portable and repository-relative.'
+    }
+    $descriptorHash = (Get-FileHash -LiteralPath './morphospace/features/udp-discovery.json' -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($descriptorHash -cne [string]$feature.descriptor.sha256) { throw 'LSLC-002P descriptor hash mismatch.' }
+    $sourceHash = (Get-FileHash -LiteralPath './crates/rusty-lsl/src/udp_discovery.rs' -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($sourceHash -cne [string]$feature.descriptor.source_sha256) { throw 'LSLC-002P source hash mismatch.' }
+    $descriptor = Get-Content -LiteralPath './morphospace/features/udp-discovery.json' -Raw | ConvertFrom-Json
+    if ([string]$descriptor.activation.effective_marker -cne 'rusty.lsl.udp_discovery.effective') {
+        throw 'LSLC-002P effective marker drifted.'
+    }
+    if (-not $source.Contains('UDP_DISCOVERY_EFFECTIVE_MARKER: &str = "rusty.lsl.udp_discovery.effective"')) {
+        throw 'LSLC-002P runtime marker does not match the descriptor.'
+    }
 
     python tools/check_public_boundaries.py
     if ($LASTEXITCODE -ne 0) { throw 'LSLC-002P public boundary failed.' }

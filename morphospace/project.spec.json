@@ -2,7 +2,7 @@
   "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/project-spec-v2.schema.json",
   "schema": "rusty.morphospace.workflow.project_spec.v2",
   "project_id": "rusty-lsl",
-  "revision": 1,
+  "revision": 2,
   "owner": "rusty-lsl-project",
   "purpose": "Develop an independently authored Rust implementation of Lab Streaming Layer compatibility with explicit typed Rusty Morphospace observation and proposal hooks.",
   "activation_model": {
@@ -11,15 +11,20 @@
     "runtime_rule": "selected-lock-and-runtime-input"
   },
   "composition": {
-    "selected_features": [],
+    "selected_features": [
+      "udp-discovery"
+    ],
     "denied_features": [],
-    "selected_modules": [],
+    "selected_modules": [
+      "udp-discovery"
+    ],
     "denied_modules": [],
-    "allowed_permissions": [],
+    "allowed_permissions": [
+      "network access"
+    ],
     "denied_permissions": [
       "device access",
       "native library loading",
-      "network access",
       "process spawning"
     ],
     "data_classes": [
@@ -31,6 +36,11 @@
   "authority_map": [
     {
       "parameter": "lsl.compatibility",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.discovery-runtime",
       "owner": "rusty-lsl",
       "adapters": []
     },
@@ -66,14 +76,38 @@
       ]
     }
   ],
-  "modules": [],
+  "modules": [
+    {
+      "module_id": "udp-discovery",
+      "feature_id": "udp-discovery",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.udp_discovery.v1",
+      "contract_revision": "lslc-002p",
+      "source_repo": "rusty-lsl",
+      "dependencies": [],
+      "selected": true
+    }
+  ],
   "non_scope": [
-    "LSL protocol, wire, discovery, clock, inlet, outlet, recovery, FFI, and runtime implementation before an approved unit opens that scope.",
+    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery call, including multicast membership, endpoint selection, clocks, inlet, outlet, recovery, and FFI.",
     "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
     "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
     "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."
   ],
   "validation_profiles": [
+    {
+      "profile_id": "runtime-loopback",
+      "commands": [
+        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002p.ps1"
+      ]
+    },
+    {
+      "profile_id": "source-owner",
+      "commands": [
+        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+      ]
+    },
     {
       "profile_id": "source-only",
       "commands": [
@@ -91,7 +125,7 @@
     {
       "profile_id": "inert-default",
       "commands": [
-        "Verify the selected feature and module sets are empty and the effect union contains no runtime effect."
+        "Verify default activation remains disabled and the selected UDP discovery effect still requires its explicit runtime input."
       ]
     },
     {

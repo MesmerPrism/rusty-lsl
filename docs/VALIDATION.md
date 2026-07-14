@@ -1,7 +1,7 @@
 # Validation
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-.\tools\check_lslc_002p.ps1` for LSLC-002P. Seven behavioral tests exercise
+.\tools\check_lslc_002p.ps1` for LSLC-002P. Eight behavioral tests exercise
 nonzero limit order, exact-boundary response admission, one-past datagrams,
 invalid UTF-8, unchanged envelope errors, pre-send and blocked-receive
 cancellation, finite deadline, response-count termination, retained bytes, and

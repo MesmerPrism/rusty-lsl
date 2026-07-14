@@ -1,65 +1,58 @@
 {
-    "$schema":  "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-lock-v2.schema.json",
-    "schema":  "rusty.morphospace.workflow.feature_lock.v2",
-    "project_id":  "rusty-lsl",
-    "project_revision":  1,
-    "revision":  1,
-    "generated_at":  "1970-01-01T00:00:00Z",
-    "resolver_version":  "rusty-morphospace-feature-resolver/2",
-    "lock_fingerprint":  "d74769930eac59adfe1568d06eef7e67adaa45a6ad07a2797ee4073b6d5aabbe",
-    "default_activation":  "disabled",
-    "activation_rule":  "selected-lock-and-runtime-input",
-    "selected_features":  [
-
-                          ],
-    "denied_features":  [
-
-                        ],
-    "features":  [
-
-                 ],
-    "effect_union":  {
-                         "permissions":  [
-
-                                         ],
-                         "services":  [
-
-                                      ],
-                         "activities":  [
-
-                                        ],
-                         "queries":  [
-
-                                     ],
-                         "tools":  [
-
-                                   ],
-                         "assets":  [
-
-                                    ],
-                         "shaders":  [
-
-                                     ],
-                         "native_libraries":  [
-
-                                              ],
-                         "commands":  [
-
-                                      ],
-                         "routes":  [
-
-                                    ],
-                         "streams":  [
-
-                                     ],
-                         "inputs":  [
-
-                                    ],
-                         "scenes":  [
-
-                                    ],
-                         "markers":  [
-
-                                     ]
-                     }
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-lock-v2.schema.json",
+  "schema": "rusty.morphospace.workflow.feature_lock.v2",
+  "project_id": "rusty-lsl",
+  "project_revision": 2,
+  "revision": 2,
+  "generated_at": "2026-07-15T00:00:00Z",
+  "resolver_version": "rusty-morphospace-feature-resolver/2",
+  "lock_fingerprint": "3a60c2bf7a5773376195d18a5f1d3ca0b58b4c5203bd2248a77427f9a80826b0",
+  "default_activation": "disabled",
+  "activation_rule": "selected-lock-and-runtime-input",
+  "selected_features": ["udp-discovery"],
+  "denied_features": [],
+  "features": [{
+    "feature_id": "udp-discovery",
+    "module_id": "udp-discovery",
+    "version": "0.1.0",
+    "owner_lane": "rusty-lsl",
+    "selected": true,
+    "run_activation_default": "disabled",
+    "descriptor": {
+      "path": "morphospace/features/udp-discovery.json",
+      "sha256": "3d55c16da66725d20efd8bbcaf0f2524ef509b9b586b276d22d72c5a34e5f5ed",
+      "source_repo": "rusty-lsl",
+      "source_revision": "1508eced265aa6918ca7ad333cc4177e8b33e0b1",
+      "source_path": "crates/rusty-lsl/src/udp_discovery.rs",
+      "source_sha256": "b1d1408b2a44db86a93a46c2b4005fa9986deddc0f0b2c50b65456c425ecad72"
+    },
+    "dependencies": [],
+    "conflicts": [],
+    "exclusive_group": null,
+    "effects": {
+      "permissions": ["network access"],
+      "services": [], "activities": [], "queries": [], "tools": [],
+      "assets": [], "shaders": [], "native_libraries": [], "commands": [],
+      "routes": [], "streams": [],
+      "inputs": ["explicit caller UDP discovery configuration"],
+      "scenes": [], "markers": []
+    },
+    "parameter_authorities": [{"parameter":"lsl.discovery-runtime","owner":"rusty-lsl"}],
+    "activation": {
+      "rule": "selected-lock-and-runtime-input",
+      "runtime_inputs": ["explicit caller UDP discovery configuration"],
+      "receipt_schema": "rusty.lsl.udp_discovery.activation_receipt.v1",
+      "effective_marker": "rusty.lsl.udp_discovery.effective"
+    },
+    "validation_profile": "runtime-loopback",
+    "rollback_profile": "rollback"
+  }],
+  "effect_union": {
+    "permissions": ["network access"],
+    "services": [], "activities": [], "queries": [], "tools": [],
+    "assets": [], "shaders": [], "native_libraries": [], "commands": [],
+    "routes": [], "streams": [],
+    "inputs": ["explicit caller UDP discovery configuration"],
+    "scenes": [], "markers": []
+  }
 }
