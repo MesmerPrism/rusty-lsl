@@ -1,5 +1,17 @@
 # Provenance
 
+## LSLC-002E response observation
+
+The observation used the official PyPI Windows AMD64 `pylsl 1.18.2` wheel
+already identified by SHA-256
+`3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1`,
+public library version 117, protocol version 110, and native DLL SHA-256
+`8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff`.
+An independently authored external driver used documented `StreamInfo` and
+`StreamOutlet` APIs and a bounded loopback-only UDP probe. No implementation
+source was inspected. Raw artifacts, diagnostics, and local values remain
+external; their hashes bind the sanitized fixture.
+
 ## LSLC-002D correction
 
 The pinned public RST source and SHA-256 remain unchanged. Its indentation

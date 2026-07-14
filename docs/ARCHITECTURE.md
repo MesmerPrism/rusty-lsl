@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-002E separates the observed response transport envelope from the existing
+document contracts: an uninterpreted canonical decimal query-identifier prefix,
+one CRLF delimiter, then an unchanged body accepted by LSLC-002A and LSLC-002B.
+The official endpoint is evidence producer only. A later unit may implement
+bounded local envelope parsing; correlation and networking remain separate.
+
 ## LSLC-002D corrective boundary
 
 The wire-shape leaf now owns CRLF delimiters only. LSLC-002C's LF-only

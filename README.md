@@ -1,5 +1,16 @@
 # Rusty LSL
 
+LSLC-002E observes the smallest protocol-110 short-info response envelope from
+an exact official public endpoint in two bounded loopback-only cases. Each
+response starts with the canonical decimal query identifier followed by CRLF;
+the remaining bytes are one unchanged LSLC-002A-shaped XML document with its
+internal LF layout and final LF. Both extracted bodies passed LSLC-002A parsing
+and LSLC-002B typed admission. Raw artifacts and runtime values remain private.
+
+This observation justifies a later source-only response-envelope contract; it
+does not implement one and proves no correlation semantics, socket/discovery
+runtime, endpoint behavior, currentness, or interoperability.
+
 LSLC-002D corrects the rejected LSLC-002C line-ending inference without
 rewriting its history. The canonical short-info query candidate uses CRLF after
 all three lines, making the pinned public example exactly 65 bytes. LF-only,

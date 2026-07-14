@@ -1,0 +1,101 @@
+{
+    "schema":  "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+    "project_id":  "rusty-lsl",
+    "unit_id":  "rlsl-lslc-002e-short-info-response-black-box-observation",
+    "action":  "Claim",
+    "timestamp":  "2026-07-14T13:57:38.6872537Z",
+    "executed":  true,
+    "transition":  "ready-to-active",
+    "status_before":  "ready",
+    "status_after":  "active",
+    "current_unit_before":  null,
+    "current_unit_after":  "rlsl-lslc-002e-short-info-response-black-box-observation",
+    "preservation":  {
+                         "git_mutation_performed":  false,
+                         "device_mutation_performed":  false,
+                         "force_push_allowed":  false,
+                         "repository_states":  [
+                                                   {
+                                                       "repo_id":  "rusty-lsl",
+                                                       "available":  true,
+                                                       "is_git":  true,
+                                                       "head":  "5c9d72600e5bbe5394536e023762a837319b7a32",
+                                                       "branch":  "codex/rlsl-autonomous",
+                                                       "upstream":  "origin/codex/rlsl-autonomous",
+                                                       "dirty":  false,
+                                                       "tracked_changes":  0,
+                                                       "untracked_changes":  0,
+                                                       "ahead":  1,
+                                                       "behind":  0,
+                                                       "diverged":  false,
+                                                       "relation":  "ahead"
+                                                   }
+                                               ]
+                     },
+    "validation_matrix":  [
+                              {
+                                  "order":  1,
+                                  "gate_id":  "validation-source-only",
+                                  "kind":  "command",
+                                  "profile_id":  "source-only",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  2,
+                                  "gate_id":  "validation-workflow",
+                                  "kind":  "command",
+                                  "profile_id":  "workflow",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File \u003cwork-environment-root\u003e/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot \u003cproject-root\u003e/morphospace",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  3,
+                                  "gate_id":  "instruction-synchronization",
+                                  "kind":  "instruction",
+                                  "profile_id":  "instruction-sync",
+                                  "command":  "Verify every declared instruction surface is complete and validated.",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  4,
+                                  "gate_id":  "device-validation",
+                                  "kind":  "device",
+                                  "profile_id":  "device",
+                                  "command":  "Do not run live device operations for this unit.",
+                                  "disposition":  "forbidden",
+                                  "serials":  [
+
+                                              ]
+                              }
+                          ],
+    "graph_scope":  {
+                        "change_categories":  [
+                                                  "public-private-boundary",
+                                                  "validation"
+                                              ],
+                        "repositories":  [
+                                             {
+                                                 "repo_id":  "rusty-lsl",
+                                                 "allowed_paths":  [
+                                                                       "AGENTS.md",
+                                                                       "docs/",
+                                                                       "fixtures/compatibility/lslc-002e-short-info-response-observation.json",
+                                                                       "fixtures/compatibility/README.md",
+                                                                       "morphospace/",
+                                                                       "README.md",
+                                                                       "tools/check_all.ps1",
+                                                                       "tools/check_lslc_002e.ps1",
+                                                                       "tools/check_lslc_002e.py"
+                                                                   ]
+                                             }
+                                         ],
+                        "read_only_dependencies":  [
+
+                                                   ],
+                        "exclusion":  "Do not scan repositories or paths outside this list."
+                    },
+    "adoption_receipt":  null,
+    "push_plan":  null,
+    "event_id":  "rlsl-lslc-002e-short-info-response-black-box-observation-claimed-0203"
+}

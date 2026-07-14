@@ -1,5 +1,10 @@
 # Compatibility
 
+LSLC-002E observed two synthetic loopback short-info responses from the pinned
+official protocol-110 endpoint. Both shared `decimal query id + CRLF + observed
+document`, and both bodies passed LSLC-002A/002B. This is bounded black-box
+shape evidence, not discovery, endpoint, ecosystem, or interoperability proof.
+
 LSLC-002D infers CRLF solely from the official document's logged 65-byte count
 and its 59 displayed non-delimiter bytes. This resolves LSLC-002C's internal
 62-versus-65-byte inconsistency but still does not prove endpoint or discovery

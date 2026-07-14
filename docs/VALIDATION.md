@@ -1,5 +1,9 @@
 # Validation
 
+Run `./tools/check_lslc_002e.ps1` to validate the LSLC-002E provenance lock,
+two-case bounded framing matrix, exact typed LSLC-002A/002B binding result,
+raw-private boundary, and observation-only nonclaims.
+
 ## LSLC-002D focused gate
 
 `tools/check_lslc_002d.ps1` binds the unchanged public source revision/digest,

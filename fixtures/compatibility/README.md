@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+`lslc-002e-short-info-response-observation.json` contains only sanitized
+black-box framing facts and provenance hashes. It contains no raw response,
+XML document, endpoint value, native diagnostic, or machine path.
+
 `lslc-002d-short-info-query-crlf-correction-fixtures.json` preserves the
 rejected LSLC-002C head and records the 65-byte CRLF inference separately from
 RST presentation indentation, with valid and exact-offset damaged cases.

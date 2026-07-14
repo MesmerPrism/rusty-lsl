@@ -1,5 +1,21 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002E Short-Info Response Black-Box Observation
+
+LSLC-002E records an exact official protocol-110 endpoint observation without
+adding response implementation. Two bounded loopback-only cases returned the
+canonical decimal query identifier, CRLF, then one LSLC-002A-shaped document.
+The document begins immediately after CRLF, retains its internal LF layout and
+final LF, and both extracted bodies passed existing LSLC-002A parsing and
+LSLC-002B typed admission unchanged.
+
+Raw datagrams, XML, diagnostics, environments, caches, local paths, and
+runtime/host/endpoint values remain private. This unit adds no encoder, parser,
+correlation semantics, socket, discovery runtime, endpoint ownership, retry,
+clock, currentness, interoperability, dependency, feature, device, activation,
+or Manifold authority. Run `powershell -NoProfile -ExecutionPolicy Bypass
+-File .\tools\check_lslc_002e.ps1`.
+
 ## LSLC-002D Short-Info Query CRLF Correction
 
 LSLC-002D additively corrects rejected LSLC-002C. The pinned public document
