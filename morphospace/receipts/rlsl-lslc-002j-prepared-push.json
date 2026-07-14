@@ -1,0 +1,123 @@
+{
+  "schema": "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-002j-documented-discovery-destination-data-contract",
+  "action": "PreparePush",
+  "timestamp": "2026-07-14T18:35:30.2802470Z",
+  "executed": true,
+  "transition": "push-bundle-prepared",
+  "status_before": "accepted",
+  "status_after": "accepted",
+  "current_unit_before": null,
+  "current_unit_after": null,
+  "preservation": {
+    "git_mutation_performed": false,
+    "device_mutation_performed": false,
+    "force_push_allowed": false,
+    "repository_states": [
+      {
+        "repo_id": "rusty-lsl",
+        "available": true,
+        "is_git": true,
+        "head": "098cc2d7783363c65412c524ce1aa75b601e586e",
+        "branch": "codex/rlsl-autonomous",
+        "upstream": "origin/codex/rlsl-autonomous",
+        "dirty": false,
+        "tracked_changes": 0,
+        "untracked_changes": 0,
+        "ahead": 6,
+        "behind": 0,
+        "diverged": false,
+        "relation": "ahead"
+      }
+    ]
+  },
+  "validation_matrix": [
+    {
+      "order": 1,
+      "gate_id": "validation-source-only",
+      "kind": "command",
+      "profile_id": "source-only",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+      "disposition": "required"
+    },
+    {
+      "order": 2,
+      "gate_id": "validation-workflow",
+      "kind": "command",
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "disposition": "required"
+    },
+    {
+      "order": 3,
+      "gate_id": "instruction-synchronization",
+      "kind": "instruction",
+      "profile_id": "instruction-sync",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "disposition": "required"
+    },
+    {
+      "order": 4,
+      "gate_id": "device-validation",
+      "kind": "device",
+      "profile_id": "device",
+      "command": "Do not run live device operations for this unit.",
+      "disposition": "forbidden",
+      "serials": []
+    }
+  ],
+  "graph_scope": {
+    "change_categories": [
+      "implementation",
+      "public-private-boundary",
+      "validation"
+    ],
+    "repositories": [
+      {
+        "repo_id": "rusty-lsl",
+        "allowed_paths": [
+          "AGENTS.md",
+          "crates/rusty-lsl/src/documented_discovery_destination.rs",
+          "crates/rusty-lsl/src/lib.rs",
+          "docs/ARCHITECTURE.md",
+          "docs/COMPATIBILITY.md",
+          "docs/VALIDATION.md",
+          "morphospace/",
+          "README.md",
+          "tools/check_lslc_002j.ps1"
+        ]
+      }
+    ],
+    "read_only_dependencies": [],
+    "exclusion": "Do not scan repositories or paths outside this list."
+  },
+  "adoption_receipt": null,
+  "push_plan": {
+    "schema": "rusty.morphospace.workflow.push_bundle_plan.v1",
+    "bundle_id": "rlsl-lslc-002j-documented-discovery-destination-data-contract-push-bundle",
+    "project_id": "rusty-lsl",
+    "unit_ids": [
+      "rlsl-lslc-002j-documented-discovery-destination-data-contract"
+    ],
+    "prepared_at": "2026-07-14T18:35:30.2802470Z",
+    "dependency_order": [
+      "rusty-lsl"
+    ],
+    "repositories": [
+      {
+        "repo_id": "rusty-lsl",
+        "branch": "codex/rlsl-autonomous",
+        "commit": "098cc2d7783363c65412c524ce1aa75b601e586e",
+        "upstream": "origin/codex/rlsl-autonomous",
+        "ahead": 6,
+        "behind": 0
+      }
+    ],
+    "source_first": true,
+    "planning_last": true,
+    "execution": "not-performed",
+    "force_push_allowed": false
+  },
+  "event_id": "rlsl-lslc-002j-documented-discovery-destination-data-contract-push-prepared-0239"
+}
