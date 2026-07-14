@@ -1,5 +1,14 @@
 # Architecture
 
+## LSLC-001V transport-owner boundary
+
+`stream_info_transport_provider` keeps six same-owner endpoint strings atomic
+at the evidence boundary: one call, one shared identity/epoch/revision witness,
+and six opaque allocations. It applies only the accepted O transport bound and
+can project only S's transport lane. Complete S admission, platform endpoint
+acquisition, interface inspection, address/port semantics, sockets, networking,
+reachability, authorization, activation, and Manifold authority remain separate.
+
 ## LSLC-001U runtime-owner boundary
 
 `stream_info_runtime_provider` keeps four same-owner values atomic at the

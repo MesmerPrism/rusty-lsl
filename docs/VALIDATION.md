@@ -1,6 +1,11 @@
 # Validation
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_001v.ps1` for the LSLC-001V shared-witness, one-call,
+fixed-order transport bound, allocation, lane-only, and ambient network-surface
+checks.
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
 ./tools/check_lslc_001u.ps1` for the LSLC-001U shared-witness, one-call,
 fixed-order bound, allocation, lane-only, and ambient-acquisition checks.
 

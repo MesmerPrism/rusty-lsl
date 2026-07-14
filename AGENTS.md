@@ -1,5 +1,21 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001V Transport-Owned Acquisition Evidence
+
+LSLC-001V calls one explicit caller-selected provider once to acquire opaque
+`v4address`, `v4data_port`, `v4service_port`, `v6address`, `v6data_port`, and
+`v6service_port` values together. All six share one separately inspectable
+bounded transport-owner identity/epoch/revision witness; currentness requires
+exact expected-witness match. Values validate in fixed LSLC-001O order and may
+move only into the six-value LSLC-001S transport lane. The unit inspects no
+interfaces, parses no endpoint semantics, opens no sockets, reads no network,
+and claims no reachability, authorization, activation, device, runtime effect,
+or Manifold route/session/topology authority. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001v.ps1
+```
+
 ## LSLC-001U Runtime-Assigned Acquisition Evidence
 
 LSLC-001U calls one explicit caller-selected provider once to acquire opaque

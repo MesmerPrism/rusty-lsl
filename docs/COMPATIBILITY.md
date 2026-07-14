@@ -1,5 +1,11 @@
 # Compatibility
 
+LSLC-001V proves only local one-call grouping, exact shared transport-owner
+witness matching, O-bound ordering, typed failures, allocation preservation,
+and S transport-lane projection. It does not prove endpoint syntax, interface
+origin, reachability, authorization, official behavior, protocol, wire,
+networking, transport operation, runtime behavior, or ecosystem compatibility.
+
 LSLC-001U proves only local one-call grouping, exact shared owner-witness
 matching, O-bound ordering, typed failure, and S runtime-lane projection. It
 does not prove clock format, UID uniqueness, session meaning, hostname origin,

@@ -1,5 +1,11 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001v-transport-owned-acquisition-evidence` permits one explicit
+provider call for all six transport-owned values under one shared exact owner
+witness, then only an S transport-lane projection. Interface and platform
+acquisition, complete S admission, endpoint semantics, sockets, networking,
+activation, devices, effects, and Manifold authority stay closed.
+
 `rlsl-lslc-001u-runtime-assigned-acquisition-evidence` permits one explicit
 provider call for all four runtime values under one shared exact owner witness,
 then only an S runtime-lane projection. Platform acquisition, complete S

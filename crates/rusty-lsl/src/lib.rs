@@ -43,6 +43,7 @@ mod stream_info_runtime_provider;
 mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
 mod stream_info_static_xml;
+mod stream_info_transport_provider;
 mod stream_info_volatile_fields;
 mod stream_info_volatile_snapshot;
 mod stream_info_volatile_xml;
@@ -100,6 +101,12 @@ pub use stream_info_static_numeric_spellings::{
 };
 pub use stream_info_static_xml::{
     StreamInfoStaticXml, StreamInfoStaticXmlError, StreamInfoStaticXmlLimits,
+};
+pub use stream_info_transport_provider::{
+    StreamInfoTransportAcquisition, StreamInfoTransportAcquisitionError,
+    StreamInfoTransportEvidenceError, StreamInfoTransportEvidenceLimit,
+    StreamInfoTransportProvider, StreamInfoTransportProviderOutput, StreamInfoTransportValues,
+    StreamInfoTransportWitness,
 };
 pub use stream_info_volatile_fields::{
     StreamInfoVolatileFieldClass, StreamInfoVolatileFieldError, StreamInfoVolatileFieldInput,

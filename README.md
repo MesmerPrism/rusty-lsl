@@ -1,5 +1,13 @@
 # Rusty LSL
 
+LSLC-001V adds `StreamInfoTransportProvider`: one explicit synchronous call
+returns all six transport-owned endpoint strings with one shared owner witness.
+`StreamInfoTransportAcquisition` retains that witness separately, matches it
+exactly, applies O's transport text maximum in fixed role order, and projects
+only the S transport lane. Endpoint text stays opaque; no interface inspection,
+parsing, sockets, network access, reachability, authorization, activation, or
+Manifold authority is added.
+
 LSLC-001U adds `StreamInfoRuntimeProvider`: one explicit synchronous call
 returns all four runtime-assigned values with one shared owner witness.
 `StreamInfoRuntimeAcquisition` retains the witness separately, matches it
