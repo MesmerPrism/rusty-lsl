@@ -59,6 +59,7 @@ mod stream_info_volatile_xml;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
+mod typed_short_info_response_observation;
 mod xml_character_data;
 mod xml_element_serialization;
 mod xml_element_tree;
@@ -163,6 +164,9 @@ pub use timestamped_descriptor_chunk::{
 };
 pub use timestamped_descriptor_sample::{
     BoundTimestampedDescriptorSample, TimestampedDescriptorSampleInput,
+};
+pub use typed_short_info_response_observation::{
+    TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
 };
 pub use xml_character_data::{XmlCharacterData, XmlCharacterDataError, XmlCharacterDataLimit};
 pub use xml_element_serialization::{

@@ -194,6 +194,11 @@ impl<'a> ParsedShortInfoResponseEnvelope<'a> {
     pub const fn body(&self) -> &ParsedStreamInfoObservedDocument<'a> {
         &self.body
     }
+
+    /// Recovers the uninterpreted identifier and accepted body without allocation.
+    pub fn into_parts(self) -> (u64, ParsedStreamInfoObservedDocument<'a>) {
+        (self.query_id, self.body)
+    }
 }
 
 /// Parsing rejection with the complete-envelope first failing offset.

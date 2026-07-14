@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002H Typed Short-Info Response Observation
+
+LSLC-002H consumes one accepted response envelope into its unchanged
+uninterpreted identifier and existing LSLC-002B typed fields. Admission errors
+delegate unchanged. The composition adds no matching, lookup, correlation,
+currentness, endpoint, networking, runtime, activation, or Manifold authority.
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002h.ps1`.
+
 ## LSLC-002G Response-Envelope Validation Correction
 
 LSLC-002G additively corrects two primary-review gaps in accepted LSLC-002F.

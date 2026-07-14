@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-002H explicitly consumes an accepted response envelope into the existing
+typed document admission while retaining the identifier as uninterpreted data.
+This closes local caller orchestration only; it adds no query correlation,
+currentness, endpoint behavior, networking, runtime, or authority.
+
 LSLC-002G preserves published LSLC-002F and corrects its validation and public
 status surfaces additively. The explicitly claimed extra-delimiter case now has
 a named second-CRLF regression with exact delegated LSLC-002A evidence, and the
