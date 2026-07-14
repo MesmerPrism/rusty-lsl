@@ -27,11 +27,14 @@
 //! three-line protocol-110 short-info query payload candidate.
 //! Another bounded local source-only contract encodes and parses only the
 //! observed short-info response envelope around an accepted document body.
+//! A closed allocation-free data contract also exposes only the documented
+//! default discovery port and exact displayed destination spellings.
 //! Neither contract implements endpoint response behavior, query evaluation,
 //! networking, endpoint interoperability, runtime discovery, clocks, inlet,
 //! outlet, FFI, or Morphospace adapter behavior.
 
 mod descriptor_sample;
+mod documented_discovery_destination;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
@@ -69,6 +72,10 @@ mod xml_value;
 pub use descriptor_sample::{
     BoundDescriptorSample, DescriptorSampleBound, DescriptorSampleError, DescriptorSampleInput,
     DescriptorSampleLimits,
+};
+pub use documented_discovery_destination::{
+    DocumentedDiscoveryDestination, DOCUMENTED_DEFAULT_DISCOVERY_PORT,
+    DOCUMENTED_DISCOVERY_DESTINATIONS,
 };
 pub use metadata::{
     BoundedMetadata, MetadataBound, MetadataDescription, MetadataError, MetadataField,
@@ -230,6 +237,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded volatile stream-info XML element composition",
             "bounded local short-info query byte-shape contract",
             "bounded local short-info response-envelope contract",
+            "documented discovery-destination data contract",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -266,5 +274,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"bounded local short-info response-envelope contract"));
+        assert!(declaration
+            .owns
+            .contains(&"documented discovery-destination data contract"));
     }
 }

@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-002J exposes only an allocation-free closed data inventory for the
+documented default UDP discovery port and the seven exact LSLC-002I destination
+spellings. It preserves the unusual displayed token and parenthesis facts
+without parsing, normalizing, correcting, selecting, or using any address. It
+adds no socket, interface behavior, discovery runtime, reachability, or
+interoperability claim.
+
 LSLC-002I adds provenance-locked official documentation evidence for default
 UDP discovery port 16571 and seven displayed destination spellings. It adds no
 parsed address, destination policy, socket, interface behavior, discovery

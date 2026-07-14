@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002J Documented Discovery Destination Data Contract
+
+LSLC-002J owns only a closed, allocation-free data inventory for the pinned
+LSLC-002I public-documentation facts: UDP port 16571, seven exact displayed
+destination spellings in source order, and whether each spelling was shown in
+parentheses. The unusual `FF08113D` token remains unchanged and uninterpreted.
+
+This unit performs no address parsing, validation, normalization, correction,
+classification, binary conversion, selection, socket operation, interface
+enumeration, multicast join, broadcast send, discovery runtime, reachability,
+interoperability, activation, device behavior, dependency, unsafe/FFI, or
+Manifold authority. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002j.ps1`.
+
 ## LSLC-002I Default Discovery Destination Evidence
 
 LSLC-002I records only pinned official public-documentation facts for default

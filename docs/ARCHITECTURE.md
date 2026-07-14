@@ -458,6 +458,13 @@ an LSL `info`, `desc`, or stream-info projection.
 
 ## Dependency direction
 
+LSLC-002J adds a closed data-only leaf beside the existing protocol candidates.
+It returns static source spellings and a numeric documented port; it has no
+dependency on address, socket, interface, discovery, clock, or runtime layers.
+Those later layers may consume this evidence-backed candidate only through
+separately reviewed contracts and activation units.
+
+
 The default production closure is currently:
 
 ```text

@@ -366,6 +366,14 @@ candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 
+## LSLC-002J documented destination candidate
+
+LSLC-002J is a local data candidate derived only from the provenance-locked
+LSLC-002I public documentation facts. Exact spelling equality proves no address
+validity, destination policy, packet exchange, reachability, official endpoint
+behavior, or ecosystem interoperability.
+
+
 Official liblsl may be invoked only by explicit compatibility tooling. It must
 not enter the default dependency graph, production binaries, generated source,
 or implementation logic. Oracle input and normalized output may become
