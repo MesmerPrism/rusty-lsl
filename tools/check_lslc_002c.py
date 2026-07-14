@@ -19,7 +19,7 @@ for family, minimum in [("valid", 4), ("damaged", 4), ("truncated", 4), ("oversi
     assert len(fixture[family]) >= minimum
 assert not any(fixture["claims"].values())
 source = (root / "crates/rusty-lsl/src/short_info_query_wire.rs").read_text(encoding="utf-8")
-for marker in ["LSL:shortinfo\\n", "max_query_bytes", "max_payload_bytes", "NonCanonicalDecimal", "TrailingBytes", "try_reserve_exact"]:
+for marker in ["LSL:shortinfo", "max_query_bytes", "max_payload_bytes", "NonCanonicalDecimal", "TrailingBytes", "try_reserve_exact"]:
     assert marker in source
 for forbidden in ["TcpStream", "UdpSocket", "std::net", "multicast", "unsafe {"]:
     assert forbidden not in source

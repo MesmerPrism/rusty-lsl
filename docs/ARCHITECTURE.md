@@ -1,5 +1,12 @@
 # Architecture
 
+## LSLC-002D corrective boundary
+
+The wire-shape leaf now owns CRLF delimiters only. LSLC-002C's LF-only
+candidate remains rejected historical evidence. No runtime or authority role
+changes: the artifact is still inert bounded data, not endpoint selection,
+network execution, discovery state, interoperability, or Manifold authority.
+
 ## LSLC-002C query byte-shape boundary
 
 The short-info query module is a data-contract leaf. It owns exact local bytes,

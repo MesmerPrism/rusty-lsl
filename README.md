@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-002D corrects the rejected LSLC-002C line-ending inference without
+rewriting its history. The canonical short-info query candidate uses CRLF after
+all three lines, making the pinned public example exactly 65 bytes. LF-only,
+mixed, missing/extra CR or LF, truncated, oversized, and noncanonical decimal
+inputs reject at their first failing byte. RST code indentation is not packet
+content.
+
 LSLC-002C adds the first source-only protocol-110 byte-shape contract: an exact
 bounded `LSL:shortinfo` query payload with one printable-ASCII query line,
 canonical decimal nonzero return port and query identifier, and one LF after

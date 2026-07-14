@@ -1,5 +1,13 @@
 # Provenance
 
+## LSLC-002D correction
+
+The pinned public RST source and SHA-256 remain unchanged. Its indentation
+belongs to RST presentation. The logged packet count is 65 bytes; the three
+displayed content lines contribute 59 bytes, and three CRLF delimiters
+contribute six. LSLC-002D records that explicit inference and retains the
+rejected LSLC-002C LF-only fixture and commits as additive failure evidence.
+
 ## LSLC-002C public specification intake
 
 The sole external input is the public

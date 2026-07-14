@@ -1,5 +1,13 @@
 # Validation
 
+## LSLC-002D focused gate
+
+`tools/check_lslc_002d.ps1` binds the unchanged public source revision/digest,
+the 65-byte arithmetic and RST-indentation distinction, rejected 002C head,
+CRLF-only source shape, and exact line-ending damaged matrix. Rust tests cover
+LF-only, mixed, missing CR, extra CR/LF, truncation, bounds, and decimals. This
+is local candidate evidence only, not networking or interoperability proof.
+
 ## LSLC-002C focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File

@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+`lslc-002d-short-info-query-crlf-correction-fixtures.json` preserves the
+rejected LSLC-002C head and records the 65-byte CRLF inference separately from
+RST presentation indentation, with valid and exact-offset damaged cases.
+
 `lslc-002c-protocol-110-short-info-query-fixtures.json` contains independently
 authored public-safe valid, damaged, truncated, oversized, and noncanonical
 cases for the bounded local short-info query payload. Its provenance binds the

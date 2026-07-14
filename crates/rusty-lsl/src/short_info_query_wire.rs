@@ -5,7 +5,7 @@
 
 use core::fmt;
 
-const HEADER: &[u8] = b"LSL:shortinfo\n";
+const HEADER: &[u8] = b"LSL:shortinfo\r\n";
 
 /// Nonzero byte limits for one short-info query line and its complete payload.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -152,7 +152,7 @@ pub struct ShortInfoQueryWire {
 }
 
 impl ShortInfoQueryWire {
-    /// Encodes exactly three LF-terminated lines with canonical unsigned decimals.
+    /// Encodes exactly three CRLF-terminated lines with canonical unsigned decimals.
     pub fn encode(
         value: &ShortInfoQuery,
         limits: ShortInfoQueryWireLimits,
@@ -163,7 +163,7 @@ impl ShortInfoQueryWire {
         let required = HEADER
             .len()
             .checked_add(value.query.len())
-            .and_then(|v| v.checked_add(1 + port_len + 1 + id_len + 1))
+            .and_then(|v| v.checked_add(2 + port_len + 1 + id_len + 2))
             .ok_or(ShortInfoQueryEncodeError::LengthOverflow)?;
         if required > limits.max_payload_bytes {
             return Err(ShortInfoQueryEncodeError::PayloadLimitExceeded {
@@ -179,11 +179,11 @@ impl ShortInfoQueryWire {
         })?;
         bytes.extend_from_slice(HEADER);
         bytes.extend_from_slice(value.query.as_bytes());
-        bytes.push(b'\n');
+        bytes.extend_from_slice(b"\r\n");
         write_decimal(&mut bytes, u64::from(value.return_port));
         bytes.push(b' ');
         write_decimal(&mut bytes, value.query_id);
-        bytes.push(b'\n');
+        bytes.extend_from_slice(b"\r\n");
         debug_assert_eq!(bytes.len(), required);
         Ok(Self { limits, bytes })
     }
@@ -251,17 +251,14 @@ impl<'a> ParsedShortInfoQuery<'a> {
             return Err(ShortInfoQueryParseError::Header { offset });
         }
         let query_start = HEADER.len();
-        let query_end =
-            find_byte(source, query_start, b'\n').ok_or(ShortInfoQueryParseError::Truncated {
-                offset: source.len(),
-            })?;
+        let query_end = find_crlf(source, query_start)?;
         validate_query(&source[query_start..query_end], limits).map_err(|error| {
             ShortInfoQueryParseError::Query {
                 offset: query_start,
                 error,
             }
         })?;
-        let port_start = query_end + 1;
+        let port_start = query_end + 2;
         let space =
             find_byte(source, port_start, b' ').ok_or(ShortInfoQueryParseError::Truncated {
                 offset: source.len(),
@@ -272,15 +269,12 @@ impl<'a> ParsedShortInfoQuery<'a> {
             return Err(ShortInfoQueryParseError::ZeroReturnPort { offset: port_start });
         }
         let id_start = space + 1;
-        let final_lf =
-            find_byte(source, id_start, b'\n').ok_or(ShortInfoQueryParseError::Truncated {
-                offset: source.len(),
-            })?;
+        let final_cr = find_crlf(source, id_start)?;
         let (query_id, _) =
-            parse_canonical_decimal(&source[id_start..final_lf], u64::MAX, id_start)?;
-        if final_lf + 1 != source.len() {
+            parse_canonical_decimal(&source[id_start..final_cr], u64::MAX, id_start)?;
+        if final_cr + 2 != source.len() {
             return Err(ShortInfoQueryParseError::TrailingBytes {
-                offset: final_lf + 1,
+                offset: final_cr + 2,
             });
         }
         debug_assert_eq!(port_len, space - port_start);
@@ -334,6 +328,11 @@ pub enum ShortInfoQueryParseError {
         /// End offset where a delimiter or field was required.
         offset: usize,
     },
+    /// A line ending was not exactly CRLF.
+    InvalidLineEnding {
+        /// First byte that cannot belong to the required CRLF delimiter.
+        offset: usize,
+    },
     /// Query validation failed; `offset` is the query's source start.
     Query {
         /// Source offset where the query begins.
@@ -368,7 +367,7 @@ pub enum ShortInfoQueryParseError {
         /// Return-port field start offset.
         offset: usize,
     },
-    /// Bytes followed the one required final LF.
+    /// Bytes followed the one required final CRLF.
     TrailingBytes {
         /// First byte after the required final LF.
         offset: usize,
@@ -395,6 +394,25 @@ fn find_byte(source: &[u8], start: usize, needle: u8) -> Option<usize> {
         .iter()
         .position(|byte| *byte == needle)
         .map(|offset| start + offset)
+}
+
+fn find_crlf(source: &[u8], start: usize) -> Result<usize, ShortInfoQueryParseError> {
+    let mut offset = start;
+    while offset < source.len() {
+        match source[offset] {
+            b'\r' => {
+                if source.get(offset + 1) == Some(&b'\n') {
+                    return Ok(offset);
+                }
+                return Err(ShortInfoQueryParseError::InvalidLineEnding { offset });
+            }
+            b'\n' => return Err(ShortInfoQueryParseError::InvalidLineEnding { offset }),
+            _ => offset += 1,
+        }
+    }
+    Err(ShortInfoQueryParseError::Truncated {
+        offset: source.len(),
+    })
 }
 
 fn parse_canonical_decimal(
@@ -464,7 +482,8 @@ mod tests {
 
     #[test]
     fn public_documentation_example_round_trips_without_source_copy() {
-        let source = b"LSL:shortinfo\nsession_id='default'\n16577 11973266323178842010\n";
+        let source = b"LSL:shortinfo\r\nsession_id='default'\r\n16577 11973266323178842010\r\n";
+        assert_eq!(source.len(), 65);
         let parsed = ParsedShortInfoQuery::parse(source, limits()).unwrap();
         assert!(core::ptr::eq(parsed.source().as_ptr(), source.as_ptr()));
         assert_eq!(parsed.query(), "session_id='default'");
@@ -478,7 +497,7 @@ mod tests {
         let pointer = query.as_ptr();
         let value = ShortInfoQuery::new(query, 1, 0, limits()).unwrap();
         let wire = ShortInfoQueryWire::encode(&value, limits()).unwrap();
-        assert_eq!(wire.as_bytes(), b"LSL:shortinfo\nname='alpha'\n1 0\n");
+        assert_eq!(wire.as_bytes(), b"LSL:shortinfo\r\nname='alpha'\r\n1 0\r\n");
         let (query, _, _) = value.into_parts();
         assert_eq!(query.as_ptr(), pointer);
     }
@@ -486,11 +505,11 @@ mod tests {
     #[test]
     fn damaged_truncated_oversized_and_noncanonical_inputs_reject() {
         assert_eq!(
-            ParsedShortInfoQuery::parse(b"LSL:shortinfo\nq\n01 2\n", limits()),
-            Err(ShortInfoQueryParseError::NonCanonicalDecimal { offset: 16 })
+            ParsedShortInfoQuery::parse(b"LSL:shortinfo\r\nq\r\n01 2\r\n", limits()),
+            Err(ShortInfoQueryParseError::NonCanonicalDecimal { offset: 18 })
         );
         assert!(matches!(
-            ParsedShortInfoQuery::parse(b"LSL:shortinfo\nq\n1", limits()),
+            ParsedShortInfoQuery::parse(b"LSL:shortinfo\r\nq\r\n1", limits()),
             Err(ShortInfoQueryParseError::Truncated { .. })
         ));
         assert!(matches!(
@@ -518,8 +537,28 @@ mod tests {
             Err(ShortInfoQueryValueError::ZeroReturnPort)
         );
         assert!(matches!(
-            ParsedShortInfoQuery::parse(b"LSL:shortinfo\nq\n0 1\n", limits()),
+            ParsedShortInfoQuery::parse(b"LSL:shortinfo\r\nq\r\n0 1\r\n", limits()),
             Err(ShortInfoQueryParseError::ZeroReturnPort { .. })
         ));
+    }
+
+    #[test]
+    fn lslc_002d_rejects_lf_only_mixed_missing_and_extra_delimiters_at_first_offset() {
+        assert_eq!(
+            ParsedShortInfoQuery::parse(b"LSL:shortinfo\nq\n1 1\n", limits()),
+            Err(ShortInfoQueryParseError::Header { offset: 13 })
+        );
+        assert_eq!(
+            ParsedShortInfoQuery::parse(b"LSL:shortinfo\r\nq\n1 1\r\n", limits()),
+            Err(ShortInfoQueryParseError::InvalidLineEnding { offset: 16 })
+        );
+        assert_eq!(
+            ParsedShortInfoQuery::parse(b"LSL:shortinfo\r\nq\r\r\n1 1\r\n", limits()),
+            Err(ShortInfoQueryParseError::InvalidLineEnding { offset: 16 })
+        );
+        assert_eq!(
+            ParsedShortInfoQuery::parse(b"LSL:shortinfo\r\nq\r\n1 1\r\n\n", limits()),
+            Err(ShortInfoQueryParseError::TrailingBytes { offset: 23 })
+        );
     }
 }

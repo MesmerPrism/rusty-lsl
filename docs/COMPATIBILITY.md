@@ -1,5 +1,10 @@
 # Compatibility
 
+LSLC-002D infers CRLF solely from the official document's logged 65-byte count
+and its 59 displayed non-delimiter bytes. This resolves LSLC-002C's internal
+62-versus-65-byte inconsistency but still does not prove endpoint or discovery
+interoperability because no external endpoint or implementation was exercised.
+
 LSLC-002C is a local candidate contract informed by the official public
 network-connectivity documentation's displayed short-info query. Valid,
 damaged, truncated, oversized, and noncanonical fixtures test Rusty LSL's

@@ -1,5 +1,20 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002D Short-Info Query CRLF Correction
+
+LSLC-002D additively corrects rejected LSLC-002C. The pinned public document
+logs a 65-byte packet; its three displayed content lines contain 59 bytes, so
+three CRLF delimiters account for the remaining six bytes. RST indentation is
+presentation only. Encoding now emits CRLF after all three lines and parsing
+admits only that form with exact first failure offsets.
+
+LSLC-002C history remains unchanged evidence of the rejected 62-byte LF-only
+candidate. This correction adds no query semantics, response, socket,
+multicast, endpoint, discovery runtime, retry, clock, currentness, provider,
+interoperability, activation, device, dependency, feature, or Manifold
+authority. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002d.ps1`.
+
 ## LSLC-002C Protocol-110 Short-Info Query Wire Shape
 
 LSLC-002C owns only one dependency-free, explicitly byte-bounded canonical
