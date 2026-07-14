@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-002B consumes one accepted LSLC-002A parse and admits its decoded values
+through the existing bounded `StreamDefinition` and `StreamInfoVolatileFields`
+contracts. Only `amp`, `lt`, and `gt` are decoded; static numeric and format
+spellings remain closed. This local typed observation carries no owner witness,
+currentness, endpoint meaning, wire claim, networking, runtime, or authority.
+
 LSLC-002A adds `ParsedStreamInfoObservedDocument`, a byte-bounded borrowed
 scanner for exactly the canonical empty-description document shape emitted by
 LSLC-001R. It checks the declaration, LF/tab layout, fixed seventeen field

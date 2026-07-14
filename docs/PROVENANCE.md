@@ -1,5 +1,11 @@
 # Provenance
 
+## LSLC-002B
+
+The fixture matrix is independently authored from accepted public
+LSLC-001H/K/L/R/002A evidence. No liblsl or rLSL implementation source is an
+input.
+
 ## LSLC-002A parser fixtures
 
 LSLC-002A's fixture document and mutations are independently authored from the

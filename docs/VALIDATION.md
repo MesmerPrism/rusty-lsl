@@ -1,5 +1,11 @@
 # Validation
 
+## LSLC-002B focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_002b.ps1` for closed lexical admission, entity decoding,
+existing-contract delegation, damaged fixtures, and inert closure.
+
 Run the LSLC-002A focused source-only gate with
 `.\tools\check_lslc_002a.ps1`. It binds the public-safe valid, damaged,
 truncated, oversized, non-canonical, malformed-closing, and character-data

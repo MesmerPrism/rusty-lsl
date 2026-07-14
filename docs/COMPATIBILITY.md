@@ -1,5 +1,10 @@
 # Compatibility
 
+## LSLC-002B scope
+
+The public-safe matrix binds local typed admission only. It makes no
+protocol-110, endpoint, discovery, transport, or ecosystem compatibility claim.
+
 ## LSLC-002A bounded observed-document shape
 
 LSLC-002A independently specifies a strict candidate parser for the exact

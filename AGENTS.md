@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002B Observed Document Typed Admission
+
+LSLC-002B consumes accepted LSLC-002A state, decodes only its three admitted
+entity spellings, and delegates into existing `StreamDefinition` and
+`StreamInfoVolatileFields` contracts. It adds no owner witness, currentness,
+endpoint semantics, wire interoperability, networking, runtime activation, or
+Manifold authority. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002b.ps1`.
+
 ## LSLC-002A Bounded Observed Document Shape Parser
 
 LSLC-002A borrows one UTF-8 string and admits only the exact empty-description

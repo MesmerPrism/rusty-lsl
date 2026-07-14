@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+LSLC-002B adds an independently authored public-safe accepted/damaged matrix
+for closed parser-to-typed-observation admission, without captures, identities,
+runtime evidence, or interoperability claims.
+
 LSLC-002A records one independently authored canonical empty-description
 document and deterministic valid, damaged, truncated, oversized,
 non-canonical, malformed-closing, and character-data mutations in

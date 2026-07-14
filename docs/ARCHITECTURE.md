@@ -1,5 +1,11 @@
 # Architecture
 
+## LSLC-002B typed observation boundary
+
+LSLC-002B is the consuming boundary from fixed LSLC-002A parsed state to the
+existing static-definition and volatile-field contracts. Representation is
+decoded without manufacturing acquisition evidence or authority.
+
 ## LSLC-002A observed document shape boundary
 
 The private `stream_info_observed_document_parser` module scans one borrowed
