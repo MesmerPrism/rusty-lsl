@@ -1,5 +1,17 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002F Short-Info Response Envelope
+
+LSLC-002F owns only a dependency-free, explicitly bounded canonical response
+envelope: one uninterpreted canonical `u64` decimal identifier, exact CRLF, and
+one unchanged LSLC-002A-shaped document. Parsing borrows the complete source
+and delegates body shape admission to LSLC-002A; LSLC-002B typed admission is a
+separate explicit caller action. Encoding uses checked sizing and one exact
+fallible reserve. It adds no correlation semantics, socket, discovery runtime,
+endpoint ownership, retry, clock, currentness, interoperability, dependency,
+feature, device, activation, or Manifold authority. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_002f.ps1`.
+
 ## LSLC-002E Short-Info Response Black-Box Observation
 
 LSLC-002E records an exact official protocol-110 endpoint observation without

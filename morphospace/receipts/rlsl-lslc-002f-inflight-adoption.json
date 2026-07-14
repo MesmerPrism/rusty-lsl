@@ -1,0 +1,69 @@
+{
+    "$schema":  "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/inflight-adoption-receipt.schema.json",
+    "schema":  "rusty.morphospace.workflow.inflight_adoption_receipt.v1",
+    "receipt_id":  "rlsl-lslc-002f-short-info-response-envelope-inflight-adoption",
+    "project_id":  "rusty-lsl",
+    "unit_id":  "rlsl-lslc-002f-short-info-response-envelope",
+    "captured_at":  "2026-07-14T14:58:22.0127440Z",
+    "reason":  "work-started-before-protocol-v2",
+    "safe_to_claim":  true,
+    "external_mutation_performed":  false,
+    "repositories":  [
+                         {
+                             "repo_id":  "rusty-lsl",
+                             "observed_revision":  "ade3704e41ebcd730691018783199ca85ffc63c0",
+                             "files":  [
+                                           {
+                                               "path":  "AGENTS.md",
+                                               "state":  "present",
+                                               "sha256":  "2727b2ca42d904d928288ab91cb5c2eaeb63c5c59a9c011b3003ba9dd672f07c"
+                                           },
+                                           {
+                                               "path":  "crates/rusty-lsl/src/lib.rs",
+                                               "state":  "present",
+                                               "sha256":  "5ff27cbc37068b2009626edd0a32f7749be6e530f8e57fb8ee7b0e0b49b0b0cc"
+                                           },
+                                           {
+                                               "path":  "crates/rusty-lsl/src/short_info_response_envelope.rs",
+                                               "state":  "present",
+                                               "sha256":  "bef228dcfdd6e9f853c6cdc41b616a74a330b4882fd120a992194c3b35792a80"
+                                           },
+                                           {
+                                               "path":  "morphospace/iteration-events.jsonl",
+                                               "state":  "present",
+                                               "sha256":  "049324cb1e269da73a7ca30d0dfe7ec3aac5f7caa8445621a2f22e394fa3180c"
+                                           },
+                                           {
+                                               "path":  "morphospace/iteration-units/rlsl-lslc-002f-short-info-response-envelope.json",
+                                               "state":  "present",
+                                               "sha256":  "a0a7fdf6f3778a32c18563f41b10a7a4735321bf2a8938fc922e17be916c428b"
+                                           },
+                                           {
+                                               "path":  "morphospace/receipts/transactions/rlsl-lslc-002f-short-info-response-envelope-ready-0208-transition.completion.json",
+                                               "state":  "present",
+                                               "sha256":  "93f5138b89c686daa7d571e8942c8ae10bcd94e98fd2ad4042de10cb2a041865"
+                                           },
+                                           {
+                                               "path":  "morphospace/receipts/transactions/rlsl-lslc-002f-short-info-response-envelope-ready-0208-transition.intent.json",
+                                               "state":  "present",
+                                               "sha256":  "06d2472d89dd4748332f37dc24713e7a28f60a8ee187eb9a627f913ad736ff85"
+                                           },
+                                           {
+                                               "path":  "morphospace/workspace.state.json",
+                                               "state":  "present",
+                                               "sha256":  "16133b05796f3b89575cb48616fa0e023b4fd043567b18afb07da143ec4995cf"
+                                           },
+                                           {
+                                               "path":  "README.md",
+                                               "state":  "present",
+                                               "sha256":  "08905c8a283b9e1e86e7bb04114db0a1090b456e62c6d36676175f4a70a00180"
+                                           },
+                                           {
+                                               "path":  "tools/check_lslc_002f.ps1",
+                                               "state":  "present",
+                                               "sha256":  "e50b453eeb7058e3c18a1087951d4bf8779c50ae2a629bce650c4cdbef6606e6"
+                                           }
+                                       ]
+                         }
+                     ]
+}

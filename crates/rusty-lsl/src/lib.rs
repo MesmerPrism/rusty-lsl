@@ -36,6 +36,7 @@ mod metadata_tree;
 mod metadata_xml_projection;
 mod sample;
 mod short_info_query_wire;
+mod short_info_response_envelope;
 mod stream_definition;
 mod stream_descriptor;
 mod stream_info_description_xml;
@@ -84,6 +85,11 @@ pub use short_info_query_wire::{
     ParsedShortInfoQuery, ShortInfoQuery, ShortInfoQueryEncodeError, ShortInfoQueryParseError,
     ShortInfoQueryValueError, ShortInfoQueryWire, ShortInfoQueryWireLimitError,
     ShortInfoQueryWireLimits,
+};
+pub use short_info_response_envelope::{
+    ParsedShortInfoResponseEnvelope, ShortInfoResponseEnvelope,
+    ShortInfoResponseEnvelopeEncodeError, ShortInfoResponseEnvelopeLimitError,
+    ShortInfoResponseEnvelopeLimits, ShortInfoResponseEnvelopeParseError,
 };
 pub use stream_definition::StreamDefinition;
 pub use stream_descriptor::{

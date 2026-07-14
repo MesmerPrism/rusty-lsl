@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-002F implements only a dependency-free bounded short-info response
+envelope: canonical uninterpreted `u64` decimal identifier, exact CRLF, and an
+unchanged LSLC-002A-shaped document. Parsing borrows the source; encoding uses
+checked sizing and one exact fallible reserve. LSLC-002B typed admission stays
+a separate explicit operation. This adds no correlation semantics, networking,
+endpoint ownership, currentness, interoperability, activation, or authority.
+
 LSLC-002E observes the smallest protocol-110 short-info response envelope from
 an exact official public endpoint in two bounded loopback-only cases. Each
 response starts with the canonical decimal query identifier followed by CRLF;
