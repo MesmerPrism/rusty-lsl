@@ -4,5 +4,3 @@
 $ErrorActionPreference='Stop'; Set-StrictMode -Version Latest
 $root=Split-Path -Parent $PSScriptRoot; Push-Location $root
 try { python tools/check_lslc_001v.py; if($LASTEXITCODE -ne 0){throw "LSLC-001V checker failed."} } finally { Pop-Location }
-
-
