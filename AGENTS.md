@@ -1,5 +1,24 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001S Volatile Provider Snapshot Admission
+
+LSLC-001S adds only a dependency-free one-shot admission contract over three
+explicit caller-supplied lanes: one implementation-assigned role, four
+runtime-assigned roles, and six transport-owned roles. It rejects oversized
+lanes, cross-lane roles, duplicates, and the first missing LSLC-001O role
+before moving a complete snapshot into `StreamInfoVolatileFields`; O retains
+all opaque-text bounds and address/port values remain uninterpreted.
+
+Acceptance proves neither freshness nor currentness because this contract has
+no clock, revision, epoch, or freshness witness. It performs no acquisition,
+provider selection, environment or host inspection, identity generation,
+socket or network operation, XML/document representation, transport, runtime
+activation, device behavior, feature effect, or Manifold authority. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001s.ps1
+```
+
 ## LSLC-001R Observed Stream-Info Document Envelope
 
 LSLC-001R borrows one accepted `StreamInfoOrderedXml` and projects one owned,

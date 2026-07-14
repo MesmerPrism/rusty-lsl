@@ -1,5 +1,10 @@
 # Validation
 
+Run the focused LSLC-001S gate with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001s.ps1`.
+It checks six Rust cases, immutable O delegation, disjoint lanes, fail-closed
+shape errors, documentation, and inert acquisition/runtime closure.
+
 ## LSLC-001R focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File

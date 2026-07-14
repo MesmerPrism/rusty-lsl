@@ -1,5 +1,9 @@
 # Provenance
 
+LSLC-001S is independently authored local candidate policy derived only from
+accepted LSLC-001O role/class evidence. It uses no external implementation
+source and makes no measured freshness or acquisition claim.
+
 ## LSLC-001R local observation-bound overlay
 
 `lslc-001r-observed-stream-info-document-envelope-results.json` is an

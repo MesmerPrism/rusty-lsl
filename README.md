@@ -1,5 +1,10 @@
 # Rusty LSL
 
+`StreamInfoVolatileProviderSnapshot` admits a complete caller-supplied volatile
+snapshot through three disjoint ownership lanes before producing accepted
+`StreamInfoVolatileFields`. This is shape and bound validation only: it has no
+acquisition, freshness, address/port semantics, runtime, or authority behavior.
+
 ## LSLC-001R observed stream-info document envelope
 
 `StreamInfoObservedDocument` borrows accepted LSLC-001Q state and emits one

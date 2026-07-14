@@ -1,5 +1,8 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001s-volatile-provider-snapshot-admission` is the bounded local
+three-lane snapshot admission unit above accepted LSLC-001O.
+
 `rlsl-lslc-001r-observed-stream-info-document-envelope` permits only a
 borrowed byte-bounded string projection from accepted Q using the accepted H
 declaration, LF/tab layout, empty-desc spelling, and final LF. It leaves G

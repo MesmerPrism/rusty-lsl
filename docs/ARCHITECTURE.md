@@ -1,5 +1,10 @@
 # Architecture
 
+The `stream_info_volatile_snapshot` module is a one-shot candidate-to-accepted
+composition layer above LSLC-001O. Its three lanes preserve implementation,
+runtime, and transport ownership without implementing any provider or claiming
+freshness; actual acquisition remains a later owner-adapter concern.
+
 ## LSLC-001R observation-bound document representation
 
 `stream_info_observed_document` is a specialized borrowed representation layer

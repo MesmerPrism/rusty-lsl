@@ -17,6 +17,8 @@
 //! parent-before-child XML container/leaf hierarchy, plus bounded borrowed
 //! element-tree string serialization, bounded opaque volatile stream-info
 //! accepted data, and its bounded local XML element projection.
+//! A separate one-shot provider-input snapshot contract admits complete,
+//! disjoint caller-supplied volatile lanes before producing that accepted data.
 //! Accepted static-plus-description and volatile trees can also be consumed
 //! into one bounded local static, volatile, then `desc` element hierarchy.
 //! A separate bounded borrowed projection can apply the accepted observed
@@ -40,6 +42,7 @@ mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
 mod stream_info_static_xml;
 mod stream_info_volatile_fields;
+mod stream_info_volatile_snapshot;
 mod stream_info_volatile_xml;
 mod timestamped;
 mod timestamped_descriptor_chunk;
@@ -88,6 +91,10 @@ pub use stream_info_static_xml::{
 pub use stream_info_volatile_fields::{
     StreamInfoVolatileFieldClass, StreamInfoVolatileFieldError, StreamInfoVolatileFieldInput,
     StreamInfoVolatileFieldLimits, StreamInfoVolatileFieldRole, StreamInfoVolatileFields,
+};
+pub use stream_info_volatile_snapshot::{
+    StreamInfoVolatileProviderSnapshot, StreamInfoVolatileProviderSnapshotError,
+    StreamInfoVolatileProviderSnapshotInput, StreamInfoVolatileProviderValue,
 };
 pub use stream_info_volatile_xml::{
     StreamInfoVolatileXml, StreamInfoVolatileXmlError, StreamInfoVolatileXmlLimits,

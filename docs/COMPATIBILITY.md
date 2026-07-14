@@ -1,5 +1,9 @@
 # Compatibility
 
+LSLC-001S proves only deterministic local admission of a complete, unique,
+correct-lane caller snapshot into LSLC-001O. It is not evidence of fresh
+provider data, platform acquisition, endpoint meaning, or runtime compatibility.
+
 ## LSLC-001R local observed-envelope result
 
 LSLC-001R matches all seven normalized LSLC-001H public XML strings exactly

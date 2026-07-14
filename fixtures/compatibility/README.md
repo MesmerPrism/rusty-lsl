@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+LSLC-001S records independently authored candidate results for three-lane,
+complete volatile provider snapshot admission. It contains no acquired values
+and no freshness evidence.
+
 ## LSLC-001R observed document envelope
 
 - `lslc-001r-observed-stream-info-document-envelope-results.json`: accepted
