@@ -1,5 +1,10 @@
 # Compatibility
 
+LSLC-001U proves only local one-call grouping, exact shared owner-witness
+matching, O-bound ordering, typed failure, and S runtime-lane projection. It
+does not prove clock format, UID uniqueness, session meaning, hostname origin,
+freshness beyond owner evidence, official behavior, or runtime compatibility.
+
 ## LSLC-001T local acquisition evidence
 
 LSLC-001T proves only the local one-call provider interface, exact owner-witness

@@ -1,5 +1,20 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001U Runtime-Assigned Acquisition Evidence
+
+LSLC-001U calls one explicit caller-selected provider once to acquire opaque
+`created_at`, `uid`, `session_id`, and `hostname` values together. All four
+share one separately inspectable bounded owner identity/epoch/revision witness;
+currentness requires exact expected-witness match. Values then validate in
+fixed LSLC-001O order and may move only into the four-value LSLC-001S runtime
+lane. The unit reads no clock, environment, or host state, generates no
+identity, and performs no selection, transport, networking, activation,
+device, or Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001u.ps1
+```
+
 ## LSLC-001T Implementation-Version Acquisition Evidence
 
 LSLC-001T adds one dependency-free, explicitly invoked provider trait for only

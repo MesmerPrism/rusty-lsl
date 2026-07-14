@@ -1,5 +1,10 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001u-runtime-assigned-acquisition-evidence` permits one explicit
+provider call for all four runtime values under one shared exact owner witness,
+then only an S runtime-lane projection. Platform acquisition, complete S
+admission, transport, activation, devices, effects, and authority stay closed.
+
 `rlsl-lslc-001t-implementation-version-acquisition-evidence` permits only one
 explicit call to one caller-selected implementation-version provider, exact
 matching of its bounded owner-issued identity/epoch/revision witness, the O

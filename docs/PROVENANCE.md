@@ -1,5 +1,9 @@
 # Provenance
 
+LSLC-001U is independently authored from accepted O/S/T contracts. Its test
+providers, witnesses, and four values are synthetic. No external source,
+clock, environment, host, network, native library, or raw capture is an input.
+
 ## LSLC-001T
 
 LSLC-001T is independently authored from accepted LSLC-001O/S contracts and

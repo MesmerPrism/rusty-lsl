@@ -39,6 +39,7 @@ mod stream_info_description_xml;
 mod stream_info_implementation_version_provider;
 mod stream_info_observed_document;
 mod stream_info_ordered_xml;
+mod stream_info_runtime_provider;
 mod stream_info_static_fields;
 mod stream_info_static_numeric_spellings;
 mod stream_info_static_xml;
@@ -88,6 +89,11 @@ pub use stream_info_observed_document::{
     StreamInfoObservedDocument, StreamInfoObservedDocumentError, StreamInfoObservedDocumentLimit,
 };
 pub use stream_info_ordered_xml::{StreamInfoOrderedXml, StreamInfoOrderedXmlError};
+pub use stream_info_runtime_provider::{
+    StreamInfoRuntimeAcquisition, StreamInfoRuntimeAcquisitionError,
+    StreamInfoRuntimeEvidenceError, StreamInfoRuntimeEvidenceLimit, StreamInfoRuntimeProvider,
+    StreamInfoRuntimeProviderOutput, StreamInfoRuntimeValues, StreamInfoRuntimeWitness,
+};
 pub use stream_info_static_fields::{StreamInfoStaticFieldRole, StreamInfoStaticFields};
 pub use stream_info_static_numeric_spellings::{
     StreamInfoStaticNumericSpellingError, StreamInfoStaticNumericSpellings,

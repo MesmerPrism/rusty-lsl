@@ -1,5 +1,13 @@
 # Architecture
 
+## LSLC-001U runtime-owner boundary
+
+`stream_info_runtime_provider` keeps four same-owner values atomic at the
+provider evidence boundary: one call, one witness, four opaque allocations.
+This prevents mixed provider epochs or revisions inside the runtime lane.
+Complete LSLC-001S admission and every platform acquisition mechanism remain
+separate.
+
 ## LSLC-001T implementation-version provider boundary
 
 `stream_info_implementation_version_provider` is an explicitly invoked edge

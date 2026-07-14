@@ -1,5 +1,8 @@
 # STRM-000 compatibility fixtures
 
+LSLC-001U contains synthetic local runtime-provider evidence only; it records
+no acquired clock, identity, session, host, transport, network, or device data.
+
 LSLC-001T records synthetic local implementation-version acquisition evidence
 only. It contains no acquired host, runtime, transport, network, endpoint,
 device, or official-provider value.

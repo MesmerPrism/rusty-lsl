@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-001U adds `StreamInfoRuntimeProvider`: one explicit synchronous call
+returns all four runtime-assigned values with one shared owner witness.
+`StreamInfoRuntimeAcquisition` retains the witness separately, matches it
+exactly, applies O's runtime text maximum in role order, and projects only the
+S runtime lane. It performs no ambient clock/environment/host acquisition.
+
 LSLC-001T adds `StreamInfoImplementationVersionProvider`, a synchronous
 caller-selected adapter contract acquiring only the implementation-owned
 version. `StreamInfoImplementationVersionAcquisition` accepts currentness only

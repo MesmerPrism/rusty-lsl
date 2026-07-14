@@ -1,5 +1,9 @@
 # Validation
 
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_001u.ps1` for the LSLC-001U shared-witness, one-call,
+fixed-order bound, allocation, lane-only, and ambient-acquisition checks.
+
 Run the LSLC-001T focused source-only gate with
 `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001t.ps1`.
 It checks three Rust tests, one-call acquisition, separate owner evidence,
