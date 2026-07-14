@@ -109,11 +109,6 @@ impl StreamInfoImplementationVersionProviderOutput {
     pub fn version(&self) -> &str {
         &self.version
     }
-    /// Moves the separately retained witness and original version allocation apart.
-    #[must_use]
-    pub fn into_parts(self) -> (StreamInfoImplementationVersionWitness, String) {
-        (self.witness, self.version)
-    }
 }
 
 /// A caller-selected synchronous provider for one implementation version.
