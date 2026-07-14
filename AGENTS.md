@@ -1,5 +1,18 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002O Explicit Clock-Offset Application Contract
+
+LSLC-002O owns one finite bit-preserving offset value and one explicit
+caller-invoked addition to an accepted raw timestamp. A finite result is
+labelled through the existing `ClockCorrected` derived timestamp; non-finite
+offsets and sums fail typed without partial state.
+
+It adds no offset acquisition, selection, history, automatic mapping,
+clock/timer read, packet, I/O, UDP, retry, scheduling, smoothing, dejitter,
+drift fitting, currentness, runtime, dependency, device, unsafe/FFI, or
+Manifold authority. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002o.ps1`.
+
 ## LSLC-002N Bounded Minimum-RTT Selection Contract
 
 LSLC-002N requires an explicit nonzero result-count maximum, rejects empty and

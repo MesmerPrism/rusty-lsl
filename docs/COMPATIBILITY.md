@@ -366,6 +366,13 @@ candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 
+## LSLC-002O explicit offset application candidate
+
+Finite addition implements only the documented simplest mapping when a caller
+explicitly supplies an offset. It proves no offset selection, clock accuracy,
+history, drift correction, automatic post-processing, or interoperability.
+
+
 ## LSLC-002N minimum-RTT candidate
 
 Minimum finite RTT selection follows the pinned documentation. Selecting the

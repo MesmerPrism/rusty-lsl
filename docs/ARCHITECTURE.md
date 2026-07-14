@@ -458,6 +458,11 @@ an LSL `info`, `desc`, or stream-info projection.
 
 ## Dependency direction
 
+LSLC-002O is an explicit pure numeric adapter from existing raw timestamp plus
+finite offset values to the existing derived timestamp label. It owns no
+provider, policy, history, automatic post-processing, or activation edge.
+
+
 LSLC-002N consumes only already evaluated M results. Its single bounded scan
 retains the input vector and records an index; acquisition, scheduling,
 history, correction, and runtime layers remain absent.

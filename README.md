@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-002O explicitly adds one finite caller-supplied clock offset to one
+accepted raw timestamp and returns the existing `ClockCorrected` derived type.
+It retains both inputs and adds no selection, history, automatic processing,
+clock read, smoothing, currentness, or runtime activation.
+
 LSLC-002N accepts one caller-bounded nonempty vector of already evaluated
 LSLC-002M results and selects the first numerically minimum finite RTT. The
 first-tie rule is explicit local policy; the original vector allocation and
