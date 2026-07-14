@@ -1,5 +1,12 @@
 # STRM-000 compatibility fixtures
 
+LSLC-002A records one independently authored canonical empty-description
+document and deterministic valid, damaged, truncated, oversized,
+non-canonical, malformed-closing, and character-data mutations in
+`lslc-002a-bounded-observed-document-shape-parser-fixtures.json`. These are
+local candidate fixtures, not raw endpoint captures or broad XML/liblsl/wire
+interoperability evidence. Run `tools/check_lslc_002a.ps1`.
+
 LSLC-001Z records synthetic local evidence for composing accepted N and X state
 through P/Q/R while retaining three separate witnesses. It makes no endpoint,
 wire, interoperability, runtime, freshness, or authority claim.

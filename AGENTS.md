@@ -1,5 +1,25 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002A Bounded Observed Document Shape Parser
+
+LSLC-002A borrows one UTF-8 string and admits only the exact empty-description
+LSLC-001R document shape under one caller-selected nonzero byte maximum. One
+forward scan checks the observed declaration, LF/tab layout, fixed seventeen
+field order, represented character data, exact closing tags, `<desc />`, root
+close, and final LF. Accepted state borrows the unchanged source and owns only
+a fixed seventeen-range index array; parsing performs no structural heap
+allocation. Typed failures retain the first failing byte offset.
+
+This is not a general XML parser, semantic field decoder, raw endpoint or wire
+claim. It adds no attributes, namespaces, DTD, CDATA, generic entities,
+provider/acquisition behavior, endpoint semantics, discovery, clocks, sockets,
+networking, runtime activation, device, dependency, feature, or Manifold
+authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_002a.ps1
+```
+
 ## LSLC-001Z Three-Owner Observed Document Composition
 
 LSLC-001Z consumes one accepted LSLC-001N static-description composition and

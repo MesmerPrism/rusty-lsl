@@ -1,5 +1,10 @@
 # Rusty LSL project workflow
 
+The current claimed unit is
+`rlsl-lslc-002a-bounded-observed-document-shape-parser`. It is source-only and
+inert, with exact repository/path scope in its iteration-unit record. Use only
+the portable project-local workflow to validate and accept it.
+
 `rlsl-lslc-001z-three-owner-observed-document-composition` owns only the
 accepted N/X-through-P/Q/R local facade and its source-only evidence.
 

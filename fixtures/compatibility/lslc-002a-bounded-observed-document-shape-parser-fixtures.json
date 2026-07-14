@@ -1,0 +1,57 @@
+{
+  "schema": "rusty.lsl.lslc_002a.observed_document_shape_fixtures.v1",
+  "provenance": "independently-authored-local-candidate",
+  "base_document_utf8_bytes": 788,
+  "base_document": "<?xml version=\"1.0\"?>\n<info>\n\t<name>value-0-&amp;-雪</name>\n\t<type>value-1-&amp;-雪</type>\n\t<channel_count>value-2-&amp;-雪</channel_count>\n\t<channel_format>value-3-&amp;-雪</channel_format>\n\t<source_id>value-4-&amp;-雪</source_id>\n\t<nominal_srate>value-5-&amp;-雪</nominal_srate>\n\t<version>value-6-&amp;-雪</version>\n\t<created_at>value-7-&amp;-雪</created_at>\n\t<uid>value-8-&amp;-雪</uid>\n\t<session_id>value-9-&amp;-雪</session_id>\n\t<hostname>value-10-&amp;-雪</hostname>\n\t<v4address>value-11-&amp;-雪</v4address>\n\t<v4data_port>value-12-&amp;-雪</v4data_port>\n\t<v4service_port>value-13-&amp;-雪</v4service_port>\n\t<v6address>value-14-&amp;-雪</v6address>\n\t<v6data_port>value-15-&amp;-雪</v6data_port>\n\t<v6service_port>value-16-&amp;-雪</v6service_port>\n\t<desc />\n</info>\n",
+  "cases": [
+    {
+      "case_id": "valid-canonical-empty-description",
+      "class": "valid",
+      "operation": { "kind": "identity" },
+      "expected": { "result": "accepted", "value_ranges": 17 }
+    },
+    {
+      "case_id": "damaged-third-field-name",
+      "class": "damaged",
+      "operation": { "kind": "replace-first", "old": "<channel_count>", "new": "<channel-count>" },
+      "expected": { "error": "NonCanonical", "byte_offset": 102, "shape_part": "FieldName", "field_index": 2 }
+    },
+    {
+      "case_id": "truncated-root-close",
+      "class": "truncated",
+      "operation": { "kind": "remove-final-utf8-bytes", "count": 4 },
+      "expected": { "error": "Truncated", "byte_offset": 784, "shape_part": "EmptyDescriptionAndRootEnd" }
+    },
+    {
+      "case_id": "oversized-before-shape",
+      "class": "oversized",
+      "operation": { "kind": "identity", "max_input_bytes": 787 },
+      "expected": { "error": "InputLimitExceeded", "expected_max": 787, "actual": 788 }
+    },
+    {
+      "case_id": "noncanonical-crlf-before-root",
+      "class": "non-canonical",
+      "operation": { "kind": "replace-first", "old": "\n<info>", "new": "\r\n<info>" },
+      "expected": { "error": "NonCanonical", "byte_offset": 21, "shape_part": "DeclarationAndRoot" }
+    },
+    {
+      "case_id": "damaged-closing-tag",
+      "class": "damaged",
+      "operation": { "kind": "replace-first", "old": "</uid>", "new": "</uix>" },
+      "expected": { "error": "NonCanonical", "byte_offset": 396, "shape_part": "FieldEnd", "field_index": 8 }
+    },
+    {
+      "case_id": "noncanonical-entity-spelling",
+      "class": "non-canonical",
+      "operation": { "kind": "replace-first", "old": "&amp;", "new": "&quot;" },
+      "expected": { "error": "NonCanonicalCharacterData", "byte_offset": 45 }
+    }
+  ],
+  "claims": {
+    "general_xml_parser": false,
+    "endpoint_or_wire_interoperability": false,
+    "runtime_or_network_behavior": false,
+    "dependencies_or_features": false,
+    "manifold_authority": false
+  }
+}

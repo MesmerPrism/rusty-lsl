@@ -1,5 +1,19 @@
 # Architecture
 
+## LSLC-002A observed document shape boundary
+
+The private `stream_info_observed_document_parser` module scans one borrowed
+`str` under an explicit nonzero byte maximum. It recognizes only the exact
+empty-description LSLC-001R surface: fixed declaration and layout, seventeen
+ordered leaves, represented character data, fixed end tags, and the final
+empty `desc`/root suffix. Fixed borrowed end-tag spellings and a fixed
+seventeen-range array eliminate transient and retained structural allocation.
+Accepted values remain byte ranges into the unchanged source.
+
+The scanner neither decodes represented data nor constructs semantic stream
+state. It is not general XML, endpoint, protocol, wire, discovery, transport,
+runtime, network, feature, device, or Manifold authority.
+
 ## LSLC-001Z local document facade
 
 `stream_info_three_owner_observed_document` closes the accepted N/X-to-R local

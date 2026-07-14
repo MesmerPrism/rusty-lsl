@@ -24,6 +24,25 @@ const FIELD_NAMES: [&str; 17] = [
     "v6data_port",
     "v6service_port",
 ];
+const FIELD_END_TAGS: [&str; 17] = [
+    "</name>",
+    "</type>",
+    "</channel_count>",
+    "</channel_format>",
+    "</source_id>",
+    "</nominal_srate>",
+    "</version>",
+    "</created_at>",
+    "</uid>",
+    "</session_id>",
+    "</hostname>",
+    "</v4address>",
+    "</v4data_port>",
+    "</v4service_port>",
+    "</v6address>",
+    "</v6data_port>",
+    "</v6service_port>",
+];
 
 /// A nonzero byte maximum for one borrowed observed-document parse.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -58,7 +77,7 @@ impl StreamInfoObservedDocumentParseLimit {
 pub struct ParsedStreamInfoObservedDocument<'a> {
     limit: StreamInfoObservedDocumentParseLimit,
     source: &'a str,
-    value_ranges: Vec<Range<usize>>,
+    value_ranges: [Range<usize>; FIELD_NAMES.len()],
 }
 
 impl<'a> ParsedStreamInfoObservedDocument<'a> {
@@ -80,14 +99,7 @@ impl<'a> ParsedStreamInfoObservedDocument<'a> {
             DECLARATION_AND_ROOT.as_bytes(),
             ShapePart::DeclarationAndRoot,
         )?;
-        let mut value_ranges = Vec::new();
-        value_ranges
-            .try_reserve_exact(FIELD_NAMES.len())
-            .map_err(
-                |_| StreamInfoObservedDocumentParseError::IndexAllocationFailed {
-                    requested: FIELD_NAMES.len(),
-                },
-            )?;
+        let mut value_ranges = core::array::from_fn(|_| 0..0);
         for (field_index, name) in FIELD_NAMES.into_iter().enumerate() {
             offset = expect(bytes, offset, b"\t<", ShapePart::FieldStart { field_index })?;
             offset = expect(
@@ -98,17 +110,14 @@ impl<'a> ParsedStreamInfoObservedDocument<'a> {
             )?;
             offset = expect(bytes, offset, b">", ShapePart::FieldStart { field_index })?;
             let value_start = offset;
-            let end_tag = format_end_tag(name);
-            let relative_end = find_subslice(&bytes[offset..], &end_tag).ok_or(
-                StreamInfoObservedDocumentParseError::Truncated {
-                    byte_offset: bytes.len(),
-                    expected: ShapePart::FieldEnd { field_index },
-                },
+            let value_end = validate_character_data(source, value_start, field_index)?;
+            value_ranges[field_index] = value_start..value_end;
+            offset = expect(
+                bytes,
+                value_end,
+                FIELD_END_TAGS[field_index].as_bytes(),
+                ShapePart::FieldEnd { field_index },
             )?;
-            let value_end = offset + relative_end;
-            validate_character_data(&bytes[value_start..value_end], value_start)?;
-            value_ranges.push(value_start..value_end);
-            offset = value_end + end_tag.len();
             offset = expect(bytes, offset, b"\n", ShapePart::FieldEnd { field_index })?;
         }
         offset = expect(
@@ -176,9 +185,6 @@ pub enum StreamInfoObservedDocumentParseError {
         expected_max: usize,
         actual: usize,
     },
-    IndexAllocationFailed {
-        requested: usize,
-    },
     Truncated {
         byte_offset: usize,
         expected: ShapePart,
@@ -231,52 +237,66 @@ fn expect(
     Ok(offset + expected.len())
 }
 
-fn format_end_tag(name: &str) -> Vec<u8> {
-    let mut tag = Vec::with_capacity(name.len() + 3);
-    tag.extend_from_slice(b"</");
-    tag.extend_from_slice(name.as_bytes());
-    tag.push(b'>');
-    tag
-}
-
-fn find_subslice(haystack: &[u8], needle: &[u8]) -> Option<usize> {
-    haystack
-        .windows(needle.len())
-        .position(|window| window == needle)
-}
-
 fn validate_character_data(
-    bytes: &[u8],
-    base: usize,
-) -> Result<(), StreamInfoObservedDocumentParseError> {
-    let mut index = 0;
-    while index < bytes.len() {
-        match bytes[index] {
-            b'<' | b'>' | b'\r' => {
+    source: &str,
+    value_start: usize,
+    field_index: usize,
+) -> Result<usize, StreamInfoObservedDocumentParseError> {
+    let bytes = source.as_bytes();
+    let mut offset = value_start;
+    while offset < bytes.len() {
+        match bytes[offset] {
+            b'<' => return Ok(offset),
+            b'>' => {
                 return Err(
                     StreamInfoObservedDocumentParseError::NonCanonicalCharacterData {
-                        byte_offset: base + index,
+                        byte_offset: offset,
                     },
                 )
             }
             b'&' => {
-                let accepted = [b"&amp;".as_slice(), b"&lt;".as_slice(), b"&gt;".as_slice()]
+                let accepted = ["&amp;", "&lt;", "&gt;"]
                     .into_iter()
-                    .find(|entity| bytes[index..].starts_with(entity));
+                    .find(|entity| source[offset..].starts_with(entity));
                 if let Some(entity) = accepted {
-                    index += entity.len();
+                    offset += entity.len();
                 } else {
                     return Err(
                         StreamInfoObservedDocumentParseError::NonCanonicalCharacterData {
-                            byte_offset: base + index,
+                            byte_offset: offset,
                         },
                     );
                 }
             }
-            _ => index += 1,
+            _ => {
+                let character = source[offset..].chars().next().ok_or(
+                    StreamInfoObservedDocumentParseError::Truncated {
+                        byte_offset: bytes.len(),
+                        expected: ShapePart::FieldEnd { field_index },
+                    },
+                )?;
+                if !is_xml_char(character) {
+                    return Err(
+                        StreamInfoObservedDocumentParseError::NonCanonicalCharacterData {
+                            byte_offset: offset,
+                        },
+                    );
+                }
+                offset += character.len_utf8();
+            }
         }
     }
-    Ok(())
+    Err(StreamInfoObservedDocumentParseError::Truncated {
+        byte_offset: bytes.len(),
+        expected: ShapePart::FieldEnd { field_index },
+    })
+}
+
+const fn is_xml_char(character: char) -> bool {
+    matches!(
+        character as u32,
+        0x9 | 0xA | 0xD | 0x20..=0xD7FF | 0xE000..=0xFFFD | 0x10000..=0x10FFFF
+    )
 }
 
 #[cfg(test)]
@@ -310,24 +330,44 @@ mod tests {
     fn lslc_002a_damaged_and_truncated_inputs_report_first_offset() {
         let source = valid();
         let damaged = source.replacen("<channel_count>", "<channel-count>", 1);
-        assert!(matches!(
+        let changed_offset = damaged.find("channel-count").unwrap() + "channel".len();
+        assert_eq!(
             ParsedStreamInfoObservedDocument::parse(
                 StreamInfoObservedDocumentParseLimit::new(damaged.len()).unwrap(),
                 &damaged
             ),
             Err(StreamInfoObservedDocumentParseError::NonCanonical {
+                byte_offset: changed_offset,
                 expected: ShapePart::FieldName { field_index: 2 },
-                ..
             })
-        ));
+        );
         let truncated = &source[..source.len() - 4];
-        assert!(matches!(
+        assert_eq!(
             ParsedStreamInfoObservedDocument::parse(
                 StreamInfoObservedDocumentParseLimit::new(source.len()).unwrap(),
                 truncated
             ),
-            Err(StreamInfoObservedDocumentParseError::Truncated { .. })
-        ));
+            Err(StreamInfoObservedDocumentParseError::Truncated {
+                byte_offset: truncated.len(),
+                expected: ShapePart::EmptyDescriptionAndRootEnd,
+            })
+        );
+    }
+
+    #[test]
+    fn lslc_002a_malformed_closing_tag_fails_at_its_first_changed_byte() {
+        let source = valid().replacen("</uid>", "</uix>", 1);
+        let changed_offset = source.find("</uix>").unwrap() + 4;
+        assert_eq!(
+            ParsedStreamInfoObservedDocument::parse(
+                StreamInfoObservedDocumentParseLimit::new(source.len()).unwrap(),
+                &source,
+            ),
+            Err(StreamInfoObservedDocumentParseError::NonCanonical {
+                byte_offset: changed_offset,
+                expected: ShapePart::FieldEnd { field_index: 8 },
+            })
+        );
     }
 
     #[test]
@@ -366,5 +406,30 @@ mod tests {
             )
             .is_err());
         }
+    }
+
+    #[test]
+    fn lslc_002a_character_data_is_utf8_scalar_checked_without_decoding() {
+        let accepted = valid().replacen("value-0-&amp;-雪", "\t\n\r&amp;&lt;&gt;'\"雪", 1);
+        let parsed = ParsedStreamInfoObservedDocument::parse(
+            StreamInfoObservedDocumentParseLimit::new(accepted.len()).unwrap(),
+            &accepted,
+        )
+        .unwrap();
+        assert_eq!(parsed.value(0), Some("\t\n\r&amp;&lt;&gt;'\"雪"));
+
+        let damaged = valid().replacen("value-0", "value\0-0", 1);
+        let nul_offset = damaged.find('\0').unwrap();
+        assert_eq!(
+            ParsedStreamInfoObservedDocument::parse(
+                StreamInfoObservedDocumentParseLimit::new(damaged.len()).unwrap(),
+                &damaged,
+            ),
+            Err(
+                StreamInfoObservedDocumentParseError::NonCanonicalCharacterData {
+                    byte_offset: nul_offset,
+                }
+            )
+        );
     }
 }

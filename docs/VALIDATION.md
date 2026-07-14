@@ -1,5 +1,17 @@
 # Validation
 
+Run the LSLC-002A focused source-only gate with
+`.\tools\check_lslc_002a.ps1`. It binds the public-safe valid, damaged,
+truncated, oversized, non-canonical, malformed-closing, and character-data
+fixtures; executes the six focused Rust tests; rejects transient `Vec`/format
+allocation and generic-substring end-tag scanning; checks exact first-byte
+errors; and verifies documentation plus inert public-boundary routing.
+
+The gate proves only the bounded canonical borrowed shape contract. It proves
+no general XML parsing, semantic field conversion, endpoint/wire
+interoperability, discovery, transport, runtime, networking, device, feature,
+dependency, or authority behavior.
+
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File
 ./tools/check_lslc_001z.ps1` for the LSLC-001Z accepted N/X input, P/Q/R
 composition, separate-witness retention, exact document, delegated rejection,

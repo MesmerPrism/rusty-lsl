@@ -1,5 +1,14 @@
 # Provenance
 
+## LSLC-002A parser fixtures
+
+LSLC-002A's fixture document and mutations are independently authored from the
+accepted public LSLC-001R shape contract and XML 1.0 character constraints.
+They contain synthetic values only. No liblsl/rLSL source, raw capture,
+endpoint value, native binary, network traffic, device evidence, or private
+machine context was used or committed. The cases are candidate validation
+evidence, not oracle observation or interoperability measurement.
+
 LSLC-001Z is independently authored from the accepted N, P, Q, R, and X public
 contracts. Its fixtures are synthetic local contract evidence; no external
 implementation source, endpoint, network, device, or raw capture is used.

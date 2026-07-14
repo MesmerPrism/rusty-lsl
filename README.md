@@ -1,5 +1,19 @@
 # Rusty LSL
 
+LSLC-002A adds `ParsedStreamInfoObservedDocument`, a byte-bounded borrowed
+scanner for exactly the canonical empty-description document shape emitted by
+LSLC-001R. It checks the declaration, LF/tab layout, fixed seventeen field
+names and closing tags, represented character data, `<desc />`, root close,
+and final LF in one forward pass. Accepted state retains the unchanged source
+and a fixed array of seventeen byte ranges, with no parser-side heap
+allocation. Damaged, truncated, oversized, non-canonical, malformed-closing,
+and character-data fixtures bind deterministic first-byte errors.
+
+This narrow local candidate is not a general XML parser, field decoder,
+endpoint/wire interoperability claim, provider, discovery, transport, runtime,
+network, feature, device, or authority surface. Run
+`./tools/check_lslc_002a.ps1` for the focused gate.
+
 LSLC-001Z adds `StreamInfoThreeOwnerObservedDocument`, one bounded facade over
 accepted N and X state. It delegates unchanged to P, Q, and R and returns the
 finished observed document beside X's three separate owner witnesses. This

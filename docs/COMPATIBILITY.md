@@ -1,5 +1,14 @@
 # Compatibility
 
+## LSLC-002A bounded observed-document shape
+
+LSLC-002A independently specifies a strict candidate parser for the exact
+accepted LSLC-001R empty-description bytes. Public-safe fixtures cover valid,
+damaged, truncated, oversized, non-canonical, malformed-closing, and invalid
+character-data cases. This evidence is local shape acceptance only and makes
+no broad XML, liblsl, endpoint, protocol, wire, ecosystem, runtime, discovery,
+or network compatibility claim.
+
 LSLC-001Z proves only that existing accepted N and X values compose through the
 already accepted P/Q/R local policies. It does not prove endpoint bytes, wire or
 ecosystem interoperability, freshness, reachability, authorization, or runtime
