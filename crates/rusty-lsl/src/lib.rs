@@ -25,10 +25,11 @@
 //! stream-info document envelope without changing compact serialization.
 //! One separate bounded local contract encodes and parses only the canonical
 //! three-line protocol-110 short-info query payload candidate.
-//! It does not
-//! implement or claim response behavior, query evaluation, endpoint
-//! interoperability, runtime discovery, clocks, inlet, outlet, FFI, or
-//! Morphospace adapter behavior.
+//! Another bounded local source-only contract encodes and parses only the
+//! observed short-info response envelope around an accepted document body.
+//! Neither contract implements endpoint response behavior, query evaluation,
+//! networking, endpoint interoperability, runtime discovery, clocks, inlet,
+//! outlet, FFI, or Morphospace adapter behavior.
 
 mod descriptor_sample;
 mod metadata;
@@ -224,6 +225,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded volatile stream-info accepted data",
             "bounded volatile stream-info XML element composition",
             "bounded local short-info query byte-shape contract",
+            "bounded local short-info response-envelope contract",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -257,5 +259,8 @@ mod tests {
         assert!(declaration
             .does_not_own
             .contains(&"commands derived from inbound samples"));
+        assert!(declaration
+            .owns
+            .contains(&"bounded local short-info response-envelope contract"));
     }
 }

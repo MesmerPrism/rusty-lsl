@@ -1,5 +1,16 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002G Response-Envelope Validation Correction
+
+LSLC-002G additively corrects two primary-review gaps in accepted LSLC-002F.
+A named regression now inserts a second CRLF before a valid LSLC-002A body and
+binds the complete-envelope body-start offset plus unchanged delegated parser
+error. The crate status and ownership declaration now name the already existing
+bounded local source-only response-envelope contract while continuing to deny
+endpoint response behavior and networking. LSLC-002F behavior and history are
+unchanged. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002g.ps1`.
+
 ## LSLC-002F Short-Info Response Envelope
 
 LSLC-002F owns only a dependency-free, explicitly bounded canonical response

@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-002G preserves published LSLC-002F and corrects its validation and public
+status surfaces additively. The explicitly claimed extra-delimiter case now has
+a named second-CRLF regression with exact delegated LSLC-002A evidence, and the
+crate ownership/status declaration names the existing bounded local response
+envelope without claiming endpoint behavior or networking.
+
 LSLC-002F implements only a dependency-free bounded short-info response
 envelope: canonical uninterpreted `u64` decimal identifier, exact CRLF, and an
 unchanged LSLC-002A-shaped document. Parsing borrows the source; encoding uses

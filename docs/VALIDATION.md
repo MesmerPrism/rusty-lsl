@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-002G records primary review's rejection of the otherwise passing LSLC-002F
+feature head: its unit claimed an explicit extra-delimiter damaged case without
+a named second-CRLF regression, and its crate-level status/ownership prose did
+not name the exported response-envelope contract. The additive correction
+binds both surfaces without changing encoder/parser behavior or rewriting
+LSLC-002F evidence.
+
 Run `./tools/check_lslc_002e.ps1` to validate the LSLC-002E provenance lock,
 two-case bounded framing matrix, exact typed LSLC-002A/002B binding result,
 raw-private boundary, and observation-only nonclaims.

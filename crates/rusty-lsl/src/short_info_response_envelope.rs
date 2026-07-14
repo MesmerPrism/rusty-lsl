@@ -406,4 +406,22 @@ mod tests {
             Err(ShortInfoResponseEnvelopeParseError::EnvelopeLimitExceeded { .. })
         ));
     }
+
+    #[test]
+    fn lslc_002g_extra_crlf_rejects_at_body_start_with_unchanged_document_error() {
+        use crate::stream_info_observed_document_parser::ShapePart;
+
+        let body = body();
+        let source = "7\r\n\r\n".to_owned() + &body;
+        assert_eq!(
+            ParsedShortInfoResponseEnvelope::parse(&source, limits(body.len() + 2)),
+            Err(ShortInfoResponseEnvelopeParseError::Body {
+                offset: 3,
+                error: StreamInfoObservedDocumentParseError::NonCanonical {
+                    byte_offset: 0,
+                    expected: ShapePart::DeclarationAndRoot,
+                },
+            })
+        );
+    }
 }
