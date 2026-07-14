@@ -1,0 +1,1 @@
+{"candidate_result":"implemented","evidence_kind":"independently-authored-synthetic-local-contract-tests","focused_rust_tests":["lslc_001z_one_call_produces_document_and_retains_three_witnesses","lslc_001z_r_rejection_remains_stage_typed"],"runtime_activation":false,"stages":["P","Q","R"],"unit":"LSLC-001Z","wire_claim":false,"witnesses":["implementation","runtime","transport"]}

@@ -1,5 +1,23 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001Z Three-Owner Observed Document Composition
+
+LSLC-001Z consumes one accepted LSLC-001N static-description composition and
+one accepted LSLC-001X snapshot. One explicit facade call projects the accepted
+volatile fields through P, consumes N and P through Q, and projects Q through R.
+The result owns the bounded observed document beside the unchanged
+implementation, runtime, and transport witnesses as three separately
+inspectable owner artifacts.
+
+The facade adds no acquisition, parsing, raw endpoint or wire claim, common
+owner epoch or revision, freshness, authorization, endpoint semantics,
+discovery, clocks, sockets, network inspection, runtime activation, device,
+dependency, feature, or Manifold authority behavior. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001z.ps1
+```
+
 ## LSLC-001X Three-Owner Acquisition Snapshot Composition
 
 LSLC-001X consumes one already accepted T, U, and V acquisition. Their

@@ -1,6 +1,11 @@
 # Validation
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_001z.ps1` for the LSLC-001Z accepted N/X input, P/Q/R
+composition, separate-witness retention, exact document, delegated rejection,
+and inert ambient-surface checks.
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
 ./tools/check_lslc_001x.ps1` for the LSLC-001X accepted-input, three-witness,
 allocation-preservation, complete-S, delegated-rejection, cross-owner-inference,
 and ambient-surface checks.

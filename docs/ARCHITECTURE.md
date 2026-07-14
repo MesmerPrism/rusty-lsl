@@ -1,5 +1,12 @@
 # Architecture
 
+## LSLC-001Z local document facade
+
+`stream_info_three_owner_observed_document` closes the accepted N/X-to-R local
+dependency chain through P and Q. Its accepted state keeps the implementation,
+runtime, and transport witnesses separate from the owned document; intermediate
+accepted snapshot and element-tree state is not exposed as a new authority.
+
 ## LSLC-001X three-owner composition boundary
 
 `stream_info_three_owner_snapshot` is a consuming composition edge above the

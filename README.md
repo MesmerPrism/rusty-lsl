@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-001Z adds `StreamInfoThreeOwnerObservedDocument`, one bounded facade over
+accepted N and X state. It delegates unchanged to P, Q, and R and returns the
+finished observed document beside X's three separate owner witnesses. This
+removes caller orchestration only; it adds no parser, endpoint or wire claim,
+runtime activation, freshness, authorization, networking, or Manifold
+authority.
+
 LSLC-001X adds `StreamInfoThreeOwnerSnapshot`, a consuming composition of one
 accepted T, U, and V acquisition into complete S admission. It retains the
 three witnesses separately and moves the original eleven value allocations

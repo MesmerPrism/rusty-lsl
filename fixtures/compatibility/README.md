@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+LSLC-001Z records synthetic local evidence for composing accepted N and X state
+through P/Q/R while retaining three separate witnesses. It makes no endpoint,
+wire, interoperability, runtime, freshness, or authority claim.
+
 LSLC-001X records synthetic local three-owner composition evidence only. It
 contains no acquired clock, host, interface, network, endpoint, authorization,
 device, runtime-effect, or Manifold authority evidence.

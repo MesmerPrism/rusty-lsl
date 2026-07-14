@@ -1,5 +1,9 @@
 # Provenance
 
+LSLC-001Z is independently authored from the accepted N, P, Q, R, and X public
+contracts. Its fixtures are synthetic local contract evidence; no external
+implementation source, endpoint, network, device, or raw capture is used.
+
 LSLC-001X is independently authored from accepted T/U/V/S contracts. Its
 providers, values, owner identities, epochs, and revisions are synthetic local
 fixtures. No external implementation source, host/interface/network state,

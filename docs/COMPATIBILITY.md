@@ -1,5 +1,10 @@
 # Compatibility
 
+LSLC-001Z proves only that existing accepted N and X values compose through the
+already accepted P/Q/R local policies. It does not prove endpoint bytes, wire or
+ecosystem interoperability, freshness, reachability, authorization, or runtime
+behavior.
+
 LSLC-001X proves only local composition of accepted T/U/V values into one S
 snapshot while separately retaining their three witnesses and preserving value
 allocations. It does not prove common acquisition time, cross-owner atomicity,

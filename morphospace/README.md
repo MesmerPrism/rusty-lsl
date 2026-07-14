@@ -1,5 +1,8 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001z-three-owner-observed-document-composition` owns only the
+accepted N/X-through-P/Q/R local facade and its source-only evidence.
+
 `rlsl-lslc-001x-three-owner-acquisition-snapshot-composition` permits only
 consuming accepted T/U/V acquisitions into complete S admission while retaining
 three separate witnesses. Cross-owner atomicity/currentness, ambient
