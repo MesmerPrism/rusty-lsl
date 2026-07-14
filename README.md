@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-002L records pinned official documentation evidence for the default eight
+clock-offset exchanges, exact RTT/OFS formulas, minimum-RTT selection,
+symmetric-delay limitation, and recipient-owned timestamp mapping. It adds no
+clock read, packet, socket, filter, correction, currentness, or runtime.
+
 LSLC-002K composes one caller-selected documented destination with one already
 accepted short-info query wire value and exposes the documented port as inert
 data. The proposal preserves both components and performs no address

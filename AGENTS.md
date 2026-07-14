@@ -1,5 +1,18 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002L Clock-Offset Public Documentation Evidence
+
+LSLC-002L records only pinned official documentation facts: eight exchanges by
+default, the displayed RTT and OFS formulas, minimum-associated-RTT selection,
+periodic measurement wording, symmetric-delay limitation, half-asymmetry bias,
+and recipient-owned timestamp mapping. No implementation source was inspected.
+
+This unit adds no timestamp or numeric contract, clock/timer read, packet
+shape, socket, UDP exchange, retry, scheduling, filter, offset history,
+correction, smoothing, dejitter, currentness, runtime, dependency, device,
+unsafe/FFI, or Manifold authority. Run `powershell -NoProfile -ExecutionPolicy
+Bypass -File .\tools\check_lslc_002l.ps1`.
+
 ## LSLC-002K Documented Discovery Query Proposal Composition
 
 LSLC-002K infallibly moves one caller-selected LSLC-002J destination label

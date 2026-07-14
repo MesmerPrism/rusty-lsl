@@ -366,6 +366,13 @@ candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 
+## LSLC-002L clock-offset documentation evidence
+
+The pinned formulas and selection wording are specification evidence, not an
+implemented numeric or packet contract. They prove no precision, clock domain,
+exchange behavior, accuracy, correction policy, runtime, or interoperability.
+
+
 ## LSLC-002K local discovery-query proposal
 
 Combining two accepted local values proves only allocation and data

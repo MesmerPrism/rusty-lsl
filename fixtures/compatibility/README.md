@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+`lslc-002l-clock-offset-public-documentation-evidence.json` records only pinned
+official clock-offset documentation facts. It contains no packet capture,
+clock sample, observation, candidate algorithm, or runtime result.
+
 `lslc-002i-default-discovery-destination-evidence.json` contains only pinned
 official-documentation specification facts. Parsing, selection, observation,
 sockets, runtime discovery, and interoperability remain unclaimed.

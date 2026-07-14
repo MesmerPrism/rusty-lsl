@@ -1,5 +1,11 @@
 # Provenance
 
+LSLC-002L binds `docs/info/time_synchronization.rst` at public revision
+`f012f8cfe8894cab0529be77dd83c91d6d95537d` and exact UTF-8 SHA-256
+`35bacbc81477d7e08554e42c6fa25382622954adecded9ab2101bf2061fc883e`.
+Only documentation specification facts are reduced; implementation links in
+the document were not followed and no black-box observation was performed.
+
 LSLC-002I reuses the pinned official network-connectivity document and exact
 UTF-8 SHA-256 already admitted by LSLC-002C/D, extracting only displayed
 default-settings UDP port and destination spellings. No implementation source
