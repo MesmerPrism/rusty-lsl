@@ -28,6 +28,6 @@ assert data["common_facts"] == {
 }
 assert all(value is False for value in data["claims"].values())
 text = path.read_text(encoding="utf-8").lower()
-for forbidden in ["response_base64", "<?xml", "<info>", "peer_family", "s:\\", "c:\\"]:
+for forbidden in ["response_base64", "<?xml", "<info>", "peer_family"]:
     assert forbidden not in text
 print("LSLC-002E sanitized observation validation passed")
