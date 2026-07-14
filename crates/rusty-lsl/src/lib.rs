@@ -38,6 +38,7 @@ mod stream_descriptor;
 mod stream_info_description_xml;
 mod stream_info_implementation_version_provider;
 mod stream_info_observed_document;
+mod stream_info_observed_document_parser;
 mod stream_info_ordered_xml;
 mod stream_info_runtime_provider;
 mod stream_info_static_fields;
@@ -90,6 +91,10 @@ pub use stream_info_implementation_version_provider::{
 };
 pub use stream_info_observed_document::{
     StreamInfoObservedDocument, StreamInfoObservedDocumentError, StreamInfoObservedDocumentLimit,
+};
+pub use stream_info_observed_document_parser::{
+    ParsedStreamInfoObservedDocument, StreamInfoObservedDocumentParseError,
+    StreamInfoObservedDocumentParseLimit,
 };
 pub use stream_info_ordered_xml::{StreamInfoOrderedXml, StreamInfoOrderedXmlError};
 pub use stream_info_runtime_provider::{
