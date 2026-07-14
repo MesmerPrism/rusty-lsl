@@ -1,5 +1,13 @@
 # Rusty LSL
 
+LSLC-002P opens the first opt-in runtime slice: a dependency-free synchronous
+UDP discovery call over caller-supplied bind and destination addresses. It
+sends an accepted short-info query, admits bounded response envelopes, and
+terminates on explicit cancellation, a finite deadline, or the response-count
+limit. The socket is owned only for the call and is deterministically released.
+Current evidence is synthetic Rust loopback behavior, not official endpoint or
+ecosystem interoperability.
+
 LSLC-002O explicitly adds one finite caller-supplied clock offset to one
 accepted raw timestamp and returns the existing `ClockCorrected` derived type.
 It retains both inputs and adds no selection, history, automatic processing,

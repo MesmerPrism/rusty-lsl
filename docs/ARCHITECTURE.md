@@ -1,5 +1,20 @@
 # Architecture
 
+## LSLC-002P bounded discovery runtime boundary
+
+`udp_discovery` is a synchronous edge adapter owned by Rusty LSL. The caller
+supplies the bind address, destination, accepted query bytes, response-envelope
+limits, datagram/count limits, receive slice, total deadline, and cancellation
+flag. The adapter owns one `UdpSocket` only for the call, observes its assigned
+local address and response sources without claiming endpoint authority, and
+moves admitted datagram allocations into the result before dropping the
+socket. A selected lock remains inert until this explicit runtime input/call.
+
+There is no interface enumeration, multicast membership, address selection,
+retry loop, background worker, provider/currentness inference, or Manifold
+state transition. Loopback behavior and cleanup evidence are separate from the
+next official-endpoint interoperability unit.
+
 LSLC-002E separates the observed response transport envelope from the existing
 document contracts: an uninterpreted canonical decimal query-identifier prefix,
 one CRLF delimiter, then an unchanged body accepted by LSLC-002A and LSLC-002B.

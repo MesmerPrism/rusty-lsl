@@ -1,5 +1,12 @@
 # Compatibility
 
+LSLC-002P proves only a Rust-to-Rust synthetic loopback query/response path and
+bounded negative behavior for the exact local contracts already accepted. It
+does not exercise an official endpoint, multicast discovery, multiple
+interfaces, another ecosystem implementation, or a real network. Therefore it
+establishes runtime mechanics and cleanup, not LSL interoperability,
+reachability, response correlation, or currentness.
+
 LSLC-002I is specification evidence only. Its port and destination strings are
 neither observed behavior nor an implemented candidate contract.
 

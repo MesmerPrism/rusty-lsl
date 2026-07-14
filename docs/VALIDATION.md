@@ -1,5 +1,14 @@
 # Validation
 
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002p.ps1` for LSLC-002P. Seven behavioral tests exercise
+nonzero limit order, exact-boundary response admission, one-past datagrams,
+invalid UTF-8, unchanged envelope errors, pre-send and blocked-receive
+cancellation, finite deadline, response-count termination, retained bytes, and
+immediate loopback port rebinding after socket drop. The focused gate also
+validates the closed feature lock and source/public-boundary exclusions. No
+device suite is applicable.
+
 LSLC-002I pins the official source revision/hash, exact port, seven displayed
 spellings, evidence role, unusual spelling, and fail-closed limitations.
 

@@ -25,13 +25,14 @@
 //! stream-info document envelope without changing compact serialization.
 //! One separate bounded local contract encodes and parses only the canonical
 //! three-line protocol-110 short-info query payload candidate.
-//! Another bounded local source-only contract encodes and parses only the
+//! Another bounded local contract encodes and parses only the
 //! observed short-info response envelope around an accepted document body.
 //! A closed allocation-free data contract also exposes only the documented
 //! default discovery port and exact displayed destination spellings.
-//! Neither contract implements endpoint response behavior, query evaluation,
-//! networking, endpoint interoperability, runtime discovery, clocks, inlet,
-//! outlet, FFI, or Morphospace adapter behavior.
+//! One separately locked and explicitly invoked synchronous runtime call owns
+//! only bounded caller-configured UDP discovery with loopback evidence.
+//! It does not implement endpoint selection, official interoperability,
+//! clocks, inlet, outlet, FFI, or Morphospace authority behavior.
 
 mod clock_filter_selection;
 mod clock_offset_application;
@@ -67,6 +68,7 @@ mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
 mod typed_short_info_response_observation;
+mod udp_discovery;
 mod xml_character_data;
 mod xml_element_serialization;
 mod xml_element_tree;
@@ -191,6 +193,10 @@ pub use timestamped_descriptor_sample::{
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
 };
+pub use udp_discovery::{
+    run_udp_discovery, UdpDiscoveryConfig, UdpDiscoveryError, UdpDiscoveryLimitError,
+    UdpDiscoveryLimits, UdpDiscoveryResponse, UdpDiscoveryRun, UdpDiscoveryTermination,
+};
 pub use xml_character_data::{XmlCharacterData, XmlCharacterDataError, XmlCharacterDataLimit};
 pub use xml_element_serialization::{
     XmlElementSerialization, XmlElementSerializationError, XmlElementSerializationLimit,
@@ -208,8 +214,8 @@ pub use xml_value::{
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum ImplementationStatus {
-    /// Only local bounded metadata, sample, timestamped-chunk, descriptor, tree, and binding contracts exist.
-    BoundedLocalContracts,
+    /// Bounded local contracts plus one explicitly activated UDP discovery call exist.
+    BoundedDiscoveryRuntime,
 }
 
 /// A stable declaration of one side of the repository ownership boundary.
@@ -224,7 +230,7 @@ pub struct OwnershipDeclaration {
 /// Returns the current implementation status.
 #[must_use]
 pub const fn implementation_status() -> ImplementationStatus {
-    ImplementationStatus::BoundedLocalContracts
+    ImplementationStatus::BoundedDiscoveryRuntime
 }
 
 /// Returns the repository's current ownership declaration.
@@ -258,6 +264,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "finite raw clock-exchange formula contract",
             "bounded minimum-RTT selection contract",
             "explicit finite clock-offset application contract",
+            "bounded caller-configured UDP discovery runtime",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -280,7 +287,7 @@ mod tests {
     fn status_names_only_the_implemented_local_contracts() {
         assert_eq!(
             implementation_status(),
-            ImplementationStatus::BoundedLocalContracts
+            ImplementationStatus::BoundedDiscoveryRuntime
         );
     }
 
@@ -306,6 +313,9 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"bounded minimum-RTT selection contract"));
+        assert!(declaration
+            .owns
+            .contains(&"bounded caller-configured UDP discovery runtime"));
         assert!(declaration
             .owns
             .contains(&"explicit finite clock-offset application contract"));

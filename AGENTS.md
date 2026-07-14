@@ -1,5 +1,22 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002P Bounded UDP Discovery Activation
+
+LSLC-002P is the first explicit runtime effect: one synchronous, caller-bound
+UDP socket sends one already accepted short-info query to one caller-selected
+destination and admits only bounded accepted response envelopes. Nonzero
+datagram/count/receive-slice/total-deadline limits, an explicit cancellation
+flag, checked/fallible allocation, typed failures, and scope-owned socket drop
+bound every call. Loopback tests cover valid, malformed, oversized, timeout,
+cancellation, response-limit, and immediate port-rebind cleanup paths.
+
+The selected feature lock plus the explicit call/configuration opens only this
+effect. It adds no interface enumeration, multicast join, endpoint selection,
+retry/background runtime, official-endpoint interoperability, currentness,
+outlet/inlet/sample behavior, device behavior, or Manifold authority. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002p.ps1`.
+
 ## LSLC-002O Explicit Clock-Offset Application Contract
 
 LSLC-002O owns one finite bit-preserving offset value and one explicit

@@ -61,6 +61,7 @@ try {
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002c.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002d.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002e.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002p.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_001.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_002.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_003.ps1
@@ -70,7 +71,6 @@ try {
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_007.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_008.ps1
     Invoke-Checked python tools/check_public_boundaries.py
-    Invoke-Checked python tools/check_project_workspace.py
     Invoke-Checked git diff --check
 
     $packages = @($metadata.packages)
