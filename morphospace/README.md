@@ -5,6 +5,9 @@ The current claimed unit is
 documents into existing typed observation contracts only; wire, runtime, and
 authority remain closed.
 
+The accepted `rlsl-lslc-002a-bounded-observed-document-shape-parser` remains
+the fixed canonical parse prerequisite for this admission.
+
 `rlsl-lslc-001z-three-owner-observed-document-composition` owns only the
 accepted N/X-through-P/Q/R local facade and its source-only evidence.
 
