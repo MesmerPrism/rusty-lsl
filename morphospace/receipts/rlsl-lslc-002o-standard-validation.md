@@ -1,6 +1,6 @@
 # LSLC-002O Standard validation
 
-Result: pass at `9aaafaeae3d51e988060332136b23d6626d93daf`.
+Result: pass at `a27725c3aa8aed76dc602a6fb5be89775cc4dfb0`.
 
 - 225 Rust tests passed.
 - Focused finite offset, explicit application, non-finite result, ownership, and prerequisite gates passed.
