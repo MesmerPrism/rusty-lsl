@@ -35,6 +35,7 @@
 
 mod descriptor_sample;
 mod documented_discovery_destination;
+mod documented_discovery_query_proposal;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
@@ -77,6 +78,7 @@ pub use documented_discovery_destination::{
     DocumentedDiscoveryDestination, DOCUMENTED_DEFAULT_DISCOVERY_PORT,
     DOCUMENTED_DISCOVERY_DESTINATIONS,
 };
+pub use documented_discovery_query_proposal::DocumentedDiscoveryQueryProposal;
 pub use metadata::{
     BoundedMetadata, MetadataBound, MetadataDescription, MetadataError, MetadataField,
     MetadataLimits, MetadataTextRole,
@@ -238,6 +240,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local short-info query byte-shape contract",
             "bounded local short-info response-envelope contract",
             "documented discovery-destination data contract",
+            "inert documented discovery-query proposal composition",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -277,5 +280,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"documented discovery-destination data contract"));
+        assert!(declaration
+            .owns
+            .contains(&"inert documented discovery-query proposal composition"));
     }
 }

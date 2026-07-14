@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002K Documented Discovery Query Proposal Composition
+
+LSLC-002K infallibly moves one caller-selected LSLC-002J destination label
+beside one accepted LSLC-002D query wire value. Borrowed and consuming access
+preserve the exact destination data and query allocation; port 16571 remains a
+documented numeric fact, not endpoint authority.
+
+The proposal performs no address interpretation, destination expansion or
+selection policy, socket operation, send, interface enumeration, multicast
+join, broadcast configuration, response collection, discovery runtime,
+reachability, interoperability, activation, device behavior, dependency,
+unsafe/FFI, or Manifold authority. Run `powershell -NoProfile -ExecutionPolicy
+Bypass -File .\tools\check_lslc_002k.ps1`.
+
 ## LSLC-002J Documented Discovery Destination Data Contract
 
 LSLC-002J owns only a closed, allocation-free data inventory for the pinned

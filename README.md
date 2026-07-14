@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-002K composes one caller-selected documented destination with one already
+accepted short-info query wire value and exposes the documented port as inert
+data. The proposal preserves both components and performs no address
+interpretation, selection policy, socket operation, send, or discovery runtime.
+
 LSLC-002J exposes only an allocation-free closed data inventory for the
 documented default UDP discovery port and the seven exact LSLC-002I destination
 spellings. It preserves the unusual displayed token and parenthesis facts

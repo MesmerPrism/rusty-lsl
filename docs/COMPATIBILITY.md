@@ -366,6 +366,13 @@ candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 
+## LSLC-002K local discovery-query proposal
+
+Combining two accepted local values proves only allocation and data
+preservation. It does not prove that a spelling is a valid address, that any
+destination should be selected, or that a packet can be sent or answered.
+
+
 ## LSLC-002J documented destination candidate
 
 LSLC-002J is a local data candidate derived only from the provenance-locked

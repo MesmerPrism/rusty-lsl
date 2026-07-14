@@ -458,6 +458,12 @@ an LSL `info`, `desc`, or stream-info projection.
 
 ## Dependency direction
 
+LSLC-002K is a data-plane proposal composition from the accepted query wire
+and one caller-selected documented destination label. It has no control-plane
+selection policy and no runtime/effect edge; any socket adoption remains a
+separate closed activation unit.
+
+
 LSLC-002J adds a closed data-only leaf beside the existing protocol candidates.
 It returns static source spellings and a numeric documented port; it has no
 dependency on address, socket, interface, discovery, clock, or runtime layers.
