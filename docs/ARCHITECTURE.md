@@ -1,5 +1,15 @@
 # Architecture
 
+## LSLC-002C query byte-shape boundary
+
+The short-info query module is a data-contract leaf. It owns exact local bytes,
+field and payload maxima, canonical unsigned-decimal spelling, and borrowed
+shape admission. The query text is nonempty printable ASCII and remains opaque;
+the nonzero `u16` return port and `u64` query identifier remain uninterpreted.
+It neither chooses nor opens an endpoint. Response documents and every network,
+resolver, timing, provider, activation, and Manifold authority stay beyond this
+boundary.
+
 ## LSLC-002B typed observation boundary
 
 LSLC-002B is the consuming boundary from fixed LSLC-002A parsed state to the

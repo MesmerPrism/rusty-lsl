@@ -1,5 +1,12 @@
 # Compatibility
 
+LSLC-002C is a local candidate contract informed by the official public
+network-connectivity documentation's displayed short-info query. Valid,
+damaged, truncated, oversized, and noncanonical fixtures test Rusty LSL's
+explicit bounds and spelling policy. No external endpoint was queried and no
+response was observed, so this evidence establishes neither protocol-110 nor
+discovery interoperability.
+
 ## LSLC-002B scope
 
 The public-safe matrix binds local typed admission only. It makes no

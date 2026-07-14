@@ -23,16 +23,19 @@
 //! into one bounded local static, volatile, then `desc` element hierarchy.
 //! A separate bounded borrowed projection can apply the accepted observed
 //! stream-info document envelope without changing compact serialization.
+//! One separate bounded local contract encodes and parses only the canonical
+//! three-line protocol-110 short-info query payload candidate.
 //! It does not
-//! implement or claim LSL protocol,
-//! runtime, wire, discovery, clock, inlet, outlet, FFI, or Morphospace adapter
-//! behavior.
+//! implement or claim response behavior, query evaluation, endpoint
+//! interoperability, runtime discovery, clocks, inlet, outlet, FFI, or
+//! Morphospace adapter behavior.
 
 mod descriptor_sample;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
 mod sample;
+mod short_info_query_wire;
 mod stream_definition;
 mod stream_descriptor;
 mod stream_info_description_xml;
@@ -77,6 +80,11 @@ pub use metadata_xml_projection::{
     MetadataXmlProjectionLimits,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
+pub use short_info_query_wire::{
+    ParsedShortInfoQuery, ShortInfoQuery, ShortInfoQueryEncodeError, ShortInfoQueryParseError,
+    ShortInfoQueryValueError, ShortInfoQueryWire, ShortInfoQueryWireLimitError,
+    ShortInfoQueryWireLimits,
+};
 pub use stream_definition::StreamDefinition;
 pub use stream_descriptor::{
     ChannelFormat, InvalidRegularSampleRate, NominalSampleRate, NominalSampleRateError,
@@ -209,6 +217,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded local XML element-tree serialization",
             "bounded volatile stream-info accepted data",
             "bounded volatile stream-info XML element composition",
+            "bounded local short-info query byte-shape contract",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",

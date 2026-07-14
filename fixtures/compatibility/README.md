@@ -1,5 +1,11 @@
 # STRM-000 compatibility fixtures
 
+`lslc-002c-protocol-110-short-info-query-fixtures.json` contains independently
+authored public-safe valid, damaged, truncated, oversized, and noncanonical
+cases for the bounded local short-info query payload. Its provenance binds the
+official public documentation example but makes no query-semantic, response,
+socket, discovery, endpoint, currentness, interoperability, or authority claim.
+
 LSLC-002B adds an independently authored public-safe accepted/damaged matrix
 for closed parser-to-typed-observation admission, without captures, identities,
 runtime evidence, or interoperability claims.

@@ -1,5 +1,25 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002C Protocol-110 Short-Info Query Wire Shape
+
+LSLC-002C owns only one dependency-free, explicitly byte-bounded canonical
+three-line query payload: `LSL:shortinfo`, one nonempty printable-ASCII query
+line, and canonical unsigned decimal nonzero return-port plus query identifier,
+with LF after every line. Encoding uses checked sizing before one exact
+fallible reserve; parsing borrows the unchanged source and retains typed first
+failure offsets. Public-safe fixtures are independently authored from the
+official public network-connectivity documentation example.
+
+The numeric fields remain uninterpreted. This unit adds no query evaluation,
+response shape, endpoint semantics, sockets, datagrams, multicast, interface or
+endpoint selection, discovery runtime, retries, clocks, currentness, provider
+evidence, interoperability, runtime activation, device behavior, dependency,
+feature, or Manifold authority. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_002c.ps1
+```
+
 ## LSLC-002B Observed Document Typed Admission
 
 LSLC-002B consumes accepted LSLC-002A state, decodes only its three admitted

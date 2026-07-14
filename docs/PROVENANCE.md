@@ -1,5 +1,16 @@
 # Provenance
 
+## LSLC-002C public specification intake
+
+The sole external input is the public
+`docs/info/network-connectivity.rst` file at labstreaminglayer revision
+`f012f8cfe8894cab0529be77dd83c91d6d95537d`, which displays a 65-byte
+`LSL:shortinfo` query example. The fixture records its URL, revision, UTF-8
+digest, and displayed bytes. All additional boundaries and damaged cases are
+independently authored Rusty LSL candidate policy. No installed liblsl, rLSL,
+implementation source, native library, raw capture, or external oracle was
+used.
+
 ## LSLC-002B
 
 The fixture matrix is independently authored from accepted public

@@ -1,5 +1,16 @@
 # Validation
 
+## LSLC-002C focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002c.ps1`. The gate checks the provenance binding, fixture
+families, four focused Rust tests, bounded query and payload surfaces,
+canonical decimal rejection, borrowed-source preservation, exact final-LF
+closure, and absence of networking or unsafe source markers. It proves only
+the local query payload contract, not query semantics, response behavior,
+endpoint meaning, discovery, networking, currentness, interoperability, or
+authority.
+
 ## LSLC-002B focused gate
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File

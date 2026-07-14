@@ -1,5 +1,18 @@
 # Rusty LSL
 
+LSLC-002C adds the first source-only protocol-110 byte-shape contract: an exact
+bounded `LSL:shortinfo` query payload with one printable-ASCII query line,
+canonical decimal nonzero return port and query identifier, and one LF after
+each of the three lines. It provides a canonical encoder and a borrowed parser
+with typed first-failure offsets. Its independently authored fixtures bind only
+the displayed example in official public LSL network-connectivity
+documentation; they are not endpoint observations or interoperability proof.
+
+The contract does not evaluate the query or interpret either numeric field and
+does not add a response shape, sockets, multicast, endpoint selection,
+discovery runtime, retries, clocks, currentness, provider evidence, activation,
+devices, or Manifold authority.
+
 LSLC-002B consumes one accepted LSLC-002A parse and admits its decoded values
 through the existing bounded `StreamDefinition` and `StreamInfoVolatileFields`
 contracts. Only `amp`, `lt`, and `gt` are decoded; static numeric and format
