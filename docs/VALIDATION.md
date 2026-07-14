@@ -1,5 +1,11 @@
 # Validation
 
+Run the LSLC-001T focused source-only gate with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001t.ps1`.
+It checks three Rust tests, one-call acquisition, separate owner evidence,
+exact-match rejection, version bounds, S-lane projection, documentation, and
+inert dependency/feature/authority closure.
+
 Run the focused LSLC-001S gate with
 `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001s.ps1`.
 It checks six Rust cases, immutable O delegation, disjoint lanes, fail-closed

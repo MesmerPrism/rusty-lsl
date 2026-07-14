@@ -1,5 +1,12 @@
 # Provenance
 
+## LSLC-001T
+
+LSLC-001T is independently authored from accepted LSLC-001O/S contracts and
+repository ownership rules. No liblsl or rLSL source, binary observation,
+native library, host value, network value, or external implementation input was
+used. Focused-test providers and their evidence are synthetic local fixtures.
+
 LSLC-001S is independently authored local candidate policy derived only from
 accepted LSLC-001O role/class evidence. It uses no external implementation
 source and makes no measured freshness or acquisition claim.

@@ -1,5 +1,24 @@
 # Rusty LSL Agent Notes
 
+## LSLC-001T Implementation-Version Acquisition Evidence
+
+LSLC-001T adds one dependency-free, explicitly invoked provider trait for only
+the implementation-assigned `version` role. One caller-selected provider is
+called once. Its opaque version allocation remains separate from a bounded
+owner-issued witness naming provider identity, epoch, and revision; currentness
+is accepted only by exact match against the caller's expected owner witness,
+never from a clock, arrival time, or local inference.
+
+An accepted acquisition can move only `version` into one LSLC-001S provider
+value. It does not construct or admit the complete S snapshot and adds no
+runtime- or transport-owned acquisition, provider selection, host inspection,
+retry, background work, sockets, networking, activation, device, feature, or
+Manifold authority. Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001t.ps1
+```
+
 ## LSLC-001S Volatile Provider Snapshot Admission
 
 LSLC-001S adds only a dependency-free one-shot admission contract over three

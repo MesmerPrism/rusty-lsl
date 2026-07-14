@@ -36,6 +36,7 @@ mod sample;
 mod stream_definition;
 mod stream_descriptor;
 mod stream_info_description_xml;
+mod stream_info_implementation_version_provider;
 mod stream_info_observed_document;
 mod stream_info_ordered_xml;
 mod stream_info_static_fields;
@@ -77,6 +78,12 @@ pub use stream_descriptor::{
     StreamDescriptorLimits, StreamDescriptorTextRole,
 };
 pub use stream_info_description_xml::{StreamInfoDescriptionXml, StreamInfoDescriptionXmlError};
+pub use stream_info_implementation_version_provider::{
+    StreamInfoImplementationVersionAcquisition, StreamInfoImplementationVersionAcquisitionError,
+    StreamInfoImplementationVersionEvidenceError, StreamInfoImplementationVersionEvidenceLimit,
+    StreamInfoImplementationVersionProvider, StreamInfoImplementationVersionProviderOutput,
+    StreamInfoImplementationVersionWitness,
+};
 pub use stream_info_observed_document::{
     StreamInfoObservedDocument, StreamInfoObservedDocumentError, StreamInfoObservedDocumentLimit,
 };

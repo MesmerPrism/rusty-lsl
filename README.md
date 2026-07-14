@@ -1,5 +1,14 @@
 # Rusty LSL
 
+LSLC-001T adds `StreamInfoImplementationVersionProvider`, a synchronous
+caller-selected adapter contract acquiring only the implementation-owned
+version. `StreamInfoImplementationVersionAcquisition` accepts currentness only
+when bounded provider identity and owner-issued epoch/revision exactly match
+the expected witness. Its consuming projection yields one `Version`-labelled
+LSLC-001S value; complete snapshot admission remains separate. No clock, host
+inspection, selection, runtime/transport acquisition, networking, activation,
+or authority is added.
+
 `StreamInfoVolatileProviderSnapshot` admits a complete caller-supplied volatile
 snapshot through three disjoint ownership lanes before producing accepted
 `StreamInfoVolatileFields`. This is shape and bound validation only: it has no

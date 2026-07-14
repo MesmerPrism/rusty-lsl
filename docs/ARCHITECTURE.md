@@ -1,5 +1,16 @@
 # Architecture
 
+## LSLC-001T implementation-version provider boundary
+
+`stream_info_implementation_version_provider` is an explicitly invoked edge
+adapter for one implementation-owned value. Output contains separate opaque
+version data and owner-issued provider identity/epoch/revision evidence. The
+adapter calls the caller-selected provider once, requires exact evidence match,
+applies the LSLC-001O implementation text bound, and can move only the version
+into an LSLC-001S lane value. LSLC-001S still owns complete three-lane
+admission. No clock, registry, runtime lane, transport lane, ambient inspection,
+socket, activation, or Manifold authority enters.
+
 The `stream_info_volatile_snapshot` module is a one-shot candidate-to-accepted
 composition layer above LSLC-001O. Its three lanes preserve implementation,
 runtime, and transport ownership without implementing any provider or claiming

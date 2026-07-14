@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+LSLC-001T records synthetic local implementation-version acquisition evidence
+only. It contains no acquired host, runtime, transport, network, endpoint,
+device, or official-provider value.
+
 LSLC-001S records independently authored candidate results for three-lane,
 complete volatile provider snapshot admission. It contains no acquired values
 and no freshness evidence.

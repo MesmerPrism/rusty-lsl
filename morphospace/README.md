@@ -1,5 +1,13 @@
 # Rusty LSL project workflow
 
+`rlsl-lslc-001t-implementation-version-acquisition-evidence` permits only one
+explicit call to one caller-selected implementation-version provider, exact
+matching of its bounded owner-issued identity/epoch/revision witness, the O
+implementation-value bound, and projection to the single S implementation-lane
+value. Complete S admission, runtime/transport providers, clocks, ambient
+inspection, networking, activation, devices, effects, and Manifold authority
+remain closed.
+
 `rlsl-lslc-001s-volatile-provider-snapshot-admission` is the bounded local
 three-lane snapshot admission unit above accepted LSLC-001O.
 

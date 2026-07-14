@@ -1,5 +1,14 @@
 # Compatibility
 
+## LSLC-001T local acquisition evidence
+
+LSLC-001T proves only the local one-call provider interface, exact owner-witness
+matching, bounded opaque version preservation, typed failures, and single-value
+projection for later LSLC-001S composition. It does not identify an official
+implementation version, prove freshness beyond the owner's explicit witness,
+or establish endpoint, protocol, wire, runtime, transport, discovery, or
+ecosystem compatibility.
+
 LSLC-001S proves only deterministic local admission of a complete, unique,
 correct-lane caller snapshot into LSLC-001O. It is not evidence of fresh
 provider data, platform acquisition, endpoint meaning, or runtime compatibility.
