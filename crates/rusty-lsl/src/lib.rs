@@ -33,6 +33,7 @@
 //! networking, endpoint interoperability, runtime discovery, clocks, inlet,
 //! outlet, FFI, or Morphospace adapter behavior.
 
+mod clock_filter_selection;
 mod descriptor_sample;
 mod documented_discovery_destination;
 mod documented_discovery_query_proposal;
@@ -71,6 +72,10 @@ mod xml_element_tree;
 mod xml_leaf_element;
 mod xml_value;
 
+pub use clock_filter_selection::{
+    ClockFilterSelection, ClockFilterSelectionError, ClockFilterSelectionLimit,
+    ClockFilterSelectionLimitError,
+};
 pub use descriptor_sample::{
     BoundDescriptorSample, DescriptorSampleBound, DescriptorSampleError, DescriptorSampleInput,
     DescriptorSampleLimits,
@@ -247,6 +252,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "documented discovery-destination data contract",
             "inert documented discovery-query proposal composition",
             "finite raw clock-exchange formula contract",
+            "bounded minimum-RTT selection contract",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -292,5 +298,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"finite raw clock-exchange formula contract"));
+        assert!(declaration
+            .owns
+            .contains(&"bounded minimum-RTT selection contract"));
     }
 }

@@ -458,6 +458,11 @@ an LSL `info`, `desc`, or stream-info projection.
 
 ## Dependency direction
 
+LSLC-002N consumes only already evaluated M results. Its single bounded scan
+retains the input vector and records an index; acquisition, scheduling,
+history, correction, and runtime layers remain absent.
+
+
 LSLC-002M is an allocation-free numeric data/formula leaf. Raw finite values
 are admitted separately from fallible arithmetic results. No provider,
 packet, clock, scheduling, filter, mapping, or activation edge is introduced.

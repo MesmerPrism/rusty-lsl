@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-002N accepts one caller-bounded nonempty vector of already evaluated
+LSLC-002M results and selects the first numerically minimum finite RTT. The
+first-tie rule is explicit local policy; the original vector allocation and
+all result data remain unchanged. No collection, clock, scheduling, history,
+correction, currentness, or runtime behavior is added.
+
 LSLC-002M admits four finite opaque `f64` timestamp-role values and separately
 evaluates the documented RTT/OFS formulas with first-stage non-finite errors.
 It preserves input bits and adds no packet, clock, timer, filter, correction,

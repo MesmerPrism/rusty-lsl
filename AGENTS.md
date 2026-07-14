@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002N Bounded Minimum-RTT Selection Contract
+
+LSLC-002N requires an explicit nonzero result-count maximum, rejects empty and
+oversized batches, retains the caller's original `Vec`, and selects the first
+input with the numerically minimum already finite LSLC-002M RTT. First-on-tie
+is local candidate policy, not observed endpoint behavior.
+
+The unit adds no exchange acquisition, packet, clock/timer read, I/O, UDP,
+retry, scheduling, periodic execution, implicit default count, broader
+statistical filtering, offset history, correction/mapping, smoothing, dejitter,
+currentness, runtime, dependency, device, unsafe/FFI, or Manifold authority.
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002n.ps1`.
+
 ## LSLC-002M Raw Clock-Exchange Formula Contract
 
 LSLC-002M owns only four finite opaque `f64` values in `t0` through `t3` role

@@ -366,6 +366,14 @@ candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 
+## LSLC-002N minimum-RTT candidate
+
+Minimum finite RTT selection follows the pinned documentation. Selecting the
+first equal minimum is explicit local candidate policy. Neither behavior proves
+exchange collection, timing, accuracy, official filtering parity, runtime, or
+interoperability.
+
+
 ## LSLC-002M raw exchange formula candidate
 
 The candidate implements only the two documented formulas over caller-supplied
