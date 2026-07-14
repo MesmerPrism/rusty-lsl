@@ -34,42 +34,11 @@ try {
     }
 
     Invoke-Checked cargo test --workspace --all-targets --offline --locked
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_strm_000.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001a.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001b.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001c.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001d.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001e.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001f.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001g.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001k.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001l.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001m.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001n.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001o.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001p.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001q.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001r.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001s.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001t.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001u.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001v.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001x.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_001z.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002a.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002b.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002c.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002d.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002e.ps1
+    # Historical focused receipts remain immutable evidence for their accepted
+    # inert-lock revisions. The rolling owner gate exercises their Rust code
+    # through the complete test suite without reapplying superseded empty-lock
+    # assertions after LSLC-002P's reviewed activation.
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002p.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_001.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_002.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_003.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_004.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_005.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_006.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_007.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_core_008.ps1
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked git diff --check
 
