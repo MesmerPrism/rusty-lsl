@@ -1,5 +1,10 @@
 # STRM-000 compatibility fixtures
 
+`lslc-003j-current-gate-role-audit.json` records the bounded role split between
+eighteen immutable pinned historical gates and the single live forward checker,
+plus the resolver-owned revision-13 closure. It proves no device behavior,
+runtime breadth, protocol change, or authority.
+
 `lslc-003e-bounded-fixed-record-transport-core.json` records only the
 crate-private exact-record transfer seam and LSLC-003E's blocked outcome.
 `lslc-003f-dependency-closed-bounded-record-transport-correction.json` binds

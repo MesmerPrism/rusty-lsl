@@ -1,5 +1,18 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003J Historical/Current Gate Role Closure Recovery
+
+LSLC-003J preserves `tools/current-gates.json` and all eighteen v1 historical
+checker pairs byte-for-byte. `tools/current-gates-v2.json` binds each historical
+gate to an ancestral commit, receipt, and exact hashes, replays it only in an
+isolated clean worktree, and verifies cleanup. LSLC-003J is the sole live-tree
+forward checker. It also carries the blocked LSLC-003I three-literal Rust 1.80
+correction through the resolver-owned revision-13 descriptor, lock, activation,
+fixture, and workspace closure without changing bytes or behavior. Run
+`./tools/check_lslc_003j.ps1`, `python ./tools/test_dispatch_current_gates_v2.py`,
+and `./tools/check_all.ps1`. Never hand-edit the feature lock or historical
+checker bytes.
+
 ## LSLC-003I Pinned Rust 1.80 Const-Bit Compatibility
 
 LSLC-003I replaces only three pre-const-stabilization floating `to_bits` calls

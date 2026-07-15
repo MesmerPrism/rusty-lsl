@@ -1,16 +1,20 @@
 # Validation
 
 `./tools/check_all.ps1` is the owner aggregate used by CI. It runs formatting,
-Cargo metadata/tests, then dispatches the exact ordered entries in
-`tools/current-gates.json`, followed by aggregate public-boundary, diff, and
-workspace-shape checks. The dispatcher validates the entire manifest and
-checker presence before execution and stops on the first nonzero checker.
+Cargo metadata/tests, then dispatches the role-separated entries in
+`tools/current-gates-v2.json`, followed by aggregate public-boundary, diff, and
+workspace-shape checks. The dispatcher validates the entire manifest before
+execution and stops on the first nonzero checker.
 
-Run `./tools/check_lslc_003h.ps1` for manifest shape, exact accepted inventory,
-direct-checker immutability, aggregate/CI routing, missing/duplicate/traversal
-rejection, deterministic ordering, and stop-on-first-failure. Historical
-focused checkers remain directly runnable for their bounded claims; presence
-in the current manifest means they also remain valid against the current tree.
+The v1 manifest and all eighteen historical PowerShell/Python checker pairs
+remain byte-preserved. Every v2 historical entry binds an ancestral commit,
+receipt, launcher, and companion by SHA-256. The dispatcher materializes each
+pin in a detached clean Git worktree, removes it in a `finally` path, and
+rejects failed cleanup. The single LSLC-003J current role runs on the live tree
+and checks descriptor/lock/activation/workspace closure. Run
+`python ./tools/test_dispatch_current_gates_v2.py` for damaged manifest,
+hash/pin/path/role, ordering, early-failure, and cleanup coverage. See
+`docs/adr/LSLC-003J-CURRENT-GATE-ROLES.md`.
 
 Run `./tools/check_lslc_003g.ps1` to compile the external public-API consumer,
 prove the new role/plane modules are re-export-only, retain all crate-root

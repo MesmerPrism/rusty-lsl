@@ -1,10 +1,11 @@
 # Rusty LSL
 
-Current aggregate validation is declared in `tools/current-gates.json` and run
-through `tools/check_all.ps1`. The dispatcher rejects omitted, duplicate,
-missing, reordered, or failing current checkers before or during execution.
-Accepted historical `tools/check_lslc_*.ps1` scripts remain direct evidence
-entrypoints rather than being rewritten into the dispatcher.
+Current aggregate validation is declared in `tools/current-gates-v2.json` and
+run through `tools/check_all.ps1`. The preserved v1 manifest and its eighteen
+checker pairs are immutable historical evidence: v2 hash- and receipt-binds
+them to ancestral pins and replays them in isolated clean worktrees with
+verified cleanup. Only LSLC-003J runs against the live tree. The dispatcher
+rejects omitted, duplicate, missing, reordered, damaged, or failing entries.
 
 The crate root remains the complete compatibility API. Consumers may
 optionally import existing data/protocol contracts through `rusty_lsl::contract`

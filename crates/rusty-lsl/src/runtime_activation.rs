@@ -5,9 +5,9 @@
 
 /// Fingerprint of the complete accepted feature lock.
 pub const ACCEPTED_FEATURE_LOCK_FINGERPRINT: &str =
-    "39063d95e3269048444ba6aa0fe961b5960429b6d3d0c0bccc00bbe455719319";
+    "b9a2d4bba914d679c8cef1af350721b394130d49935b46f9824ba22b71470b3c";
 /// Revision of the complete accepted feature lock.
-pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 12;
+pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 13;
 
 const MAX_CONSUMER_ID_BYTES: usize = 128;
 const MODULE_COUNT: usize = 8;
@@ -401,7 +401,7 @@ mod tests {
             admitted.receipt().lock_fingerprint(),
             ACCEPTED_FEATURE_LOCK_FINGERPRINT
         );
-        assert_eq!(admitted.receipt().lock_revision(), 12);
+        assert_eq!(admitted.receipt().lock_revision(), 13);
         assert_eq!(
             admitted.receipt().outcome(),
             RuntimeActivationOutcome::Accepted
