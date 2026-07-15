@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003B Fixed-Width Numeric Runtime Family
+
+LSLC-003B adds one explicitly activated, bounded, single-channel one-record
+family for `double64`, `int32`, `int16`, and `int8`, with exact observed widths
+and format-specific initialization. Both pinned-official IPv4-loopback
+directions preserve timestamp and value for all four formats. It adds no
+`int64`, string, chunks, multicast, devices, or Manifold authority. Run
+`.\tools\check_lslc_003b.ps1`.
+
 ## LSLC-003A Fixed-Width Sample Format Observation
 
 LSLC-003A records a finite pinned-official IPv4-loopback black-box matrix for

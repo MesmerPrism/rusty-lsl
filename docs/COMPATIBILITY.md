@@ -555,3 +555,7 @@ Pinned official-outlet observations pass width/order/timestamp/value checks for
 `double64`, `int32`, `int16`, and `int8`, with format-specific initialization.
 The reverse Float32-derived initialization pattern fails for all five selected
 formats. The public binding cannot construct `int64` outlets on this platform.
+# LSLC-003B
+
+Pinned official loopback reruns pass in both directions for `double64`,
+`int32`, `int16`, and `int8`; timestamps and values are preserved exactly.

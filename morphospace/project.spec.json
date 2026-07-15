@@ -14,6 +14,7 @@
     "selected_features": [
       "bounded-sample-queue",
       "finite-sample-recovery",
+      "fixed-width-numeric-sample",
       "integrated-clock-correction",
       "short-info-discovery-responder",
       "stream-handshake",
@@ -24,6 +25,7 @@
     "selected_modules": [
       "bounded-sample-queue",
       "finite-sample-recovery",
+      "fixed-width-numeric-sample",
       "integrated-clock-correction",
       "short-info-discovery-responder",
       "stream-handshake",
@@ -47,6 +49,11 @@
     ]
   },
   "authority_map": [
+    {
+      "parameter": "lsl.fixed-width-numeric-sample-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
     {
       "parameter": "lsl.discovery-responder-runtime",
       "owner": "rusty-lsl",
@@ -120,6 +127,19 @@
     }
   ],
   "modules": [
+    {
+      "module_id": "fixed-width-numeric-sample",
+      "feature_id": "fixed-width-numeric-sample",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.fixed_width_numeric_sample.v1",
+      "contract_revision": "lslc-003b",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "stream-handshake"
+      ],
+      "selected": true
+    },
     {
       "module_id": "short-info-discovery-responder",
       "feature_id": "short-info-discovery-responder",
@@ -216,7 +236,7 @@
     {
       "profile_id": "runtime-loopback",
       "commands": [
-        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002z.ps1"
+        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003b.ps1"
       ]
     },
     {

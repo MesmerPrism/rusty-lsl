@@ -41,6 +41,7 @@ mod descriptor_sample;
 mod documented_discovery_destination;
 mod documented_discovery_query_proposal;
 mod finite_sample_recovery_runtime;
+mod fixed_width_numeric_sample_runtime;
 mod integrated_clock_correction_runtime;
 mod metadata;
 mod metadata_tree;
@@ -109,6 +110,13 @@ pub use finite_sample_recovery_runtime::{
     FiniteSampleRecoveryPolicy, FiniteSampleRecoveryPolicyError, FiniteSampleRecoveryState,
     RecoveryAttemptFailure, RecoveryFailureClass, FINITE_SAMPLE_RECOVERY_EFFECTIVE_MARKER,
     FINITE_SAMPLE_RECOVERY_FEATURE_ID,
+};
+pub use fixed_width_numeric_sample_runtime::{
+    run_fixed_width_numeric_inlet, run_fixed_width_numeric_outlet, FixedWidthNumericRecord,
+    FixedWidthNumericSampleActivation, FixedWidthNumericSampleActivationError,
+    FixedWidthNumericSampleError, FixedWidthNumericSampleLimitError, FixedWidthNumericSampleLimits,
+    FixedWidthNumericValue, FIXED_WIDTH_NUMERIC_SAMPLE_EFFECTIVE_MARKER,
+    FIXED_WIDTH_NUMERIC_SAMPLE_FEATURE_ID,
 };
 pub use integrated_clock_correction_runtime::{
     run_integrated_clock_correction, ClockSource, IntegratedClockCorrection,

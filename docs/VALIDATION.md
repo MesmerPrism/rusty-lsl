@@ -703,3 +703,7 @@ Standard validation also runs the full owner and portable workflow gates.
 
 `tools/check_lslc_003a.ps1` checks the closed format inventory, widths, typed
 direction outcomes, provenance hashes, negative claims, and public boundary.
+# LSLC-003B
+
+Run `tools/check_lslc_003b.ps1` for four-format synthetic and sanitized
+two-direction official evidence plus public-boundary validation.

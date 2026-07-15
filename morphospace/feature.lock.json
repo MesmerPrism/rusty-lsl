@@ -3,15 +3,16 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 9,
-  "generated_at": "2026-07-15T07:03:00.8112277Z",
+  "revision": 10,
+  "generated_at": "2026-07-15T09:09:15.0630408Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "553d72c2f37f37262761539ef1842b861f7d78924256561598e2f12c3a33676e",
+  "lock_fingerprint": "ea24ffe99494aa755fdb8166516f6ec5723a76e85d8ca9df344e8e821ebcd95e",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
     "bounded-sample-queue",
     "finite-sample-recovery",
+    "fixed-width-numeric-sample",
     "integrated-clock-correction",
     "short-info-discovery-responder",
     "stream-handshake",
@@ -126,6 +127,63 @@
         ],
         "receipt_schema": "rusty.lsl.finite_sample_recovery.activation_receipt.v1",
         "effective_marker": "rusty.lsl.finite_sample_recovery.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    },
+    {
+      "feature_id": "fixed-width-numeric-sample",
+      "module_id": "fixed-width-numeric-sample",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/fixed-width-numeric-sample.json",
+        "sha256": "871180e8a0ed4d1cf6a400610ccfbe1261effbb94e3ec85057d98005cefbdc0b",
+        "source_repo": "rusty-lsl",
+        "source_revision": "cfe92b10b0089c77307649725f57f0df84aca105",
+        "source_path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
+        "source_sha256": "01d01883edbb027ab4d13f4149e3405eb5fd8aa286f66b5f21f83d9c3f3c38b3"
+      },
+      "dependencies": [
+        "stream-handshake"
+      ],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [
+          "network access"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller fixed-width numeric sample configuration"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.fixed-width-numeric-sample-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller fixed-width numeric sample configuration"
+        ],
+        "receipt_schema": "rusty.lsl.fixed_width_numeric_sample.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.fixed_width_numeric_sample.effective"
       },
       "validation_profile": "runtime-loopback",
       "rollback_profile": "rollback"
@@ -252,11 +310,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "morphospace/features/stream-handshake.json",
-        "sha256": "0e26d202194eb9addbf81b96ee2c11c7b8f4d570af011451288b079c678b62f8",
+        "sha256": "92668f4794c2e20a26823fcfeafc69e982358fe18f649c1a393a38dee52842cc",
         "source_repo": "rusty-lsl",
-        "source_revision": "22137e5580d4e7e8ed7018cb37b1913ee8faf248",
+        "source_revision": "cfe92b10b0089c77307649725f57f0df84aca105",
         "source_path": "crates/rusty-lsl/src/stream_handshake.rs",
-        "source_sha256": "1a4725a8ed880a88698cc0ab55f0ee2cfaa4f3e3e414ae2baea4698e631d9179"
+        "source_sha256": "77e16a668014bf8cd4f5891faadb55f3d93a2e5f1153f975aebe9b9351af039b"
       },
       "dependencies": [],
       "conflicts": [],
@@ -429,6 +487,7 @@
     "inputs": [
       "explicit caller bounded sample queue construction and operations",
       "explicit caller finite recovery policy and attempt operation",
+      "explicit caller fixed-width numeric sample configuration",
       "explicit caller one-record timestamped float32 sample configuration",
       "explicit caller short-info responder configuration",
       "explicit caller TCP handshake configuration",

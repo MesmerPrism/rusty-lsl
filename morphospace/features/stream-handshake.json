@@ -7,23 +7,44 @@
   "owner_lane": "rusty-lsl",
   "source": {
     "repo_id": "rusty-lsl",
-    "revision": "22137e5580d4e7e8ed7018cb37b1913ee8faf248",
+    "revision": "cfe92b10b0089c77307649725f57f0df84aca105",
     "path": "crates/rusty-lsl/src/stream_handshake.rs",
-    "sha256": "1a4725a8ed880a88698cc0ab55f0ee2cfaa4f3e3e414ae2baea4698e631d9179"
+    "sha256": "77e16a668014bf8cd4f5891faadb55f3d93a2e5f1153f975aebe9b9351af039b"
   },
   "dependencies": [],
   "conflicts": [],
   "exclusive_group": null,
   "effects": {
-    "permissions": ["network access"], "services": [], "activities": [], "queries": [],
-    "tools": [], "assets": [], "shaders": [], "native_libraries": [], "commands": [],
-    "routes": [], "streams": [], "inputs": ["explicit caller TCP handshake configuration"],
-    "scenes": [], "markers": []
+    "permissions": [
+      "network access"
+    ],
+    "services": [],
+    "activities": [],
+    "queries": [],
+    "tools": [],
+    "assets": [],
+    "shaders": [],
+    "native_libraries": [],
+    "commands": [],
+    "routes": [],
+    "streams": [],
+    "inputs": [
+      "explicit caller TCP handshake configuration"
+    ],
+    "scenes": [],
+    "markers": []
   },
-  "parameter_authorities": [{"parameter":"lsl.connection-setup-runtime","owner":"rusty-lsl"}],
+  "parameter_authorities": [
+    {
+      "parameter": "lsl.connection-setup-runtime",
+      "owner": "rusty-lsl"
+    }
+  ],
   "activation": {
     "rule": "selected-lock-and-runtime-input",
-    "runtime_inputs": ["explicit caller TCP handshake configuration"],
+    "runtime_inputs": [
+      "explicit caller TCP handshake configuration"
+    ],
     "receipt_schema": "rusty.lsl.stream_handshake.activation_receipt.v1",
     "effective_marker": "rusty.lsl.stream_handshake.effective"
   },

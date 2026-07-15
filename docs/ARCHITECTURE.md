@@ -613,3 +613,8 @@ and cancellation. The responder owns one socket for one synchronous call,
 admits canonical queries, derives the response identifier from that query, and
 drops the socket on every return path. It acquires no endpoint-selection or
 ambient authority.
+# LSLC-003B
+
+One closed value enum owns the four observed widths. Explicit activation,
+caller identity/listener or peer, finite deadlines, cancellation, and
+scope-owned sockets bound the data-plane call.

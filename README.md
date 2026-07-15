@@ -694,3 +694,8 @@ A bounded official loopback matrix establishes format-specific initialization
 for fixed-width numeric samples and preserves one caller sample in four
 official-outlet directions. Reverse directions currently fail test-pattern
 admission; this evidence adds no production runtime format support.
+# LSLC-003B numeric runtime family
+
+Bounded one-record loopback runtime now covers `double64`, `int32`, `int16`,
+and `int8` with format-specific initialization and two-direction official
+evidence. Other formats and chunks remain excluded.

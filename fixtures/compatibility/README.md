@@ -262,3 +262,6 @@ client IPv4-loopback observation. Raw runtime artifacts remain private.
 
 The fixed-width sample matrix contains sanitized per-format/direction outcomes
 and provenance hashes only; all raw black-box artifacts remain private.
+# LSLC-003B
+
+The runtime-family fixture contains only sanitized outcomes and hashes.

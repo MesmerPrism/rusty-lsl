@@ -234,10 +234,38 @@ pub enum StreamHandshakeError {
 }
 
 fn request(identity: &StreamHandshakeIdentity) -> String {
-    format!("LSL:streamfeed/110 {}\r\nNative-Byte-Order: 1234\r\nEndian-Performance: 1.0\r\nHas-IEEE754-Floats: 1\r\nSupports-Subnormals: 1\r\nValue-Size: 4\r\nData-Protocol-Version: 110\r\nMax-Buffer-Length: 100\r\nMax-Chunk-Length: 1\r\nHostname: {}\r\nSource-Id: {}\r\nSession-Id: {}\r\n\r\n", identity.uid, identity.hostname, identity.source_id, identity.session_id)
+    request_with_value_size(identity, 4)
+}
+
+fn request_with_value_size(identity: &StreamHandshakeIdentity, value_size: usize) -> String {
+    request_with_format(identity, value_size, true)
+}
+fn request_with_format(
+    identity: &StreamHandshakeIdentity,
+    value_size: usize,
+    supports_subnormals: bool,
+) -> String {
+    let sub = usize::from(supports_subnormals);
+    format!("LSL:streamfeed/110 {}\r\nNative-Byte-Order: 1234\r\nEndian-Performance: 1.0\r\nHas-IEEE754-Floats: 1\r\nSupports-Subnormals: {sub}\r\nValue-Size: {value_size}\r\nData-Protocol-Version: 110\r\nMax-Buffer-Length: 100\r\nMax-Chunk-Length: 1\r\nHostname: {}\r\nSource-Id: {}\r\nSession-Id: {}\r\n\r\n",identity.uid,identity.hostname,identity.source_id,identity.session_id)
 }
 
 fn request_matches(received: &str, identity: &StreamHandshakeIdentity) -> bool {
+    request_matches_value_size(received, identity, 4)
+}
+
+fn request_matches_value_size(
+    received: &str,
+    identity: &StreamHandshakeIdentity,
+    value_size: usize,
+) -> bool {
+    request_matches_format(received, identity, value_size, true)
+}
+fn request_matches_format(
+    received: &str,
+    identity: &StreamHandshakeIdentity,
+    value_size: usize,
+    supports_subnormals: bool,
+) -> bool {
     let lines: Vec<&str> = received.split("\r\n").collect();
     if lines.len() != 14 {
         return false;
@@ -254,8 +282,8 @@ fn request_matches(received: &str, identity: &StreamHandshakeIdentity) -> bool {
     lines[0] == format!("LSL:streamfeed/110 {}", identity.uid)
         && lines[1] == "Native-Byte-Order: 1234"
         && lines[3] == "Has-IEEE754-Floats: 1"
-        && lines[4] == "Supports-Subnormals: 1"
-        && lines[5] == "Value-Size: 4"
+        && lines[4] == format!("Supports-Subnormals: {}", usize::from(supports_subnormals))
+        && lines[5] == format!("Value-Size: {value_size}")
         && lines[6] == "Data-Protocol-Version: 110"
         && lines[7] == "Max-Buffer-Length: 100"
         && lines[8] == "Max-Chunk-Length: 1"
@@ -359,13 +387,33 @@ pub(crate) fn connect_handshake_stream(
     limits: StreamHandshakeLimits,
     cancelled: &AtomicBool,
 ) -> Result<TcpStream, StreamHandshakeError> {
+    connect_handshake_stream_with_value_size(peer, identity, limits, cancelled, 4)
+}
+
+pub(crate) fn connect_handshake_stream_with_value_size(
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+    value_size: usize,
+) -> Result<TcpStream, StreamHandshakeError> {
+    connect_handshake_stream_with_format(peer, identity, limits, cancelled, value_size, true)
+}
+pub(crate) fn connect_handshake_stream_with_format(
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+    value_size: usize,
+    supports_subnormals: bool,
+) -> Result<TcpStream, StreamHandshakeError> {
     if cancelled.load(Ordering::Acquire) {
         return Err(StreamHandshakeError::Cancelled);
     }
     let started = Instant::now();
     let mut stream = TcpStream::connect_timeout(&peer, limits.total_deadline)
         .map_err(|e| StreamHandshakeError::Io(e.kind()))?;
-    let request = request(identity);
+    let request = request_with_format(identity, value_size, supports_subnormals);
     if request.len() > limits.max_header_bytes {
         return Err(StreamHandshakeError::HeaderLimitExceeded {
             limit: limits.max_header_bytes,
@@ -402,6 +450,26 @@ pub(crate) fn accept_handshake_stream(
     limits: StreamHandshakeLimits,
     cancelled: &AtomicBool,
 ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
+    accept_handshake_stream_with_value_size(listener, identity, limits, cancelled, 4)
+}
+
+pub(crate) fn accept_handshake_stream_with_value_size(
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+    value_size: usize,
+) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
+    accept_handshake_stream_with_format(listener, identity, limits, cancelled, value_size, true)
+}
+pub(crate) fn accept_handshake_stream_with_format(
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+    value_size: usize,
+    supports_subnormals: bool,
+) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
     let local = listener
         .local_addr()
         .map_err(|e| StreamHandshakeError::Io(e.kind()))?;
@@ -425,7 +493,7 @@ pub(crate) fn accept_handshake_stream(
         }
     };
     let received = read_header(&mut stream, limits, started, cancelled)?;
-    if !request_matches(&received, identity) {
+    if !request_matches_format(&received, identity, value_size, supports_subnormals) {
         return Err(if received.starts_with("LSL:streamfeed/110 ") {
             StreamHandshakeError::IdentityMismatch
         } else {

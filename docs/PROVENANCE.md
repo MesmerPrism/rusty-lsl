@@ -519,3 +519,7 @@ The sanitized matrix binds the independently authored private driver,
 configuration, and raw result by SHA-256. Exact packets, documents, endpoints,
 diagnostics, binaries, environments, caches, and harness details remain private.
 No official implementation source was inspected.
+# LSLC-003B
+
+Public evidence binds private drivers, raw outcome, and binary by SHA-256. Raw
+packets, documents, endpoints, diagnostics, environments, and caches stay private.
