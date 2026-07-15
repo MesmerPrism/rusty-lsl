@@ -1,5 +1,10 @@
 # Validation
 
+Run `.\tools\check_lslc_003d.ps1` for resolved-lock/source provenance,
+module-nominal and dependency capability composition, wrong-module rejection,
+the complete Rust parity suite, public-boundary checks, and exact nonclaims.
+No device gate applies.
+
 Run `.\tools\check_lslc_003c.ps1` for exact lock fingerprint/revision binding,
 module/marker inventory agreement, opaque capability and consumer-receipt
 shape, dependency closure, absence-as-inert behavior, damaged inputs, Cargo

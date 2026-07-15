@@ -4,9 +4,9 @@
 //! Finite caller-configured UDP short-info response activation.
 
 use crate::{
-    ParsedShortInfoQuery, ParsedStreamInfoObservedDocument, ShortInfoQueryParseError,
-    ShortInfoQueryWireLimits, ShortInfoResponseEnvelope, ShortInfoResponseEnvelopeEncodeError,
-    ShortInfoResponseEnvelopeLimits,
+    ParsedShortInfoQuery, ParsedStreamInfoObservedDocument, RuntimeModule, RuntimeModuleCapability,
+    ShortInfoQueryParseError, ShortInfoQueryWireLimits, ShortInfoResponseEnvelope,
+    ShortInfoResponseEnvelopeEncodeError, ShortInfoResponseEnvelopeLimits,
 };
 use std::io::ErrorKind;
 use std::net::{SocketAddr, UdpSocket};
@@ -24,12 +24,11 @@ pub const SHORT_INFO_RESPONDER_EFFECTIVE_MARKER: &str =
 pub struct ShortInfoResponderActivation(());
 impl ShortInfoResponderActivation {
     /// Admits only the selected feature and marker.
-    pub fn new(feature: &str, marker: &str) -> Result<Self, ShortInfoResponderActivationError> {
-        if feature != SHORT_INFO_RESPONDER_FEATURE_ID {
-            return Err(ShortInfoResponderActivationError::FeatureMismatch);
-        }
-        if marker != SHORT_INFO_RESPONDER_EFFECTIVE_MARKER {
-            return Err(ShortInfoResponderActivationError::EffectiveMarkerMismatch);
+    pub fn new(
+        capability: RuntimeModuleCapability,
+    ) -> Result<Self, ShortInfoResponderActivationError> {
+        if !capability.matches(RuntimeModule::ShortInfoDiscoveryResponder) {
+            return Err(ShortInfoResponderActivationError::WrongModule);
         }
         Ok(Self(()))
     }
@@ -37,10 +36,8 @@ impl ShortInfoResponderActivation {
 /// Rejected activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ShortInfoResponderActivationError {
-    /// Feature differed.
-    FeatureMismatch,
-    /// Marker differed.
-    EffectiveMarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 
 /// Explicit finite call limits.
@@ -261,14 +258,14 @@ pub fn run_short_info_responder(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::runtime_activation::test_capability;
     use crate::{ShortInfoQuery, ShortInfoQueryWire, StreamInfoObservedDocumentParseLimit};
     use std::thread;
 
     fn activation() -> ShortInfoResponderActivation {
-        ShortInfoResponderActivation::new(
-            SHORT_INFO_RESPONDER_FEATURE_ID,
-            SHORT_INFO_RESPONDER_EFFECTIVE_MARKER,
-        )
+        ShortInfoResponderActivation::new(test_capability(
+            RuntimeModule::ShortInfoDiscoveryResponder,
+        ))
         .unwrap()
     }
 

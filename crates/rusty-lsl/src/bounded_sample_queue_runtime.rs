@@ -3,7 +3,9 @@
 
 //! Caller-owned bounded FIFO behavior for accepted Float32 samples.
 
-use crate::TimestampedSample;
+use crate::{
+    RuntimeModule, RuntimeModuleCapability, TimestampedFloat32SampleActivation, TimestampedSample,
+};
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Condvar, Mutex};
@@ -16,28 +18,28 @@ pub const BOUNDED_SAMPLE_QUEUE_EFFECTIVE_MARKER: &str = "rusty.lsl.bounded_sampl
 
 /// Closed activation for queue construction.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct BoundedSampleQueueActivation;
+pub struct BoundedSampleQueueActivation {
+    _sample: TimestampedFloat32SampleActivation,
+}
 
 impl BoundedSampleQueueActivation {
     /// Admits only the selected feature and exact runtime marker.
-    pub fn new(feature: &str, marker: &str) -> Result<Self, BoundedSampleQueueActivationError> {
-        if feature != BOUNDED_SAMPLE_QUEUE_FEATURE_ID {
-            return Err(BoundedSampleQueueActivationError::FeatureMismatch);
+    pub fn new(
+        capability: RuntimeModuleCapability,
+        sample: TimestampedFloat32SampleActivation,
+    ) -> Result<Self, BoundedSampleQueueActivationError> {
+        if !capability.matches(RuntimeModule::BoundedSampleQueue) {
+            return Err(BoundedSampleQueueActivationError::WrongModule);
         }
-        if marker != BOUNDED_SAMPLE_QUEUE_EFFECTIVE_MARKER {
-            return Err(BoundedSampleQueueActivationError::MarkerMismatch);
-        }
-        Ok(Self)
+        Ok(Self { _sample: sample })
     }
 }
 
 /// Rejected queue activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum BoundedSampleQueueActivationError {
-    /// Feature identity differed.
-    FeatureMismatch,
-    /// Effective marker differed.
-    MarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 
 /// Explicit bounds for a blocking queue operation.
@@ -296,21 +298,28 @@ pub enum BoundedSampleQueueCloseError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::runtime_activation::test_capability;
     use crate::{
         run_timestamped_float32_inlet, run_timestamped_float32_outlet, RawSourceTimestamp, Sample,
         SampleLimits, StreamHandshakeActivation, StreamHandshakeIdentity, StreamHandshakeLimits,
         TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits,
-        STREAM_HANDSHAKE_EFFECTIVE_MARKER, STREAM_HANDSHAKE_FEATURE_ID,
-        TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER, TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID,
     };
     use std::net::TcpListener;
     use std::sync::Arc;
     use std::thread;
 
     fn activation() -> BoundedSampleQueueActivation {
+        let handshake =
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap();
+        let sample = TimestampedFloat32SampleActivation::new(
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
+            handshake,
+        )
+        .unwrap();
         BoundedSampleQueueActivation::new(
-            BOUNDED_SAMPLE_QUEUE_FEATURE_ID,
-            BOUNDED_SAMPLE_QUEUE_EFFECTIVE_MARKER,
+            test_capability(RuntimeModule::BoundedSampleQueue),
+            sample,
         )
         .unwrap()
     }
@@ -415,14 +424,11 @@ mod tests {
 
     #[test]
     fn lslc_002v_received_loopback_sample_composes_with_queue() {
-        let handshake = StreamHandshakeActivation::new(
-            STREAM_HANDSHAKE_FEATURE_ID,
-            STREAM_HANDSHAKE_EFFECTIVE_MARKER,
-        )
-        .unwrap();
+        let handshake =
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap();
         let sample_activation = TimestampedFloat32SampleActivation::new(
-            TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID,
-            TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER,
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
             handshake,
         )
         .unwrap();

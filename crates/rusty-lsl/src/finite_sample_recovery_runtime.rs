@@ -3,7 +3,9 @@
 
 //! Finite caller-invoked recovery for one accepted Float32 sample.
 
-use crate::TimestampedSample;
+use crate::{
+    BoundedSampleQueueActivation, RuntimeModule, RuntimeModuleCapability, TimestampedSample,
+};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -16,28 +18,28 @@ pub const FINITE_SAMPLE_RECOVERY_EFFECTIVE_MARKER: &str =
 
 /// Closed activation for finite recovery.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct FiniteSampleRecoveryActivation;
+pub struct FiniteSampleRecoveryActivation {
+    _queue: BoundedSampleQueueActivation,
+}
 
 impl FiniteSampleRecoveryActivation {
     /// Admits only the selected feature and exact marker.
-    pub fn new(feature: &str, marker: &str) -> Result<Self, FiniteSampleRecoveryActivationError> {
-        if feature != FINITE_SAMPLE_RECOVERY_FEATURE_ID {
-            return Err(FiniteSampleRecoveryActivationError::FeatureMismatch);
+    pub fn new(
+        capability: RuntimeModuleCapability,
+        queue: BoundedSampleQueueActivation,
+    ) -> Result<Self, FiniteSampleRecoveryActivationError> {
+        if !capability.matches(RuntimeModule::FiniteSampleRecovery) {
+            return Err(FiniteSampleRecoveryActivationError::WrongModule);
         }
-        if marker != FINITE_SAMPLE_RECOVERY_EFFECTIVE_MARKER {
-            return Err(FiniteSampleRecoveryActivationError::MarkerMismatch);
-        }
-        Ok(Self)
+        Ok(Self { _queue: queue })
     }
 }
 
 /// Rejected recovery activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum FiniteSampleRecoveryActivationError {
-    /// Feature identity differed.
-    FeatureMismatch,
-    /// Effective marker differed.
-    MarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 
 /// Explicit finite recovery limits.
@@ -341,15 +343,32 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::runtime_activation::test_capability;
     use crate::{
         BoundedSampleQueue, BoundedSampleQueueActivation, RawSourceTimestamp, Sample, SampleLimits,
-        BOUNDED_SAMPLE_QUEUE_EFFECTIVE_MARKER, BOUNDED_SAMPLE_QUEUE_FEATURE_ID,
+        StreamHandshakeActivation, TimestampedFloat32SampleActivation,
     };
+
+    fn queue_activation() -> BoundedSampleQueueActivation {
+        let handshake =
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap();
+        let sample = TimestampedFloat32SampleActivation::new(
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
+            handshake,
+        )
+        .unwrap();
+        BoundedSampleQueueActivation::new(
+            test_capability(RuntimeModule::BoundedSampleQueue),
+            sample,
+        )
+        .unwrap()
+    }
 
     fn activation() -> FiniteSampleRecoveryActivation {
         FiniteSampleRecoveryActivation::new(
-            FINITE_SAMPLE_RECOVERY_FEATURE_ID,
-            FINITE_SAMPLE_RECOVERY_EFFECTIVE_MARKER,
+            test_capability(RuntimeModule::FiniteSampleRecovery),
+            queue_activation(),
         )
         .unwrap()
     }
@@ -399,15 +418,7 @@ mod tests {
             _ => panic!("expected recovery"),
         };
         assert_eq!(states.len(), 4);
-        let queue = BoundedSampleQueue::new(
-            BoundedSampleQueueActivation::new(
-                BOUNDED_SAMPLE_QUEUE_FEATURE_ID,
-                BOUNDED_SAMPLE_QUEUE_EFFECTIVE_MARKER,
-            )
-            .unwrap(),
-            1,
-        )
-        .unwrap();
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
         queue.try_push(recovered).unwrap();
         let drained = queue.try_pop().unwrap();
         assert_eq!(

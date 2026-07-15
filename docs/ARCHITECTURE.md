@@ -1,5 +1,13 @@
 # Architecture
 
+## Dependency-closed runtime facade composition
+
+Runtime activation direction now follows the resolved lock: handshake feeds
+both sample families; Float32 sample activation feeds queue and integrated
+clock; queue feeds finite recovery. Discovery client and responder remain
+dependency-free but still require their own nominal lock capability. The
+facades consume opaque evidence and cannot construct or expand the lock.
+
 ## Lock-bound runtime activation
 
 The resolved `feature.lock` remains composition evidence, not live runtime

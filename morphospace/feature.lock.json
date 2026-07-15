@@ -3,10 +3,10 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 10,
-  "generated_at": "2026-07-15T09:09:15.0630408Z",
+  "revision": 11,
+  "generated_at": "2026-07-15T11:33:58.0942366Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "ea24ffe99494aa755fdb8166516f6ec5723a76e85d8ca9df344e8e821ebcd95e",
+  "lock_fingerprint": "a0f12ac8f64eabce3badbdb10d96fa7638d88766716733300629cc40494c3b17",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -29,12 +29,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/bounded-sample-queue.json",
-        "sha256": "2d9e2e06ffb37c4c48f475702ad23b7aa816011fcfe7709ef59616af808c17ba",
+        "path": "features/bounded-sample-queue.json",
+        "sha256": "d4fb98ea36a538b647fe478557e9150a9c059c4c3e0d8df4651b4253a723242b",
         "source_repo": "rusty-lsl",
-        "source_revision": "0f43031f872aa0d398ec5254ebb66689576fa0ef",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/bounded_sample_queue_runtime.rs",
-        "source_sha256": "26332c2cd82f466d5777e13a2dd2b3735cd2cd4bfcb529f92730b57a432c3684"
+        "source_sha256": "45a22587dfcfe4c22d74cf9ccaf2607fc9f8ed81a50764f53af788f0da6bf578"
       },
       "dependencies": [
         "timestamped-float32-sample"
@@ -84,12 +84,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/finite-sample-recovery.json",
-        "sha256": "b37d97c2a7b1e63bc5edb126d572bc640585f09520df0206e1692c735b1e8c6a",
+        "path": "features/finite-sample-recovery.json",
+        "sha256": "3a83b9299bd2c403aa61c05971073b087d7fd50d19515bf43a523af9cef4e6d8",
         "source_repo": "rusty-lsl",
-        "source_revision": "4e793f94a0d7fc211f71def5cf32a4ff9ea6fbea",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/finite_sample_recovery_runtime.rs",
-        "source_sha256": "7191f35d9d81814c8101ba80ae3c1ad52b3026ae05fc7070fdfac0ede799bbb4"
+        "source_sha256": "8517e9f680dc5f0cc61ec265e6b9cbecc3dd60390cb2ac983c5511b1b52eb8da"
       },
       "dependencies": [
         "bounded-sample-queue"
@@ -139,12 +139,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/fixed-width-numeric-sample.json",
-        "sha256": "871180e8a0ed4d1cf6a400610ccfbe1261effbb94e3ec85057d98005cefbdc0b",
+        "path": "features/fixed-width-numeric-sample.json",
+        "sha256": "c0e8f0503f875f36c57583828cdf5adbc09d75a1cbbb97bba6007cc35026c265",
         "source_repo": "rusty-lsl",
-        "source_revision": "cfe92b10b0089c77307649725f57f0df84aca105",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
-        "source_sha256": "01d01883edbb027ab4d13f4149e3405eb5fd8aa286f66b5f21f83d9c3f3c38b3"
+        "source_sha256": "b1b50ba7a5dc285c56fe2574de31b005fcaf9b38490759a3645fae12f3f40716"
       },
       "dependencies": [
         "stream-handshake"
@@ -196,12 +196,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/integrated-clock-correction.json",
-        "sha256": "caa494f6a65afb9f16f0ab883a18458f82ee82edd6f342bf38daca8e4f48d9ea",
+        "path": "features/integrated-clock-correction.json",
+        "sha256": "838713b7e0c7cdc257960f2fd8ebae10894a5a7ee610d231e315c56c40104e40",
         "source_repo": "rusty-lsl",
-        "source_revision": "ba23884e524955f3bab29c7d72d9f4e1731130e3",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/integrated_clock_correction_runtime.rs",
-        "source_sha256": "2c4071ec97697f41b0f549d9ae029b52eb9262c608175cbc6870e81ebf21091a"
+        "source_sha256": "aba679073c69686789598b5f36b7d83c754d2108ca96ee0cae8dd2dd92d19282"
       },
       "dependencies": [
         "timestamped-float32-sample"
@@ -254,12 +254,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/short-info-discovery-responder.json",
-        "sha256": "2cc03a5952305c835c08ad28326e5db58ed3ab2b65d6bea301a7013d05882647",
+        "path": "features/short-info-discovery-responder.json",
+        "sha256": "77b881c0c66ff99960be0527626f4d61011ed3c8dffdc4fc8169198c29af8041",
         "source_repo": "rusty-lsl",
-        "source_revision": "1613085699ba02768eab3689c78c36b988c4112f",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
-        "source_sha256": "2486a7296d62dcaac49453375f0569d4c6bd6e8479e6ba5ce3346ede3eb58e67"
+        "source_sha256": "f0bc56c8f6bbcd2625ec78ba2adf7e7987e87243c4ad9704a9f05f6a3e2de120"
       },
       "dependencies": [],
       "conflicts": [],
@@ -309,12 +309,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/stream-handshake.json",
-        "sha256": "92668f4794c2e20a26823fcfeafc69e982358fe18f649c1a393a38dee52842cc",
+        "path": "features/stream-handshake.json",
+        "sha256": "a6e3471ad259cb36248f33ab063c998f77b3657d99031d559f7147ff574dc15e",
         "source_repo": "rusty-lsl",
-        "source_revision": "cfe92b10b0089c77307649725f57f0df84aca105",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/stream_handshake.rs",
-        "source_sha256": "77e16a668014bf8cd4f5891faadb55f3d93a2e5f1153f975aebe9b9351af039b"
+        "source_sha256": "fa05a4731e55eec49c80a25eab1c2822889e1b120c0f0095ee96273865edfa14"
       },
       "dependencies": [],
       "conflicts": [],
@@ -364,12 +364,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/timestamped-float32-sample.json",
-        "sha256": "fc4c3104705123233da5a14e21311f53427432ea9ab67b9a03a2b9f434576a50",
+        "path": "features/timestamped-float32-sample.json",
+        "sha256": "734ceeaa787acd54f5485642b67c75ba20168a00fcd162c3cd8eab2abfe40f5d",
         "source_repo": "rusty-lsl",
-        "source_revision": "22137e5580d4e7e8ed7018cb37b1913ee8faf248",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs",
-        "source_sha256": "4b286f5f951090aa82be91a20a525490fa90c516b98c6b292db25cc5f8f5f5f6"
+        "source_sha256": "e5ccc37146fa9a9d28c3cbf672bda7ac9b3c63bbfadb331f8e9c14b5f71063b0"
       },
       "dependencies": [
         "stream-handshake"
@@ -421,12 +421,12 @@
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
-        "path": "morphospace/features/udp-discovery.json",
-        "sha256": "3d55c16da66725d20efd8bbcaf0f2524ef509b9b586b276d22d72c5a34e5f5ed",
+        "path": "features/udp-discovery.json",
+        "sha256": "ae82efd826d558ede43525910640e287623aa6d02a937c6977bdaa71ac0d64a1",
         "source_repo": "rusty-lsl",
-        "source_revision": "1508eced265aa6918ca7ad333cc4177e8b33e0b1",
+        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
         "source_path": "crates/rusty-lsl/src/udp_discovery.rs",
-        "source_sha256": "b1d1408b2a44db86a93a46c2b4005fa9986deddc0f0b2c50b65456c425ecad72"
+        "source_sha256": "bc4210efbf728938f87889e1d9ea4f56ec68f1826b410c1d9e9fa5dd146e96e4"
       },
       "dependencies": [],
       "conflicts": [],

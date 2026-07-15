@@ -4,8 +4,8 @@
 //! Explicit, caller-configured, bounded UDP discovery activation.
 
 use crate::{
-    ParsedShortInfoResponseEnvelope, ShortInfoQueryWire, ShortInfoResponseEnvelopeLimits,
-    ShortInfoResponseEnvelopeParseError,
+    ParsedShortInfoResponseEnvelope, RuntimeModule, RuntimeModuleCapability, ShortInfoQueryWire,
+    ShortInfoResponseEnvelopeLimits, ShortInfoResponseEnvelopeParseError,
 };
 use std::io::ErrorKind;
 use std::net::{SocketAddr, UdpSocket};
@@ -25,15 +25,9 @@ pub struct UdpDiscoveryActivation {
 
 impl UdpDiscoveryActivation {
     /// Admits only the exact selected feature identity and effective marker.
-    pub fn new(
-        feature_id: &str,
-        effective_marker: &str,
-    ) -> Result<Self, UdpDiscoveryActivationError> {
-        if feature_id != UDP_DISCOVERY_FEATURE_ID {
-            return Err(UdpDiscoveryActivationError::FeatureMismatch);
-        }
-        if effective_marker != UDP_DISCOVERY_EFFECTIVE_MARKER {
-            return Err(UdpDiscoveryActivationError::EffectiveMarkerMismatch);
+    pub fn new(capability: RuntimeModuleCapability) -> Result<Self, UdpDiscoveryActivationError> {
+        if !capability.matches(RuntimeModule::UdpDiscovery) {
+            return Err(UdpDiscoveryActivationError::WrongModule);
         }
         Ok(Self { private: () })
     }
@@ -42,10 +36,8 @@ impl UdpDiscoveryActivation {
 /// Rejected explicit runtime activation input.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum UdpDiscoveryActivationError {
-    /// The selected feature identity did not match.
-    FeatureMismatch,
-    /// The effective marker did not match.
-    EffectiveMarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 
 /// Nonzero finite resource and time limits for one discovery call.
@@ -390,13 +382,13 @@ pub fn run_udp_discovery(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::runtime_activation::test_capability;
     use crate::{ShortInfoQuery, ShortInfoQueryWireLimits, StreamInfoObservedDocumentParseLimit};
     use std::sync::Arc;
     use std::thread;
 
     fn activation() -> UdpDiscoveryActivation {
-        UdpDiscoveryActivation::new(UDP_DISCOVERY_FEATURE_ID, UDP_DISCOVERY_EFFECTIVE_MARKER)
-            .unwrap()
+        UdpDiscoveryActivation::new(test_capability(RuntimeModule::UdpDiscovery)).unwrap()
     }
 
     fn body() -> String {
@@ -682,12 +674,8 @@ mod tests {
     #[test]
     fn lslc_002p_mismatched_activation_rejects_before_runtime() {
         assert_eq!(
-            UdpDiscoveryActivation::new("other-feature", UDP_DISCOVERY_EFFECTIVE_MARKER),
-            Err(UdpDiscoveryActivationError::FeatureMismatch)
-        );
-        assert_eq!(
-            UdpDiscoveryActivation::new(UDP_DISCOVERY_FEATURE_ID, "other.marker"),
-            Err(UdpDiscoveryActivationError::EffectiveMarkerMismatch)
+            UdpDiscoveryActivation::new(test_capability(RuntimeModule::StreamHandshake)),
+            Err(UdpDiscoveryActivationError::WrongModule)
         );
     }
 

@@ -5,8 +5,9 @@
 
 use crate::{
     stream_handshake::{accept_handshake_stream, connect_handshake_stream},
-    RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeActivation, StreamHandshakeError,
-    StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedSample,
+    RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, Sample, SampleLimits,
+    StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
+    StreamHandshakeLimits, TimestampedSample,
 };
 use std::io::{ErrorKind, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
@@ -32,15 +33,11 @@ pub struct TimestampedFloat32SampleActivation {
 impl TimestampedFloat32SampleActivation {
     /// Admits the exact selected feature and marker beside handshake activation.
     pub fn new(
-        feature: &str,
-        marker: &str,
+        capability: RuntimeModuleCapability,
         handshake: StreamHandshakeActivation,
     ) -> Result<Self, TimestampedFloat32SampleActivationError> {
-        if feature != TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID {
-            return Err(TimestampedFloat32SampleActivationError::FeatureMismatch);
-        }
-        if marker != TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER {
-            return Err(TimestampedFloat32SampleActivationError::MarkerMismatch);
+        if !capability.matches(RuntimeModule::TimestampedFloat32Sample) {
+            return Err(TimestampedFloat32SampleActivationError::WrongModule);
         }
         Ok(Self { handshake })
     }
@@ -49,10 +46,8 @@ impl TimestampedFloat32SampleActivation {
 /// Rejected sample activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TimestampedFloat32SampleActivationError {
-    /// Feature identity differed.
-    FeatureMismatch,
-    /// Effective marker differed.
-    MarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 
 /// Finite I/O limits for the one fixed-size record.
@@ -282,20 +277,15 @@ pub fn run_timestamped_float32_inlet(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{STREAM_HANDSHAKE_EFFECTIVE_MARKER, STREAM_HANDSHAKE_FEATURE_ID};
+    use crate::runtime_activation::test_capability;
     use std::thread;
 
     fn handshake() -> StreamHandshakeActivation {
-        StreamHandshakeActivation::new(
-            STREAM_HANDSHAKE_FEATURE_ID,
-            STREAM_HANDSHAKE_EFFECTIVE_MARKER,
-        )
-        .unwrap()
+        StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake)).unwrap()
     }
     fn activation() -> TimestampedFloat32SampleActivation {
         TimestampedFloat32SampleActivation::new(
-            TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID,
-            TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER,
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
             handshake(),
         )
         .unwrap()
@@ -364,11 +354,10 @@ mod tests {
     fn lslc_002t_activation_limits_shape_and_cancellation_fail_closed() {
         assert_eq!(
             TimestampedFloat32SampleActivation::new(
-                "other",
-                TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER,
+                test_capability(RuntimeModule::UdpDiscovery),
                 handshake()
             ),
-            Err(TimestampedFloat32SampleActivationError::FeatureMismatch)
+            Err(TimestampedFloat32SampleActivationError::WrongModule)
         );
         assert_eq!(
             TimestampedFloat32SampleLimits::new(Duration::ZERO, Duration::ZERO),

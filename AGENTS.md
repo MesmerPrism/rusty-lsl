@@ -1,5 +1,15 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003D Dependency-Closed Runtime Activation Composition
+
+LSLC-003D makes the LSLC-003C opaque module capability mandatory at every
+existing runtime activation facade. Sample activation consumes handshake
+activation; queue and integrated clock consume Float32 sample activation; and
+finite recovery consumes queue activation, exactly matching the resolved lock.
+Runtime I/O, limits, cancellation, cleanup, and public facade names remain
+unchanged. No breadth, adapter, device, dependency, or Manifold authority is
+added. Run `.\tools\check_lslc_003d.ps1`.
+
 ## LSLC-003C Lock-Bound Runtime Activation Capability
 
 LSLC-003C admits an explicit caller selection only against the complete

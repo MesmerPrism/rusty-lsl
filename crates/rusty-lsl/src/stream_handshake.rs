@@ -3,6 +3,7 @@
 
 //! Explicitly activated, bounded protocol-110 TCP connection setup.
 
+use crate::{RuntimeModule, RuntimeModuleCapability};
 use std::io::{ErrorKind, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -19,12 +20,11 @@ pub struct StreamHandshakeActivation(());
 
 impl StreamHandshakeActivation {
     /// Admits only the selected feature and exact effective marker.
-    pub fn new(feature: &str, marker: &str) -> Result<Self, StreamHandshakeActivationError> {
-        if feature != STREAM_HANDSHAKE_FEATURE_ID {
-            return Err(StreamHandshakeActivationError::FeatureMismatch);
-        }
-        if marker != STREAM_HANDSHAKE_EFFECTIVE_MARKER {
-            return Err(StreamHandshakeActivationError::MarkerMismatch);
+    pub fn new(
+        capability: RuntimeModuleCapability,
+    ) -> Result<Self, StreamHandshakeActivationError> {
+        if !capability.matches(RuntimeModule::StreamHandshake) {
+            return Err(StreamHandshakeActivationError::WrongModule);
         }
         Ok(Self(()))
     }
@@ -33,10 +33,8 @@ impl StreamHandshakeActivation {
 /// Rejected activation input.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum StreamHandshakeActivationError {
-    /// Feature identity differed.
-    FeatureMismatch,
-    /// Effective marker differed.
-    MarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 
 /// Finite allocation and blocking limits for one connection setup.
@@ -508,13 +506,10 @@ pub(crate) fn accept_handshake_stream_with_format(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::runtime_activation::test_capability;
     use std::thread;
     fn activation() -> StreamHandshakeActivation {
-        StreamHandshakeActivation::new(
-            STREAM_HANDSHAKE_FEATURE_ID,
-            STREAM_HANDSHAKE_EFFECTIVE_MARKER,
-        )
-        .unwrap()
+        StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake)).unwrap()
     }
     fn limits() -> StreamHandshakeLimits {
         StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(1))
@@ -664,8 +659,8 @@ mod tests {
     #[test]
     fn lslc_002s_activation_and_limits_fail_closed() {
         assert_eq!(
-            StreamHandshakeActivation::new("other", STREAM_HANDSHAKE_EFFECTIVE_MARKER),
-            Err(StreamHandshakeActivationError::FeatureMismatch)
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::UdpDiscovery)),
+            Err(StreamHandshakeActivationError::WrongModule)
         );
         assert_eq!(
             StreamHandshakeLimits::new(0, 0, Duration::ZERO, Duration::ZERO),

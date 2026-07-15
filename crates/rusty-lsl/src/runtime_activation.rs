@@ -5,9 +5,9 @@
 
 /// Fingerprint of the complete accepted feature lock.
 pub const ACCEPTED_FEATURE_LOCK_FINGERPRINT: &str =
-    "ea24ffe99494aa755fdb8166516f6ec5723a76e85d8ca9df344e8e821ebcd95e";
+    "a0f12ac8f64eabce3badbdb10d96fa7638d88766716733300629cc40494c3b17";
 /// Revision of the complete accepted feature lock.
-pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 10;
+pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 11;
 
 const MAX_CONSUMER_ID_BYTES: usize = 128;
 const MODULE_COUNT: usize = 8;
@@ -128,6 +128,10 @@ impl RuntimeModuleCapability {
     #[must_use]
     pub const fn module(self) -> RuntimeModule {
         self.module
+    }
+
+    pub(crate) const fn matches(self, expected: RuntimeModule) -> bool {
+        self.module as usize == expected as usize
     }
 }
 
@@ -348,8 +352,22 @@ pub fn admit_runtime_activation(
 }
 
 #[cfg(test)]
+pub(crate) const fn test_capability(module: RuntimeModule) -> RuntimeModuleCapability {
+    RuntimeModuleCapability {
+        module,
+        _private: (),
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        BoundedSampleQueueActivation, FiniteSampleRecoveryActivation,
+        FixedWidthNumericSampleActivation, IntegratedClockCorrectionActivation,
+        ShortInfoResponderActivation, StreamHandshakeActivation,
+        TimestampedFloat32SampleActivation, UdpDiscoveryActivation,
+    };
 
     fn selection(module: RuntimeModule) -> RuntimeActivationSelection<'static> {
         RuntimeActivationSelection::new(module.id(), module.effective_marker())
@@ -383,7 +401,7 @@ mod tests {
             admitted.receipt().lock_fingerprint(),
             ACCEPTED_FEATURE_LOCK_FINGERPRINT
         );
-        assert_eq!(admitted.receipt().lock_revision(), 10);
+        assert_eq!(admitted.receipt().lock_revision(), 11);
         assert_eq!(
             admitted.receipt().outcome(),
             RuntimeActivationOutcome::Accepted
@@ -483,5 +501,64 @@ mod tests {
                 maximum: 128,
             })
         );
+    }
+
+    #[test]
+    fn lslc_003d_runtime_facades_require_module_and_dependency_capabilities() {
+        let selections = [
+            selection(RuntimeModule::BoundedSampleQueue),
+            selection(RuntimeModule::FiniteSampleRecovery),
+            selection(RuntimeModule::FixedWidthNumericSample),
+            selection(RuntimeModule::IntegratedClockCorrection),
+            selection(RuntimeModule::ShortInfoDiscoveryResponder),
+            selection(RuntimeModule::StreamHandshake),
+            selection(RuntimeModule::TimestampedFloat32Sample),
+            selection(RuntimeModule::UdpDiscovery),
+        ];
+        let admitted = admit_runtime_activation(
+            ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+            "synthetic-composition-consumer",
+            &selections,
+        )
+        .unwrap();
+        let capability = |module| admitted.capability(module).unwrap();
+
+        let handshake =
+            StreamHandshakeActivation::new(capability(RuntimeModule::StreamHandshake)).unwrap();
+        let float_sample = TimestampedFloat32SampleActivation::new(
+            capability(RuntimeModule::TimestampedFloat32Sample),
+            handshake,
+        )
+        .unwrap();
+        let queue = BoundedSampleQueueActivation::new(
+            capability(RuntimeModule::BoundedSampleQueue),
+            float_sample,
+        )
+        .unwrap();
+        FiniteSampleRecoveryActivation::new(capability(RuntimeModule::FiniteSampleRecovery), queue)
+            .unwrap();
+
+        let handshake =
+            StreamHandshakeActivation::new(capability(RuntimeModule::StreamHandshake)).unwrap();
+        FixedWidthNumericSampleActivation::new(
+            capability(RuntimeModule::FixedWidthNumericSample),
+            handshake,
+        )
+        .unwrap();
+        let handshake =
+            StreamHandshakeActivation::new(capability(RuntimeModule::StreamHandshake)).unwrap();
+        let float_sample = TimestampedFloat32SampleActivation::new(
+            capability(RuntimeModule::TimestampedFloat32Sample),
+            handshake,
+        )
+        .unwrap();
+        IntegratedClockCorrectionActivation::new(
+            capability(RuntimeModule::IntegratedClockCorrection),
+            float_sample,
+        )
+        .unwrap();
+        ShortInfoResponderActivation::new(capability(RuntimeModule::ShortInfoDiscoveryResponder))
+            .unwrap();
+        UdpDiscoveryActivation::new(capability(RuntimeModule::UdpDiscovery)).unwrap();
     }
 }

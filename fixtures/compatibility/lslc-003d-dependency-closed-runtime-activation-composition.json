@@ -1,0 +1,22 @@
+{
+  "schema": "rusty.lsl.lslc_003d.dependency_closed_activation.v1",
+  "composition": {
+    "stream-handshake": [],
+    "timestamped-float32-sample": ["stream-handshake"],
+    "fixed-width-numeric-sample": ["stream-handshake"],
+    "bounded-sample-queue": ["timestamped-float32-sample"],
+    "integrated-clock-correction": ["timestamped-float32-sample"],
+    "finite-sample-recovery": ["bounded-sample-queue"],
+    "udp-discovery": [],
+    "short-info-discovery-responder": []
+  },
+  "outcome": "opaque-module-and-dependency-capabilities-required",
+  "runtime_behavior": "unchanged",
+  "nonclaims": [
+    "shared transport extraction",
+    "new formats or chunks",
+    "adapter readiness",
+    "device behavior",
+    "Manifold authority"
+  ]
+}

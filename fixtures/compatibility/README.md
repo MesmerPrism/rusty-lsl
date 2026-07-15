@@ -271,3 +271,8 @@ The runtime-family fixture contains only sanitized outcomes and hashes.
 The activation fixture binds the accepted public lock fingerprint/revision,
 one synthetic dependency-closed selection, typed damaged cases, and exact
 nonclaims. It contains no runtime, endpoint, device, or private evidence.
+
+# LSLC-003D
+
+The dependency-composition fixture mirrors the resolved public lock graph and
+records only capability composition, unchanged-runtime, and boundary claims.

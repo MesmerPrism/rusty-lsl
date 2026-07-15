@@ -4,8 +4,8 @@
 
 use crate::{
     stream_handshake::{accept_handshake_stream_with_format, connect_handshake_stream_with_format},
-    StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
-    StreamHandshakeLimits,
+    RuntimeModule, RuntimeModuleCapability, StreamHandshakeActivation, StreamHandshakeError,
+    StreamHandshakeIdentity, StreamHandshakeLimits,
 };
 use std::io::{ErrorKind, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
@@ -120,15 +120,11 @@ pub struct FixedWidthNumericSampleActivation {
 impl FixedWidthNumericSampleActivation {
     /// Validates feature and marker.
     pub fn new(
-        feature: &str,
-        marker: &str,
+        capability: RuntimeModuleCapability,
         handshake: StreamHandshakeActivation,
     ) -> Result<Self, FixedWidthNumericSampleActivationError> {
-        if feature != FIXED_WIDTH_NUMERIC_SAMPLE_FEATURE_ID {
-            return Err(FixedWidthNumericSampleActivationError::FeatureMismatch);
-        }
-        if marker != FIXED_WIDTH_NUMERIC_SAMPLE_EFFECTIVE_MARKER {
-            return Err(FixedWidthNumericSampleActivationError::MarkerMismatch);
+        if !capability.matches(RuntimeModule::FixedWidthNumericSample) {
+            return Err(FixedWidthNumericSampleActivationError::WrongModule);
         }
         Ok(Self { handshake })
     }
@@ -136,10 +132,8 @@ impl FixedWidthNumericSampleActivation {
 /// Rejected activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum FixedWidthNumericSampleActivationError {
-    /// Feature differed.
-    FeatureMismatch,
-    /// Marker differed.
-    MarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 /// Finite I/O limits.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -356,10 +350,10 @@ pub fn run_fixed_width_numeric_inlet(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::runtime_activation::test_capability;
     use crate::stream_handshake::{
         accept_handshake_stream_with_value_size, connect_handshake_stream_with_value_size,
     };
-    use crate::{STREAM_HANDSHAKE_EFFECTIVE_MARKER, STREAM_HANDSHAKE_FEATURE_ID};
     use std::thread;
     fn hl() -> StreamHandshakeLimits {
         StreamHandshakeLimits::new(4096, 4096, Duration::from_millis(5), Duration::from_secs(1))
@@ -381,13 +375,9 @@ mod tests {
     }
     fn activation() -> FixedWidthNumericSampleActivation {
         FixedWidthNumericSampleActivation::new(
-            FIXED_WIDTH_NUMERIC_SAMPLE_FEATURE_ID,
-            FIXED_WIDTH_NUMERIC_SAMPLE_EFFECTIVE_MARKER,
-            StreamHandshakeActivation::new(
-                STREAM_HANDSHAKE_FEATURE_ID,
-                STREAM_HANDSHAKE_EFFECTIVE_MARKER,
-            )
-            .unwrap(),
+            test_capability(RuntimeModule::FixedWidthNumericSample),
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap(),
         )
         .unwrap()
     }
@@ -431,18 +421,15 @@ mod tests {
     }
     #[test]
     fn lslc_003b_activation_limits_and_nonfinite_timestamp_fail_closed() {
-        let handshake = StreamHandshakeActivation::new(
-            STREAM_HANDSHAKE_FEATURE_ID,
-            STREAM_HANDSHAKE_EFFECTIVE_MARKER,
-        )
-        .unwrap();
+        let handshake =
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap();
         assert_eq!(
             FixedWidthNumericSampleActivation::new(
-                "other",
-                FIXED_WIDTH_NUMERIC_SAMPLE_EFFECTIVE_MARKER,
+                test_capability(RuntimeModule::UdpDiscovery),
                 handshake
             ),
-            Err(FixedWidthNumericSampleActivationError::FeatureMismatch)
+            Err(FixedWidthNumericSampleActivationError::WrongModule)
         );
         assert_eq!(
             FixedWidthNumericSampleLimits::new(Duration::ZERO, Duration::ZERO),

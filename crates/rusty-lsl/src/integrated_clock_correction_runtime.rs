@@ -7,7 +7,7 @@ use crate::{
     ClockFilterSelection, ClockFilterSelectionError, ClockFilterSelectionLimit, ClockOffset,
     ClockOffsetApplication, ClockOffsetApplicationError, ClockOffsetError, RawClockExchange,
     RawClockExchangeFormulaError, RawClockExchangeFormulaResult, RawClockExchangeInputError,
-    RawSourceTimestamp,
+    RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, TimestampedFloat32SampleActivation,
 };
 use std::io::ErrorKind;
 use std::net::{SocketAddr, UdpSocket};
@@ -22,30 +22,27 @@ pub const INTEGRATED_CLOCK_CORRECTION_EFFECTIVE_MARKER: &str =
 
 /// Proof of selected clock feature and exact runtime marker.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct IntegratedClockCorrectionActivation(());
+pub struct IntegratedClockCorrectionActivation {
+    _sample: TimestampedFloat32SampleActivation,
+}
 impl IntegratedClockCorrectionActivation {
     /// Admits only the selected feature and marker.
     pub fn new(
-        feature: &str,
-        marker: &str,
+        capability: RuntimeModuleCapability,
+        sample: TimestampedFloat32SampleActivation,
     ) -> Result<Self, IntegratedClockCorrectionActivationError> {
-        if feature != INTEGRATED_CLOCK_CORRECTION_FEATURE_ID {
-            return Err(IntegratedClockCorrectionActivationError::FeatureMismatch);
+        if !capability.matches(RuntimeModule::IntegratedClockCorrection) {
+            return Err(IntegratedClockCorrectionActivationError::WrongModule);
         }
-        if marker != INTEGRATED_CLOCK_CORRECTION_EFFECTIVE_MARKER {
-            return Err(IntegratedClockCorrectionActivationError::MarkerMismatch);
-        }
-        Ok(Self(()))
+        Ok(Self { _sample: sample })
     }
 }
 
 /// Rejected integrated-clock activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum IntegratedClockCorrectionActivationError {
-    /// Feature identity differed.
-    FeatureMismatch,
-    /// Effective marker differed.
-    MarkerMismatch,
+    /// The admitted capability named a different module.
+    WrongModule,
 }
 
 /// Explicit caller-owned finite clock provider.
@@ -343,7 +340,8 @@ pub fn run_integrated_clock_correction<C: ClockSource>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::DerivedTimestampKind;
+    use crate::runtime_activation::test_capability;
+    use crate::{DerivedTimestampKind, StreamHandshakeActivation};
     use std::thread;
 
     struct SequenceClock {
@@ -358,9 +356,17 @@ mod tests {
         }
     }
     fn activation() -> IntegratedClockCorrectionActivation {
+        let handshake =
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap();
+        let sample = TimestampedFloat32SampleActivation::new(
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
+            handshake,
+        )
+        .unwrap();
         IntegratedClockCorrectionActivation::new(
-            INTEGRATED_CLOCK_CORRECTION_FEATURE_ID,
-            INTEGRATED_CLOCK_CORRECTION_EFFECTIVE_MARKER,
+            test_capability(RuntimeModule::IntegratedClockCorrection),
+            sample,
         )
         .unwrap()
     }
@@ -428,10 +434,15 @@ mod tests {
     fn lslc_002u_config_activation_cancellation_and_timeout_fail_closed() {
         assert_eq!(
             IntegratedClockCorrectionActivation::new(
-                "other",
-                INTEGRATED_CLOCK_CORRECTION_EFFECTIVE_MARKER
+                test_capability(RuntimeModule::UdpDiscovery),
+                TimestampedFloat32SampleActivation::new(
+                    test_capability(RuntimeModule::TimestampedFloat32Sample),
+                    StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                        .unwrap(),
+                )
+                .unwrap(),
             ),
-            Err(IntegratedClockCorrectionActivationError::FeatureMismatch)
+            Err(IntegratedClockCorrectionActivationError::WrongModule)
         );
         let one = Duration::from_millis(1);
         assert_eq!(

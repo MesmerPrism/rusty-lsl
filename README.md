@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-003D connects the accepted-lock capability facade to every existing
+runtime activation constructor. Dependency-bearing runtime activations now
+consume their declared prerequisite activation, so string pairs cannot bypass
+the resolved module/dependency closure. Runtime behavior and effect bounds are
+otherwise unchanged.
+
 LSLC-003C adds a dependency-free exact-lock admission facade. A caller names
 the accepted feature-lock fingerprint, consumer identity, and explicit module
 and effective-marker selections. Admission rejects stale, unknown, duplicate,

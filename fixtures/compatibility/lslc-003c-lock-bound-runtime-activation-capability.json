@@ -1,8 +1,8 @@
 {
   "schema": "rusty.lsl.lslc_003c.activation_fixture.v1",
   "accepted_lock": {
-    "revision": 10,
-    "fingerprint": "ea24ffe99494aa755fdb8166516f6ec5723a76e85d8ca9df344e8e821ebcd95e"
+    "revision": 11,
+    "fingerprint": "a0f12ac8f64eabce3badbdb10d96fa7638d88766716733300629cc40494c3b17"
   },
   "valid": {
     "consumer_id": "synthetic-consumer",
