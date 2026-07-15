@@ -1,0 +1,32 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema":"rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id":"rlsl-lslc-003g-standard-validation",
+  "project_id":"rusty-lsl",
+  "unit_id":"rlsl-lslc-003g-public-role-plane-facades",
+  "created_at":"2026-07-15T13:12:00Z",
+  "tier":"standard",
+  "result":"pass",
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"67818eb02b79209e5c0b7a472ff2b454b8ca2958","head_revision":"2bfb8a2a0c8e819090d2a5914cf9f4ffff9578c5","branch":"codex/rlsl-autonomous"}],
+  "changed_paths":[
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},{"repo_id":"rusty-lsl","path":"README.md"},
+    {"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/contract.rs"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/lib.rs"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/runtime.rs"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/tests/public_api.rs"},
+    {"repo_id":"rusty-lsl","path":"docs/ARCHITECTURE.md"},{"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-003g-public-role-plane-facades.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003g-begin-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003g-claim.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003g-ready.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003g-standard-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003g-standard-validation.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},{"repo_id":"rusty-lsl","path":"tools/check_all.ps1"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_003g.ps1"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_003g.py"}
+  ],
+  "artifacts":[{"artifact_id":"lslc-003g-standard-log","kind":"validation-log","path":"rlsl-lslc-003g-standard-validation.md","sha256":"19d093ba325721fbeaed8f32500f380336563b026cdb38a03cc75922f7bae34a"}],
+  "criteria":[
+    {"acceptance_id":"root-compatibility-facade","status":"pass","command":"cargo test --workspace --all-targets --offline --locked --test public_api","evidence_refs":["lslc-003g-standard-log"]},
+    {"acceptance_id":"consumer-role-plane-clarity","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003g.ps1","evidence_refs":["lslc-003g-standard-log"]},
+    {"acceptance_id":"behavior-and-lock-invariance","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003g.ps1","evidence_refs":["lslc-003g-standard-log"]},
+    {"acceptance_id":"authority-boundary","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003g-standard-log"]}
+  ],
+  "gates":[
+    {"gate_id":"validation-source-owner","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003g-standard-log"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-003g-standard-log"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-003g-standard-log"]}
+  ],
+  "device_validation":null
+}
