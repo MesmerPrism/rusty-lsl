@@ -4,8 +4,13 @@ Current aggregate validation is declared in `tools/current-gates-v2.json` and
 run through `tools/check_all.ps1`. The preserved v1 manifest and its eighteen
 checker pairs are immutable historical evidence: v2 hash- and receipt-binds
 them to ancestral pins and replays them in isolated clean worktrees with
-verified cleanup. Only LSLC-003J runs against the live tree. The dispatcher
-rejects omitted, duplicate, missing, reordered, damaged, or failing entries.
+verified cleanup. LSLC-003J remains the durable live
+descriptor/lock/activation checker. CI runs the separate LSLC-003K pinned Rust
+1.80 Clippy policy before the complete unchanged current dispatch. The
+dispatcher rejects omitted, duplicate, missing, reordered, damaged, or failing
+entries. The lint baseline preserves 319 library and 350 all-target test
+warnings as debt evidence and rejects diagnostic drift; it does not authorize
+broad cleanup or suppression.
 
 The crate root remains the complete compatibility API. Consumers may
 optionally import existing data/protocol contracts through `rusty_lsl::contract`

@@ -18,8 +18,10 @@ jobs:
       - name: Install Rust toolchain
         shell: pwsh
         run: |
-          rustup toolchain install 1.80.0 --profile minimal --component rustfmt
+          rustup toolchain install 1.80.0 --profile minimal --component rustfmt,clippy
           rustup default 1.80.0
       - name: Validate complete current gate manifest
         shell: powershell
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_all.ps1
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_003k.ps1
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_all.ps1

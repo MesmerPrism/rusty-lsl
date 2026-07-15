@@ -1,5 +1,16 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003K Pinned Rust 1.80 Clippy Baseline Policy
+
+LSLC-003K records the exact normalized pinned Rust 1.80 Clippy diagnostic
+baseline: 319 library warnings and 350 all-target test warnings, represented by
+669 coded diagnostic occurrences. The live checker verifies the exact Clippy
+and rustc identity and rejects missing, changed, duplicated, or new diagnostics.
+This is a debt baseline, not warning acceptance or cleanup authority. Run
+`./tools/check_lslc_003k.ps1`, `python ./tools/test_lslc_003k.py`, and
+`./tools/check_all.ps1`. Do not regenerate the baseline outside a separately
+claimed policy/cleanup unit.
+
 ## LSLC-003J Historical/Current Gate Role Closure Recovery
 
 LSLC-003J preserves `tools/current-gates.json` and all eighteen v1 historical

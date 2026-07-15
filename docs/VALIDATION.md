@@ -6,11 +6,27 @@ Cargo metadata/tests, then dispatches the role-separated entries in
 workspace-shape checks. The dispatcher validates the entire manifest before
 execution and stops on the first nonzero checker.
 
+LSLC-003K adds a focused pinned Rust 1.80 Clippy policy that CI runs before the
+complete unchanged v2 dispatch. LSLC-003J remains the sole generic manifest
+current gate, avoiding a unit-specific perpetual role and preserving its
+dispatcher regression surface. `tools/clippy-baseline-rust-1.80.json` stores 669 canonically sorted coded
+warning occurrences and the compiler-reported 319 library / 350 all-target
+test counts. Paths are project-relative or normalized pinned-rustc virtual
+paths; rendered text and host identity are excluded. The checker requires the
+exact Rust 1.80/Clippy commit, executes offline and locked, and compares the
+complete normalized multiset. Missing, changed, extra, duplicated, reordered,
+or wrong-toolchain baseline data fail closed. Run `python
+./tools/test_lslc_003k.py` for damaged cases and
+`./tools/check_lslc_003k.ps1` for the real toolchain comparison. Baseline
+regeneration requires a separately claimed policy or cleanup unit; existing
+warnings remain debt, not accepted style. See
+`docs/adr/LSLC-003K-PINNED-CLIPPY-BASELINE.md`.
+
 The v1 manifest and all eighteen historical PowerShell/Python checker pairs
 remain byte-preserved. Every v2 historical entry binds an ancestral commit,
 receipt, launcher, and companion by SHA-256. The dispatcher materializes each
 pin in a detached clean Git worktree, removes it in a `finally` path, and
-rejects failed cleanup. The single LSLC-003J current role runs on the live tree
+rejects failed cleanup. The durable LSLC-003J current role runs on the live tree
 and checks descriptor/lock/activation/workspace closure. Run
 `python ./tools/test_dispatch_current_gates_v2.py` for damaged manifest,
 hash/pin/path/role, ordering, early-failure, and cleanup coverage. See
