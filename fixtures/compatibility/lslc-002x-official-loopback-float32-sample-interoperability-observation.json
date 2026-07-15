@@ -1,0 +1,12 @@
+{
+  "schema":"rusty.lsl.lslc_002x.official_loopback_float32_sample_interoperability_observation.v1","classification":"black-box-derived-public-safe-sanitized-failure-observation",
+  "endpoint":{"package":"pylsl","package_version":"1.18.2","wheel_platform":"win_amd64","wheel_sha256":"3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1","library_version":117,"protocol_version":110,"native_library_sha256":"8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff","implementation_source_used":false},
+  "rust":{"accepted_head":"131f057401a0bbc500f67be49ae96709cfee67e1","private_driver_sha256":"69e98b58b9ad9e269c9b238476252bb39870baceda6a2a080e54952ddf7da8a2","private_binary_sha256":"3b31a15edc2f20025b7c234876dd54aeee8e37a432d5e9ac9c15c65c495d89cd"},
+  "method":{"transport_scope":"IPv4-loopback-only","case_count":2,"process_deadline_seconds":8,"raw_artifacts_committed":false,"combined_driver_sha256":"2b162dbc4e8e4c47e703373a14999b81333ff5605ba4b60e3ac122b82e1cd8ff","combined_raw_sha256":"223d9698b69f655627e83c6aadcd46ab8f3f11f7c229f283142f009a284422e8","reverse_driver_sha256":"3c80588581b20413c978e3865dbe1b3fffc794f12734bcce32a708020d9a1a70","reverse_raw_sha256":"dcfe76ec2464ccba23e58918f190a4f6e70288facd78e3d5394d2449259b446a","failed_attempts_preserved_privately":true},
+  "cases":[
+    {"direction":"official-outlet-to-rust-inlet","discovery":"caller-supplied-endpoint","connection":"completed","rust_outcome":"record-returned","expected_timestamp_bits_preserved":false,"expected_value_bits_preserved":false,"observed_failure_stage":"post-handshake-initial-data-misadmitted-as-sample","sample_interoperability":"fail"},
+    {"direction":"rust-outlet-to-official-inlet","discovery":"one-bounded-response-admitted-by-official-client","resolution_count":1,"connection":"streamfeed-request-reached-rust","rust_outcome":"typed-handshake-identity-mismatch","official_outcome":"stream-lost-before-sample","observed_failure_stage":"request-admission-before-response","sample_interoperability":"fail"}
+  ],
+  "private_fields_removed":["raw request response and sample bytes","raw XML and stream identifiers","endpoint addresses and ports","runtime session host and interface values","native diagnostics","binary environment cache and local paths"],
+  "claims":{"successful_sample_interoperability":false,"protocol_correction":false,"additional_formats_or_chunks":false,"non_loopback_reachability":false,"ecosystem_wide_interoperability":false,"device_behavior":false,"manifold_authority":false}
+}

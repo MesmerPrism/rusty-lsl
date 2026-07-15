@@ -525,3 +525,13 @@ not an ecosystem performance, retry, recovery, or additional-format claim.
 Synthetic fault coverage demonstrates one caller-labelled transient failure
 then exact-bit recovery into the accepted bounded queue. It does not claim
 automatic ecosystem reconnection or packet replay.
+## LSLC-002X two-direction official sample failure
+
+Two finite black-box cases used the accepted Rust runtime and pinned official
+public APIs. Official outlet to Rust inlet completed the handshake, after
+which Rust returned a record whose timestamp and Float32 value did not match
+the explicit pushed values; the failure stage is post-handshake initialization
+admission. Rust outlet to official inlet admitted one discovery response and
+reached the Rust streamfeed listener, which returned typed identity mismatch
+before its response; the official inlet then reported stream loss. Neither
+case establishes sample interoperability.

@@ -681,3 +681,9 @@ checks.
 Run `tools/check_lslc_002w.ps1` for bounded transient success, exact queue
 composition, terminal failure, exhaustion, cancellation, deadline, policy
 rejection, and public-boundary checks.
+## LSLC-002X official Float32 observation validation
+
+Run `tools/check_lslc_002x.ps1` to require both bounded directions, exact
+pinned provenance, the forward post-handshake bit-mismatch stage, the reverse
+resolved streamfeed identity-mismatch stage, strict failure nonclaims, and the
+public-boundary scan. The external oracle is not rerun by the public checker.

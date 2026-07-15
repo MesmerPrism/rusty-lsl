@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-002X records bounded two-direction official-loopback failure evidence for
+the accepted one-record Float32 runtime. Official outlet to Rust inlet reached
+the data phase but Rust misadmitted initialization data as the sample; Rust
+outlet to official inlet reached the listener but failed request admission as
+an identity mismatch. This authorizes a later bounded correction and is not a
+successful or broad interoperability claim.
+
 LSLC-002W adds explicit synchronous finite recovery over the accepted Float32
 queue path. Attempts, observable states, delay slicing, total deadline, and
 cancellation are caller bounded; failure classification remains caller-owned.

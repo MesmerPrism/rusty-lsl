@@ -492,3 +492,11 @@ independently authored request obtained an official response. Driver and raw
 outputs are bound by SHA-256. No implementation source was inspected, and raw
 bytes, numeric clock values, XML, identifiers, endpoints, diagnostics,
 environments, caches, and local paths are not committed.
+## LSLC-002X official Float32 interoperability observation
+
+The observation pins the same official `pylsl 1.18.2` Windows AMD64 wheel,
+library version 117, wheel digest, and native-library digest as LSLC-002S/T.
+The public fixture binds independently authored private Rust/Python driver,
+binary, and raw-result SHA-256 values. No official implementation source was
+inspected. Raw bytes, XML, endpoints, diagnostics, environments, binaries, and
+caches remain outside the repository.

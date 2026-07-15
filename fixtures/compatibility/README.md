@@ -247,3 +247,6 @@ clock packets and values remain private.
 records only sanitized bounded queue and accepted loopback composition claims.
 `lslc-002w-finite-sample-recovery-runtime.json` records only sanitized finite
 recovery bounds, queue composition, and strict nonclaims.
+`lslc-002x-official-loopback-float32-sample-interoperability-observation.json`
+records only sanitized two-direction official-loopback failure stages and
+pinned hashes; raw evidence remains private.

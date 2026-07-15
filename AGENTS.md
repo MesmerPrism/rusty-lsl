@@ -1,5 +1,21 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002X Official Float32 Interoperability Failure Observation
+
+LSLC-002X observes the accepted Rust one-record Float32 runtime against the
+pinned official protocol-110 endpoint in both IPv4-loopback directions. The
+official-outlet direction completed connection setup but Rust returned
+post-handshake initialization data as a sample with neither expected timestamp
+nor value bits. The reverse direction resolved one Rust candidate and reached
+its streamfeed listener, where Rust rejected the official request as a typed
+identity mismatch before responding; the official inlet reported stream loss.
+
+Only sanitized stages and pinned hashes are public. Raw packets, XML,
+endpoints, diagnostics, binaries, environments, and caches remain private.
+This failure evidence adds no correction, successful interoperability, other
+format, device, or Manifold claim. Run `powershell -NoProfile
+-ExecutionPolicy Bypass -File .\tools\check_lslc_002x.ps1`.
+
 ## LSLC-002W Finite Sample Recovery Runtime
 
 LSLC-002W adds one explicitly activated synchronous recovery coordinator over
