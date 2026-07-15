@@ -1,0 +1,107 @@
+{
+    "schema":  "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+    "project_id":  "rusty-lsl",
+    "unit_id":  "rlsl-lslc-003h-current-gates-dispatcher",
+    "action":  "Ready",
+    "timestamp":  "2026-07-15T14:03:52.3088324Z",
+    "executed":  true,
+    "transition":  "proposed-to-ready",
+    "status_before":  "proposed",
+    "status_after":  "ready",
+    "current_unit_before":  null,
+    "current_unit_after":  null,
+    "preservation":  {
+                         "git_mutation_performed":  false,
+                         "device_mutation_performed":  false,
+                         "force_push_allowed":  false,
+                         "repository_states":  [
+                                                   {
+                                                       "repo_id":  "rusty-lsl",
+                                                       "available":  true,
+                                                       "is_git":  true,
+                                                       "head":  "afea71b93cc78c6e08a4e6422ae0256a5fe57b39",
+                                                       "branch":  "codex/rlsl-autonomous",
+                                                       "upstream":  "origin/codex/rlsl-autonomous",
+                                                       "dirty":  false,
+                                                       "tracked_changes":  0,
+                                                       "untracked_changes":  0,
+                                                       "ahead":  1,
+                                                       "behind":  0,
+                                                       "diverged":  false,
+                                                       "relation":  "ahead"
+                                                   }
+                                               ]
+                     },
+    "validation_matrix":  [
+                              {
+                                  "order":  1,
+                                  "gate_id":  "validation-source-owner",
+                                  "kind":  "command",
+                                  "profile_id":  "source-owner",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  2,
+                                  "gate_id":  "validation-workflow",
+                                  "kind":  "command",
+                                  "profile_id":  "workflow",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File \u003cwork-environment-root\u003e/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot \u003cproject-root\u003e/morphospace",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  3,
+                                  "gate_id":  "instruction-synchronization",
+                                  "kind":  "instruction",
+                                  "profile_id":  "instruction-sync",
+                                  "command":  "Verify every declared instruction surface is complete and validated.",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  4,
+                                  "gate_id":  "device-validation",
+                                  "kind":  "device",
+                                  "profile_id":  "device",
+                                  "command":  "Do not run live device operations for this unit.",
+                                  "disposition":  "forbidden",
+                                  "serials":  [
+
+                                              ]
+                              }
+                          ],
+    "graph_scope":  {
+                        "change_categories":  [
+                                                  "implementation",
+                                                  "public-private-boundary",
+                                                  "validation"
+                                              ],
+                        "repositories":  [
+                                             {
+                                                 "repo_id":  "rusty-lsl",
+                                                 "allowed_paths":  [
+                                                                       ".github/workflows/ci.yml",
+                                                                       "AGENTS.md",
+                                                                       "docs/VALIDATION.md",
+                                                                       "morphospace/iteration-events.jsonl",
+                                                                       "morphospace/iteration-units/rlsl-lslc-003h-current-gates-dispatcher.json",
+                                                                       "morphospace/receipts/",
+                                                                       "morphospace/workspace.state.json",
+                                                                       "README.md",
+                                                                       "tools/check_all.ps1",
+                                                                       "tools/check_lslc_003h.ps1",
+                                                                       "tools/check_lslc_003h.py",
+                                                                       "tools/current-gates.json",
+                                                                       "tools/dispatch_current_gates.py",
+                                                                       "tools/test_dispatch_current_gates.py"
+                                                                   ]
+                                             }
+                                         ],
+                        "read_only_dependencies":  [
+
+                                                   ],
+                        "exclusion":  "Do not scan repositories or paths outside this list."
+                    },
+    "adoption_receipt":  null,
+    "push_plan":  null,
+    "event_id":  "rlsl-lslc-003h-current-gates-dispatcher-ready-0377"
+}
