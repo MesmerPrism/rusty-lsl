@@ -3,10 +3,10 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 11,
-  "generated_at": "2026-07-15T11:33:58.0942366Z",
+  "revision": 12,
+  "generated_at": "2026-07-15T12:08:22.3241372Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "a0f12ac8f64eabce3badbdb10d96fa7638d88766716733300629cc40494c3b17",
+  "lock_fingerprint": "39063d95e3269048444ba6aa0fe961b5960429b6d3d0c0bccc00bbe455719319",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -140,11 +140,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/fixed-width-numeric-sample.json",
-        "sha256": "c0e8f0503f875f36c57583828cdf5adbc09d75a1cbbb97bba6007cc35026c265",
+        "sha256": "749198127c0f5689ebe761f2cb917cf2d481e580caa665da688dede1c990f1d6",
         "source_repo": "rusty-lsl",
-        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
+        "source_revision": "44e803df633663303a0a00ab0073aeb502c248ce",
         "source_path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
-        "source_sha256": "b1b50ba7a5dc285c56fe2574de31b005fcaf9b38490759a3645fae12f3f40716"
+        "source_sha256": "75d5f5f32f8fcdea9865a4e00bffd6e33c816ccd082cbbe4db1053ed863a53e5"
       },
       "dependencies": [
         "stream-handshake"
@@ -365,11 +365,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "734ceeaa787acd54f5485642b67c75ba20168a00fcd162c3cd8eab2abfe40f5d",
+        "sha256": "e4ec936c7cbedd30cca96f1a141a3a9a08bea35a878184a0319fc9ae354e94e7",
         "source_repo": "rusty-lsl",
-        "source_revision": "279b82d4551c50eb88ed23d82371edc5983103b8",
+        "source_revision": "44e803df633663303a0a00ab0073aeb502c248ce",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs",
-        "source_sha256": "e5ccc37146fa9a9d28c3cbf672bda7ac9b3c63bbfadb331f8e9c14b5f71063b0"
+        "source_sha256": "6bf8079801ea665bf03c08ae285798a1209a4db9200a46c9e6658de58b843e09"
       },
       "dependencies": [
         "stream-handshake"

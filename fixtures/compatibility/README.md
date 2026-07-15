@@ -1,5 +1,11 @@
 # STRM-000 compatibility fixtures
 
+`lslc-003e-bounded-fixed-record-transport-core.json` records only the
+crate-private exact-record transfer seam and LSLC-003E's blocked outcome.
+`lslc-003f-dependency-closed-bounded-record-transport-correction.json` binds
+the corrected descriptor/lock/activation closure and preserved facade parity.
+Neither fixture adds a format, chunk, adapter, device, or Manifold claim.
+
 `lslc-002r-official-loopback-stream-handshake-observation.json` contains only
 sanitized official outlet/inlet connection-setup roles, bounds, typed outcomes,
 and provenance hashes. Raw packets, XML, connection rows, endpoints,

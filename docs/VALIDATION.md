@@ -1,5 +1,12 @@
 # Validation
 
+Run `./tools/check_lslc_003f.ps1` for portable descriptor paths, exact changed
+source hashes, resolver-owned lock revision/fingerprint, Rust/fixture binding,
+preserved LSLC-003E blocked history, helper privacy, Float32/fixed-width facade
+parity, and public-boundary checks. Run `./tools/check_lslc_003e.ps1` for the
+crate-private helper's exact bytes and typed damaged paths. No device gate
+applies.
+
 Run `.\tools\check_lslc_003d.ps1` for resolved-lock/source provenance,
 module-nominal and dependency capability composition, wrong-module rejection,
 the complete Rust parity suite, public-boundary checks, and exact nonclaims.

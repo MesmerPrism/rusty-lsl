@@ -1,5 +1,20 @@
 # Architecture
 
+## Crate-private bounded fixed-record transport
+
+The Float32 and fixed-width numeric sample families share one crate-private
+exact-length TCP transfer helper. It owns only read/write looping, I/O-slice
+timeouts, total-deadline observation, cancellation polling, peer truncation,
+and socket error classification. Each runtime still owns record encoding,
+format-specific initialization, activation capability consumption, its public
+limits and error facade, and scope-owned socket cleanup.
+
+LSLC-003E exposed the extraction seam but could not close changed feature
+provenance inside its claimed paths, so it remains blocked. LSLC-003F retains
+that history and refreshes the two feature descriptors, resolver-owned lock,
+and LSLC-003C exact fingerprint binding as separate artifacts. The helper is
+not public API and adds no transport selection or Manifold authority.
+
 ## Dependency-closed runtime facade composition
 
 Runtime activation direction now follows the resolved lock: handshake feeds

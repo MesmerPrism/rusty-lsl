@@ -1,1 +1,55 @@
-{"$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-descriptor.schema.json","schema":"rusty.morphospace.workflow.feature_descriptor.v1","feature_id":"timestamped-float32-sample","module_id":"timestamped-float32-sample","version":"0.1.0","owner_lane":"rusty-lsl","source":{"repo_id":"rusty-lsl","revision":"279b82d4551c50eb88ed23d82371edc5983103b8","path":"crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs","sha256":"e5ccc37146fa9a9d28c3cbf672bda7ac9b3c63bbfadb331f8e9c14b5f71063b0"},"dependencies":["stream-handshake"],"conflicts":[],"exclusive_group":null,"effects":{"permissions":["network access"],"services":[],"activities":[],"queries":[],"tools":[],"assets":[],"shaders":[],"native_libraries":[],"commands":[],"routes":[],"streams":[],"inputs":["explicit caller one-record timestamped float32 sample configuration"],"scenes":[],"markers":[]},"parameter_authorities":[{"parameter":"lsl.sample-runtime","owner":"rusty-lsl"}],"activation":{"rule":"selected-lock-and-runtime-input","runtime_inputs":["explicit caller one-record timestamped float32 sample configuration"],"receipt_schema":"rusty.lsl.timestamped_float32_sample.activation_receipt.v1","effective_marker":"rusty.lsl.timestamped_float32_sample.effective"},"validation_profile":"runtime-loopback","rollback_profile":"rollback"}
+{
+    "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-descriptor.schema.json",
+    "schema": "rusty.morphospace.workflow.feature_descriptor.v1",
+    "feature_id": "timestamped-float32-sample",
+    "module_id": "timestamped-float32-sample",
+    "version": "0.1.0",
+    "owner_lane": "rusty-lsl",
+    "source": {
+        "repo_id": "rusty-lsl",
+        "revision": "44e803df633663303a0a00ab0073aeb502c248ce",
+        "path": "crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs",
+        "sha256": "6bf8079801ea665bf03c08ae285798a1209a4db9200a46c9e6658de58b843e09"
+    },
+    "dependencies": [
+        "stream-handshake"
+    ],
+    "conflicts": [],
+    "exclusive_group": null,
+    "effects": {
+        "permissions": [
+            "network access"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+            "explicit caller one-record timestamped float32 sample configuration"
+        ],
+        "scenes": [],
+        "markers": []
+    },
+    "parameter_authorities": [
+        {
+            "parameter": "lsl.sample-runtime",
+            "owner": "rusty-lsl"
+        }
+    ],
+    "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+            "explicit caller one-record timestamped float32 sample configuration"
+        ],
+        "receipt_schema": "rusty.lsl.timestamped_float32_sample.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.timestamped_float32_sample.effective"
+    },
+    "validation_profile": "runtime-loopback",
+    "rollback_profile": "rollback"
+}

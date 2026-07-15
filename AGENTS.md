@@ -1,5 +1,15 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003F Dependency-Closed Bounded Record Transport Correction
+
+LSLC-003F retains the blocked LSLC-003E crate-private exact-record TCP helper
+and closes its omitted descriptor, lock, and exact activation bindings. Only
+the accepted Float32 and fixed-width numeric sample runtimes delegate byte
+transfer; their public facades, initialization, encoding, typed errors, bounds,
+activation capabilities, and cleanup remain unchanged. LSLC-003E remains
+blocked history. No format, chunk, adapter, device, dependency, official-source
+intake, or Manifold authority is added. Run `./tools/check_lslc_003f.ps1`.
+
 ## LSLC-003D Dependency-Closed Runtime Activation Composition
 
 LSLC-003D makes the LSLC-003C opaque module capability mandatory at every

@@ -1,5 +1,13 @@
 # Rusty LSL
 
+LSLC-003F completes the dependency-closed correction for the blocked LSLC-003E
+transport extraction. A crate-private helper now owns only bounded exact-length
+TCP record reads and writes; Float32 and fixed-width numeric runtimes retain
+all format, initialization, activation, facade-error, and cleanup policy. The
+two changed descriptors, resolver-owned lock, and exact activation binding are
+refreshed together. LSLC-003E remains blocked evidence rather than being
+retroactively accepted.
+
 LSLC-003D connects the accepted-lock capability facade to every existing
 runtime activation constructor. Dependency-bearing runtime activations now
 consume their declared prerequisite activation, so string pairs cannot bypass
