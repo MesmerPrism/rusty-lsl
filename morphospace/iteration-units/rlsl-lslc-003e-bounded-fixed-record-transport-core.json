@@ -1,0 +1,145 @@
+{
+    "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+    "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+    "project_id": "rusty-lsl",
+    "unit_id": "rlsl-lslc-003e-bounded-fixed-record-transport-core",
+    "status": "proposed",
+    "objective": "Extract only the duplicated exact-length bounded TCP record read/write loop used by the accepted Float32 and fixed-width numeric sample families into one crate-private dependency-free helper, while preserving public facades, format-specific initialization, error stages, cancellation, deadlines, socket cleanup, activation capabilities, and observed bytes unchanged.",
+    "prerequisites": [
+        "rlsl-lslc-003d-dependency-closed-runtime-activation-composition"
+    ],
+    "allowed_repositories": [
+        {
+            "repo_id": "rusty-lsl",
+            "allowed_paths": [
+                "AGENTS.md",
+                "README.md",
+                "crates/rusty-lsl/src/bounded_fixed_record_transport.rs",
+                "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
+                "crates/rusty-lsl/src/lib.rs",
+                "crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs",
+                "docs/ARCHITECTURE.md",
+                "docs/VALIDATION.md",
+                "fixtures/compatibility/README.md",
+                "fixtures/compatibility/lslc-003e-bounded-fixed-record-transport-core.json",
+                "morphospace/",
+                "tools/check_all.ps1",
+                "tools/check_lslc_003e.ps1",
+                "tools/check_lslc_003e.py"
+            ]
+        }
+    ],
+    "non_scope": [
+        "Handshake header/framing extraction, runtime behavior changes, public API changes, String, Int64, chunks, multiple samples/channels, discovery, clocks, queues, recovery, or adapters.",
+        "Dependencies, unsafe/FFI, devices, official implementation source, private evidence, ambient activation, crate splitting, or Manifold authority."
+    ],
+    "outputs": [
+        "One crate-private exact-length TCP record helper with explicit nonzero I/O slice and total-deadline inputs, caller cancellation, typed read/write/deadline/truncation outcomes, and no format or activation authority.",
+        "Float32 and fixed-width numeric runtimes delegate only their duplicated record byte transfer while retaining their existing public limits, errors, initialization, encoding/decoding, capabilities, and cleanup behavior.",
+        "Focused parity and damaged-path evidence proves exact bytes and typed facade outcomes remain unchanged and the helper cannot broaden runtime scope."
+    ],
+    "acceptance": [
+        {
+            "acceptance_id": "private-bounded-record-core",
+            "command": "cargo test --workspace --all-targets --offline --locked lslc_003e",
+            "proof": "The crate-private helper completes exact bounded reads/writes and rejects cancellation, deadline, truncation, and I/O failure without owning format or activation policy."
+        },
+        {
+            "acceptance_id": "float32-fixed-width-parity",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003e.ps1",
+            "proof": "All accepted Float32 and fixed-width initialization, caller sample bytes, timestamps, values, errors, and cleanup remain unchanged through the existing public facades."
+        },
+        {
+            "acceptance_id": "no-breadth-or-authority",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+            "proof": "No public facade, format, chunk, dependency, device, adapter, ambient activation, official-source, or Manifold authority is added."
+        }
+    ],
+    "validation": [
+        {
+            "profile_id": "runtime-loopback",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003e.ps1"
+        },
+        {
+            "profile_id": "source-owner",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+        },
+        {
+            "profile_id": "workflow",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+        }
+    ],
+    "risk_tier": "standard",
+    "device_requirement": "forbidden",
+    "change_categories": [
+        "implementation",
+        "validation",
+        "public-private-boundary"
+    ],
+    "instruction_impact": "update",
+    "instruction_none_justification": null,
+    "instruction_surfaces": [
+        {
+            "surface_kind": "agents",
+            "path": "AGENTS.md",
+            "owner": "rusty-lsl",
+            "change_reason": "Route the crate-private shared record-transfer boundary and exact nonclaims.",
+            "action": "update",
+            "status": "planned",
+            "validation": "Run focused and owner gates.",
+            "skill_id": null
+        },
+        {
+            "surface_kind": "readme",
+            "path": "README.md",
+            "owner": "rusty-lsl",
+            "change_reason": "Describe facade-preserving Float32/fixed-width transport reuse.",
+            "action": "update",
+            "status": "planned",
+            "validation": "Run public-boundary and focused gates.",
+            "skill_id": null
+        },
+        {
+            "surface_kind": "router-doc",
+            "path": "docs/ARCHITECTURE.md",
+            "owner": "rusty-lsl",
+            "change_reason": "Record helper ownership, dependency direction, and retained facade authority.",
+            "action": "update",
+            "status": "planned",
+            "validation": "Run focused gate.",
+            "skill_id": null
+        },
+        {
+            "surface_kind": "router-doc",
+            "path": "docs/VALIDATION.md",
+            "owner": "rusty-lsl",
+            "change_reason": "Route exact-byte, damaged-path, and facade-parity checks.",
+            "action": "update",
+            "status": "planned",
+            "validation": "Run Standard profiles.",
+            "skill_id": null
+        },
+        {
+            "surface_kind": "skill",
+            "path": "<skills-root>/rusty-morphospace-context/SKILL.md",
+            "owner": "workflow-maintainer",
+            "change_reason": "Review lane and public-boundary impact; current guidance covers the private helper extraction.",
+            "action": "review-no-change",
+            "status": "complete",
+            "validation": "Reviewed installed 0.4.0 skill.",
+            "skill_id": "rusty-morphospace-context"
+        },
+        {
+            "surface_kind": "skill",
+            "path": "<skills-root>/system-engineering/SKILL.md",
+            "owner": "workflow-maintainer",
+            "change_reason": "Review facade-preserving extraction and authority separation; current guidance covers it.",
+            "action": "review-no-change",
+            "status": "complete",
+            "validation": "Reviewed installed skill.",
+            "skill_id": "system-engineering"
+        }
+    ],
+    "commit_policy": "Commit proposal, reviewed lifecycle, one facade-preserving helper extraction, validation, acceptance, and push preparation intentionally; preserve failures.",
+    "push_checkpoint": "integration-batch"
+}
