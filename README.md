@@ -636,3 +636,11 @@ This partial local classification is one-way only: there is no borrowed or
 reverse conversion, `From`/`TryFrom` or default policy, decoding, logical-text
 recovery, round-trip claim, document production, stream-info or LSL mapping,
 endpoint representation, protocol, wire, runtime, or compatibility behavior.
+## Bounded stream connection setup
+
+The opt-in `stream-handshake` module provides one dependency-free synchronous
+TCP request/response setup between caller-selected peers. Exact activation,
+finite header and field bounds, sliced blocking, cancellation, typed rejection,
+and scope-owned cleanup keep the effect closed. It is connection setup only:
+sample transport, clocks, queues, recovery, devices, and Manifold authority are
+outside this slice.

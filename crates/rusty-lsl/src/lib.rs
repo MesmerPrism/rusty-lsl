@@ -48,6 +48,7 @@ mod short_info_query_wire;
 mod short_info_response_envelope;
 mod stream_definition;
 mod stream_descriptor;
+mod stream_handshake;
 mod stream_info_description_xml;
 mod stream_info_implementation_version_provider;
 mod stream_info_observed_document;
@@ -123,6 +124,13 @@ pub use stream_descriptor::{
     ChannelFormat, InvalidRegularSampleRate, NominalSampleRate, NominalSampleRateError,
     RegularSampleRate, StreamDescriptor, StreamDescriptorBound, StreamDescriptorError,
     StreamDescriptorLimits, StreamDescriptorTextRole,
+};
+pub use stream_handshake::{
+    run_stream_inlet_handshake, run_stream_outlet_handshake, StreamHandshakeActivation,
+    StreamHandshakeActivationError, StreamHandshakeError, StreamHandshakeIdentity,
+    StreamHandshakeIdentityError, StreamHandshakeIdentityRole, StreamHandshakeLimitError,
+    StreamHandshakeLimits, StreamInletHandshake, StreamOutletHandshake,
+    STREAM_HANDSHAKE_EFFECTIVE_MARKER, STREAM_HANDSHAKE_FEATURE_ID,
 };
 pub use stream_info_description_xml::{StreamInfoDescriptionXml, StreamInfoDescriptionXmlError};
 pub use stream_info_implementation_version_provider::{
@@ -217,7 +225,7 @@ pub use xml_value::{
 #[non_exhaustive]
 pub enum ImplementationStatus {
     /// Bounded local contracts plus one explicitly activated UDP discovery call exist.
-    BoundedDiscoveryRuntime,
+    BoundedStreamHandshakeRuntime,
 }
 
 /// A stable declaration of one side of the repository ownership boundary.
@@ -232,7 +240,7 @@ pub struct OwnershipDeclaration {
 /// Returns the current implementation status.
 #[must_use]
 pub const fn implementation_status() -> ImplementationStatus {
-    ImplementationStatus::BoundedDiscoveryRuntime
+    ImplementationStatus::BoundedStreamHandshakeRuntime
 }
 
 /// Returns the repository's current ownership declaration.
@@ -267,6 +275,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded minimum-RTT selection contract",
             "explicit finite clock-offset application contract",
             "bounded caller-configured UDP discovery runtime",
+            "bounded caller-configured TCP stream-handshake runtime",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -289,7 +298,7 @@ mod tests {
     fn status_names_only_the_implemented_local_contracts() {
         assert_eq!(
             implementation_status(),
-            ImplementationStatus::BoundedDiscoveryRuntime
+            ImplementationStatus::BoundedStreamHandshakeRuntime
         );
     }
 
@@ -321,5 +330,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"explicit finite clock-offset application contract"));
+        assert!(declaration
+            .owns
+            .contains(&"bounded caller-configured TCP stream-handshake runtime"));
     }
 }

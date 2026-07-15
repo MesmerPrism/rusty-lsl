@@ -1,5 +1,20 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002S Bounded Stream Handshake Runtime
+
+LSLC-002S is one explicitly selected, caller-configured synchronous TCP
+connection-setup slice. A bounded inlet request and outlet response retain one
+caller-owned opaque identity under finite header/field, I/O-slice, and total
+deadline limits, explicit cancellation, typed malformed-peer outcomes, and
+scope-owned socket cleanup. Its independently authored framing is bound to
+sanitized black-box evidence; raw bytes, XML, endpoints, diagnostics,
+environments, and caches remain private.
+
+This adds no sample or timestamp transport, clock exchange/correction, queue,
+retry, recovery, background runtime, endpoint selection, non-loopback claim,
+device behavior, unsafe/FFI, or Manifold authority. Run `powershell -NoProfile
+-ExecutionPolicy Bypass -File .\tools\check_lslc_002s.ps1`.
+
 ## LSLC-002R Official Loopback Stream Handshake Observation
 
 LSLC-002R observes two finite official outlet-to-inlet connection setups

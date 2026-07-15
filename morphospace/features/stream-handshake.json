@@ -1,0 +1,32 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-descriptor.schema.json",
+  "schema": "rusty.morphospace.workflow.feature_descriptor.v1",
+  "feature_id": "stream-handshake",
+  "module_id": "stream-handshake",
+  "version": "0.1.0",
+  "owner_lane": "rusty-lsl",
+  "source": {
+    "repo_id": "rusty-lsl",
+    "revision": "3e987c23c14b66d005e9d663a2e9ad6004c65da8",
+    "path": "crates/rusty-lsl/src/stream_handshake.rs",
+    "sha256": "05d5e83f69a6ee841ea4938e07531dde0275be13d7326eb1e47dcbc453f5f058"
+  },
+  "dependencies": [],
+  "conflicts": [],
+  "exclusive_group": null,
+  "effects": {
+    "permissions": ["network access"], "services": [], "activities": [], "queries": [],
+    "tools": [], "assets": [], "shaders": [], "native_libraries": [], "commands": [],
+    "routes": [], "streams": [], "inputs": ["explicit caller TCP handshake configuration"],
+    "scenes": [], "markers": []
+  },
+  "parameter_authorities": [{"parameter":"lsl.connection-setup-runtime","owner":"rusty-lsl"}],
+  "activation": {
+    "rule": "selected-lock-and-runtime-input",
+    "runtime_inputs": ["explicit caller TCP handshake configuration"],
+    "receipt_schema": "rusty.lsl.stream_handshake.activation_receipt.v1",
+    "effective_marker": "rusty.lsl.stream_handshake.effective"
+  },
+  "validation_profile": "runtime-loopback",
+  "rollback_profile": "rollback"
+}

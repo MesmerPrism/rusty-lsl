@@ -12,10 +12,12 @@
   },
   "composition": {
     "selected_features": [
+      "stream-handshake",
       "udp-discovery"
     ],
     "denied_features": [],
     "selected_modules": [
+      "stream-handshake",
       "udp-discovery"
     ],
     "denied_modules": [],
@@ -34,6 +36,11 @@
     ]
   },
   "authority_map": [
+    {
+      "parameter": "lsl.connection-setup-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
     {
       "parameter": "lsl.compatibility",
       "owner": "rusty-lsl",
@@ -78,6 +85,17 @@
   ],
   "modules": [
     {
+      "module_id": "stream-handshake",
+      "feature_id": "stream-handshake",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.stream_handshake.v1",
+      "contract_revision": "lslc-002s",
+      "source_repo": "rusty-lsl",
+      "dependencies": [],
+      "selected": true
+    },
+    {
       "module_id": "udp-discovery",
       "feature_id": "udp-discovery",
       "lane": "rusty-lsl",
@@ -90,7 +108,7 @@
     }
   ],
   "non_scope": [
-    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery call, including multicast membership, endpoint selection, clocks, inlet, outlet, recovery, and FFI.",
+    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery and TCP connection-setup calls, including multicast membership, endpoint selection, samples, clocks, queues, recovery, and FFI.",
     "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
     "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
     "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."

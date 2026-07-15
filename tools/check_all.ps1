@@ -38,9 +38,12 @@ try {
     # inert-lock revisions. The rolling owner gate exercises their Rust code
     # through the complete test suite without reapplying superseded empty-lock
     # assertions after LSLC-002P's reviewed activation.
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002p.ps1
+    # LSLC-002P's focused receipt pins its original single-feature lock. Its
+    # runtime and cleanup behavior are covered above after additive feature
+    # selection; do not reapply that historical composition assertion.
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002q.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002r.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002s.ps1
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked git diff --check
 

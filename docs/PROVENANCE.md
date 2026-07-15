@@ -469,3 +469,11 @@ are bound by SHA-256 in the sanitized fixture. Raw XML, connection rows,
 endpoint and runtime values, native diagnostics, binary/environment/cache
 paths, and failed attempts stay outside Git. Their digests establish exact
 provenance without publishing their contents.
+## LSLC-002S black-box framing provenance
+
+The pinned `pylsl 1.18.2` Windows AMD64 wheel, public library/protocol versions,
+and loaded native-library digest match the accepted LSLC-002R endpoint. Driver
+and raw-output SHA-256 values bind two private active probes. No implementation
+source was inspected, and raw request/response bytes, XML, identifiers,
+endpoints, diagnostics, binaries, environments, caches, and local paths are
+not committed.

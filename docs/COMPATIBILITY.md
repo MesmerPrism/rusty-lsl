@@ -494,3 +494,10 @@ vertical slice. It is not a public wire transcript and grants no Rust
 listener, connector, encoder, parser, outlet, inlet, sample, clock, queue,
 retry, recovery, non-loopback, performance, ecosystem, device, or Manifold
 claim.
+## LSLC-002S bounded stream-handshake runtime
+
+Two private IPv4-loopback black-box probes separately observed an official
+inlet request and official outlet response. Public evidence retains only fixed
+role order, termination, pinned binary provenance, and private-artifact hashes.
+The Rust loopback pair then exercises the independently authored bounded slice;
+it is not a claim of sample interoperability or ecosystem-wide compatibility.

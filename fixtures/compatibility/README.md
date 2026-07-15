@@ -234,3 +234,6 @@ allocation ownership, historical preservation, and inert-closure checks. Its
 overlay proves no reverse, decoding, round-trip, document, serialization, LSL
 mapping, endpoint, protocol, wire, runtime, ecosystem, compatibility, or
 official-liblsl behavior.
+`lslc-002s-bounded-stream-handshake-runtime.json` binds sanitized request and
+response framing roles plus independently authored bounded Rust loopback
+runtime outcomes. Raw wire artifacts remain private.

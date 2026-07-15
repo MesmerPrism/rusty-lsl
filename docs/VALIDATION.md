@@ -647,3 +647,11 @@ provenance, two bounded loopback-only connection-setup cases, exact synthetic
 stream-shape admission, explicit close/process cleanup, zero sample calls, raw
 artifact exclusion, and strict nonclaims. It replays only sanitized derived
 evidence and does not execute the private oracle or prove a Rust handshake.
+## LSLC-002S focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002s.ps1`. It verifies sanitized evidence/provenance,
+closed public boundaries, activation rejection, exact loopback exchange,
+malformed and identity-mismatch outcomes, cancellation/deadline behavior, and
+immediate listener-port reuse. Standard acceptance also runs the full owner and
+portable workflow gates; device validation is forbidden.

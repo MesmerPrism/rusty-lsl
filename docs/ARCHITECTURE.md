@@ -561,3 +561,11 @@ their explicit effective views, and channel-format spelling is a total mapping
 over the existing seven variants. Borrowed extended metadata remains generic;
 the adapter assigns no XML, `desc`, document, runtime, transport, or authority
 role.
+## LSLC-002S bounded TCP connection setup
+
+The stream-handshake feature owns one call-scoped listener or connector. The
+caller owns endpoint selection and identity input; the selected lock plus exact
+runtime marker opens the effect. Header allocation, each blocking slice, the
+total call, cancellation observation, and socket lifetime are finite. Accepted
+request and response headers do not open sample, clock, queue, recovery, or
+authority planes.

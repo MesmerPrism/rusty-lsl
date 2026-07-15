@@ -3,56 +3,148 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 2,
-  "generated_at": "2026-07-15T00:00:00Z",
+  "revision": 3,
+  "generated_at": "2026-07-15T03:00:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "3a60c2bf7a5773376195d18a5f1d3ca0b58b4c5203bd2248a77427f9a80826b0",
+  "lock_fingerprint": "643361a98d383c50b01e6a152ff77a569e13264279d70e951215007ac5b22c68",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
-  "selected_features": ["udp-discovery"],
+  "selected_features": [
+    "stream-handshake",
+    "udp-discovery"
+  ],
   "denied_features": [],
-  "features": [{
-    "feature_id": "udp-discovery",
-    "module_id": "udp-discovery",
-    "version": "0.1.0",
-    "owner_lane": "rusty-lsl",
-    "selected": true,
-    "run_activation_default": "disabled",
-    "descriptor": {
-      "path": "morphospace/features/udp-discovery.json",
-      "sha256": "3d55c16da66725d20efd8bbcaf0f2524ef509b9b586b276d22d72c5a34e5f5ed",
-      "source_repo": "rusty-lsl",
-      "source_revision": "1508eced265aa6918ca7ad333cc4177e8b33e0b1",
-      "source_path": "crates/rusty-lsl/src/udp_discovery.rs",
-      "source_sha256": "b1d1408b2a44db86a93a46c2b4005fa9986deddc0f0b2c50b65456c425ecad72"
+  "features": [
+    {
+      "feature_id": "stream-handshake",
+      "module_id": "stream-handshake",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/stream-handshake.json",
+        "sha256": "bd1b897732ba139c8a4397277ae26b21993434f8a206ad5400f02ec2d3c4e2a0",
+        "source_repo": "rusty-lsl",
+        "source_revision": "3e987c23c14b66d005e9d663a2e9ad6004c65da8",
+        "source_path": "crates/rusty-lsl/src/stream_handshake.rs",
+        "source_sha256": "05d5e83f69a6ee841ea4938e07531dde0275be13d7326eb1e47dcbc453f5f058"
+      },
+      "dependencies": [],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [
+          "network access"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller TCP handshake configuration"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.connection-setup-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller TCP handshake configuration"
+        ],
+        "receipt_schema": "rusty.lsl.stream_handshake.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.stream_handshake.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
     },
-    "dependencies": [],
-    "conflicts": [],
-    "exclusive_group": null,
-    "effects": {
-      "permissions": ["network access"],
-      "services": [], "activities": [], "queries": [], "tools": [],
-      "assets": [], "shaders": [], "native_libraries": [], "commands": [],
-      "routes": [], "streams": [],
-      "inputs": ["explicit caller UDP discovery configuration"],
-      "scenes": [], "markers": []
-    },
-    "parameter_authorities": [{"parameter":"lsl.discovery-runtime","owner":"rusty-lsl"}],
-    "activation": {
-      "rule": "selected-lock-and-runtime-input",
-      "runtime_inputs": ["explicit caller UDP discovery configuration"],
-      "receipt_schema": "rusty.lsl.udp_discovery.activation_receipt.v1",
-      "effective_marker": "rusty.lsl.udp_discovery.effective"
-    },
-    "validation_profile": "runtime-loopback",
-    "rollback_profile": "rollback"
-  }],
+    {
+      "feature_id": "udp-discovery",
+      "module_id": "udp-discovery",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/udp-discovery.json",
+        "sha256": "3d55c16da66725d20efd8bbcaf0f2524ef509b9b586b276d22d72c5a34e5f5ed",
+        "source_repo": "rusty-lsl",
+        "source_revision": "1508eced265aa6918ca7ad333cc4177e8b33e0b1",
+        "source_path": "crates/rusty-lsl/src/udp_discovery.rs",
+        "source_sha256": "b1d1408b2a44db86a93a46c2b4005fa9986deddc0f0b2c50b65456c425ecad72"
+      },
+      "dependencies": [],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [
+          "network access"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller UDP discovery configuration"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.discovery-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller UDP discovery configuration"
+        ],
+        "receipt_schema": "rusty.lsl.udp_discovery.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.udp_discovery.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    }
+  ],
   "effect_union": {
-    "permissions": ["network access"],
-    "services": [], "activities": [], "queries": [], "tools": [],
-    "assets": [], "shaders": [], "native_libraries": [], "commands": [],
-    "routes": [], "streams": [],
-    "inputs": ["explicit caller UDP discovery configuration"],
-    "scenes": [], "markers": []
+    "permissions": [
+      "network access"
+    ],
+    "services": [],
+    "activities": [],
+    "queries": [],
+    "tools": [],
+    "assets": [],
+    "shaders": [],
+    "native_libraries": [],
+    "commands": [],
+    "routes": [],
+    "streams": [],
+    "inputs": [
+      "explicit caller TCP handshake configuration",
+      "explicit caller UDP discovery configuration"
+    ],
+    "scenes": [],
+    "markers": []
   }
 }
