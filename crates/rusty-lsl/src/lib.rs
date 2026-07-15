@@ -47,6 +47,7 @@ mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
 mod raw_clock_exchange;
+mod runtime_activation;
 mod sample;
 mod short_info_discovery_responder_runtime;
 mod short_info_query_wire;
@@ -140,6 +141,11 @@ pub use metadata_xml_projection::{
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,
     RawClockExchangeFormulaStage, RawClockExchangeInputError, RawClockExchangeTimestampRole,
+};
+pub use runtime_activation::{
+    admit_runtime_activation, RuntimeActivationAdmission, RuntimeActivationError,
+    RuntimeActivationOutcome, RuntimeActivationReceipt, RuntimeActivationSelection, RuntimeModule,
+    RuntimeModuleCapability, ACCEPTED_FEATURE_LOCK_FINGERPRINT, ACCEPTED_FEATURE_LOCK_REVISION,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
 pub use short_info_discovery_responder_runtime::{

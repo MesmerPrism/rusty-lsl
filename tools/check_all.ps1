@@ -46,6 +46,7 @@ try {
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002s.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002t.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002u.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003c.ps1
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked git diff --check
 

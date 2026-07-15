@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003C Lock-Bound Runtime Activation Capability
+
+LSLC-003C admits an explicit caller selection only against the complete
+accepted feature-lock fingerprint and revision. It rejects stale locks,
+unknown or duplicate modules, wrong effective markers, and missing declared
+dependencies before returning opaque module-nominal capabilities and a
+separate consumer-issued receipt. An absent selection remains inert.
+
+Existing runtime activation constructors and effects are unchanged; consuming
+these capabilities in queue, recovery, clock, or transport composition is a
+later unit. This unit adds no format, chunk, adapter, device, dependency,
+official-source intake, ambient activation, or Manifold authority. Run
+`.\tools\check_lslc_003c.ps1`.
+
 ## LSLC-003B Fixed-Width Numeric Runtime Family
 
 LSLC-003B adds one explicitly activated, bounded, single-channel one-record

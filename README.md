@@ -1,5 +1,13 @@
 # Rusty LSL
 
+LSLC-003C adds a dependency-free exact-lock admission facade. A caller names
+the accepted feature-lock fingerprint, consumer identity, and explicit module
+and effective-marker selections. Admission rejects stale, unknown, duplicate,
+marker-damaged, or dependency-incomplete selections and returns only opaque
+capabilities for admitted modules plus a separate consumer receipt. Empty
+selection is valid and inert. Existing runtime constructors and behavior are
+preserved; capability composition into those facades remains future work.
+
 LSLC-002Y corrects the two LSLC-002X failure stages by structurally admitting
 the official finite positive Endian-Performance request field and handling the
 observed two-record initialization sequence before the caller Float32 sample.

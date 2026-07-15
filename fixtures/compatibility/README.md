@@ -265,3 +265,9 @@ and provenance hashes only; all raw black-box artifacts remain private.
 # LSLC-003B
 
 The runtime-family fixture contains only sanitized outcomes and hashes.
+
+# LSLC-003C
+
+The activation fixture binds the accepted public lock fingerprint/revision,
+one synthetic dependency-closed selection, typed damaged cases, and exact
+nonclaims. It contains no runtime, endpoint, device, or private evidence.

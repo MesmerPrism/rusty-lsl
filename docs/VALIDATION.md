@@ -1,5 +1,10 @@
 # Validation
 
+Run `.\tools\check_lslc_003c.ps1` for exact lock fingerprint/revision binding,
+module/marker inventory agreement, opaque capability and consumer-receipt
+shape, dependency closure, absence-as-inert behavior, damaged inputs, Cargo
+tests, and the public boundary. The unit is source-only and has no device gate.
+
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File
 .\tools\check_lslc_002q.ps1` for the LSLC-002Q provenance, direction, two-case
 typed outcome, raw-private boundary, limitation, existing UDP runtime replay,

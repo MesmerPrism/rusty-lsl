@@ -1,5 +1,20 @@
 # Architecture
 
+## Lock-bound runtime activation
+
+The resolved `feature.lock` remains composition evidence, not live runtime
+state. `runtime_activation` independently admits only its exact accepted
+fingerprint and revision plus caller-observed effective markers. The result
+contains private-inner, module-nominal capabilities and a distinct
+consumer-issued receipt that owns the bounded consumer identity and ordered
+selected-module set. A missing module yields no capability; a requested module
+without its declared dependency fails closed.
+
+This closes lock admission only. Existing runtime facades do not yet consume
+these capabilities, so LSLC-003C neither activates an effect nor claims full
+runtime dependency composition. That reconciliation is the next architecture
+slice. No adapter or Manifold authority participates.
+
 ## Official-compatible Float32 stream initialization
 
 The outlet request parser retains exact role order, fixed values, and identity
