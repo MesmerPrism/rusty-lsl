@@ -1,5 +1,13 @@
 # Compatibility
 
+LSLC-002Q is the first official-endpoint behavioral evidence for the accepted
+Rust discovery client. Two finite IPv4 loopback-unicast cases reached the
+pinned official protocol-110 responder and passed the existing envelope,
+document-shape, and separate typed-document admissions unchanged. The result
+is directional and bounded: it does not test an official client against a Rust
+responder, multicast or interfaces, non-loopback reachability, multiple hosts,
+outlet/inlet samples, or ecosystem-wide interoperability.
+
 LSLC-002P proves only a Rust-to-Rust synthetic loopback query/response path and
 bounded negative behavior for the exact local contracts already accepted. It
 does not exercise an official endpoint, multicast discovery, multiple

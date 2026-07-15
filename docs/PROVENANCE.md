@@ -1,5 +1,17 @@
 # Provenance
 
+## LSLC-002Q official responder observation
+
+The independently authored external driver exercised the accepted LSLC-002P
+Rust client against the same pinned official PyPI Windows AMD64 `pylsl 1.18.2`
+wheel, library version 117, protocol version 110, and native DLL digest already
+recorded by LSLC-002E. Only documented `StreamInfo` and `StreamOutlet` APIs
+were invoked; implementation source was not inspected. The public fixture
+binds the private orchestration driver, Rust driver, and raw observation by
+SHA-256. The initial private compile-only harness failure is retained as failed
+attempt evidence. Raw packets, XML, endpoint/runtime values, diagnostics,
+binaries, environments, and caches remain external.
+
 LSLC-002L binds `docs/info/time_synchronization.rst` at public revision
 `f012f8cfe8894cab0529be77dd83c91d6d95537d` and exact UTF-8 SHA-256
 `35bacbc81477d7e08554e42c6fa25382622954adecded9ab2101bf2061fc883e`.

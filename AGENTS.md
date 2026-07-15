@@ -1,5 +1,22 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002Q Official Loopback Discovery Client Observation
+
+LSLC-002Q observes the accepted LSLC-002P Rust client against the pinned
+official protocol-110 responder in two finite IPv4 loopback-only cases. Both
+calls sent an accepted query, received one bounded response, admitted the
+unchanged response envelope/document, passed separate LSLC-002B typed
+admission, terminated at the response-count bound, and exited with scope-owned
+socket cleanup.
+
+Only sanitized typed outcomes and pinned provenance are public. Raw packets,
+XML, endpoint values, diagnostics, binaries, environments, and caches remain
+private. This one-direction observation adds no Rust responder, multicast,
+interface selection, non-loopback reachability, ecosystem-wide compatibility,
+correlation/currentness, outlet/inlet/sample behavior, device behavior, or
+Manifold authority. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002q.ps1`.
+
 ## LSLC-002P Bounded UDP Discovery Activation
 
 LSLC-002P is the first explicit runtime effect: one synchronous, caller-bound

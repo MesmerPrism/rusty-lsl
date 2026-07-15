@@ -1,6 +1,13 @@
 # Validation
 
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002q.ps1` for the LSLC-002Q provenance, direction, two-case
+typed outcome, raw-private boundary, limitation, existing UDP runtime replay,
+and public-boundary gates. The external observation used a 15-second per-client
+timeout inside a 45-second process bound and cleaned up the exact process on
+timeout. No device suite is applicable.
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
 .\tools\check_lslc_002p.ps1` for LSLC-002P. Eight behavioral tests exercise
 nonzero limit order, exact-boundary response admission, one-past datagrams,
 invalid UTF-8, unchanged envelope errors, pre-send and blocked-receive

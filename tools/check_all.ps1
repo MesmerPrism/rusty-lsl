@@ -39,6 +39,7 @@ try {
     # through the complete test suite without reapplying superseded empty-lock
     # assertions after LSLC-002P's reviewed activation.
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002p.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002q.ps1
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked git diff --check
 

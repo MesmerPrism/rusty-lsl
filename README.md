@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-002Q adds bounded black-box evidence for one direction only: the accepted
+LSLC-002P Rust client sent short-info queries to the pinned official
+protocol-110 responder in two IPv4 loopback cases and admitted each returned
+envelope, document shape, and separate typed document. This does not establish
+the reverse responder direction, multicast/interface behavior, non-loopback
+reachability, broad ecosystem interoperability, or sample transport.
+
 LSLC-002P opens the first opt-in runtime slice: a dependency-free synchronous
 UDP discovery call over caller-supplied bind and destination addresses. It
 sends an accepted short-info query, admits bounded response envelopes, and
