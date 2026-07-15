@@ -15,6 +15,7 @@
       "bounded-sample-queue",
       "finite-sample-recovery",
       "integrated-clock-correction",
+      "short-info-discovery-responder",
       "stream-handshake",
       "timestamped-float32-sample",
       "udp-discovery"
@@ -24,6 +25,7 @@
       "bounded-sample-queue",
       "finite-sample-recovery",
       "integrated-clock-correction",
+      "short-info-discovery-responder",
       "stream-handshake",
       "timestamped-float32-sample",
       "udp-discovery"
@@ -45,6 +47,11 @@
     ]
   },
   "authority_map": [
+    {
+      "parameter": "lsl.discovery-responder-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
     {
       "parameter": "lsl.sample-recovery-runtime",
       "owner": "rusty-lsl",
@@ -114,6 +121,17 @@
   ],
   "modules": [
     {
+      "module_id": "short-info-discovery-responder",
+      "feature_id": "short-info-discovery-responder",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.short_info_discovery_responder.v1",
+      "contract_revision": "lslc-002z",
+      "source_repo": "rusty-lsl",
+      "dependencies": [],
+      "selected": true
+    },
+    {
       "module_id": "finite-sample-recovery",
       "feature_id": "finite-sample-recovery",
       "lane": "rusty-lsl",
@@ -121,7 +139,9 @@
       "contract": "rusty.lsl.finite_sample_recovery.v1",
       "contract_revision": "lslc-002w",
       "source_repo": "rusty-lsl",
-      "dependencies": ["bounded-sample-queue"],
+      "dependencies": [
+        "bounded-sample-queue"
+      ],
       "selected": true
     },
     {
@@ -132,7 +152,9 @@
       "contract": "rusty.lsl.bounded_sample_queue.v1",
       "contract_revision": "lslc-002v",
       "source_repo": "rusty-lsl",
-      "dependencies": ["timestamped-float32-sample"],
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
       "selected": true
     },
     {
@@ -143,7 +165,9 @@
       "contract": "rusty.lsl.integrated_clock_correction.v1",
       "contract_revision": "lslc-002u",
       "source_repo": "rusty-lsl",
-      "dependencies": ["timestamped-float32-sample"],
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
       "selected": true
     },
     {
@@ -154,7 +178,9 @@
       "contract": "rusty.lsl.timestamped_float32_sample.v1",
       "contract_revision": "lslc-002y",
       "source_repo": "rusty-lsl",
-      "dependencies": ["stream-handshake"],
+      "dependencies": [
+        "stream-handshake"
+      ],
       "selected": true
     },
     {
@@ -190,7 +216,7 @@
     {
       "profile_id": "runtime-loopback",
       "commands": [
-        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002p.ps1"
+        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002z.ps1"
       ]
     },
     {

@@ -47,6 +47,7 @@ mod metadata_tree;
 mod metadata_xml_projection;
 mod raw_clock_exchange;
 mod sample;
+mod short_info_discovery_responder_runtime;
 mod short_info_query_wire;
 mod short_info_response_envelope;
 mod stream_definition;
@@ -133,6 +134,12 @@ pub use raw_clock_exchange::{
     RawClockExchangeFormulaStage, RawClockExchangeInputError, RawClockExchangeTimestampRole,
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
+pub use short_info_discovery_responder_runtime::{
+    run_short_info_responder, ShortInfoResponderActivation, ShortInfoResponderActivationError,
+    ShortInfoResponderError, ShortInfoResponderLimitError, ShortInfoResponderLimits,
+    ShortInfoResponderRun, ShortInfoResponderTermination, SHORT_INFO_RESPONDER_EFFECTIVE_MARKER,
+    SHORT_INFO_RESPONDER_FEATURE_ID,
+};
 pub use short_info_query_wire::{
     ParsedShortInfoQuery, ShortInfoQuery, ShortInfoQueryEncodeError, ShortInfoQueryParseError,
     ShortInfoQueryValueError, ShortInfoQueryWire, ShortInfoQueryWireLimitError,

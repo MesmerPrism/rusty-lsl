@@ -693,3 +693,9 @@ Run `tools/check_lslc_002y.ps1` for finite positive performance admission,
 damaged/nonfinite/reordered/identity rejection, exact two-record initialization
 and damage handling, both sanitized pinned-official direction outcomes, and
 public-boundary checks.
+# LSLC-002Z validation
+
+Run `tools/check_lslc_002z.ps1` for exact fixture/privacy checks and focused
+Rust tests covering valid correlation, malformed and oversized datagrams,
+request bounds, cancellation, deadline termination, and immediate port reuse.
+Standard validation also runs the full owner and portable workflow gates.

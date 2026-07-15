@@ -681,3 +681,10 @@ accepted timestamped single-channel Float32 path. Capacity, blocking wait
 slices, and deadlines are explicit; full/empty backpressure, cancellation,
 close wakeups, and buffered draining are typed. It owns no worker or recovery
 policy.
+# LSLC-002Z bounded reverse discovery
+
+The selected responder feature provides one finite caller-configured UDP
+short-info response call. Synthetic tests bind admission, resource limits,
+cancellation, deadlines, and cleanup; a pinned official public client resolved
+the response on IPv4 loopback. This is not multicast, interface policy,
+background discovery service, non-loopback, or broad compatibility.

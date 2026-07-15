@@ -3,16 +3,17 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 8,
-  "generated_at": "2026-07-15T06:20:00Z",
+  "revision": 9,
+  "generated_at": "2026-07-15T07:03:00.8112277Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "6a403ce88fb0d9c5c3fc3960b1a4ba497ba2eac57a2635648cd3192de6779e30",
+  "lock_fingerprint": "553d72c2f37f37262761539ef1842b861f7d78924256561598e2f12c3a33676e",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
     "bounded-sample-queue",
     "finite-sample-recovery",
     "integrated-clock-correction",
+    "short-info-discovery-responder",
     "stream-handshake",
     "timestamped-float32-sample",
     "udp-discovery"
@@ -183,6 +184,61 @@
         ],
         "receipt_schema": "rusty.lsl.integrated_clock_correction.activation_receipt.v1",
         "effective_marker": "rusty.lsl.integrated_clock_correction.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    },
+    {
+      "feature_id": "short-info-discovery-responder",
+      "module_id": "short-info-discovery-responder",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/short-info-discovery-responder.json",
+        "sha256": "2cc03a5952305c835c08ad28326e5db58ed3ab2b65d6bea301a7013d05882647",
+        "source_repo": "rusty-lsl",
+        "source_revision": "1613085699ba02768eab3689c78c36b988c4112f",
+        "source_path": "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
+        "source_sha256": "2486a7296d62dcaac49453375f0569d4c6bd6e8479e6ba5ce3346ede3eb58e67"
+      },
+      "dependencies": [],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [
+          "network access"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller short-info responder configuration"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.discovery-responder-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller short-info responder configuration"
+        ],
+        "receipt_schema": "rusty.lsl.short_info_discovery_responder.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.short_info_discovery_responder.effective"
       },
       "validation_profile": "runtime-loopback",
       "rollback_profile": "rollback"
@@ -374,6 +430,7 @@
       "explicit caller bounded sample queue construction and operations",
       "explicit caller finite recovery policy and attempt operation",
       "explicit caller one-record timestamped float32 sample configuration",
+      "explicit caller short-info responder configuration",
       "explicit caller TCP handshake configuration",
       "explicit caller UDP clock configuration and clock provider",
       "explicit caller UDP discovery configuration"

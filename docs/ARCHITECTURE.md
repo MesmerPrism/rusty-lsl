@@ -606,3 +606,10 @@ reserved before exposure. Immediate operations report full or empty; blocking
 operations poll cancellation within an explicit finite slice and total
 deadline. Close wakes all callers and permits buffered FIFO drain. Thread
 creation and recovery policy remain caller concerns and outside this unit.
+# LSLC-002Z responder ownership
+
+The caller owns activation, bind address, finite limits, accepted document,
+and cancellation. The responder owns one socket for one synchronous call,
+admits canonical queries, derives the response identifier from that query, and
+drops the socket on every return path. It acquires no endpoint-selection or
+ambient authority.

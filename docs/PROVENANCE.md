@@ -507,3 +507,9 @@ black-box reruns through the pinned official public APIs. The fixture binds
 private driver, rebuilt Rust binary, and raw-result hashes. Official source was
 not inspected; raw bytes, XML, endpoints, diagnostics, environments, binaries,
 and caches remain private.
+# LSLC-002Z private observation provenance
+
+The public fixture binds SHA-256 values for the independently authored public-
+API observation driver, Rust driver, raw private result, and private binary.
+Raw packets, XML, endpoints, diagnostics, binaries, environments, and caches
+remain outside the repository. No official implementation source was read.

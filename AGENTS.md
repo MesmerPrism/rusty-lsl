@@ -1,5 +1,20 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002Z Bounded Short-Info Discovery Responder Interoperability
+
+LSLC-002Z adds one explicitly activated, synchronous, caller-configured IPv4
+UDP responder call. Finite datagram/request/deadline/receive-slice bounds,
+cancellation, exact LSLC-002D query admission, LSLC-002F response encoding,
+typed failures, and scope-owned cleanup bound every call. A pinned official
+public client resolved the independently authored response on loopback; only
+sanitized outcomes and hashes are public.
+
+Raw packets, XML, endpoints, diagnostics, binaries, environments, and caches
+remain private. This adds no multicast membership, interface selection,
+background service, non-loopback reachability, sample behavior, device work,
+or Manifold authority. Run `powershell -NoProfile -ExecutionPolicy Bypass
+-File .\tools\check_lslc_002z.ps1`.
+
 ## LSLC-002Y Official Float32 Initialization Compatibility Correction
 
 LSLC-002Y corrects both LSLC-002X failure stages without inspecting official

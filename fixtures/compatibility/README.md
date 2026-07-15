@@ -253,3 +253,8 @@ pinned hashes; raw evidence remains private.
 `lslc-002y-official-float32-stream-initialization-compatibility-correction.json`
 records the evidence-bounded correction and sanitized two-direction exact-bit
 rerun outcomes; raw artifacts remain private.
+# LSLC-002Z
+
+`lslc-002z-bounded-short-info-discovery-responder-interoperability.json`
+contains only sanitized typed outcomes and hashes for the bounded official-
+client IPv4-loopback observation. Raw runtime artifacts remain private.

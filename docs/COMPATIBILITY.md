@@ -543,3 +543,9 @@ data path consumes/emits the two observed initialization records before the
 caller record. Fresh pinned-official IPv4-loopback runs pass in both directions
 with exact explicit timestamp and Float32 value bits. This remains one format,
 one channel, one caller record, and loopback only.
+# LSLC-002Z reverse discovery observation
+
+A pinned `pylsl 1.18.2` / library 117 / protocol 110 public client resolved
+one independently authored Rust response in an IPv4-loopback-only run. This
+proves only that bounded direction and does not claim multicast, non-loopback,
+or ecosystem-wide compatibility.
