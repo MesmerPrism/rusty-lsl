@@ -240,3 +240,6 @@ runtime outcomes. Raw wire artifacts remain private.
 `lslc-002t-bounded-timestamped-float32-sample-runtime.json` binds the sanitized
 one-record timestamp/value observation and independent bounded Rust outcome.
 Raw wire artifacts remain private.
+`lslc-002u-integrated-clock-correction-runtime.json` binds sanitized timedata
+roles and the independent bounded acquisition/selection/mapping outcome. Raw
+clock packets and values remain private.

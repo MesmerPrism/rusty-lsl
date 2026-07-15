@@ -508,3 +508,10 @@ timestamp and one single-channel `float32` value after the accepted handshake.
 Public evidence retains only the record roles, scalar types, byte-order class,
 exact recovery outcomes, and private-artifact hashes. The Rust loopback result
 does not claim other formats, chunks, clocks, or broad interoperability.
+## LSLC-002U timedata framing and integrated runtime
+
+Private pinned-official IPv4-loopback probes observed the bounded timedata
+request batch and a separate official response. Public evidence exposes only
+framing roles, the observed eight-request batch count, scalar roles, provenance
+hashes, and nonclaims. The independent Rust loopback composes acquisition and
+mapping without claiming non-loopback or clock-quality interoperability.

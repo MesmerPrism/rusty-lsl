@@ -1,5 +1,20 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002U Integrated Clock Correction Runtime
+
+LSLC-002U acquires one explicit nonzero bounded UDP timedata batch from a
+caller-selected peer and caller-owned clock provider. Each four-timestamp
+exchange passes unchanged through LSLC-002M evaluation, LSLC-002N first
+minimum-RTT selection, and LSLC-002O finite offset application. The accepted
+raw sample timestamp remains separately visible beside its `ClockCorrected`
+mapping. Datagram/count/time bounds, cancellation, and scope-owned cleanup
+bound the call; raw observation artifacts remain private.
+
+It adds no implicit default count, periodic scheduling, history, drift,
+smoothing, dejitter, queues, recovery, endpoint selection, devices,
+unsafe/FFI, or Manifold authority. Run `powershell -NoProfile
+-ExecutionPolicy Bypass -File .\tools\check_lslc_002u.ps1`.
+
 ## LSLC-002T Bounded Timestamped Float32 Sample Runtime
 
 LSLC-002T composes the selected handshake with exactly one single-channel

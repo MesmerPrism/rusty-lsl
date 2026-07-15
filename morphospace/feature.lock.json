@@ -3,19 +3,78 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 4,
-  "generated_at": "2026-07-15T04:00:00Z",
+  "revision": 5,
+  "generated_at": "2026-07-15T05:00:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "12860462b26aff833aa0df358b3650ec559aa516c737929343af346315c6c346",
+  "lock_fingerprint": "5ca199fcddf73624823f88246bb95cabcfbc2c9392dd4b56b103705a63575a8e",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
+    "integrated-clock-correction",
     "stream-handshake",
     "timestamped-float32-sample",
     "udp-discovery"
   ],
   "denied_features": [],
   "features": [
+    {
+      "feature_id": "integrated-clock-correction",
+      "module_id": "integrated-clock-correction",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/integrated-clock-correction.json",
+        "sha256": "caa494f6a65afb9f16f0ab883a18458f82ee82edd6f342bf38daca8e4f48d9ea",
+        "source_repo": "rusty-lsl",
+        "source_revision": "ba23884e524955f3bab29c7d72d9f4e1731130e3",
+        "source_path": "crates/rusty-lsl/src/integrated_clock_correction_runtime.rs",
+        "source_sha256": "2c4071ec97697f41b0f549d9ae029b52eb9262c608175cbc6870e81ebf21091a"
+      },
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [
+          "network access",
+          "clock read"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller UDP clock configuration and clock provider"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.clock-correction-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller UDP clock configuration and clock provider"
+        ],
+        "receipt_schema": "rusty.lsl.integrated_clock_correction.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.integrated_clock_correction.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    },
     {
       "feature_id": "stream-handshake",
       "module_id": "stream-handshake",
@@ -186,6 +245,7 @@
   ],
   "effect_union": {
     "permissions": [
+      "clock read",
       "network access"
     ],
     "services": [],
@@ -201,6 +261,7 @@
     "inputs": [
       "explicit caller one-record timestamped float32 sample configuration",
       "explicit caller TCP handshake configuration",
+      "explicit caller UDP clock configuration and clock provider",
       "explicit caller UDP discovery configuration"
     ],
     "scenes": [],

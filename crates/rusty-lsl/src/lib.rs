@@ -39,6 +39,7 @@ mod clock_offset_application;
 mod descriptor_sample;
 mod documented_discovery_destination;
 mod documented_discovery_query_proposal;
+mod integrated_clock_correction_runtime;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
@@ -93,6 +94,13 @@ pub use documented_discovery_destination::{
     DOCUMENTED_DISCOVERY_DESTINATIONS,
 };
 pub use documented_discovery_query_proposal::DocumentedDiscoveryQueryProposal;
+pub use integrated_clock_correction_runtime::{
+    run_integrated_clock_correction, ClockSource, IntegratedClockCorrection,
+    IntegratedClockCorrectionActivation, IntegratedClockCorrectionActivationError,
+    IntegratedClockCorrectionConfig, IntegratedClockCorrectionConfigError,
+    IntegratedClockCorrectionError, INTEGRATED_CLOCK_CORRECTION_EFFECTIVE_MARKER,
+    INTEGRATED_CLOCK_CORRECTION_FEATURE_ID,
+};
 pub use metadata::{
     BoundedMetadata, MetadataBound, MetadataDescription, MetadataError, MetadataField,
     MetadataLimits, MetadataTextRole,
@@ -233,7 +241,7 @@ pub use xml_value::{
 #[non_exhaustive]
 pub enum ImplementationStatus {
     /// Bounded local contracts plus one explicitly activated UDP discovery call exist.
-    BoundedTimestampedFloat32SampleRuntime,
+    BoundedIntegratedClockCorrectionRuntime,
 }
 
 /// A stable declaration of one side of the repository ownership boundary.
@@ -248,7 +256,7 @@ pub struct OwnershipDeclaration {
 /// Returns the current implementation status.
 #[must_use]
 pub const fn implementation_status() -> ImplementationStatus {
-    ImplementationStatus::BoundedTimestampedFloat32SampleRuntime
+    ImplementationStatus::BoundedIntegratedClockCorrectionRuntime
 }
 
 /// Returns the repository's current ownership declaration.
@@ -285,6 +293,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded caller-configured UDP discovery runtime",
             "bounded caller-configured TCP stream-handshake runtime",
             "bounded one-record timestamped float32 sample runtime",
+            "bounded integrated clock-correction runtime",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -307,7 +316,7 @@ mod tests {
     fn status_names_only_the_implemented_local_contracts() {
         assert_eq!(
             implementation_status(),
-            ImplementationStatus::BoundedTimestampedFloat32SampleRuntime
+            ImplementationStatus::BoundedIntegratedClockCorrectionRuntime
         );
     }
 
@@ -345,5 +354,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"bounded one-record timestamped float32 sample runtime"));
+        assert!(declaration
+            .owns
+            .contains(&"bounded integrated clock-correction runtime"));
     }
 }

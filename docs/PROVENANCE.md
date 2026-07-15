@@ -484,3 +484,11 @@ native binary. A separately hashed private active probe used documented outlet
 and sample APIs with one explicit timestamp/value input. No implementation
 source was inspected. Raw handshake/sample bytes, XML, identifiers, endpoints,
 diagnostics, binaries, environments, caches, and local paths are not committed.
+## LSLC-002U clock framing provenance
+
+Two private active probes used the pinned official endpoint and documented
+time-correction surface: one synthetic service captured requests; one
+independently authored request obtained an official response. Driver and raw
+outputs are bound by SHA-256. No implementation source was inspected, and raw
+bytes, numeric clock values, XML, identifiers, endpoints, diagnostics,
+environments, caches, and local paths are not committed.

@@ -12,18 +12,21 @@
   },
   "composition": {
     "selected_features": [
+      "integrated-clock-correction",
       "stream-handshake",
       "timestamped-float32-sample",
       "udp-discovery"
     ],
     "denied_features": [],
     "selected_modules": [
+      "integrated-clock-correction",
       "stream-handshake",
       "timestamped-float32-sample",
       "udp-discovery"
     ],
     "denied_modules": [],
     "allowed_permissions": [
+      "clock read",
       "network access"
     ],
     "denied_permissions": [
@@ -38,6 +41,11 @@
     ]
   },
   "authority_map": [
+    {
+      "parameter": "lsl.clock-correction-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
     {
       "parameter": "lsl.sample-runtime",
       "owner": "rusty-lsl",
@@ -92,6 +100,17 @@
   ],
   "modules": [
     {
+      "module_id": "integrated-clock-correction",
+      "feature_id": "integrated-clock-correction",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.integrated_clock_correction.v1",
+      "contract_revision": "lslc-002u",
+      "source_repo": "rusty-lsl",
+      "dependencies": ["timestamped-float32-sample"],
+      "selected": true
+    },
+    {
       "module_id": "timestamped-float32-sample",
       "feature_id": "timestamped-float32-sample",
       "lane": "rusty-lsl",
@@ -126,7 +145,7 @@
     }
   ],
   "non_scope": [
-    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery, TCP connection-setup, and one-record timestamped float32 calls, including multicast membership, endpoint selection, other sample shapes/formats, clocks, queues, recovery, and FFI.",
+    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery, TCP connection-setup, one-record timestamped float32, and integrated clock-correction calls, including multicast membership, endpoint selection, other sample shapes/formats, periodic clocks, queues, recovery, and FFI.",
     "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
     "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
     "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."

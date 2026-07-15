@@ -576,3 +576,10 @@ inside the composed call. One fixed-size record carries a marker, little-endian
 finite raw timestamp, and one `float32` value. The public handshake-only calls
 still close immediately; the composed sample calls also close after exactly one
 record. Sample I/O has its own finite slice/deadline and cancellation checks.
+## LSLC-002U explicit clock data plane
+
+One synchronous call owns one UDP socket and an explicit exchange count. The
+caller owns bind/peer selection and the clock provider/domain. Each admitted
+response echoes the outstanding identifier and `t0`; the caller supplies `t3`
+after receipt. Existing M/N/O contracts retain formula, selection, and mapping
+authority. No periodic worker, offset history, drift, or smoothing is opened.

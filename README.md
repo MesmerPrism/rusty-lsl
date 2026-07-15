@@ -651,3 +651,10 @@ with exactly one single-channel `float32` value and finite raw source timestamp.
 It preserves both bit patterns under explicit sample-stage bounds and closes
 the connection on return. Other formats, chunks, clocks, queues, and recovery
 remain outside this slice.
+## Integrated bounded clock correction
+
+The opt-in `integrated-clock-correction` module acquires an explicitly bounded
+timedata batch using caller-selected UDP endpoints and a caller-owned clock.
+It composes the accepted formula, first-minimum-RTT policy, finite offset, and
+raw-plus-`ClockCorrected` timestamp mapping. It does not schedule periodic
+updates or claim smoothing, drift handling, or currentness.
