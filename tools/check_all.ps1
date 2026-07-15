@@ -41,16 +41,7 @@ try {
     # LSLC-002P's focused receipt pins its original single-feature lock. Its
     # runtime and cleanup behavior are covered above after additive feature
     # selection; do not reapply that historical composition assertion.
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002q.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002r.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002s.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002t.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_002u.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003c.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003d.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003e.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003f.ps1
-    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003g.ps1
+    Invoke-Checked python tools/dispatch_current_gates.py
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked git diff --check
 

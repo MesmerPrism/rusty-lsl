@@ -1,5 +1,17 @@
 # Validation
 
+`./tools/check_all.ps1` is the owner aggregate used by CI. It runs formatting,
+Cargo metadata/tests, then dispatches the exact ordered entries in
+`tools/current-gates.json`, followed by aggregate public-boundary, diff, and
+workspace-shape checks. The dispatcher validates the entire manifest and
+checker presence before execution and stops on the first nonzero checker.
+
+Run `./tools/check_lslc_003h.ps1` for manifest shape, exact accepted inventory,
+direct-checker immutability, aggregate/CI routing, missing/duplicate/traversal
+rejection, deterministic ordering, and stop-on-first-failure. Historical
+focused checkers remain directly runnable for their bounded claims; presence
+in the current manifest means they also remain valid against the current tree.
+
 Run `./tools/check_lslc_003g.ps1` to compile the external public-API consumer,
 prove the new role/plane modules are re-export-only, retain all crate-root
 exports, keep private implementation modules private, and verify feature-lock

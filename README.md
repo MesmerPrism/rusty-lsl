@@ -1,5 +1,11 @@
 # Rusty LSL
 
+Current aggregate validation is declared in `tools/current-gates.json` and run
+through `tools/check_all.ps1`. The dispatcher rejects omitted, duplicate,
+missing, reordered, or failing current checkers before or during execution.
+Accepted historical `tools/check_lslc_*.ps1` scripts remain direct evidence
+entrypoints rather than being rewritten into the dispatcher.
+
 The crate root remains the complete compatibility API. Consumers may
 optionally import existing data/protocol contracts through `rusty_lsl::contract`
 and explicit runtime operations/activation contracts through

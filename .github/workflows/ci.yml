@@ -20,6 +20,6 @@ jobs:
         run: |
           rustup toolchain install 1.80.0 --profile minimal --component rustfmt
           rustup default 1.80.0
-      - name: Validate scaffold
+      - name: Validate complete current gate manifest
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_all.ps1

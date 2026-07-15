@@ -1,5 +1,15 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003H Manifest-Driven Current Gates
+
+LSLC-003H makes `tools/current-gates.json` the explicit ordered inventory for
+current accepted focused checks. `tools/dispatch_current_gates.py` validates the
+complete inventory and every checker path before executing, then stops at the
+first failure. `check_all.ps1` and CI route through this mechanism; each
+historical `check_lslc_*` entrypoint remains directly runnable and unchanged.
+Run `./tools/check_lslc_003h.ps1` for dispatcher negative tests and
+`./tools/check_all.ps1` for the complete owner gate.
+
 ## LSLC-003G Public Role/Plane Facades
 
 LSLC-003G adds only `contract` and `runtime` consumer namespaces over existing
