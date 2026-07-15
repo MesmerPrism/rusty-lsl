@@ -1,0 +1,46 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema":"rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id":"rlsl-lslc-002r-standard-validation",
+  "project_id":"rusty-lsl",
+  "unit_id":"rlsl-lslc-002r-official-loopback-stream-handshake-observation",
+  "created_at":"2026-07-15T02:10:01Z",
+  "tier":"standard",
+  "result":"pass",
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"1dae0f7701263df292320361d394643bf479bc8b","head_revision":"9fb3caa6d53fc90c524cc9e9f85d2236f617182e","branch":"codex/rlsl-autonomous"}],
+  "changed_paths":[
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},
+    {"repo_id":"rusty-lsl","path":"README.md"},
+    {"repo_id":"rusty-lsl","path":"docs/COMPATIBILITY.md"},
+    {"repo_id":"rusty-lsl","path":"docs/PROVENANCE.md"},
+    {"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"fixtures/compatibility/README.md"},
+    {"repo_id":"rusty-lsl","path":"fixtures/compatibility/lslc-002r-official-loopback-stream-handshake-observation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-002r-official-loopback-stream-handshake-observation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002r-begin-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002r-claim.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002r-ready.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002r-record-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002r-standard-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002r-standard-validation.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},
+    {"repo_id":"rusty-lsl","path":"tools/check_all.ps1"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_002r.ps1"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_002r.py"}
+  ],
+  "artifacts":[{"artifact_id":"lslc-002r-standard-log","kind":"validation-log","path":"rlsl-lslc-002r-standard-validation.md","sha256":"4475dc77569abe2bd92804fdae9255e6020dd4ea406031d5ad344c595f02082f"}],
+  "criteria":[
+    {"acceptance_id":"pinned-official-handshake-provenance","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002r.ps1","evidence_refs":["lslc-002r-standard-log"]},
+    {"acceptance_id":"bounded-official-loopback-connection-setup","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002r.ps1","evidence_refs":["lslc-002r-standard-log"]},
+    {"acceptance_id":"raw-private-derived-public","status":"pass","command":"python tools/check_public_boundaries.py","evidence_refs":["lslc-002r-standard-log"]},
+    {"acceptance_id":"observation-not-runtime-nonclaim","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-002r-standard-log"]}
+  ],
+  "gates":[
+    {"gate_id":"validation-runtime-loopback","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002r.ps1","evidence_refs":["lslc-002r-standard-log"]},
+    {"gate_id":"validation-source-owner","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-002r-standard-log"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-002r-standard-log"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-002r-standard-log"]}
+  ],
+  "device_validation":null
+}

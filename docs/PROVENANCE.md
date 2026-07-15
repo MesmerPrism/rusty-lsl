@@ -455,3 +455,17 @@ static role order and seven format spellings; no liblsl, rLSL, wrapper,
 application, generated, protocol, build, vendored, or test source supplied an
 implementation input. The overlay contains semantic values only, not captured
 endpoint bytes or volatile runtime data.
+# LSLC-002R black-box provenance
+
+The observation uses the exact pinned `pylsl 1.18.2` Windows AMD64 wheel,
+public library version 117, protocol version 110, and previously recorded
+wheel/native-library digests. The loopback configuration is derived only from
+the pinned official public `docs/info/lslapicfg.rst` document at revision
+`f012f8cfe8894cab0529be77dd83c91d6d95537d`; no implementation source was
+inspected or translated.
+
+The independently authored private driver, configuration, and raw observation
+are bound by SHA-256 in the sanitized fixture. Raw XML, connection rows,
+endpoint and runtime values, native diagnostics, binary/environment/cache
+paths, and failed attempts stay outside Git. Their digests establish exact
+provenance without publishing their contents.

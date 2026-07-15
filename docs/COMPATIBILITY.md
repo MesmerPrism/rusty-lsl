@@ -479,3 +479,18 @@ and seven format symbols. The accepted XML observations, runtime placeholders,
 description hierarchy, and full-document `candidate_result` remain unchanged.
 This evidence proves neither XML or numeric lexical representation nor broader
 official-liblsl, wire, runtime, or ecosystem compatibility.
+# LSLC-002R official loopback stream handshake observation
+
+Two pinned official outlet/inlet pairs completed one bounded connection setup
+each under an explicit private IPv4-loopback-only configuration. The observed
+roles are resolution, connection open, full-info admission, explicit close,
+and child-process cleanup. One regular float32 stream and one irregular string
+stream retained their synthetic channel count, format, and rate class. Bounded
+connection readback showed only loopback-established TCP connections. No
+sample API was called.
+
+This is behavioral evidence for planning a later independently authored Rust
+vertical slice. It is not a public wire transcript and grants no Rust
+listener, connector, encoder, parser, outlet, inlet, sample, clock, queue,
+retry, recovery, non-loopback, performance, ecosystem, device, or Manifold
+claim.

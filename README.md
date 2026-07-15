@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-002R adds bounded black-box evidence for official outlet-to-inlet
+connection setup in two IPv4-loopback-only cases. Each case resolved exactly
+one synthetic homogeneous stream, opened and inspected it under explicit
+timeouts, confirmed loopback connection readback, closed cleanly, and sent no
+sample. This is observation evidence only: Rusty LSL still has no outlet,
+inlet, handshake, or sample-transport implementation.
+
 LSLC-002Q adds bounded black-box evidence for one direction only: the accepted
 LSLC-002P Rust client sent short-info queries to the pinned official
 protocol-110 responder in two IPv4 loopback cases and admitted each returned

@@ -639,3 +639,11 @@ current-HEAD protected-tree pin after an authorized source unit; the accepted
 LSLC-001J receipt preserves that validation-only result. The gate does not prove
 XML, numeric formatting, runtime fields, protocol, wire, transport, I/O,
 adapters, providers, devices, or authority.
+# LSLC-002R focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+./tools/check_lslc_002r.ps1`. It validates pinned official/configuration
+provenance, two bounded loopback-only connection-setup cases, exact synthetic
+stream-shape admission, explicit close/process cleanup, zero sample calls, raw
+artifact exclusion, and strict nonclaims. It replays only sanitized derived
+evidence and does not execute the private oracle or prove a Rust handshake.

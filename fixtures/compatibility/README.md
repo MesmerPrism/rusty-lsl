@@ -1,5 +1,11 @@
 # STRM-000 compatibility fixtures
 
+`lslc-002r-official-loopback-stream-handshake-observation.json` contains only
+sanitized official outlet/inlet connection-setup roles, bounds, typed outcomes,
+and provenance hashes. Raw packets, XML, connection rows, endpoints,
+identifiers, diagnostics, binaries, environments, caches, and failed-attempt
+payloads remain external.
+
 `lslc-002l-clock-offset-public-documentation-evidence.json` records only pinned
 official clock-offset documentation facts. It contains no packet capture,
 clock sample, observation, candidate algorithm, or runtime result.

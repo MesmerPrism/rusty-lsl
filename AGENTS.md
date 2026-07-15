@@ -1,5 +1,23 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002R Official Loopback Stream Handshake Observation
+
+LSLC-002R observes two finite official outlet-to-inlet connection setups
+through documented public APIs under a private IPv4-loopback-only
+configuration. Each case resolved one synthetic homogeneous stream, opened the
+inlet with an explicit timeout, admitted matching full stream information,
+confirmed only loopback established connections, closed explicitly, sent no
+sample, and exited its bounded child process.
+
+Only sanitized roles, typed outcomes, bounds, and pinned provenance are
+public. Raw packets, XML, connection rows, endpoints, identifiers, diagnostics,
+binaries, environments, caches, and failed-attempt payloads remain private.
+This observation adds no Rust outlet/inlet or wire implementation, sample path,
+clock behavior, buffering, recovery, non-loopback reachability, broad
+interoperability, device behavior, or Manifold authority. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002r.ps1`.
+
 ## LSLC-002Q Official Loopback Discovery Client Observation
 
 LSLC-002Q observes the accepted LSLC-002P Rust client against the pinned
