@@ -515,3 +515,8 @@ request batch and a separate official response. Public evidence exposes only
 framing roles, the observed eight-request batch count, scalar roles, provenance
 hashes, and nonclaims. The independent Rust loopback composes acquisition and
 mapping without claiming non-loopback or clock-quality interoperability.
+## LSLC-002V operational queue claim
+
+One accepted loopback timestamped Float32 record composes through the bounded
+FIFO with exact timestamp and value bits. This is local operational evidence,
+not an ecosystem performance, retry, recovery, or additional-format claim.

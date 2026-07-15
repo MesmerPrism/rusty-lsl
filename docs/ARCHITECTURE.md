@@ -583,3 +583,10 @@ caller owns bind/peer selection and the clock provider/domain. Each admitted
 response echoes the outstanding identifier and `t0`; the caller supplies `t3`
 after receipt. Existing M/N/O contracts retain formula, selection, and mapping
 authority. No periodic worker, offset history, drift, or smoothing is opened.
+## Bounded sample queue
+
+The LSLC-002V queue is a caller-owned data-plane buffer. A nonzero capacity is
+reserved before exposure. Immediate operations report full or empty; blocking
+operations poll cancellation within an explicit finite slice and total
+deadline. Close wakes all callers and permits buffered FIFO drain. Thread
+creation and recovery policy remain caller concerns and outside this unit.

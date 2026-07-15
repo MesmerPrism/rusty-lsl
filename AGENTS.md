@@ -1,5 +1,17 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002V Bounded Sample Queue Backpressure and Cancellation
+
+LSLC-002V adds one selected, explicitly constructed, caller-owned bounded FIFO
+for accepted timestamped single-channel Float32 samples. Nonblocking calls
+expose `Full`/`Empty`; blocking calls require finite wait-slice and total-
+deadline bounds and observe explicit cancellation. Close wakes all waiters and
+allows already buffered samples to drain. No worker is owned by the queue.
+
+This unit adds no retry, reconnection, recovery, replay, other sample formats,
+async runtime, device behavior, unsafe/FFI, or Manifold authority. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_002v.ps1`.
+
 ## LSLC-002U Integrated Clock Correction Runtime
 
 LSLC-002U acquires one explicit nonzero bounded UDP timedata batch from a

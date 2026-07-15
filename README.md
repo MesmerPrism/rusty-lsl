@@ -658,3 +658,8 @@ timedata batch using caller-selected UDP endpoints and a caller-owned clock.
 It composes the accepted formula, first-minimum-RTT policy, finite offset, and
 raw-plus-`ClockCorrected` timestamp mapping. It does not schedule periodic
 updates or claim smoothing, drift handling, or currentness.
+LSLC-002V adds an explicitly activated caller-owned bounded FIFO for the
+accepted timestamped single-channel Float32 path. Capacity, blocking wait
+slices, and deadlines are explicit; full/empty backpressure, cancellation,
+close wakeups, and buffered draining are typed. It owns no worker or recovery
+policy.

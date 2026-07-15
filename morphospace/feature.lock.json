@@ -3,13 +3,14 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 5,
-  "generated_at": "2026-07-15T05:00:00Z",
+  "revision": 6,
+  "generated_at": "2026-07-15T05:15:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "5ca199fcddf73624823f88246bb95cabcfbc2c9392dd4b56b103705a63575a8e",
+  "lock_fingerprint": "102fc1953d64df7ae83947e91d3ceab9b918472af9182e3db46270512e42e710",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
+    "bounded-sample-queue",
     "integrated-clock-correction",
     "stream-handshake",
     "timestamped-float32-sample",
@@ -17,6 +18,61 @@
   ],
   "denied_features": [],
   "features": [
+    {
+      "feature_id": "bounded-sample-queue",
+      "module_id": "bounded-sample-queue",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/bounded-sample-queue.json",
+        "sha256": "2d9e2e06ffb37c4c48f475702ad23b7aa816011fcfe7709ef59616af808c17ba",
+        "source_repo": "rusty-lsl",
+        "source_revision": "0f43031f872aa0d398ec5254ebb66689576fa0ef",
+        "source_path": "crates/rusty-lsl/src/bounded_sample_queue_runtime.rs",
+        "source_sha256": "26332c2cd82f466d5777e13a2dd2b3735cd2cd4bfcb529f92730b57a432c3684"
+      },
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller bounded sample queue construction and operations"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.sample-queue-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller bounded sample queue construction and operations"
+        ],
+        "receipt_schema": "rusty.lsl.bounded_sample_queue.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.bounded_sample_queue.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    },
     {
       "feature_id": "integrated-clock-correction",
       "module_id": "integrated-clock-correction",
@@ -259,6 +315,7 @@
     "routes": [],
     "streams": [],
     "inputs": [
+      "explicit caller bounded sample queue construction and operations",
       "explicit caller one-record timestamped float32 sample configuration",
       "explicit caller TCP handshake configuration",
       "explicit caller UDP clock configuration and clock provider",

@@ -243,3 +243,5 @@ Raw wire artifacts remain private.
 `lslc-002u-integrated-clock-correction-runtime.json` binds sanitized timedata
 roles and the independent bounded acquisition/selection/mapping outcome. Raw
 clock packets and values remain private.
+`lslc-002v-bounded-sample-queue-backpressure-cancellation-runtime.json`
+records only sanitized bounded queue and accepted loopback composition claims.

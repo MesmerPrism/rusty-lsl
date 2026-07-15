@@ -34,6 +34,7 @@
 //! It does not implement endpoint selection, official interoperability,
 //! clocks, inlet, outlet, FFI, or Morphospace authority behavior.
 
+mod bounded_sample_queue_runtime;
 mod clock_filter_selection;
 mod clock_offset_application;
 mod descriptor_sample;
@@ -78,6 +79,12 @@ mod xml_element_tree;
 mod xml_leaf_element;
 mod xml_value;
 
+pub use bounded_sample_queue_runtime::{
+    BoundedSampleQueue, BoundedSampleQueueActivation, BoundedSampleQueueActivationError,
+    BoundedSampleQueueCloseError, BoundedSampleQueueCreateError, BoundedSampleQueuePopError,
+    BoundedSampleQueuePushError, BoundedSampleQueueWait, BoundedSampleQueueWaitError,
+    BOUNDED_SAMPLE_QUEUE_EFFECTIVE_MARKER, BOUNDED_SAMPLE_QUEUE_FEATURE_ID,
+};
 pub use clock_filter_selection::{
     ClockFilterSelection, ClockFilterSelectionError, ClockFilterSelectionLimit,
     ClockFilterSelectionLimitError,
@@ -241,7 +248,7 @@ pub use xml_value::{
 #[non_exhaustive]
 pub enum ImplementationStatus {
     /// Bounded local contracts plus one explicitly activated UDP discovery call exist.
-    BoundedIntegratedClockCorrectionRuntime,
+    BoundedSampleQueueRuntime,
 }
 
 /// A stable declaration of one side of the repository ownership boundary.
@@ -256,7 +263,7 @@ pub struct OwnershipDeclaration {
 /// Returns the current implementation status.
 #[must_use]
 pub const fn implementation_status() -> ImplementationStatus {
-    ImplementationStatus::BoundedIntegratedClockCorrectionRuntime
+    ImplementationStatus::BoundedSampleQueueRuntime
 }
 
 /// Returns the repository's current ownership declaration.
@@ -294,6 +301,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "bounded caller-configured TCP stream-handshake runtime",
             "bounded one-record timestamped float32 sample runtime",
             "bounded integrated clock-correction runtime",
+            "bounded caller-owned sample queue runtime",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -316,7 +324,7 @@ mod tests {
     fn status_names_only_the_implemented_local_contracts() {
         assert_eq!(
             implementation_status(),
-            ImplementationStatus::BoundedIntegratedClockCorrectionRuntime
+            ImplementationStatus::BoundedSampleQueueRuntime
         );
     }
 
@@ -357,5 +365,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"bounded integrated clock-correction runtime"));
+        assert!(declaration
+            .owns
+            .contains(&"bounded caller-owned sample queue runtime"));
     }
 }

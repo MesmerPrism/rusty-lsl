@@ -670,3 +670,9 @@ activation, bounded multi-exchange acquisition, M/N/O composition, exact raw
 retention and corrected mapping, malformed/mismatched/non-finite responses,
 timeout, cancellation, and UDP-port reuse. Standard acceptance also runs all
 owner, public-boundary, and workflow gates; device validation is forbidden.
+## LSLC-002V bounded queue validation
+
+Run `tools/check_lslc_002v.ps1` for activation, capacity, FIFO exact bits,
+full/empty backpressure, finite deadline, blocked cancellation, close wakeup,
+buffer draining, one accepted loopback sample composition, and public-boundary
+checks.
