@@ -1,0 +1,19 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema":"rusty.morphospace.workflow.validation_receipt.v1","receipt_id":"rlsl-lslc-003i-blocked-validation","project_id":"rusty-lsl","unit_id":"rlsl-lslc-003i-pinned-rust-180-const-bits","created_at":"2026-07-15T17:03:00Z","tier":"standard","result":"blocked",
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"7181672bfb1f6baceabd87c7c27c4f2f3922b06b","head_revision":"24a1f7636353ea3ff96906adc287dd4c1fc1f2c7","branch":"codex/rlsl-autonomous"}],
+  "changed_paths":[
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-003i-pinned-rust-180-const-bits.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003i-begin-blocked-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003i-blocked-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003i-blocked-validation.md"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003i-claim.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003i-ready.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_003i.ps1"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_003i.py"}
+  ],
+  "artifacts":[{"artifact_id":"lslc-003i-blocked-log","kind":"validation-log","path":"rlsl-lslc-003i-blocked-validation.md","sha256":"6b49a4afb8ce35b902e514bd125234adb341395d422d3c098439a2446dea76a4"}],
+  "criteria":[
+    {"acceptance_id":"exact-ieee-literal-substitution","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003i.ps1","evidence_refs":["lslc-003i-blocked-log"]},
+    {"acceptance_id":"unchanged-initialization-runtime","status":"pass","command":"cargo test -p rusty-lsl timestamped_float32_sample_runtime","evidence_refs":["lslc-003i-blocked-log"]},
+    {"acceptance_id":"pinned-rust-180-compilation","status":"pass","command":"rustup run 1.80.0 cargo test --workspace --all-targets --no-run","evidence_refs":["lslc-003i-blocked-log"]},
+    {"acceptance_id":"complete-current-owner-gates","status":"blocked","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003i-blocked-log"]}
+  ],
+  "gates":[{"gate_id":"validation-source-owner","status":"blocked","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003i-blocked-log"]},{"gate_id":"validation-workflow","status":"blocked","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-003i-blocked-log"]},{"gate_id":"instruction-synchronization","status":"blocked","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-003i-blocked-log"]}],
+  "device_validation":null
+}
