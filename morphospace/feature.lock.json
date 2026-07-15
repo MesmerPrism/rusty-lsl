@@ -3,14 +3,15 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 3,
-  "generated_at": "2026-07-15T03:00:00Z",
+  "revision": 4,
+  "generated_at": "2026-07-15T04:00:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "643361a98d383c50b01e6a152ff77a569e13264279d70e951215007ac5b22c68",
+  "lock_fingerprint": "12860462b26aff833aa0df358b3650ec559aa516c737929343af346315c6c346",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
     "stream-handshake",
+    "timestamped-float32-sample",
     "udp-discovery"
   ],
   "denied_features": [],
@@ -66,6 +67,63 @@
         ],
         "receipt_schema": "rusty.lsl.stream_handshake.activation_receipt.v1",
         "effective_marker": "rusty.lsl.stream_handshake.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    },
+    {
+      "feature_id": "timestamped-float32-sample",
+      "module_id": "timestamped-float32-sample",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/timestamped-float32-sample.json",
+        "sha256": "faf7cf07ea7af22947f7bd9b2f45efa5d553586d2a706841c47816b55b1024ce",
+        "source_repo": "rusty-lsl",
+        "source_revision": "69792c1039f47e0719b77a3f8d14c718787e9f5b",
+        "source_path": "crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs",
+        "source_sha256": "a78ce0475fe1d3927894bbb8275e054d3db28d0284cabec5e172cca6c0253b4c"
+      },
+      "dependencies": [
+        "stream-handshake"
+      ],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [
+          "network access"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller one-record timestamped float32 sample configuration"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.sample-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller one-record timestamped float32 sample configuration"
+        ],
+        "receipt_schema": "rusty.lsl.timestamped_float32_sample.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.timestamped_float32_sample.effective"
       },
       "validation_profile": "runtime-loopback",
       "rollback_profile": "rollback"
@@ -141,6 +199,7 @@
     "routes": [],
     "streams": [],
     "inputs": [
+      "explicit caller one-record timestamped float32 sample configuration",
       "explicit caller TCP handshake configuration",
       "explicit caller UDP discovery configuration"
     ],

@@ -13,11 +13,13 @@
   "composition": {
     "selected_features": [
       "stream-handshake",
+      "timestamped-float32-sample",
       "udp-discovery"
     ],
     "denied_features": [],
     "selected_modules": [
       "stream-handshake",
+      "timestamped-float32-sample",
       "udp-discovery"
     ],
     "denied_modules": [],
@@ -36,6 +38,11 @@
     ]
   },
   "authority_map": [
+    {
+      "parameter": "lsl.sample-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
     {
       "parameter": "lsl.connection-setup-runtime",
       "owner": "rusty-lsl",
@@ -85,6 +92,17 @@
   ],
   "modules": [
     {
+      "module_id": "timestamped-float32-sample",
+      "feature_id": "timestamped-float32-sample",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.timestamped_float32_sample.v1",
+      "contract_revision": "lslc-002t",
+      "source_repo": "rusty-lsl",
+      "dependencies": ["stream-handshake"],
+      "selected": true
+    },
+    {
       "module_id": "stream-handshake",
       "feature_id": "stream-handshake",
       "lane": "rusty-lsl",
@@ -108,7 +126,7 @@
     }
   ],
   "non_scope": [
-    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery and TCP connection-setup calls, including multicast membership, endpoint selection, samples, clocks, queues, recovery, and FFI.",
+    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery, TCP connection-setup, and one-record timestamped float32 calls, including multicast membership, endpoint selection, other sample shapes/formats, clocks, queues, recovery, and FFI.",
     "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
     "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
     "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."

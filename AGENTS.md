@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002T Bounded Timestamped Float32 Sample Runtime
+
+LSLC-002T composes the selected handshake with exactly one single-channel
+`float32` record carrying one already finite raw source timestamp. The fixed
+record preserves timestamp and value bits under separate finite I/O bounds,
+explicit cancellation, typed malformed/truncated/non-finite rejection, and
+scope-owned socket cleanup. Sanitized black-box evidence binds the independent
+record shape while raw bytes and runtime fields remain private.
+
+It adds no chunks, multiple samples/channels, other formats, clock acquisition
+or correction, queues, recovery, background runtime, device behavior,
+unsafe/FFI, or Manifold authority. Run `powershell -NoProfile -ExecutionPolicy
+Bypass -File .\tools\check_lslc_002t.ps1`.
+
 ## LSLC-002S Bounded Stream Handshake Runtime
 
 LSLC-002S is one explicitly selected, caller-configured synchronous TCP

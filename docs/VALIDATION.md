@@ -655,3 +655,10 @@ closed public boundaries, activation rejection, exact loopback exchange,
 malformed and identity-mismatch outcomes, cancellation/deadline behavior, and
 immediate listener-port reuse. Standard acceptance also runs the full owner and
 portable workflow gates; device validation is forbidden.
+## LSLC-002T focused gate
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002t.ps1`. It checks sanitized evidence, exact timestamp and
+value bits, closed composed activation, malformed/truncated/non-finite records,
+cancellation, deadlines, and port reuse. Standard acceptance also runs all
+owner, public-boundary, and workflow gates; device validation is forbidden.

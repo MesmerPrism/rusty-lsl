@@ -1,0 +1,11 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-descriptor.schema.json",
+  "schema":"rusty.morphospace.workflow.feature_descriptor.v1",
+  "feature_id":"timestamped-float32-sample","module_id":"timestamped-float32-sample","version":"0.1.0","owner_lane":"rusty-lsl",
+  "source":{"repo_id":"rusty-lsl","revision":"69792c1039f47e0719b77a3f8d14c718787e9f5b","path":"crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs","sha256":"a78ce0475fe1d3927894bbb8275e054d3db28d0284cabec5e172cca6c0253b4c"},
+  "dependencies":["stream-handshake"],"conflicts":[],"exclusive_group":null,
+  "effects":{"permissions":["network access"],"services":[],"activities":[],"queries":[],"tools":[],"assets":[],"shaders":[],"native_libraries":[],"commands":[],"routes":[],"streams":[],"inputs":["explicit caller one-record timestamped float32 sample configuration"],"scenes":[],"markers":[]},
+  "parameter_authorities":[{"parameter":"lsl.sample-runtime","owner":"rusty-lsl"}],
+  "activation":{"rule":"selected-lock-and-runtime-input","runtime_inputs":["explicit caller one-record timestamped float32 sample configuration"],"receipt_schema":"rusty.lsl.timestamped_float32_sample.activation_receipt.v1","effective_marker":"rusty.lsl.timestamped_float32_sample.effective"},
+  "validation_profile":"runtime-loopback","rollback_profile":"rollback"
+}

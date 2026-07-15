@@ -569,3 +569,10 @@ runtime marker opens the effect. Header allocation, each blocking slice, the
 total call, cancellation observation, and socket lifetime are finite. Accepted
 request and response headers do not open sample, clock, queue, recovery, or
 authority planes.
+## LSLC-002T one-record data plane
+
+An internal continuation retains the already admitted handshake socket only
+inside the composed call. One fixed-size record carries a marker, little-endian
+finite raw timestamp, and one `float32` value. The public handshake-only calls
+still close immediately; the composed sample calls also close after exactly one
+record. Sample I/O has its own finite slice/deadline and cancellation checks.

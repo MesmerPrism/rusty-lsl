@@ -316,6 +316,20 @@ pub fn run_stream_inlet_handshake(
     limits: StreamHandshakeLimits,
     cancelled: &AtomicBool,
 ) -> Result<StreamInletHandshake, StreamHandshakeError> {
+    let stream = connect_handshake_stream(peer, identity, limits, cancelled)?;
+    drop(stream);
+    Ok(StreamInletHandshake {
+        peer,
+        uid: identity.uid.clone(),
+    })
+}
+
+pub(crate) fn connect_handshake_stream(
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+) -> Result<TcpStream, StreamHandshakeError> {
     if cancelled.load(Ordering::Acquire) {
         return Err(StreamHandshakeError::Cancelled);
     }
@@ -337,10 +351,7 @@ pub fn run_stream_inlet_handshake(
             StreamHandshakeError::InvalidHeader
         });
     }
-    Ok(StreamInletHandshake {
-        peer,
-        uid: identity.uid.clone(),
-    })
+    Ok(stream)
 }
 
 /// Accepts one connection on a caller-selected listener, admits one request, responds, and closes on return.
@@ -351,6 +362,17 @@ pub fn run_stream_outlet_handshake(
     limits: StreamHandshakeLimits,
     cancelled: &AtomicBool,
 ) -> Result<StreamOutletHandshake, StreamHandshakeError> {
+    let (stream, local, peer) = accept_handshake_stream(listener, identity, limits, cancelled)?;
+    drop(stream);
+    Ok(StreamOutletHandshake { local, peer })
+}
+
+pub(crate) fn accept_handshake_stream(
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
     let local = listener
         .local_addr()
         .map_err(|e| StreamHandshakeError::Io(e.kind()))?;
@@ -383,7 +405,7 @@ pub fn run_stream_outlet_handshake(
     }
     let response = response(identity);
     write_all_bounded(&mut stream, response.as_bytes(), limits, started, cancelled)?;
-    Ok(StreamOutletHandshake { local, peer })
+    Ok((stream, local, peer))
 }
 
 #[cfg(test)]

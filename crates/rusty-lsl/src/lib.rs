@@ -68,6 +68,7 @@ mod stream_info_volatile_xml;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
+mod timestamped_float32_sample_runtime;
 mod typed_short_info_response_observation;
 mod udp_discovery;
 mod xml_character_data;
@@ -198,6 +199,13 @@ pub use timestamped_descriptor_chunk::{
 pub use timestamped_descriptor_sample::{
     BoundTimestampedDescriptorSample, TimestampedDescriptorSampleInput,
 };
+pub use timestamped_float32_sample_runtime::{
+    run_timestamped_float32_inlet, run_timestamped_float32_outlet,
+    TimestampedFloat32SampleActivation, TimestampedFloat32SampleActivationError,
+    TimestampedFloat32SampleError, TimestampedFloat32SampleLimitError,
+    TimestampedFloat32SampleLimits, TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER,
+    TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID,
+};
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
 };
@@ -225,7 +233,7 @@ pub use xml_value::{
 #[non_exhaustive]
 pub enum ImplementationStatus {
     /// Bounded local contracts plus one explicitly activated UDP discovery call exist.
-    BoundedStreamHandshakeRuntime,
+    BoundedTimestampedFloat32SampleRuntime,
 }
 
 /// A stable declaration of one side of the repository ownership boundary.
@@ -240,7 +248,7 @@ pub struct OwnershipDeclaration {
 /// Returns the current implementation status.
 #[must_use]
 pub const fn implementation_status() -> ImplementationStatus {
-    ImplementationStatus::BoundedStreamHandshakeRuntime
+    ImplementationStatus::BoundedTimestampedFloat32SampleRuntime
 }
 
 /// Returns the repository's current ownership declaration.
@@ -276,6 +284,7 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
             "explicit finite clock-offset application contract",
             "bounded caller-configured UDP discovery runtime",
             "bounded caller-configured TCP stream-handshake runtime",
+            "bounded one-record timestamped float32 sample runtime",
             "future backend-neutral Rust LSL API",
             "compatibility evidence",
             "typed observations and proposals for downstream adapters",
@@ -298,7 +307,7 @@ mod tests {
     fn status_names_only_the_implemented_local_contracts() {
         assert_eq!(
             implementation_status(),
-            ImplementationStatus::BoundedStreamHandshakeRuntime
+            ImplementationStatus::BoundedTimestampedFloat32SampleRuntime
         );
     }
 
@@ -333,5 +342,8 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"bounded caller-configured TCP stream-handshake runtime"));
+        assert!(declaration
+            .owns
+            .contains(&"bounded one-record timestamped float32 sample runtime"));
     }
 }

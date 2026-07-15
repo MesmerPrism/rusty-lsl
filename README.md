@@ -644,3 +644,10 @@ finite header and field bounds, sliced blocking, cancellation, typed rejection,
 and scope-owned cleanup keep the effect closed. It is connection setup only:
 sample transport, clocks, queues, recovery, devices, and Manifold authority are
 outside this slice.
+## One timestamped Float32 record
+
+The opt-in `timestamped-float32-sample` module composes the bounded handshake
+with exactly one single-channel `float32` value and finite raw source timestamp.
+It preserves both bit patterns under explicit sample-stage bounds and closes
+the connection on return. Other formats, chunks, clocks, queues, and recovery
+remain outside this slice.

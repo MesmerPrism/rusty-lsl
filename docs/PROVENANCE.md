@@ -477,3 +477,10 @@ and raw-output SHA-256 values bind two private active probes. No implementation
 source was inspected, and raw request/response bytes, XML, identifiers,
 endpoints, diagnostics, binaries, environments, caches, and local paths are
 not committed.
+## LSLC-002T sample-record provenance
+
+The endpoint provenance remains the pinned LSLC-002R/S official package and
+native binary. A separately hashed private active probe used documented outlet
+and sample APIs with one explicit timestamp/value input. No implementation
+source was inspected. Raw handshake/sample bytes, XML, identifiers, endpoints,
+diagnostics, binaries, environments, caches, and local paths are not committed.

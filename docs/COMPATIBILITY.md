@@ -501,3 +501,10 @@ inlet request and official outlet response. Public evidence retains only fixed
 role order, termination, pinned binary provenance, and private-artifact hashes.
 The Rust loopback pair then exercises the independently authored bounded slice;
 it is not a claim of sample interoperability or ecosystem-wide compatibility.
+## LSLC-002T timestamped Float32 sample evidence
+
+A private pinned-official IPv4-loopback probe sent exactly one explicit finite
+timestamp and one single-channel `float32` value after the accepted handshake.
+Public evidence retains only the record roles, scalar types, byte-order class,
+exact recovery outcomes, and private-artifact hashes. The Rust loopback result
+does not claim other formats, chunks, clocks, or broad interoperability.
