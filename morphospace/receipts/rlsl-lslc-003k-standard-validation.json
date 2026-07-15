@@ -1,0 +1,42 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-003k-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-003k-pinned-rust-180-clippy-baseline-policy",
+  "created_at": "2026-07-15T20:25:00Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"95320f5a9c9234e06171583323dd077cac022d48","head_revision":"9e9098f911f2377c3af7e7b8ffe50c953ddbd65d","branch":"codex/rlsl-autonomous"}],
+  "changed_paths": [
+    {"repo_id":"rusty-lsl","path":".github/workflows/ci.yml"},
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},
+    {"repo_id":"rusty-lsl","path":"README.md"},
+    {"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"docs/adr/LSLC-003K-PINNED-CLIPPY-BASELINE.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-003k-pinned-rust-180-clippy-baseline-policy.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003k-claim.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003k-record-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003k-standard-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003k-standard-validation.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_003k.ps1"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_003k.py"},
+    {"repo_id":"rusty-lsl","path":"tools/clippy-baseline-rust-1.80.json"},
+    {"repo_id":"rusty-lsl","path":"tools/test_lslc_003k.py"}
+  ],
+  "artifacts": [{"artifact_id":"lslc-003k-standard-log","kind":"validation-log","path":"rlsl-lslc-003k-standard-validation.md","sha256":"c1c609b2864f8c38bacd2c645b2ffbb903bee67894c35a585c375388508691de"}],
+  "criteria": [
+    {"acceptance_id":"exact-pinned-diagnostic-baseline","status":"pass","command":"python ./tools/test_lslc_003k.py","evidence_refs":["lslc-003k-standard-log"]},
+    {"acceptance_id":"fail-closed-pinned-clippy-policy","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003k.ps1","evidence_refs":["lslc-003k-standard-log"]},
+    {"acceptance_id":"complete-current-dispatch","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003k-standard-log"]},
+    {"acceptance_id":"behavior-boundary-invariance","status":"pass","command":"cargo test --workspace --all-targets --offline --locked","evidence_refs":["lslc-003k-standard-log"]}
+  ],
+  "gates": [
+    {"gate_id":"validation-source-owner","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003k-standard-log"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-003k-standard-log"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-003k-standard-log"]}
+  ],
+  "device_validation": null
+}
