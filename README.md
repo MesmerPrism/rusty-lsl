@@ -1,5 +1,11 @@
 # Rusty LSL
 
+The crate root remains the complete compatibility API. Consumers may
+optionally import existing data/protocol contracts through `rusty_lsl::contract`
+and explicit runtime operations/activation contracts through
+`rusty_lsl::runtime`. These namespaces are re-export-only views: they introduce
+no replacement types, implementation ownership, defaults, or runtime effects.
+
 LSLC-003F completes the dependency-closed correction for the blocked LSLC-003E
 transport extraction. A crate-private helper now owns only bounded exact-length
 TCP record reads and writes; Float32 and fixed-width numeric runtimes retain

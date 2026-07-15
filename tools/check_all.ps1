@@ -50,6 +50,7 @@ try {
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003d.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003e.ps1
     Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003f.ps1
+    Invoke-Checked powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_lslc_003g.ps1
     Invoke-Checked python tools/check_public_boundaries.py
     Invoke-Checked git diff --check
 
@@ -88,8 +89,10 @@ try {
     }
 
     $targets = @($packages[0].targets)
-    if ($targets.Count -ne 1 -or @($targets[0].kind) -notcontains 'lib') {
-        throw 'The scaffold must expose exactly one library target.'
+    $libraryTargets = @($targets | Where-Object { @($_.kind) -contains 'lib' })
+    $testTargets = @($targets | Where-Object { @($_.kind) -contains 'test' })
+    if ($libraryTargets.Count -ne 1 -or $testTargets.Count -ne 1 -or $testTargets[0].name -ne 'public_api') {
+        throw 'The workspace must expose one library and the external public_api consumer test.'
     }
 
     Write-Host 'Rusty LSL source-only checks passed.'

@@ -1,5 +1,15 @@
 # Architecture
 
+## Consumer role and plane facades
+
+The crate root remains the compatibility facade and sole public-name source.
+`contract` projects existing data and protocol contracts for data-plane
+consumers; `runtime` projects existing explicit effects and activation
+contracts for control/runtime consumers. Both modules contain re-exports only.
+Private sibling implementation modules remain private and keep their existing
+dependency direction, so the projections cannot become a second authority or
+change activation and runtime behavior.
+
 ## Crate-private bounded fixed-record transport
 
 The Float32 and fixed-width numeric sample families share one crate-private

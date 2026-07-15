@@ -1,5 +1,15 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003G Public Role/Plane Facades
+
+LSLC-003G adds only `contract` and `runtime` consumer namespaces over existing
+crate-root exports. Every root name remains the compatibility facade; the new
+modules define no types, effects, defaults, or authority and expose no private
+implementation module. An external integration test uses only supported public
+paths. Feature lock, activation, runtime behavior, protocol bytes, errors,
+limits, cancellation, and cleanup remain unchanged. Run
+`./tools/check_lslc_003g.ps1`.
+
 ## LSLC-003F Dependency-Closed Bounded Record Transport Correction
 
 LSLC-003F retains the blocked LSLC-003E crate-private exact-record TCP helper

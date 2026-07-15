@@ -1,5 +1,11 @@
 # Validation
 
+Run `./tools/check_lslc_003g.ps1` to compile the external public-API consumer,
+prove the new role/plane modules are re-export-only, retain all crate-root
+exports, keep private implementation modules private, and verify feature-lock
+and runtime-source invariance from LSLC-003F. The owner suite includes this
+gate. No device gate applies.
+
 Run `./tools/check_lslc_003f.ps1` for portable descriptor paths, exact changed
 source hashes, resolver-owned lock revision/fingerprint, Rust/fixture binding,
 preserved LSLC-003E blocked history, helper privacy, Float32/fixed-width facade
