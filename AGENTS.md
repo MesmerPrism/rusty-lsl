@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003A Fixed-Width Sample Format Observation
+
+LSLC-003A records a finite pinned-official IPv4-loopback black-box matrix for
+`double64`, `int32`, `int16`, `int8`, and `int64`. The first four official-
+outlet directions preserve record width, marker, initialization timestamp,
+caller sample timestamp, and caller value; their initialization values are
+format-specific. Reverse synthetic outlets using the Float32 initialization
+pattern fail the official test-pattern check. The pinned public binding reports
+`int64` outlet construction unavailable on this platform.
+
+This is sanitized evidence, not production implementation. Raw artifacts stay
+private; no string, chunk, multicast, device, or Manifold claim is added. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_003a.ps1`.
+
 ## LSLC-002Z Bounded Short-Info Discovery Responder Interoperability
 
 LSLC-002Z adds one explicitly activated, synchronous, caller-configured IPv4

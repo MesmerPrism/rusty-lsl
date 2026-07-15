@@ -688,3 +688,9 @@ short-info response call. Synthetic tests bind admission, resource limits,
 cancellation, deadlines, and cleanup; a pinned official public client resolved
 the response on IPv4 loopback. This is not multicast, interface policy,
 background discovery service, non-loopback, or broad compatibility.
+# LSLC-003A fixed-width format evidence
+
+A bounded official loopback matrix establishes format-specific initialization
+for fixed-width numeric samples and preserves one caller sample in four
+official-outlet directions. Reverse directions currently fail test-pattern
+admission; this evidence adds no production runtime format support.

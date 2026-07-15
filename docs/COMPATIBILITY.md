@@ -549,3 +549,9 @@ A pinned `pylsl 1.18.2` / library 117 / protocol 110 public client resolved
 one independently authored Rust response in an IPv4-loopback-only run. This
 proves only that bounded direction and does not claim multicast, non-loopback,
 or ecosystem-wide compatibility.
+# LSLC-003A fixed-width matrix
+
+Pinned official-outlet observations pass width/order/timestamp/value checks for
+`double64`, `int32`, `int16`, and `int8`, with format-specific initialization.
+The reverse Float32-derived initialization pattern fails for all five selected
+formats. The public binding cannot construct `int64` outlets on this platform.

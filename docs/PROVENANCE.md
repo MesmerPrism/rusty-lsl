@@ -513,3 +513,9 @@ The public fixture binds SHA-256 values for the independently authored public-
 API observation driver, Rust driver, raw private result, and private binary.
 Raw packets, XML, endpoints, diagnostics, binaries, environments, and caches
 remain outside the repository. No official implementation source was read.
+# LSLC-003A provenance
+
+The sanitized matrix binds the independently authored private driver,
+configuration, and raw result by SHA-256. Exact packets, documents, endpoints,
+diagnostics, binaries, environments, caches, and harness details remain private.
+No official implementation source was inspected.

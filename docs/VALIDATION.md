@@ -699,3 +699,7 @@ Run `tools/check_lslc_002z.ps1` for exact fixture/privacy checks and focused
 Rust tests covering valid correlation, malformed and oversized datagrams,
 request bounds, cancellation, deadline termination, and immediate port reuse.
 Standard validation also runs the full owner and portable workflow gates.
+# LSLC-003A validation
+
+`tools/check_lslc_003a.ps1` checks the closed format inventory, widths, typed
+direction outcomes, provenance hashes, negative claims, and public boundary.

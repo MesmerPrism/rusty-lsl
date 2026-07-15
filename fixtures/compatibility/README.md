@@ -258,3 +258,7 @@ rerun outcomes; raw artifacts remain private.
 `lslc-002z-bounded-short-info-discovery-responder-interoperability.json`
 contains only sanitized typed outcomes and hashes for the bounded official-
 client IPv4-loopback observation. Raw runtime artifacts remain private.
+# LSLC-003A
+
+The fixed-width sample matrix contains sanitized per-format/direction outcomes
+and provenance hashes only; all raw black-box artifacts remain private.
