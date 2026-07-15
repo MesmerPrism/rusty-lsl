@@ -1,5 +1,9 @@
 # Rusty LSL
 
+LSLC-002W adds explicit synchronous finite recovery over the accepted Float32
+queue path. Attempts, observable states, delay slicing, total deadline, and
+cancellation are caller bounded; failure classification remains caller-owned.
+
 LSLC-002R adds bounded black-box evidence for official outlet-to-inlet
 connection setup in two IPv4-loopback-only cases. Each case resolved exactly
 one synthetic homogeneous stream, opened and inspected it under explicit

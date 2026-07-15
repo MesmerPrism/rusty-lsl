@@ -3,14 +3,15 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 2,
-  "revision": 6,
-  "generated_at": "2026-07-15T05:15:00Z",
+  "revision": 7,
+  "generated_at": "2026-07-15T05:30:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "102fc1953d64df7ae83947e91d3ceab9b918472af9182e3db46270512e42e710",
+  "lock_fingerprint": "67aa05709afa7390c66b5b8b3d06d128a2cd3c06874ca8a475c819dd31284995",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
     "bounded-sample-queue",
+    "finite-sample-recovery",
     "integrated-clock-correction",
     "stream-handshake",
     "timestamped-float32-sample",
@@ -69,6 +70,61 @@
         ],
         "receipt_schema": "rusty.lsl.bounded_sample_queue.activation_receipt.v1",
         "effective_marker": "rusty.lsl.bounded_sample_queue.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    },
+    {
+      "feature_id": "finite-sample-recovery",
+      "module_id": "finite-sample-recovery",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "morphospace/features/finite-sample-recovery.json",
+        "sha256": "b37d97c2a7b1e63bc5edb126d572bc640585f09520df0206e1692c735b1e8c6a",
+        "source_repo": "rusty-lsl",
+        "source_revision": "4e793f94a0d7fc211f71def5cf32a4ff9ea6fbea",
+        "source_path": "crates/rusty-lsl/src/finite_sample_recovery_runtime.rs",
+        "source_sha256": "7191f35d9d81814c8101ba80ae3c1ad52b3026ae05fc7070fdfac0ede799bbb4"
+      },
+      "dependencies": [
+        "bounded-sample-queue"
+      ],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller finite recovery policy and attempt operation"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.sample-recovery-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller finite recovery policy and attempt operation"
+        ],
+        "receipt_schema": "rusty.lsl.finite_sample_recovery.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.finite_sample_recovery.effective"
       },
       "validation_profile": "runtime-loopback",
       "rollback_profile": "rollback"
@@ -316,6 +372,7 @@
     "streams": [],
     "inputs": [
       "explicit caller bounded sample queue construction and operations",
+      "explicit caller finite recovery policy and attempt operation",
       "explicit caller one-record timestamped float32 sample configuration",
       "explicit caller TCP handshake configuration",
       "explicit caller UDP clock configuration and clock provider",

@@ -245,3 +245,5 @@ roles and the independent bounded acquisition/selection/mapping outcome. Raw
 clock packets and values remain private.
 `lslc-002v-bounded-sample-queue-backpressure-cancellation-runtime.json`
 records only sanitized bounded queue and accepted loopback composition claims.
+`lslc-002w-finite-sample-recovery-runtime.json` records only sanitized finite
+recovery bounds, queue composition, and strict nonclaims.

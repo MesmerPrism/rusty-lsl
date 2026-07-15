@@ -13,6 +13,7 @@
   "composition": {
     "selected_features": [
       "bounded-sample-queue",
+      "finite-sample-recovery",
       "integrated-clock-correction",
       "stream-handshake",
       "timestamped-float32-sample",
@@ -21,6 +22,7 @@
     "denied_features": [],
     "selected_modules": [
       "bounded-sample-queue",
+      "finite-sample-recovery",
       "integrated-clock-correction",
       "stream-handshake",
       "timestamped-float32-sample",
@@ -43,6 +45,11 @@
     ]
   },
   "authority_map": [
+    {
+      "parameter": "lsl.sample-recovery-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
     {
       "parameter": "lsl.sample-queue-runtime",
       "owner": "rusty-lsl",
@@ -107,6 +114,17 @@
   ],
   "modules": [
     {
+      "module_id": "finite-sample-recovery",
+      "feature_id": "finite-sample-recovery",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.finite_sample_recovery.v1",
+      "contract_revision": "lslc-002w",
+      "source_repo": "rusty-lsl",
+      "dependencies": ["bounded-sample-queue"],
+      "selected": true
+    },
+    {
       "module_id": "bounded-sample-queue",
       "feature_id": "bounded-sample-queue",
       "lane": "rusty-lsl",
@@ -163,7 +181,7 @@
     }
   ],
   "non_scope": [
-    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery, TCP connection-setup, one-record timestamped float32, integrated clock-correction, and bounded sample-queue calls, including multicast membership, endpoint selection, other sample shapes/formats, periodic clocks, recovery, and FFI.",
+    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery, TCP connection-setup, one-record timestamped float32, integrated clock-correction, bounded sample-queue, and finite caller-invoked recovery calls, including multicast membership, endpoint selection, other sample shapes/formats, periodic clocks, automatic reconnection, and FFI.",
     "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
     "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
     "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."

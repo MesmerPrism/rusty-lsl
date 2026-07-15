@@ -1,5 +1,17 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002W Finite Sample Recovery Runtime
+
+LSLC-002W adds one explicitly activated synchronous recovery coordinator over
+the accepted Float32 queue path. The caller supplies nonzero attempt/state
+bounds, retry delay slices, a total deadline, cancellation, the attempt
+operation, and retryable-versus-terminal classification. Ordered states remain
+observable. No worker, endpoint selection, or hidden reconnect policy exists.
+
+This unit adds no replay, persistence, other formats, devices, unsafe/FFI, or
+Manifold authority. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
+.\tools\check_lslc_002w.ps1`.
+
 ## LSLC-002V Bounded Sample Queue Backpressure and Cancellation
 
 LSLC-002V adds one selected, explicitly constructed, caller-owned bounded FIFO

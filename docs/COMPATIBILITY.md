@@ -520,3 +520,8 @@ mapping without claiming non-loopback or clock-quality interoperability.
 One accepted loopback timestamped Float32 record composes through the bounded
 FIFO with exact timestamp and value bits. This is local operational evidence,
 not an ecosystem performance, retry, recovery, or additional-format claim.
+## LSLC-002W finite recovery claim
+
+Synthetic fault coverage demonstrates one caller-labelled transient failure
+then exact-bit recovery into the accepted bounded queue. It does not claim
+automatic ecosystem reconnection or packet replay.

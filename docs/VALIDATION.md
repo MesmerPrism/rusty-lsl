@@ -676,3 +676,8 @@ Run `tools/check_lslc_002v.ps1` for activation, capacity, FIFO exact bits,
 full/empty backpressure, finite deadline, blocked cancellation, close wakeup,
 buffer draining, one accepted loopback sample composition, and public-boundary
 checks.
+## LSLC-002W finite recovery validation
+
+Run `tools/check_lslc_002w.ps1` for bounded transient success, exact queue
+composition, terminal failure, exhaustion, cancellation, deadline, policy
+rejection, and public-boundary checks.

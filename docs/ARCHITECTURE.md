@@ -1,5 +1,12 @@
 # Architecture
 
+## Finite sample recovery
+
+LSLC-002W synchronously invokes a caller operation under explicit attempt,
+state, delay-slice, and deadline bounds. The caller classifies opaque failures
+as retryable or terminal. The returned ordered trace makes every attempt and
+termination observable; no endpoint or worker authority is absorbed.
+
 ## LSLC-002P bounded discovery runtime boundary
 
 `udp_discovery` is a synchronous edge adapter owned by Rusty LSL. The caller
