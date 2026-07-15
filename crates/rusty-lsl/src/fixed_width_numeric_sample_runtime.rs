@@ -3,14 +3,17 @@
 //! Bounded one-record runtime for four observed fixed-width numeric formats.
 
 use crate::{
+    bounded_fixed_record_transport::{
+        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
+    },
     stream_handshake::{accept_handshake_stream_with_format, connect_handshake_stream_with_format},
     RuntimeModule, RuntimeModuleCapability, StreamHandshakeActivation, StreamHandshakeError,
     StreamHandshakeIdentity, StreamHandshakeLimits,
 };
-use std::io::{ErrorKind, Read, Write};
+use std::io::ErrorKind;
 use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::{Duration, Instant};
+use std::sync::atomic::AtomicBool;
+use std::time::Duration;
 
 /// Selected feature identity.
 pub const FIXED_WIDTH_NUMERIC_SAMPLE_FEATURE_ID: &str = "fixed-width-numeric-sample";
@@ -204,41 +207,36 @@ fn transfer(
     limits: FixedWidthNumericSampleLimits,
     cancelled: &AtomicBool,
 ) -> Result<(), FixedWidthNumericSampleError> {
-    let started = Instant::now();
-    let total = bytes.as_ref().map_or(write.len(), |b| b.len());
-    let mut off = 0;
-    while off < total {
-        if cancelled.load(Ordering::Acquire) {
-            return Err(FixedWidthNumericSampleError::Cancelled);
-        }
-        let remaining = limits
-            .total_deadline
-            .checked_sub(started.elapsed())
-            .ok_or(FixedWidthNumericSampleError::Deadline)?;
-        let timeout = remaining.min(limits.io_slice);
-        if let Some(b) = bytes.as_deref_mut() {
-            stream
-                .set_read_timeout(Some(timeout))
-                .map_err(|e| FixedWidthNumericSampleError::Io(e.kind()))?;
-            match stream.read(&mut b[off..]) {
-                Ok(0) => return Err(FixedWidthNumericSampleError::Truncated { actual: off }),
-                Ok(n) => off += n,
-                Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-                Err(e) => return Err(FixedWidthNumericSampleError::Io(e.kind())),
-            }
-        } else {
-            stream
-                .set_write_timeout(Some(timeout))
-                .map_err(|e| FixedWidthNumericSampleError::Io(e.kind()))?;
-            match stream.write(&write[off..]) {
-                Ok(0) => return Err(FixedWidthNumericSampleError::Io(ErrorKind::WriteZero)),
-                Ok(n) => off += n,
-                Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-                Err(e) => return Err(FixedWidthNumericSampleError::Io(e.kind())),
-            }
-        }
+    if let Some(bytes) = bytes.as_deref_mut() {
+        read_exact_bounded(
+            stream,
+            bytes,
+            limits.io_slice,
+            limits.total_deadline,
+            cancelled,
+        )
+        .map_err(map_transport_error)
+    } else {
+        write_exact_bounded(
+            stream,
+            write,
+            limits.io_slice,
+            limits.total_deadline,
+            cancelled,
+        )
+        .map_err(map_transport_error)
     }
-    Ok(())
+}
+
+fn map_transport_error(error: BoundedFixedRecordError) -> FixedWidthNumericSampleError {
+    match error {
+        BoundedFixedRecordError::Cancelled => FixedWidthNumericSampleError::Cancelled,
+        BoundedFixedRecordError::Deadline => FixedWidthNumericSampleError::Deadline,
+        BoundedFixedRecordError::Truncated { actual } => {
+            FixedWidthNumericSampleError::Truncated { actual }
+        }
+        BoundedFixedRecordError::Io(kind) => FixedWidthNumericSampleError::Io(kind),
+    }
 }
 fn encode(timestamp: f64, value: &[u8]) -> Vec<u8> {
     let mut b = Vec::with_capacity(9 + value.len());

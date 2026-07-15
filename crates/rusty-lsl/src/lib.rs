@@ -34,6 +34,7 @@
 //! It does not implement endpoint selection, official interoperability,
 //! clocks, inlet, outlet, FFI, or Morphospace authority behavior.
 
+mod bounded_fixed_record_transport;
 mod bounded_sample_queue_runtime;
 mod clock_filter_selection;
 mod clock_offset_application;

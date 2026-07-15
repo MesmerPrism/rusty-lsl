@@ -4,15 +4,18 @@
 //! One bounded protocol-110 timestamped single-channel `float32` record.
 
 use crate::{
+    bounded_fixed_record_transport::{
+        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
+    },
     stream_handshake::{accept_handshake_stream, connect_handshake_stream},
     RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, Sample, SampleLimits,
     StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
     StreamHandshakeLimits, TimestampedSample,
 };
-use std::io::{ErrorKind, Read, Write};
+use std::io::{ErrorKind, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::{Duration, Instant};
+use std::sync::atomic::AtomicBool;
+use std::time::Duration;
 
 /// Feature selected for the one-record sample effect.
 pub const TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID: &str = "timestamped-float32-sample";
@@ -180,27 +183,25 @@ fn write_record(
     record[0] = RECORD_MARKER;
     record[1..9].copy_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
     record[9..13].copy_from_slice(&sample.sample().values()[0].to_le_bytes());
-    let started = Instant::now();
-    let mut offset = 0;
-    while offset < record.len() {
-        if cancelled.load(Ordering::Acquire) {
-            return Err(TimestampedFloat32SampleError::Cancelled);
+    write_exact_bounded(
+        stream,
+        &record,
+        limits.io_slice,
+        limits.total_deadline,
+        cancelled,
+    )
+    .map_err(map_transport_error)
+}
+
+fn map_transport_error(error: BoundedFixedRecordError) -> TimestampedFloat32SampleError {
+    match error {
+        BoundedFixedRecordError::Cancelled => TimestampedFloat32SampleError::Cancelled,
+        BoundedFixedRecordError::Deadline => TimestampedFloat32SampleError::Deadline,
+        BoundedFixedRecordError::Truncated { actual } => {
+            TimestampedFloat32SampleError::Truncated { actual }
         }
-        let remaining = limits
-            .total_deadline
-            .checked_sub(started.elapsed())
-            .ok_or(TimestampedFloat32SampleError::Deadline)?;
-        stream
-            .set_write_timeout(Some(remaining.min(limits.io_slice)))
-            .map_err(|error| TimestampedFloat32SampleError::Io(error.kind()))?;
-        match stream.write(&record[offset..]) {
-            Ok(0) => return Err(TimestampedFloat32SampleError::Io(ErrorKind::WriteZero)),
-            Ok(written) => offset += written,
-            Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-            Err(error) => return Err(TimestampedFloat32SampleError::Io(error.kind())),
-        }
+        BoundedFixedRecordError::Io(kind) => TimestampedFloat32SampleError::Io(kind),
     }
-    Ok(())
 }
 
 fn read_record(
@@ -208,27 +209,15 @@ fn read_record(
     limits: TimestampedFloat32SampleLimits,
     cancelled: &AtomicBool,
 ) -> Result<TimestampedSample<f32>, TimestampedFloat32SampleError> {
-    let started = Instant::now();
     let mut record = [0u8; RECORD_BYTES];
-    let mut offset = 0;
-    while offset < record.len() {
-        if cancelled.load(Ordering::Acquire) {
-            return Err(TimestampedFloat32SampleError::Cancelled);
-        }
-        let remaining = limits
-            .total_deadline
-            .checked_sub(started.elapsed())
-            .ok_or(TimestampedFloat32SampleError::Deadline)?;
-        stream
-            .set_read_timeout(Some(remaining.min(limits.io_slice)))
-            .map_err(|error| TimestampedFloat32SampleError::Io(error.kind()))?;
-        match stream.read(&mut record[offset..]) {
-            Ok(0) => return Err(TimestampedFloat32SampleError::Truncated { actual: offset }),
-            Ok(read) => offset += read,
-            Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-            Err(error) => return Err(TimestampedFloat32SampleError::Io(error.kind())),
-        }
-    }
+    read_exact_bounded(
+        stream,
+        &mut record,
+        limits.io_slice,
+        limits.total_deadline,
+        cancelled,
+    )
+    .map_err(map_transport_error)?;
     if record[0] != RECORD_MARKER {
         return Err(TimestampedFloat32SampleError::InvalidMarker { actual: record[0] });
     }
