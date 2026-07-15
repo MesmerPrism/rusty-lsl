@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-002Y corrects the two LSLC-002X failure stages by structurally admitting
+the official finite positive Endian-Performance request field and handling the
+observed two-record initialization sequence before the caller Float32 sample.
+Both pinned-official loopback directions then preserve the explicit timestamp
+and value bits; broader formats, transport scopes, and ecosystem compatibility
+remain unclaimed.
+
 LSLC-002X records bounded two-direction official-loopback failure evidence for
 the accepted one-record Float32 runtime. Official outlet to Rust inlet reached
 the data phase but Rust misadmitted initialization data as the sample; Rust

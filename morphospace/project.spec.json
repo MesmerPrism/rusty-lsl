@@ -152,7 +152,7 @@
       "lane": "rusty-lsl",
       "maturity": "candidate",
       "contract": "rusty.lsl.timestamped_float32_sample.v1",
-      "contract_revision": "lslc-002t",
+      "contract_revision": "lslc-002y",
       "source_repo": "rusty-lsl",
       "dependencies": ["stream-handshake"],
       "selected": true
@@ -163,7 +163,7 @@
       "lane": "rusty-lsl",
       "maturity": "candidate",
       "contract": "rusty.lsl.stream_handshake.v1",
-      "contract_revision": "lslc-002s",
+      "contract_revision": "lslc-002y",
       "source_repo": "rusty-lsl",
       "dependencies": [],
       "selected": true

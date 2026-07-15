@@ -250,3 +250,6 @@ recovery bounds, queue composition, and strict nonclaims.
 `lslc-002x-official-loopback-float32-sample-interoperability-observation.json`
 records only sanitized two-direction official-loopback failure stages and
 pinned hashes; raw evidence remains private.
+`lslc-002y-official-float32-stream-initialization-compatibility-correction.json`
+records the evidence-bounded correction and sanitized two-direction exact-bit
+rerun outcomes; raw artifacts remain private.

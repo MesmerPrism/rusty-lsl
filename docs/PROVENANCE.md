@@ -500,3 +500,10 @@ The public fixture binds independently authored private Rust/Python driver,
 binary, and raw-result SHA-256 values. No official implementation source was
 inspected. Raw bytes, XML, endpoints, diagnostics, environments, binaries, and
 caches remain outside the repository.
+## LSLC-002Y correction and rerun evidence
+
+LSLC-002Y uses only accepted public-safe LSLC-002S/T/X role evidence and fresh
+black-box reruns through the pinned official public APIs. The fixture binds
+private driver, rebuilt Rust binary, and raw-result hashes. Official source was
+not inspected; raw bytes, XML, endpoints, diagnostics, environments, binaries,
+and caches remain private.

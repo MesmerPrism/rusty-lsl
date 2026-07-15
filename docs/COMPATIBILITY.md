@@ -535,3 +535,11 @@ admission. Rust outlet to official inlet admitted one discovery response and
 reached the Rust streamfeed listener, which returned typed identity mismatch
 before its response; the official inlet then reported stream loss. Neither
 case establishes sample interoperability.
+## LSLC-002Y two-direction Float32 correction
+
+The correction consumes the two LSLC-002X failure stages: bounded official
+request admission now accepts the dynamic finite performance value, and the
+data path consumes/emits the two observed initialization records before the
+caller record. Fresh pinned-official IPv4-loopback runs pass in both directions
+with exact explicit timestamp and Float32 value bits. This remains one format,
+one channel, one caller record, and loopback only.

@@ -1,5 +1,14 @@
 # Architecture
 
+## Official-compatible Float32 stream initialization
+
+The outlet request parser retains exact role order, fixed values, and identity
+fields; only `Endian-Performance` is structurally admitted as a finite positive
+number inside the existing header bound. After handshake response, outlet and
+inlet exchange exactly two evidence-pinned initialization records before one
+caller sample. The inlet validates marker, timestamp bits, value bits, and
+order before exposing caller data.
+
 ## Finite sample recovery
 
 LSLC-002W synchronously invokes a caller operation under explicit attempt,

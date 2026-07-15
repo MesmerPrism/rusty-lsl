@@ -20,6 +20,8 @@ pub const TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER: &str =
     "rusty.lsl.timestamped_float32_sample.effective";
 const RECORD_BYTES: usize = 13;
 const RECORD_MARKER: u8 = 2;
+const INITIALIZATION_TIMESTAMP_BITS: u64 = 123_456.789_f64.to_bits();
+const INITIALIZATION_VALUE_BITS: [u32; 2] = [4.0_f32.to_bits(), 2.0_f32.to_bits()];
 
 /// Closed activation composed with accepted handshake activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -116,6 +118,56 @@ pub enum TimestampedFloat32SampleError {
     },
     /// Timestamp bytes decoded outside the finite raw timestamp domain.
     InvalidTimestamp,
+    /// A required post-handshake initialization record differed.
+    InvalidInitialization {
+        /// Zero-based initialization record index.
+        index: usize,
+    },
+}
+
+fn initialization_sample(value_bits: u32) -> TimestampedSample<f32> {
+    TimestampedSample::new(
+        Sample::new(
+            SampleLimits::new(1).unwrap(),
+            1,
+            vec![f32::from_bits(value_bits)],
+        )
+        .unwrap(),
+        RawSourceTimestamp::new(f64::from_bits(INITIALIZATION_TIMESTAMP_BITS)).unwrap(),
+        None,
+    )
+}
+
+fn write_initialization(
+    stream: &mut TcpStream,
+    limits: TimestampedFloat32SampleLimits,
+    cancelled: &AtomicBool,
+) -> Result<(), TimestampedFloat32SampleError> {
+    for value_bits in INITIALIZATION_VALUE_BITS {
+        write_record(
+            stream,
+            &initialization_sample(value_bits),
+            limits,
+            cancelled,
+        )?;
+    }
+    Ok(())
+}
+
+fn read_initialization(
+    stream: &mut TcpStream,
+    limits: TimestampedFloat32SampleLimits,
+    cancelled: &AtomicBool,
+) -> Result<(), TimestampedFloat32SampleError> {
+    for (index, expected_value) in INITIALIZATION_VALUE_BITS.into_iter().enumerate() {
+        let record = read_record(stream, limits, cancelled)?;
+        if record.raw_source_timestamp().value().to_bits() != INITIALIZATION_TIMESTAMP_BITS
+            || record.sample().values()[0].to_bits() != expected_value
+        {
+            return Err(TimestampedFloat32SampleError::InvalidInitialization { index });
+        }
+    }
+    Ok(())
 }
 
 fn write_record(
@@ -206,6 +258,7 @@ pub fn run_timestamped_float32_outlet(
         accept_handshake_stream(listener, identity, handshake_limits, cancelled)
             .map_err(TimestampedFloat32SampleError::Handshake)?;
     let _ = activation.handshake;
+    write_initialization(&mut stream, sample_limits, cancelled)?;
     write_record(&mut stream, sample, sample_limits, cancelled)?;
     Ok(local)
 }
@@ -222,6 +275,7 @@ pub fn run_timestamped_float32_inlet(
     let mut stream = connect_handshake_stream(peer, identity, handshake_limits, cancelled)
         .map_err(TimestampedFloat32SampleError::Handshake)?;
     let _ = activation.handshake;
+    read_initialization(&mut stream, sample_limits, cancelled)?;
     read_record(&mut stream, sample_limits, cancelled)
 }
 
@@ -389,5 +443,49 @@ mod tests {
             );
             worker.join().unwrap();
         }
+    }
+
+    #[test]
+    fn lslc_002y_initialization_sequence_is_exact_and_ordered() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let mut writer = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (mut reader, _) = listener.accept().unwrap();
+        write_record(
+            &mut writer,
+            &initialization_sample(INITIALIZATION_VALUE_BITS[0]),
+            sample_limits(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        write_record(
+            &mut writer,
+            &initialization_sample(INITIALIZATION_VALUE_BITS[1]),
+            sample_limits(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        read_initialization(&mut reader, sample_limits(), &AtomicBool::new(false)).unwrap();
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let mut writer = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (mut reader, _) = listener.accept().unwrap();
+        write_record(
+            &mut writer,
+            &initialization_sample(INITIALIZATION_VALUE_BITS[0]),
+            sample_limits(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        write_record(
+            &mut writer,
+            &initialization_sample(3.0f32.to_bits()),
+            sample_limits(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(
+            read_initialization(&mut reader, sample_limits(), &AtomicBool::new(false)),
+            Err(TimestampedFloat32SampleError::InvalidInitialization { index: 1 })
+        );
     }
 }

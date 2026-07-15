@@ -1,5 +1,19 @@
 # Rusty LSL Agent Notes
 
+## LSLC-002Y Official Float32 Initialization Compatibility Correction
+
+LSLC-002Y corrects both LSLC-002X failure stages without inspecting official
+source. Request admission keeps every fixed and identity role exact while
+admitting the observed `Endian-Performance` role only as a finite positive
+bounded `f64`. The Float32 data path exchanges and validates exactly two
+observed initialization records after the handshake and before the caller
+sample. Both pinned-official IPv4-loopback directions then preserve the
+explicit caller timestamp and value bits.
+
+Raw evidence remains private. This adds no other format, chunk, multicast,
+non-loopback, performance, device, or Manifold claim. Run `powershell
+-NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_002y.ps1`.
+
 ## LSLC-002X Official Float32 Interoperability Failure Observation
 
 LSLC-002X observes the accepted Rust one-record Float32 runtime against the

@@ -687,3 +687,9 @@ Run `tools/check_lslc_002x.ps1` to require both bounded directions, exact
 pinned provenance, the forward post-handshake bit-mismatch stage, the reverse
 resolved streamfeed identity-mismatch stage, strict failure nonclaims, and the
 public-boundary scan. The external oracle is not rerun by the public checker.
+## LSLC-002Y official compatibility correction validation
+
+Run `tools/check_lslc_002y.ps1` for finite positive performance admission,
+damaged/nonfinite/reordered/identity rejection, exact two-record initialization
+and damage handling, both sanitized pinned-official direction outcomes, and
+public-boundary checks.

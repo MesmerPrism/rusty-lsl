@@ -236,6 +236,35 @@ pub enum StreamHandshakeError {
 fn request(identity: &StreamHandshakeIdentity) -> String {
     format!("LSL:streamfeed/110 {}\r\nNative-Byte-Order: 1234\r\nEndian-Performance: 1.0\r\nHas-IEEE754-Floats: 1\r\nSupports-Subnormals: 1\r\nValue-Size: 4\r\nData-Protocol-Version: 110\r\nMax-Buffer-Length: 100\r\nMax-Chunk-Length: 1\r\nHostname: {}\r\nSource-Id: {}\r\nSession-Id: {}\r\n\r\n", identity.uid, identity.hostname, identity.source_id, identity.session_id)
 }
+
+fn request_matches(received: &str, identity: &StreamHandshakeIdentity) -> bool {
+    let lines: Vec<&str> = received.split("\r\n").collect();
+    if lines.len() != 14 {
+        return false;
+    }
+    let performance = match lines[2].strip_prefix("Endian-Performance: ") {
+        Some(value) => value,
+        None => return false,
+    };
+    let performance = match performance.parse::<f64>() {
+        Ok(value) if value.is_finite() && value > 0.0 => value,
+        _ => return false,
+    };
+    let _ = performance;
+    lines[0] == format!("LSL:streamfeed/110 {}", identity.uid)
+        && lines[1] == "Native-Byte-Order: 1234"
+        && lines[3] == "Has-IEEE754-Floats: 1"
+        && lines[4] == "Supports-Subnormals: 1"
+        && lines[5] == "Value-Size: 4"
+        && lines[6] == "Data-Protocol-Version: 110"
+        && lines[7] == "Max-Buffer-Length: 100"
+        && lines[8] == "Max-Chunk-Length: 1"
+        && lines[9] == format!("Hostname: {}", identity.hostname)
+        && lines[10] == format!("Source-Id: {}", identity.source_id)
+        && lines[11] == format!("Session-Id: {}", identity.session_id)
+        && lines[12].is_empty()
+        && lines[13].is_empty()
+}
 fn response(identity: &StreamHandshakeIdentity) -> String {
     format!("LSL/110 200 OK\r\nUID: {}\r\nByte-Order: 1234\r\nSuppress-Subnormals: 0\r\nData-Protocol-Version: 110\r\n\r\n", identity.uid)
 }
@@ -396,7 +425,7 @@ pub(crate) fn accept_handshake_stream(
         }
     };
     let received = read_header(&mut stream, limits, started, cancelled)?;
-    if received != request(identity) {
+    if !request_matches(&received, identity) {
         return Err(if received.starts_with("LSL:streamfeed/110 ") {
             StreamHandshakeError::IdentityMismatch
         } else {
@@ -539,6 +568,30 @@ mod tests {
             worker.join().unwrap(),
             Err(StreamHandshakeError::IdentityMismatch)
         );
+    }
+
+    #[test]
+    fn lslc_002y_official_performance_value_is_bounded_and_finite() {
+        let identity = identity();
+        let canonical = request(&identity);
+        let official = canonical.replace(
+            "Endian-Performance: 1.0\r\n",
+            "Endian-Performance: 5.24262e+06\r\n",
+        );
+        assert!(request_matches(&official, &identity));
+        for damaged in ["nan", "inf", "0", "-1", "not-a-number"] {
+            assert!(!request_matches(
+                &canonical.replace(
+                    "Endian-Performance: 1.0\r\n",
+                    &format!("Endian-Performance: {damaged}\r\n"),
+                ),
+                &identity
+            ));
+        }
+        assert!(!request_matches(
+            &official.replace("Source-Id: synthetic-source", "Source-Id: other"),
+            &identity
+        ));
     }
     #[test]
     fn lslc_002s_activation_and_limits_fail_closed() {
