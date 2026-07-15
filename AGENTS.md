@@ -1,5 +1,16 @@
 # Rusty LSL Agent Notes
 
+## LSLC-003I Pinned Rust 1.80 Const-Bit Compatibility
+
+LSLC-003I replaces only three pre-const-stabilization floating `to_bits` calls
+with their exact IEEE integer literals so pinned Rust 1.80 can compile the
+unchanged Float32 initialization path. Focused evidence proves the literals,
+encoded bytes, and runtime behavior are identical. Clippy policy and warning
+cleanup, feature breadth, locks, dependencies, devices, authority, public API,
+and historical checker changes remain outside this unit. Run
+`./tools/check_lslc_003i.ps1`; the accepted current-gates dispatcher remains
+unchanged and is run separately through `./tools/check_all.ps1`.
+
 ## LSLC-003H Manifest-Driven Current Gates
 
 LSLC-003H makes `tools/current-gates.json` the explicit ordered inventory for

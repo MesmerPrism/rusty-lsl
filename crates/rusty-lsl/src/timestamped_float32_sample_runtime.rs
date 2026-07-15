@@ -24,8 +24,8 @@ pub const TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER: &str =
     "rusty.lsl.timestamped_float32_sample.effective";
 const RECORD_BYTES: usize = 13;
 const RECORD_MARKER: u8 = 2;
-const INITIALIZATION_TIMESTAMP_BITS: u64 = 123_456.789_f64.to_bits();
-const INITIALIZATION_VALUE_BITS: [u32; 2] = [4.0_f32.to_bits(), 2.0_f32.to_bits()];
+const INITIALIZATION_TIMESTAMP_BITS: u64 = 0x40fe240c9fbe76c9;
+const INITIALIZATION_VALUE_BITS: [u32; 2] = [0x40800000, 0x40000000];
 
 /// Closed activation composed with accepted handshake activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
