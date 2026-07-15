@@ -37,3 +37,19 @@ closed by LSLC-003J.
 
 Review this decision if Git worktree cleanup semantics change or a future unit
 adds another live forward checker.
+
+## Durable Promotion Rule
+
+The immutable v1 inventory is the exact ordered prefix of historical roles.
+Later accepted gates may be appended after that prefix only with a unique ID,
+contiguous order, ancestral pin, receipt, launcher, companion, and exact hashes.
+A successor current role must remain nonempty and disjoint from all historical
+IDs. The live checker validates relationships rather than LSLC-003J values: the
+current source, descriptor and ancestral source revision, resolver-owned lock,
+runtime activation constants, and workspace module projection must agree. It
+does not require an active unit, so acceptance may set `current_unit` to null.
+
+Worktree cleanup is part of the replay result. Removal must succeed, the exact
+owned path must disappear from `git worktree list --porcelain`, and its directory
+must be absent. A failure leaves the owned path for explicit recovery and never
+invokes broad pruning.

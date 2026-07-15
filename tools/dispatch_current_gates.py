@@ -126,8 +126,10 @@ def load_and_validate(manifest_path: Path, root: Path) -> dict[str, list[dict[st
             if _sha(_git(root, "show", f"{pin}:{gate[path_field]}")) != gate[hash_field]:
                 raise ManifestError(f"historical {path_field} hash mismatch: {checker_id}")
         historical_ids.append(checker_id)
-    if historical_ids != v1_ids:
-        raise ManifestError("historical roles do not exactly preserve the v1 inventory")
+    if historical_ids[: len(v1_ids)] != v1_ids or len(historical_ids) < len(v1_ids):
+        raise ManifestError("historical roles do not preserve the exact ordered v1 prefix")
+    if len(historical_ids) != len(set(historical_ids)):
+        raise ManifestError("historical identities must remain unique after the v1 prefix")
 
     current_ids = []
     for index, gate in enumerate(current, 1):
@@ -143,7 +145,36 @@ def load_and_validate(manifest_path: Path, root: Path) -> dict[str, list[dict[st
     return {"historical": historical, "current": current}
 
 
-def dispatch(roles: dict[str, list[dict[str, object]]], root: Path, runner: Callable[..., object] = subprocess.run, materialize: bool = True) -> None:
+def _registered_worktrees(root: Path, git_runner: Callable[..., object] = subprocess.run) -> set[Path]:
+    result = git_runner(["git", "worktree", "list", "--porcelain"], cwd=root, check=False, capture_output=True, text=True)
+    if int(getattr(result, "returncode", 1)) != 0:
+        raise RuntimeError(f"cannot verify worktree registry: {getattr(result, 'stderr', '').strip()}")
+    registered = set()
+    for line in str(getattr(result, "stdout", "")).splitlines():
+        if line.startswith("worktree "):
+            registered.add(Path(line[9:]).resolve())
+    return registered
+
+
+def _remove_owned_worktree(root: Path, temporary: Path, git_runner: Callable[..., object] = subprocess.run) -> None:
+    result = git_runner(["git", "worktree", "remove", "--force", str(temporary)], cwd=root, check=False, capture_output=True, text=True)
+    if int(getattr(result, "returncode", 1)) != 0:
+        raise RuntimeError(f"historical worktree removal failed: {temporary}: {getattr(result, 'stderr', '').strip()}")
+    if temporary.resolve() in _registered_worktrees(root, git_runner):
+        raise RuntimeError(f"historical worktree registry entry remains: {temporary}")
+    if temporary.exists():
+        shutil.rmtree(temporary, ignore_errors=False)
+    if temporary.exists():
+        raise RuntimeError(f"historical worktree directory remains: {temporary}")
+
+
+def dispatch(
+    roles: dict[str, list[dict[str, object]]],
+    root: Path,
+    runner: Callable[..., object] = subprocess.run,
+    materialize: bool = True,
+    git_runner: Callable[..., object] = subprocess.run,
+) -> None:
     for gate in roles["historical"]:
         checker_id, pin = str(gate["checker_id"]), str(gate["pin"])
         print(f"HISTORICAL-GATE {gate['order']:02d} {checker_id} {pin}", flush=True)
@@ -152,7 +183,7 @@ def dispatch(roles: dict[str, list[dict[str, object]]], root: Path, runner: Call
         try:
             if materialize:
                 temporary.rmdir()
-                result = subprocess.run(["git", "worktree", "add", "--detach", str(temporary), pin], cwd=root, check=False, capture_output=True, text=True)
+                result = git_runner(["git", "worktree", "add", "--detach", str(temporary), pin], cwd=root, check=False, capture_output=True, text=True)
                 if result.returncode != 0:
                     raise RuntimeError(f"historical materialization failed: {checker_id}: {result.stderr.strip()}")
                 added = True
@@ -161,10 +192,9 @@ def dispatch(roles: dict[str, list[dict[str, object]]], root: Path, runner: Call
                 raise RuntimeError(f"historical gate failed ({result.returncode}): {checker_id}")
         finally:
             if added:
-                subprocess.run(["git", "worktree", "remove", "--force", str(temporary)], cwd=root, check=False, capture_output=True)
-            shutil.rmtree(temporary, ignore_errors=True)
-            if temporary.exists():
-                raise RuntimeError(f"historical cleanup failed: {checker_id}")
+                _remove_owned_worktree(root, temporary, git_runner)
+            else:
+                shutil.rmtree(temporary, ignore_errors=False)
     for gate in roles["current"]:
         checker_id, relative = str(gate["checker_id"]), str(gate["path"])
         print(f"CURRENT-GATE {gate['order']:02d} {checker_id} {relative}", flush=True)

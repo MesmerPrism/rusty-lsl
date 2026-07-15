@@ -1,0 +1,17 @@
+{
+  "schema": "rusty.lsl.lslc_003j.superseded_validation_attempt.v1",
+  "unit_id": "rlsl-lslc-003j-current-gate-role-closure-recovery",
+  "head": "d6b5a9d09f8607de0a54556e14e3ef8bea0c776a",
+  "result": "superseded-before-recording",
+  "reason": "Primary review found unit-specific live constants, a non-evolvable historical inventory, and incomplete Git worktree registry cleanup verification.",
+  "record_validation_executed": false,
+  "accept_executed": false,
+  "push_executed": false,
+  "interrupted_owned_worktree": "rusty-lsl-lslc-003h temporary replay worktree",
+  "cleanup": {
+    "git_worktree_remove_succeeded": true,
+    "registry_entry_absent": true,
+    "directory_absent": true
+  },
+  "next": "Correct LSLC-003J within the existing claimed envelope and rerun every acceptance gate."
+}

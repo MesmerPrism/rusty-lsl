@@ -16,6 +16,14 @@ and checks descriptor/lock/activation/workspace closure. Run
 hash/pin/path/role, ordering, early-failure, and cleanup coverage. See
 `docs/adr/LSLC-003J-CURRENT-GATE-ROLES.md`.
 
+The v1 IDs are a permanent ordered historical prefix, not the complete future
+history. Accepted gates may be appended with full pin/receipt/checker hashes,
+then replaced by a disjoint nonempty current role. The live checker contains no
+unit-specific lock/source constants and does not require `current_unit`; it
+checks current source-to-descriptor-to-lock-to-runtime/workspace relationships.
+Cleanup validation checks both removal success and absence from Git's worktree
+registry, without broad `prune` or unrelated-path deletion.
+
 Run `./tools/check_lslc_003g.ps1` to compile the external public-API consumer,
 prove the new role/plane modules are re-export-only, retain all crate-root
 exports, keep private implementation modules private, and verify feature-lock
