@@ -2,14 +2,14 @@
   "schema": "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
   "project_id": "rusty-lsl",
   "unit_id": "rlsl-lslc-003t-bounded-string-record-runtime",
-  "action": "RecordValidation",
-  "timestamp": "2026-07-16T12:55:51.4708935Z",
+  "action": "Accept",
+  "timestamp": "2026-07-16T12:55:56.9612189Z",
   "executed": true,
-  "transition": "validation-pass",
+  "transition": "validating-to-accepted",
   "status_before": "validating",
-  "status_after": "validating",
+  "status_after": "accepted",
   "current_unit_before": "rlsl-lslc-003t-bounded-string-record-runtime",
-  "current_unit_after": "rlsl-lslc-003t-bounded-string-record-runtime",
+  "current_unit_after": null,
   "preservation": {
     "git_mutation_performed": false,
     "device_mutation_performed": false,
@@ -23,8 +23,8 @@
         "branch": "codex/rlsl-autonomous",
         "upstream": "origin/codex/rlsl-autonomous",
         "dirty": true,
-        "tracked_changes": 1,
-        "untracked_changes": 2,
+        "tracked_changes": 4,
+        "untracked_changes": 4,
         "ahead": 6,
         "behind": 0,
         "diverged": false,
@@ -109,5 +109,5 @@
   },
   "adoption_receipt": null,
   "push_plan": null,
-  "event_id": "rlsl-lslc-003t-bounded-string-record-runtime-validation-pass-0447"
+  "event_id": "rlsl-lslc-003t-bounded-string-record-runtime-accepted-0448"
 }
