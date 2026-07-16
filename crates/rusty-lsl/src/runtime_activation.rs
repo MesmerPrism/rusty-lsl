@@ -5,7 +5,7 @@
 
 /// Fingerprint of the complete accepted feature lock.
 pub const ACCEPTED_FEATURE_LOCK_FINGERPRINT: &str =
-    "7a1088f2dbd46d33734f5136b01b9e4e2298825db5a1e7df2bdbd94b826c773b";
+    "2837b31b966e97e888d1412f4a2f6cb620d3403057c920679cbfbe77a505ff90";
 /// Revision of the complete accepted feature lock.
 pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 14;
 
@@ -434,6 +434,23 @@ mod tests {
                 .receipt()
                 .effective_marker(RuntimeModule::UdpDiscovery),
             None
+        );
+    }
+
+    #[test]
+    fn lslc_004i_current_revision_14_admits_and_prior_fingerprint_rejects() {
+        let current =
+            admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, "lslc-004i-current", &[])
+                .unwrap();
+        assert_eq!(current.receipt().lock_revision(), 14);
+        assert_eq!(current.receipt().selected_modules(), &[]);
+        assert_eq!(
+            admit_runtime_activation(
+                "7a1088f2dbd46d33734f5136b01b9e4e2298825db5a1e7df2bdbd94b826c773b",
+                "lslc-004i-stale",
+                &[],
+            ),
+            Err(RuntimeActivationError::LockFingerprintMismatch)
         );
     }
 

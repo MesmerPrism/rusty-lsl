@@ -157,3 +157,9 @@ bounded query/response, pre-I/O cancellation, no-response deadline, membership
 cleanup, and socket cleanup passed per repeat. This single Windows host
 observation does not widen the loopback-only production responder or establish
 portable interface, retry, cross-host, device, official, or Manifold behavior.
+
+LSLC-004I rebinds the inert-by-default runtime activation admission to the
+accepted deterministic revision-14 lock fingerprint after the project
+composition changed in LSLC-004G. The selected module set, dependencies,
+explicit effective-marker requirements, runtime behavior, and authority do not
+change; the superseded fingerprint now rejects as stale.

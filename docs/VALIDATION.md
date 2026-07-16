@@ -91,6 +91,11 @@ sanitized exact-source fixture, two repeat dimensions, private artifact hashes,
 six damaged mutations, documentation routes, limitations, and public boundary.
 It performs no network operation and does not replay private artifacts.
 
+LSLC-004I is checked by `tools/check_lslc_004i.ps1`. It independently
+recomputes the revision-14 fingerprint, checks the runtime and current fixtures,
+runs the direct LSLC-003S and LSLC-003J owners, and executes closed activation
+tests proving current admission, stale rejection, and inert empty selection.
+
 LSLC-004D is checked by `tools/check_lslc_004d.ps1` and policy gate
 `lslc-004d-runtime-conformance`. It byte-compares the production prefix with
 accepted LSLC-004C, rejects six damaged fixture mutations, runs the focused

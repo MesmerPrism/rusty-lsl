@@ -384,6 +384,12 @@ one-byte length form, StringSample plus handshake activation, finite loopback,
 deadline, cancellation, cleanup, dependencies, devices, unsafe/FFI posture,
 commands, and authority.
 
+LSLC-004I corrects only the stale runtime projection of the accepted
+revision-14 feature lock. Exact-lock admission now binds the deterministic
+current fingerprint while the prior fingerprint rejects. Default activation,
+the nine selected modules, dependencies, explicit caller capability requests,
+runtime behavior, devices, and authority remain unchanged.
+
 LSLC-004H adds only sanitized two-repeat observation evidence for the accepted
 Rust requester and a private independently authored joined responder on one
 caller-explicit active private IPv4 host interface at exact
