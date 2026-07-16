@@ -1,0 +1,99 @@
+{
+  "schema": "rusty.lsl.lslc_003o.multichannel_numeric_record_sequence_observation.v1",
+  "official": {
+    "package": "pylsl",
+    "version": "1.18.2",
+    "library_version": 117,
+    "protocol_version": 110,
+    "implementation_source_used": false
+  },
+  "bounds": {
+    "address_family": "ipv4-loopback-unicast",
+    "formats": 4,
+    "directions_per_format": 2,
+    "channels": 2,
+    "initialization_records": 2,
+    "caller_records": 3,
+    "repeat_runs": 2,
+    "finite_deadlines": true
+  },
+  "formats": {
+    "double64": {
+      "value_width_bytes": 8,
+      "record_width_bytes": 25,
+      "initialization_values": [[16777221.0, -16777222.0], [16777219.0, -16777220.0]],
+      "official_outlet_to_private_inlet": "pass",
+      "private_outlet_to_official_inlet": "pass"
+    },
+    "int32": {
+      "value_width_bytes": 4,
+      "record_width_bytes": 17,
+      "initialization_values": [[65541, -65542], [65539, -65540]],
+      "official_outlet_to_private_inlet": "pass",
+      "private_outlet_to_official_inlet": "pass"
+    },
+    "int16": {
+      "value_width_bytes": 2,
+      "record_width_bytes": 13,
+      "initialization_values": [[261, -262], [259, -260]],
+      "official_outlet_to_private_inlet": "pass",
+      "private_outlet_to_official_inlet": "pass"
+    },
+    "int8": {
+      "value_width_bytes": 1,
+      "record_width_bytes": 11,
+      "initialization_values": [[5, -6], [3, -4]],
+      "official_outlet_to_private_inlet": "pass",
+      "private_outlet_to_official_inlet": "pass"
+    }
+  },
+  "observed_dimensions": {
+    "marker": "pass",
+    "record_boundary": "pass",
+    "initialization_timestamp": "pass",
+    "channel_order": "pass",
+    "record_order": "pass",
+    "caller_timestamps": "pass",
+    "caller_values": "pass",
+    "repeat_identity": "pass",
+    "bounded_socket_cleanup": "pass"
+  },
+  "negative_observation": {
+    "truncation": "not-run-observation-only",
+    "extra_record": "not-run-observation-only",
+    "malformed_record": "not-run-observation-only",
+    "cancellation": "not-run-observation-only",
+    "reason": "Official reconnect and error policy is outside this bounded successful-sequence observation; damaged local runtime behavior remains a later implementation responsibility."
+  },
+  "provenance": {
+    "driver_sha256": "d37909c2fd45ec3719e84d1bd2c86e0a810e650ceae39ace05bc24438baa890c",
+    "configuration_sha256": "bcfc6990802c81567c4a217e6d2f6f983316dd9040ca44044ec8a0a50d9dfbce",
+    "official_binary_sha256": "8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff",
+    "pinned_raw_attempt_1_sha256": "b2d11d45845f279a3b2011d4525b33297626378e0c64cc79b2a3f68e6395d292",
+    "pinned_raw_attempt_2_sha256": "9304560511b5f150916a9c34b6ce2d9b74c2b26383aea054c8b56e4572078ea8"
+  },
+  "preserved_non_acceptance_attempts": [
+    {
+      "classification": "official-package-version-drift",
+      "observed_package_version": "1.18.1",
+      "raw_sha256": "e31d1f23f84e41cfe17cf2800700b7caa887d195f29dd9ba172c0341ea312517"
+    },
+    {
+      "classification": "official-package-version-drift-repeat",
+      "observed_package_version": "1.18.1",
+      "raw_sha256": "b5f78d5e1b2ee90520d0aee230ba87c6d7e85ddb9b39069a58933e212b8f0893"
+    }
+  ],
+  "recommendation": "bounded-multichannel-multirecord-fixed-width-runtime",
+  "claims": {
+    "production_implementation": false,
+    "runtime_activation": false,
+    "string_or_int64": false,
+    "variable_width_or_empty_chunk": false,
+    "multicast_or_non_loopback": false,
+    "clock_queue_recovery": false,
+    "device_behavior": false,
+    "manifold_authority": false,
+    "broad_ecosystem_compatibility": false
+  }
+}

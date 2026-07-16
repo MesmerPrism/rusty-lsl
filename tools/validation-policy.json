@@ -17,6 +17,7 @@
       "current-closure",
       "public-boundary",
       "documentation-router",
+      "lslc-003o-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -26,6 +27,7 @@
       "current-closure",
       "public-boundary",
       "documentation-router",
+      "lslc-003o-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -37,6 +39,7 @@
       "current-closure",
       "public-boundary",
       "documentation-router",
+      "lslc-003o-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -234,6 +237,46 @@
       }
     },
     {
+      "id": "lslc-003o-observation",
+      "owner": "rusty-lsl-compatibility-evidence",
+      "state": "current",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003o.ps1"
+      ],
+      "depends_on": [
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/",
+        "tools/check_lslc_003o.py",
+        "tools/check_lslc_003o.ps1"
+      ],
+      "proves": [
+        "the sanitized LSLC-003O two-channel three-record observation matrix, provenance hashes, limitations, and required routes are complete and damaged mutations reject"
+      ],
+      "does_not_prove": [
+        "private oracle freshness beyond bound hashes, production implementation, activation, damaged-peer behavior, non-loopback interoperability, devices, or Manifold authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
+    },
+    {
       "id": "git-diff-hygiene",
       "owner": "rusty-lsl-source",
       "state": "current",
@@ -328,6 +371,24 @@
     }
   ],
   "semantic_deltas": [
+    {
+      "id": "lslc-003o-bounded-observation-gate",
+      "decision": "Standard, Deep, and CI validation now require the public-safe LSLC-003O observation checker after the public-boundary gate.",
+      "reason": "The new accepted candidate evidence must remain synchronized with exact bounds, hashes, limitations, and documentation routes without treating private oracle execution as a portable current gate.",
+      "preserves": [
+        "all prior current gates and profiles",
+        "pinned historical replay",
+        "network-forbidden portable validation",
+        "observation versus implementation separation"
+      ],
+      "does_not_authorize": [
+        "production runtime claims",
+        "private artifact publication",
+        "oracle execution in CI",
+        "devices",
+        "Manifold authority"
+      ]
+    },
     {
       "id": "historical-evidence-terminal-newline",
       "decision": "Hash-pinned immutable historical receipts remain subject to every path, binary, UTF-8, private-content, credential, build-artifact, and whitespace boundary, but are exempt from the mutable-text terminal-newline rule when and only when their exact current bytes equal the committed HEAD bytes.",

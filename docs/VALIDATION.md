@@ -14,6 +14,17 @@ the policy-owned `ci` profile directly. Gates declare stable IDs, owners,
 dependencies, change scope, claims, limitations, environment, and timeouts.
 Receipts record executions but never select policy.
 
+LSLC-003O observation evidence is checked through the policy-owned
+`lslc-003o-observation` gate. Its focused direct route is:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003o.ps1
+```
+
+This validates the sanitized bounded matrix, damaged evidence mutations,
+provenance hashes, public/private boundary, and documentation routes. It does
+not rerun the private oracle or prove a production runtime.
+
 Pinned immutable evidence is routed by `validation/historical-gates.json` and
 the bound v2 manifest. The complete prior validation guide is preserved
 byte-for-byte at

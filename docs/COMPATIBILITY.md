@@ -1,5 +1,20 @@
 # Compatibility
 
+## LSLC-003O bounded multichannel record-sequence observation
+
+Two repeat runs against pinned `pylsl 1.18.2`, library 117, protocol 110 pass
+in both IPv4-loopback directions for `double64`, `int32`, `int16`, and `int8`.
+Each case has exactly two homogeneous channels, two initialization records,
+and three ordered caller records. Marker, exact record width, initialization
+timestamp and per-channel values, channel order, caller timestamps, caller
+values, record order, repeat identity, and bounded socket cleanup pass.
+
+This is observation evidence only. Truncation, extra-record, malformed-record,
+cancellation, reconnect policy, String/int64, variable-width data, empty
+chunks, multicast, non-loopback operation, clock/queue/recovery behavior,
+production implementation, activation, devices, broad ecosystem compatibility,
+and Manifold authority remain unobserved or outside scope.
+
 LSLC-002Q is the first official-endpoint behavioral evidence for the accepted
 Rust discovery client. Two finite IPv4 loopback-unicast cases reached the
 pinned official protocol-110 responder and passed the existing envelope,

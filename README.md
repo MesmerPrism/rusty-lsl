@@ -32,6 +32,11 @@ endpoint authority, discovery identity, authorization, or Manifold stream
 authority. Supported claims and their evidence limits are defined by the
 documents below, not by this summary.
 
+LSLC-003O adds observation-only evidence for two-channel, three-record
+`double64`, `int32`, `int16`, and `int8` sequences in two bounded pinned-
+official IPv4-loopback directions. It adds no production implementation,
+activation, broad interoperability, or authority.
+
 ## Authoritative project documents
 
 - [Agent instructions](AGENTS.md) — ownership, public-safety, architecture,

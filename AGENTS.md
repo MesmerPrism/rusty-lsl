@@ -123,6 +123,11 @@ owner-issued descriptor open an exact runtime surface.
   liblsl limits, and it implements no XML behavior.
 - Keep official native libraries and wrappers outside the default production
   dependency closure.
+- LSLC-003O records only sanitized black-box evidence for two channels and
+  three ordered caller records across four already observed numeric formats.
+  Its private raw runs, requests, endpoints, diagnostics, environment, and
+  binary stay outside the repository; the evidence adds no runtime code,
+  activation, String/int64 behavior, damaged-peer policy, or broad compatibility.
 - The repository is source-only. Its local constructors have no runtime,
   package, permission, network, authority, or feature-activation effect.
 

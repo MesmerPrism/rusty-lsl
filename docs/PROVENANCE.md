@@ -1,5 +1,16 @@
 # Provenance
 
+## LSLC-003O private observation provenance
+
+The public fixture binds the independently authored driver, configuration,
+pinned official binary, and two pinned raw result files by SHA-256. Two prior
+successful behavioral runs under package version 1.18.1 are retained privately
+and classified as non-acceptance evidence because they did not match the
+accepted 1.18.2 oracle package. Official implementation source was not read.
+Raw records, request/response bytes, documents, endpoints, identifiers,
+diagnostics, environment paths, binaries, caches, and harness details remain
+private.
+
 ## LSLC-002Q official responder observation
 
 The independently authored external driver exercised the accepted LSLC-002P

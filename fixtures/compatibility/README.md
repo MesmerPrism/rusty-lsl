@@ -1,5 +1,11 @@
 # STRM-000 compatibility fixtures
 
+`lslc-003o-multichannel-numeric-record-sequence-observation.json` contains
+only sanitized two-channel, three-record, two-direction outcomes for four
+pinned-official numeric formats, exact typed initialization values, bounded
+nonclaims, and private-artifact hashes. Raw records, requests, endpoints,
+diagnostics, binaries, environments, caches, and harness details remain private.
+
 `lslc-003j-current-gate-role-audit.json` records the bounded role split between
 eighteen immutable pinned historical gates and the single live forward checker,
 plus the resolver-owned revision-13 closure. It proves no device behavior,
