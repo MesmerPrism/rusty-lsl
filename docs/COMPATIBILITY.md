@@ -640,6 +640,14 @@ ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
 and used length form one with length 128. This evidence adds no runtime support
 or broader value, count, length-form, network, device, or authority claim.
 
+## LSLC-004B
+
+The independently authored capability-gated runtime now accepts the exact
+LSLC-004A-observed 129-byte value while retaining all zero-through-128 cases.
+Synthetic loopback preserves timestamp, value, and socket cleanup; 130 bytes
+reject. This adds no claim for other shapes, length forms, networks, devices,
+or broad compatibility.
+
 ## LSLC-003Z
 
 The independently authored capability-gated runtime now accepts the exact

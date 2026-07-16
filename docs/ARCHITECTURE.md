@@ -712,3 +712,10 @@ The same closed composition now accepts zero through 128 UTF-8 payload bytes,
 using only the LSLC-003Y-observed one-byte length form. A 129-byte value rejects
 before I/O. Capability admission, channel/record shape, deadlines,
 cancellation, socket cleanup, dependencies, and authority are unchanged.
+
+## LSLC-004B exact 129-byte String runtime
+
+The same closed composition now accepts zero through 129 UTF-8 payload bytes,
+using only the LSLC-004A-observed one-byte length form. A 130-byte value rejects
+before I/O. Capability admission, channel/record shape, deadlines,
+cancellation, socket cleanup, dependencies, and authority are unchanged.

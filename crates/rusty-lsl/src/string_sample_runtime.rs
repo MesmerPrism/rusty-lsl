@@ -533,8 +533,8 @@ mod tests {
         assert_eq!(worker.join().unwrap().unwrap(), address);
         assert!(TcpListener::bind(address).is_ok());
         assert_eq!(
-            StringSampleRecord::new(1236.5, "a".repeat(129)),
-            Err(StringSampleError::ValueTooLong { actual: 129 })
+            StringSampleRecord::new(1236.5, "a".repeat(130)),
+            Err(StringSampleError::ValueTooLong { actual: 130 })
         );
     }
 

@@ -314,6 +314,12 @@ nonclaims for the LSLC-003Q/003S-bound String implementation.
 mixed-width and exact-127-byte pinned observation evidence, hashes, bounds,
 private-evidence exclusions, and nonclaims.
 
+## LSLC-004B
+
+`lslc-004b-exact-129-string-record-runtime.json` binds the exact-129
+observation to the closed capability-gated runtime, zero-through-129 byte
+bounds, typed 130-byte rejection, effects, provenance, and nonclaims.
+
 ## LSLC-004A
 
 `lslc-004a-exact-129-string-observation.json` contains only sanitized exact-

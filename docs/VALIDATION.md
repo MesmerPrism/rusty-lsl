@@ -85,6 +85,11 @@ LSLC-003Y is checked by `tools/check_lslc_003y.ps1` and policy gate
 pinned attempt hashes, six damaged mutations, documentation routes,
 limitations, and public boundary without executing an oracle.
 
+LSLC-004B is checked by `tools/check_lslc_004b.ps1` and policy gate
+`lslc-004b-runtime`. It validates exact-129 loopback and cleanup, typed
+130-byte rejection, preservation markers, six damaged fixture mutations,
+documentation routes, and public boundary.
+
 LSLC-003Z is checked by `tools/check_lslc_003z.ps1` and policy gate
 `lslc-003z-runtime`. It validates exact-128 loopback and cleanup, typed
 129-byte rejection, preservation markers, six damaged fixture mutations,
