@@ -29,8 +29,8 @@
       "lslc-004c-observation",
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
-      "lslc-004f-runtime-conformance",
       "lslc-004g-quest-device-conformance",
+      "lslc-004j-runtime",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -52,8 +52,8 @@
       "lslc-004c-observation",
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
-      "lslc-004f-runtime-conformance",
       "lslc-004g-quest-device-conformance",
+      "lslc-004j-runtime",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -77,8 +77,8 @@
       "lslc-004c-observation",
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
-      "lslc-004f-runtime-conformance",
       "lslc-004g-quest-device-conformance",
+      "lslc-004j-runtime",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -569,7 +569,7 @@
       "owner": "rusty-lsl-quest-compatibility-evidence",
       "state": "current",
       "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004g.ps1"],
-      "depends_on": ["lslc-004f-runtime-conformance", "public-boundary"],
+      "depends_on": ["lslc-004d-runtime-conformance", "lslc-004e-runtime", "public-boundary"],
       "change_categories": ["validation", "public-private-boundary"],
       "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004g-quest-ipv4-multicast-device-conformance.json", "tools/check_lslc_004g.py", "tools/check_lslc_004g.ps1"],
       "proves": ["sanitized exact-head evidence that two Quest 3S peers completed explicit-interface exact-group join/drop/rejoin, one peer query/response, cancellation, target-package fatal scan, and run-owned cleanup"],
@@ -581,7 +581,7 @@
       "owner": "rusty-lsl-multicast-compatibility-evidence",
       "state": "current",
       "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004h.ps1"],
-      "depends_on": ["lslc-004f-runtime-conformance", "lslc-004g-quest-device-conformance", "public-boundary"],
+      "depends_on": ["lslc-004d-runtime-conformance", "lslc-004e-runtime", "lslc-004g-quest-device-conformance", "public-boundary"],
       "change_categories": ["compatibility", "validation", "documentation"],
       "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004h-active-interface-rust-multicast-observation.json", "tools/check_lslc_004h.py", "tools/check_lslc_004h.ps1"],
       "proves": ["sanitized two-repeat evidence for the accepted Rust requester and a private joined responder on one caller-explicit active IPv4 host interface, with one exact-group query/response, deadline, cancellation, and cleanup"],
@@ -678,6 +678,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004f-prefix-check-superseded-by-lslc-004j","decision":"Retain accepted LSLC-004F as a historical gate but remove its byte-identical responder-prefix checker from current profiles and dependency paths; LSLC-004J preserves the one-query/one-response composition in the responder owner suite while checking the separately authorized production extension.","reason":"LSLC-004F intentionally rejects every responder production change, so it cannot validate the separately observed and reviewed explicit concrete-interface generalization.","preserves":["LSLC-004F accepted fixture, checker, and receipt bytes","the production requester and exact-group loopback composition owner test","LSLC-004E loopback API, activation, finite behavior, and cleanup","device and Manifold authority prohibitions"],"does_not_authorize":["rewriting historical LSLC-004F evidence","requester changes or broader responder behavior","interface enumeration, default selection, fallback, retries, or other network scope","devices, routing, admission, commands, or authority"]},
     {"id":"lslc-004j-explicit-ipv4-interface-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group caller-explicit concrete IPv4 responder checker after the active-interface observation and accepted activation projection.","reason":"LSLC-004H supplies the narrow Rust socket evidence needed to generalize only responder membership from loopback to one caller-owned concrete IPv4 address without creating interface-selection policy.","preserves":["exact 239.255.172.215:16571 destination","LSLC-004E loopback entry point and LSLC-002Z finite loop","explicit capability activation, deadline, cancellation, and cleanup","private interface exclusion and Quest/Manifold authority boundaries"],"does_not_authorize":["interface enumeration, default selection, or ambient fallback","IPv6, other groups, multiple requests, retries, or background work","official, portable, cross-host, cross-platform, or device compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004i-revision-14-runtime-lock-rebinding-gate","decision":"Standard, Deep, and CI validation require exact projection of the accepted deterministic revision-14 feature lock into runtime activation and current fixtures.","reason":"LSLC-004G changed the complete project composition and resolver fingerprint without changing selected modules; runtime admission must reject the superseded complete-lock identity and admit only the current one.","preserves":["default-inert activation","nine selected modules and dependencies","explicit caller capability requests","historical receipts and the LSLC-004H blocker"],"does_not_authorize":["feature-lock or project-spec changes","new runtime behavior or ambient activation","devices or networking","routing, admission, commands, or authority"]},
     {"id":"lslc-004h-active-interface-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized active-interface Rust socket observation after accepted host composition, Quest conformance, and public-boundary gates.","reason":"Android Java device evidence does not establish Rust std socket behavior on an active host interface; the separately bounded observation must remain hash-bound without widening production.","preserves":["accepted requester and loopback-only responder production surfaces","caller-explicit interface selection","private driver and interface exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production non-loopback responder widening","portable interface or retry policy","official, cross-host, device, or cross-platform claims","routing, admission, commands, or authority"]},
