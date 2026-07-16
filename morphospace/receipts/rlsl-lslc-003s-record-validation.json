@@ -1,0 +1,115 @@
+{
+  "schema": "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-003s-string-sample-activation-descriptor",
+  "action": "RecordValidation",
+  "timestamp": "2026-07-16T12:38:45.3973618Z",
+  "executed": true,
+  "transition": "validation-pass",
+  "status_before": "validating",
+  "status_after": "validating",
+  "current_unit_before": "rlsl-lslc-003s-string-sample-activation-descriptor",
+  "current_unit_after": "rlsl-lslc-003s-string-sample-activation-descriptor",
+  "preservation": {
+    "git_mutation_performed": false,
+    "device_mutation_performed": false,
+    "force_push_allowed": false,
+    "repository_states": [
+      {
+        "repo_id": "rusty-lsl",
+        "available": true,
+        "is_git": true,
+        "head": "a4ba9e72d4286e17a93152bbc5e47194e6949129",
+        "branch": "codex/rlsl-autonomous",
+        "upstream": "origin/codex/rlsl-autonomous",
+        "dirty": true,
+        "tracked_changes": 2,
+        "untracked_changes": 7,
+        "ahead": 11,
+        "behind": 0,
+        "diverged": false,
+        "relation": "ahead"
+      }
+    ]
+  },
+  "validation_matrix": [
+    {
+      "order": 1,
+      "gate_id": "validation-activation",
+      "kind": "command",
+      "profile_id": "activation",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003s.ps1",
+      "disposition": "required"
+    },
+    {
+      "order": 2,
+      "gate_id": "validation-source-owner",
+      "kind": "command",
+      "profile_id": "source-owner",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "disposition": "required"
+    },
+    {
+      "order": 3,
+      "gate_id": "validation-workflow",
+      "kind": "command",
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "disposition": "required"
+    },
+    {
+      "order": 4,
+      "gate_id": "instruction-synchronization",
+      "kind": "instruction",
+      "profile_id": "instruction-sync",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "disposition": "required"
+    },
+    {
+      "order": 5,
+      "gate_id": "device-validation",
+      "kind": "device",
+      "profile_id": "device",
+      "command": "Do not run live device operations for this unit.",
+      "disposition": "forbidden",
+      "serials": []
+    }
+  ],
+  "graph_scope": {
+    "change_categories": [
+      "activation",
+      "state-machine",
+      "validation"
+    ],
+    "repositories": [
+      {
+        "repo_id": "rusty-lsl",
+        "allowed_paths": [
+          "AGENTS.md",
+          "crates/rusty-lsl/src/runtime_activation.rs",
+          "docs/ARCHITECTURE.md",
+          "docs/VALIDATION.md",
+          "fixtures/compatibility/lslc-003c-lock-bound-runtime-activation-capability.json",
+          "fixtures/compatibility/lslc-003s-string-sample-activation-descriptor.json",
+          "morphospace/feature.lock.json",
+          "morphospace/features/string-sample.json",
+          "morphospace/iteration-events.jsonl",
+          "morphospace/iteration-units/rlsl-lslc-003s-string-sample-activation-descriptor.json",
+          "morphospace/project.spec.json",
+          "morphospace/receipts/",
+          "morphospace/workspace.state.json",
+          "README.md",
+          "tools/check_lslc_003c.py",
+          "tools/check_lslc_003s.ps1",
+          "tools/check_lslc_003s.py",
+          "tools/validation-policy.json"
+        ]
+      }
+    ],
+    "read_only_dependencies": [],
+    "exclusion": "Do not scan repositories or paths outside this list."
+  },
+  "adoption_receipt": null,
+  "push_plan": null,
+  "event_id": "rlsl-lslc-003s-string-sample-activation-descriptor-validation-pass-0439"
+}
