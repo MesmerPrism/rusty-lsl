@@ -313,3 +313,9 @@ nonclaims for the LSLC-003Q/003S-bound String implementation.
 `lslc-003u-string-utf8-boundary-observation.json` contains only sanitized
 mixed-width and exact-127-byte pinned observation evidence, hashes, bounds,
 private-evidence exclusions, and nonclaims.
+
+## LSLC-003V
+
+`lslc-003v-string-utf8-boundary-runtime-conformance.json` binds the two observed
+value hashes to test-only synthetic runtime conformance and the unchanged
+production-prefix invariant.

@@ -92,3 +92,6 @@ the caller presents the selected LSLC-003S `StringSample` capability.
 LSLC-003U records sanitized pinned black-box evidence for mixed-width UTF-8 and
 the exact 127-byte boundary. Private drivers, raw records, endpoints,
 diagnostics, and version-drift runs remain outside the repository.
+
+LSLC-003V confirms the unchanged LSLC-003T runtime handles both LSLC-003U
+value classes in synthetic finite loopback; it changes tests and evidence only.

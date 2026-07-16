@@ -347,6 +347,11 @@ accepts exactly one channel, one caller record, and a nonempty value of at most
 length form. It adds no ambient activation, broader framing, devices,
 dependencies, unsafe/FFI, copied source, or Manifold authority.
 
+LSLC-003V adds test-only synthetic loopback conformance for the two LSLC-003U
+value classes. The production portion of `string_sample_runtime.rs` remains
+byte-identical to the accepted LSLC-003U baseline. It adds no API, framing,
+activation, bounds, dependency, device, runtime effect, or authority.
+
 LSLC-003U adds only sanitized black-box evidence that the existing one-channel,
 one-record String envelope preserves one independently authored mixed-width
 9-byte UTF-8 value and one independently authored exact-127-byte value in both

@@ -608,3 +608,9 @@ Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
 IPv4-loopback directions for a mixed-width 9-byte UTF-8 value and an exact
 127-byte value. This evidence does not cover empty or larger values, additional
 channels or records, other length forms, non-loopback use, or broad compatibility.
+
+## LSLC-003V
+
+The unchanged Rust runtime passes synthetic loopback for the exact two LSLC-003U
+value classes with timestamp preservation and socket cleanup. This is local
+conformance evidence, not an additional official-oracle or breadth claim.

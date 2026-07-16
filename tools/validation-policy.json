@@ -23,6 +23,7 @@
       "lslc-003q-observation",
       "lslc-003t-runtime",
       "lslc-003u-observation",
+      "lslc-003v-runtime-conformance",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -38,6 +39,7 @@
       "lslc-003q-observation",
       "lslc-003t-runtime",
       "lslc-003u-observation",
+      "lslc-003v-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -55,6 +57,7 @@
       "lslc-003q-observation",
       "lslc-003t-runtime",
       "lslc-003u-observation",
+      "lslc-003v-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -409,6 +412,18 @@
       "environment": {"network":"forbidden", "timeout_seconds":120}
     },
     {
+      "id": "lslc-003v-runtime-conformance",
+      "owner": "rusty-lsl-string-runtime",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003v.ps1"],
+      "depends_on": ["lslc-003t-runtime", "lslc-003u-observation"],
+      "change_categories": ["compatibility", "validation"],
+      "affected_paths": ["crates/rusty-lsl/src/string_sample_runtime.rs", "fixtures/compatibility/lslc-003v-string-utf8-boundary-runtime-conformance.json", "tools/check_lslc_003v.py", "tools/check_lslc_003v.ps1"],
+      "proves": ["the accepted production prefix is unchanged and both LSLC-003U value classes pass synthetic capability-gated runtime loopback with cleanup"],
+      "does_not_prove": ["production changes, new framing, broader String dimensions, additional official compatibility, non-loopback behavior, devices, or authority"],
+      "environment": {"network":"loopback-only", "timeout_seconds":180}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -474,6 +489,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-003v-string-runtime-conformance-gate","decision":"Standard, Deep, and CI validation require test-only conformance for the two LSLC-003U value classes while byte-checking the production prefix against the accepted baseline.","reason":"Observed boundary breadth should remain continuously composed with the existing runtime without silently changing production framing or activation.","preserves":["LSLC-003T production bytes and public API","LSLC-003S activation closure","all prior gates and evidence boundaries","device and authority prohibitions"],"does_not_authorize":["production or API changes","new framing or bounds","oracle execution in CI","devices, dependencies, or authority"]},
     {"id":"lslc-003u-string-boundary-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe LSLC-003U boundary observation checker after its public-boundary and LSLC-003Q evidence dependencies.","reason":"The sanitized multibyte and exact-127-byte evidence must remain synchronized with four pinned attempt hashes, private drift exclusion, exact bounds, and nonclaims without portable oracle execution.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","activation, device, and authority boundaries"],"does_not_authorize":["implementation or activation changes","private artifact publication","oracle execution in CI","new length forms or broader String dimensions","devices or authority"]},
     {"id":"lslc-003s-string-sample-capability","decision":"Add a distinct selected-but-run-disabled StringSample module capability and descriptor to closed lock revision 14.","reason":"A later bounded String runtime must consume module-nominal authority rather than reuse numeric or handshake-only admission.","preserves":["all prior module identities and dependencies","default-disabled activation","explicit runtime input requirement","private capability construction","no ambient effects"],"does_not_authorize":["String transport or framing","runtime execution","devices","dependencies","Manifold authority"]},
     {

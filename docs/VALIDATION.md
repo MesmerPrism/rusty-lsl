@@ -64,3 +64,8 @@ LSLC-003U is checked by `tools/check_lslc_003u.ps1` and policy gate
 `lslc-003u-observation`. The gate validates the two exact cases, four pinned
 attempt hashes, six damaged mutations, documentation routes, limitations, and
 the current public boundary without executing an oracle in portable validation.
+
+LSLC-003V is checked by `tools/check_lslc_003v.ps1` and policy gate
+`lslc-003v-runtime-conformance`, including the accepted production-prefix byte
+comparison, two focused loopback cases, damaged fixture mutations, routes, and
+public boundary.

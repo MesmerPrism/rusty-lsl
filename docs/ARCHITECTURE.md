@@ -692,3 +692,9 @@ existing handshake capability before finite loopback I/O. Source, enum, lock,
 or descriptor presence alone has no runtime effect. The runtime owns exactly
 two observed initialization records and one caller String record; it does not
 generalize activation or framing authority.
+
+## LSLC-003V
+
+Only the private Rust test module gains boundary conformance cases. The
+production prefix is checked byte-for-byte against accepted revision
+`f1e68657253b572c6f1bfae58747b11637ec07ee`; module composition is unchanged.

@@ -440,4 +440,41 @@ mod tests {
         );
         drop(peer.join().unwrap());
     }
+
+    #[test]
+    fn lslc_003v_observed_utf8_cases_conform_without_production_change() {
+        for (timestamp, value, expected_bytes) in [
+            (1234.5, "μ雪🙂".to_owned(), 9),
+            (1235.5, format!("μ{}", "a".repeat(125)), 127),
+        ] {
+            assert_eq!(value.len(), expected_bytes);
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let expected = value.clone();
+            let worker = thread::spawn(move || {
+                run_string_sample_outlet(
+                    activation(),
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    limits(),
+                    StringSampleRecord::new(timestamp, value).unwrap(),
+                    &AtomicBool::new(false),
+                )
+            });
+            let received = run_string_sample_inlet(
+                activation(),
+                address,
+                &identity(),
+                handshake_limits(),
+                limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            assert_eq!(received.timestamp().to_bits(), timestamp.to_bits());
+            assert_eq!(received.value(), expected);
+            assert_eq!(worker.join().unwrap().unwrap(), address);
+            assert!(TcpListener::bind(address).is_ok());
+        }
+    }
 }
