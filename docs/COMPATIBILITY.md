@@ -594,3 +594,10 @@ formats. The public binding cannot construct `int64` outlets on this platform.
 
 Pinned official loopback reruns pass in both directions for `double64`,
 `int32`, `int16`, and `int8`; timestamps and values are preserved exactly.
+
+## LSLC-003T
+
+LSLC-003T implements only the LSLC-003Q observation envelope: marker two,
+timestamp, one-byte length form, and 1..=127 UTF-8 payload bytes for one channel
+and one caller record on finite IPv4 loopback. This is not a broad String,
+wire, endpoint, or ecosystem compatibility claim.

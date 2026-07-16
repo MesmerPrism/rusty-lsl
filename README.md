@@ -84,3 +84,7 @@ activation, broad interoperability, or authority.
 Historical descriptions and passing local tests are not current runtime or
 interoperability claims. Consult the authoritative documents and accepted
 receipts for the exact scope of each claim.
+
+LSLC-003T provides the closed capability-gated one-channel, one-record bounded
+String loopback runtime observed by LSLC-003Q. It remains run-disabled unless
+the caller presents the selected LSLC-003S `StringSample` capability.

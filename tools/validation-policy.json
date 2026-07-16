@@ -21,6 +21,7 @@
       "lslc-003o-observation",
       "lslc-003p-runtime",
       "lslc-003q-observation",
+      "lslc-003t-runtime",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -34,6 +35,7 @@
       "lslc-003o-observation",
       "lslc-003p-runtime",
       "lslc-003q-observation",
+      "lslc-003t-runtime",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -49,6 +51,7 @@
       "lslc-003o-observation",
       "lslc-003p-runtime",
       "lslc-003q-observation",
+      "lslc-003t-runtime",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -377,6 +380,18 @@
         "network": "forbidden",
         "timeout_seconds": 60
       }
+    },
+    {
+      "id": "lslc-003t-runtime",
+      "owner": "rusty-lsl-string-runtime",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003t.ps1"],
+      "depends_on": ["lslc-003s-activation", "lslc-003q-observation"],
+      "change_categories": ["implementation", "validation"],
+      "affected_paths": ["crates/rusty-lsl/src/string_sample_runtime.rs", "fixtures/compatibility/lslc-003t-bounded-string-record-runtime.json", "tools/check_lslc_003t.py"],
+      "proves": ["one capability-gated bounded one-channel one-record String loopback runtime and typed damaged cases"],
+      "does_not_prove": ["arbitrary String framing, multiple channels or records, non-loopback compatibility, ambient activation, devices, or authority"],
+      "environment": {"network":"loopback-only", "timeout_seconds":300}
     },
     {
       "id": "pinned-rust-180-clippy",

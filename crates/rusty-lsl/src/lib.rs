@@ -74,6 +74,7 @@ mod stream_info_transport_provider;
 mod stream_info_volatile_fields;
 mod stream_info_volatile_snapshot;
 mod stream_info_volatile_xml;
+mod string_sample_runtime;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
@@ -235,6 +236,11 @@ pub use stream_info_volatile_snapshot::{
 };
 pub use stream_info_volatile_xml::{
     StreamInfoVolatileXml, StreamInfoVolatileXmlError, StreamInfoVolatileXmlLimits,
+};
+pub use string_sample_runtime::{
+    run_string_sample_inlet, run_string_sample_outlet, StringSampleActivation,
+    StringSampleActivationError, StringSampleError, StringSampleLimitError, StringSampleLimits,
+    StringSampleRecord, STRING_SAMPLE_EFFECTIVE_MARKER, STRING_SAMPLE_FEATURE_ID,
 };
 pub use timestamped::{
     ChunkBound, ChunkError, ChunkLimits, DerivedTimestamp, DerivedTimestampKind,

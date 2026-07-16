@@ -301,3 +301,9 @@ nonclaims. It contains no runtime, endpoint, device, or private evidence.
 
 The dependency-composition fixture mirrors the resolved public lock graph and
 records only capability composition, unchanged-runtime, and boundary claims.
+
+## LSLC-003T
+
+`lslc-003t-bounded-string-record-runtime.json` records the sanitized closed
+runtime bounds, capability prerequisites, valid cases, damaged cases, and
+nonclaims for the LSLC-003Q/003S-bound String implementation.

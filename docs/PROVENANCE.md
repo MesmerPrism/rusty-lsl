@@ -554,3 +554,10 @@ No official implementation source was inspected.
 
 Public evidence binds private drivers, raw outcome, and binary by SHA-256. Raw
 packets, documents, endpoints, diagnostics, environments, and caches stay private.
+
+## LSLC-003T
+
+LSLC-003T is independently authored from the sanitized LSLC-003Q black-box
+observation and LSLC-003S activation contract. Official liblsl and rLSL source
+were not implementation inputs; private drivers, raw records, endpoints, and
+machine identities remain outside the repository.

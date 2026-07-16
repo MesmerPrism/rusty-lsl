@@ -684,3 +684,11 @@ ambient authority.
 One closed value enum owns the four observed widths. Explicit activation,
 caller identity/listener or peer, finite deadlines, cancellation, and
 scope-owned sockets bound the data-plane call.
+
+## LSLC-003T
+
+LSLC-003T composes the module-nominal `StringSample` capability with the
+existing handshake capability before finite loopback I/O. Source, enum, lock,
+or descriptor presence alone has no runtime effect. The runtime owns exactly
+two observed initialization records and one caller String record; it does not
+generalize activation or framing authority.

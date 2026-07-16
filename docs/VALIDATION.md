@@ -54,3 +54,8 @@ byte-for-byte at
 The migration inventory and decision are in
 [`docs/validation/VALIDATION-AUTHORITY-INVENTORY.md`](validation/VALIDATION-AUTHORITY-INVENTORY.md)
 and [`docs/adr/LSLC-003N-VALIDATION-POLICY-AUTHORITY.md`](adr/LSLC-003N-VALIDATION-POLICY-AUTHORITY.md).
+
+LSLC-003T is checked by `tools/check_lslc_003t.ps1` and policy gate
+`lslc-003t-runtime`, covering exact capability composition, valid loopback,
+damaged framing, UTF-8 and byte bounds, cancellation, deadline, cleanup,
+provenance, documentation, and public boundary.

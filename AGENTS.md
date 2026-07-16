@@ -339,3 +339,10 @@ pinned historical evidence after acceptance; durable invariants move to stable
 owner-named current gate IDs. Profile, claim, limitation, or state changes
 require an explicit machine-readable semantic delta. The policy's
 `does_not_prove` fields remain binding evidence limits.
+
+LSLC-003T adds only one finite IPv4-loopback String record runtime requiring
+the distinct LSLC-003S `StringSample` capability and handshake dependency. It
+accepts exactly one channel, one caller record, and a nonempty value of at most
+127 UTF-8 bytes using only the LSLC-003Q-observed initialization and one-byte
+length form. It adds no ambient activation, broader framing, devices,
+dependencies, unsafe/FFI, copied source, or Manifold authority.
