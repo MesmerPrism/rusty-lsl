@@ -339,6 +339,12 @@ bounds, typed 130-byte rejection, effects, provenance, and nonclaims.
 single-group IPv4 multicast outcomes, bounded counts/timing ceilings,
 membership cleanup, platform limitations, hashes, and nonclaims.
 
+`lslc-004g-quest-ipv4-multicast-device-conformance.json` contains only
+sanitized exact-head two-Quest outcomes, private-artifact hashes, preserved
+failed-attempt classifications, cleanup results, limitations, and authority
+nonclaims. Serials, raw logs, paths, APKs, package identity, endpoints, and
+device diagnostics remain private.
+
 ## LSLC-004A
 
 `lslc-004a-exact-129-string-observation.json` contains only sanitized exact-

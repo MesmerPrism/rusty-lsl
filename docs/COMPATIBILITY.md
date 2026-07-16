@@ -663,6 +663,21 @@ documented group with one query, one response, matching identifier, finite
 termination, and cleanup. This is not Quest, official-endpoint, non-loopback,
 cross-platform, retry, routing, or broad compatibility evidence.
 
+## LSLC-004G
+
+One bounded two-device Quest 3S run passed explicit-interface join, drop, and
+rejoin at exactly 239.255.172.215:16571. An independently running peer received
+one multicast short-info query and returned one synthetic response, which the
+requester received within its deadline. A separate cancellation role closed
+owned resources; the target-package fatal window was empty and target packages,
+run-owned staging, properties, forwards, and reverses were clean afterward.
+
+This proves only one Horizon OS/Android API 34 build, one infrastructure Wi-Fi
+network, two Quest 3S devices, and the public independently authored harness.
+It does not prove official liblsl behavior, other devices, networks,
+interfaces, groups, address families, retry policy, production activation, or
+Manifold admission/routing authority.
+
 ## LSLC-004B
 
 The independently authored capability-gated runtime now accepts the exact

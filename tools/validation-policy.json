@@ -30,6 +30,7 @@
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
       "lslc-004f-runtime-conformance",
+      "lslc-004g-quest-device-conformance",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -52,6 +53,7 @@
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
       "lslc-004f-runtime-conformance",
+      "lslc-004g-quest-device-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -76,6 +78,7 @@
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
       "lslc-004f-runtime-conformance",
+      "lslc-004g-quest-device-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -562,6 +565,18 @@
       "environment": {"network":"loopback-only", "timeout_seconds":180}
     },
     {
+      "id": "lslc-004g-quest-device-conformance",
+      "owner": "rusty-lsl-quest-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004g.ps1"],
+      "depends_on": ["lslc-004f-runtime-conformance", "public-boundary"],
+      "change_categories": ["validation", "public-private-boundary"],
+      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004g-quest-ipv4-multicast-device-conformance.json", "tools/check_lslc_004g.py", "tools/check_lslc_004g.ps1"],
+      "proves": ["sanitized exact-head evidence that two Quest 3S peers completed explicit-interface exact-group join/drop/rejoin, one peer query/response, cancellation, target-package fatal scan, and run-owned cleanup"],
+      "does_not_prove": ["private artifact contents beyond hashes, official liblsl behavior, other platforms or networks, production activation, interface or retry policy, Manifold admission, routing, identity, or authority"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -627,6 +642,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004g-quest-device-conformance-gate","decision":"Standard, Deep, and CI validation require the sanitized exact-head two-Quest multicast device evidence after LSLC-004F and public-boundary gates.","reason":"The device result must remain bound to exact group, dimensions, cancellation, fatal, cleanup, hashes, failures, limitations, and lane authority without replaying private headset artifacts.","preserves":["existing Rusty LSL runtime and activation","Quest packaging and lifecycle ownership","private serial, log, APK, endpoint, and diagnostic exclusion","Manifold admission and routing authority separation"],"does_not_authorize":["official endpoint or broad platform compatibility","other groups, interfaces, address families, or retry policy","ambient or production activation","Manifold admission, routing, identity, commands, or authority"]},
     {"id":"lslc-004f-exact-multicast-composition-gate","decision":"Standard, Deep, and CI validation require test-only composition of the two accepted exact-group production sides with byte-identical prefix checks.","reason":"Requester and responder evidence should compose without silently expanding either production surface or network policy.","preserves":["LSLC-004D requester production prefix","LSLC-004E responder production prefix","one exact-group loopback query/response","device and Manifold authority prohibitions"],"does_not_authorize":["production, API, or activation changes","official, Quest, or non-loopback claims","other groups, interfaces, retries, or background work","devices, routing, admission, or authority"]},
     {"id":"lslc-004e-exact-multicast-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group explicit-loopback responder checker after the multicast observation and requester-conformance gates.","reason":"Observed membership can authorize only one capability-gated responder composition that reuses the existing finite parser, envelope, cancellation, deadline, and cleanup loop.","preserves":["LSLC-002Z responder semantics and activation","LSLC-004C observation limits","one explicit loopback interface and exact group","device and Manifold authority prohibitions"],"does_not_authorize":["generic membership or interface policy","other groups, IPv6, or non-loopback interfaces","portable retry or cross-platform claims","devices, routing, admission, or authority"]},
     {"id":"lslc-004d-multicast-requester-conformance-gate","decision":"Standard, Deep, and CI validation require test-only exact-group multicast requester conformance after the LSLC-004C observation gate.","reason":"The existing explicit-destination requester must remain byte-unchanged while composing with the observed group under one bounded synthetic query/response and cleanup.","preserves":["LSLC-002P production requester and activation","LSLC-004C observation boundary","finite deadline and cancellation owner behavior","device and Manifold authority prohibitions"],"does_not_authorize":["production responder or membership policy","portable retry inference","other groups, address families, or non-loopback interfaces","devices, routing, admission, or authority"]},

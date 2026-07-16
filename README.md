@@ -141,3 +141,11 @@ interface, group, family, retry, routing, and authority policy remain absent.
 LSLC-004F composes the unchanged accepted requester and responder only in a
 synthetic test for one exact-group loopback query/response. It adds no runtime
 surface or device claim.
+
+LSLC-004G records sanitized, hash-bound device conformance from two Quest 3S
+peers on one explicit IPv4 Wi-Fi interface. Both peers joined, dropped, and
+rejoined the exact group; one peer received one multicast query and the other
+received its one response. Explicit cancellation, socket and multicast-lock
+cleanup, zero target-package fatals, and complete run-owned cleanup passed.
+This changes no Rusty LSL runtime or activation and grants no Manifold
+admission, routing, identity, or authority.

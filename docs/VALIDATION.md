@@ -101,6 +101,12 @@ LSLC-004F is checked by `tools/check_lslc_004f.ps1` and policy gate
 prefixes, rejects six damaged fixtures, runs one exact composition test, and
 checks documentation and public boundaries.
 
+LSLC-004G is checked by `tools/check_lslc_004g.ps1` and policy gate
+`lslc-004g-quest-device-conformance`. Portable validation checks only the
+sanitized exact-head fixture, seven private-artifact hashes, six damaged
+mutations, cleanup/fatal outcomes, limitations, and public boundary. It does
+not contact a headset or replay private artifacts.
+
 LSLC-004B is checked by `tools/check_lslc_004b.ps1` and policy gate
 `lslc-004b-runtime`. It validates exact-129 loopback and cleanup, typed
 130-byte rejection, preservation markers, six damaged fixture mutations,

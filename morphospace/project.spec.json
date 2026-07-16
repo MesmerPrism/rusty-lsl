@@ -131,6 +131,16 @@
         "morphospace/",
         "tools/"
       ]
+    },
+    {
+      "repo_id": "rusty-quest",
+      "role": "platform-test-harness",
+      "path": "../rusty-quest",
+      "allowed_paths": [
+        "apps/lsl-multicast-conformance-android/",
+        "tools/Build-LslMulticastConformanceAndroid.ps1",
+        "tools/Test-LslMulticastConformanceAndroid.ps1"
+      ]
     }
   ],
   "modules": [
@@ -275,6 +285,12 @@
       "profile_id": "workflow",
       "commands": [
         "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+      ]
+    },
+    {
+      "profile_id": "device",
+      "commands": [
+        "Run the private serial-scoped Quest capsule declared by the current required-device unit and publish only its sanitized receipt."
       ]
     }
   ],

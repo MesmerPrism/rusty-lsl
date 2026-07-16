@@ -404,6 +404,14 @@ accepted requester and responder for one query and one response at exact
 activation, network-scope, device, dependency, routing, admission, or authority
 change.
 
+LSLC-004G adds only sanitized, hash-bound two-Quest device conformance for the
+existing exact IPv4 multicast surface. A public native Android test harness
+used one caller-explicit Wi-Fi interface on each Quest 3S, join/drop/rejoin,
+one peer query/response, one explicit cancellation probe, target-package fatal
+scanning, and complete run-owned cleanup. It changes no Rusty LSL runtime,
+API, activation, dependencies, unsafe/FFI posture, group/interface policy, or
+Manifold admission, routing, identity, command, or authority.
+
 LSLC-004C adds only sanitized pinned black-box evidence for the documented
 IPv4 group `239.255.172.215:16571` on one explicit loopback interface. Two
 repeats passed membership join/receive/drop/rejoin and both finite query/
