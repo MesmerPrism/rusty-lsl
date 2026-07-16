@@ -1,5 +1,12 @@
 # Validation
 
+Run `python ./tools/test_lslc_003l.py` for damaged extraction boundaries and
+`./tools/check_lslc_003l.ps1` to prove the accepted `AGENTS.md` reconstructs
+exactly from its unchanged title prefix, byte-preserved chronological archive,
+and unchanged durable-instruction suffix. The live first-hop file must contain
+one archive pointer and remain at most 400 lines. This gate changes no owner or
+historical checker semantics.
+
 `./tools/check_all.ps1` is the owner aggregate used by CI. It runs formatting,
 Cargo metadata/tests, then dispatches the role-separated entries in
 `tools/current-gates-v2.json`, followed by aggregate public-boundary, diff, and

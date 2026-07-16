@@ -1,5 +1,9 @@
 # Rusty LSL
 
+Current contributor instructions are in `AGENTS.md`; chronological LSLC unit
+notes are retained in
+[LSLC work-unit history](docs/history/LSLC-WORK-UNIT-HISTORY.md).
+
 Current aggregate validation is declared in `tools/current-gates-v2.json` and
 run through `tools/check_all.ps1`. The preserved v1 manifest and its eighteen
 checker pairs are immutable historical evidence: v2 hash- and receipt-binds
