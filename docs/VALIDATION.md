@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-003Q focused validation runs
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003q.ps1`.
+The policy-owned `lslc-003q-observation` gate checks exact sanitized bounds,
+framing, hashes, nonclaims, damaged fixture mutations, required routes, and the
+public boundary. It does not rerun the private oracle or prove implementation,
+activation, damaged-peer behavior, arbitrary Strings, devices, or authority.
+
 LSLC-003P focused validation runs
 `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003p.ps1`.
 The policy-owned `lslc-003p-runtime` gate proves only the closed two-channel,

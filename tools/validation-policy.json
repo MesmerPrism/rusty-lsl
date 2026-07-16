@@ -19,6 +19,7 @@
       "documentation-router",
       "lslc-003o-observation",
       "lslc-003p-runtime",
+      "lslc-003q-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -30,6 +31,7 @@
       "documentation-router",
       "lslc-003o-observation",
       "lslc-003p-runtime",
+      "lslc-003q-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -43,6 +45,7 @@
       "documentation-router",
       "lslc-003o-observation",
       "lslc-003p-runtime",
+      "lslc-003q-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -323,6 +326,18 @@
       }
     },
     {
+      "id": "lslc-003q-observation",
+      "owner": "rusty-lsl-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell","-NoProfile","-ExecutionPolicy","Bypass","-File","tools/check_lslc_003q.ps1"],
+      "depends_on": ["public-boundary"],
+      "change_categories": ["validation","public-private-boundary"],
+      "affected_paths": ["AGENTS.md","README.md","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/","tools/check_lslc_003q.py","tools/check_lslc_003q.ps1"],
+      "proves": ["the sanitized LSLC-003Q one-channel one-record String observation, hashes, limitations, routes, and damaged mutations are complete"],
+      "does_not_prove": ["private oracle freshness beyond bound hashes, String implementation, activation, damaged-peer behavior, arbitrary Strings, non-loopback compatibility, devices, or authority"],
+      "environment": {"network":"forbidden","timeout_seconds":120}
+    },
+    {
       "id": "git-diff-hygiene",
       "owner": "rusty-lsl-source",
       "state": "current",
@@ -417,6 +432,13 @@
     }
   ],
   "semantic_deltas": [
+    {
+      "id":"lslc-003q-bounded-string-observation-gate",
+      "decision":"Standard, Deep, and CI validation require the public-safe LSLC-003Q String observation checker after the public-boundary gate.",
+      "reason":"The new observation must stay synchronized with its exact framing dimensions, private hashes, negative classifications, and nonclaims without executing the private oracle in portable validation.",
+      "preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","activation and authority boundaries"],
+      "does_not_authorize":["String implementation","private artifact publication","oracle execution in CI","devices","authority"]
+    },
     {
       "id": "lslc-003p-bounded-sequence-runtime-gate",
       "decision": "Standard, Deep, and CI validation require the LSLC-003P focused runtime gate after its LSLC-003O evidence dependency.",

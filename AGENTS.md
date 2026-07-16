@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-003Q adds only two repeated sanitized black-box observations for one
+nonempty 13-byte ASCII/UTF-8 String, exactly one channel, two initialization
+records, and one caller record in both finite IPv4-loopback directions. It adds
+no String runtime, activation, empty/multiple/oversized values, non-loopback
+claim, device behavior, dependency, copied source, or authority.
+
 LSLC-003P adds only a selected, run-disabled, finite IPv4-loopback composition
 for exactly two homogeneous channels and exactly three ordered caller records
 in double64, int32, int16, or int8. It preserves the LSLC-003O-observed

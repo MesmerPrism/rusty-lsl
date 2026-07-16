@@ -1,5 +1,18 @@
 # Provenance
 
+## LSLC-003Q private observation provenance
+
+The independently authored private driver and configuration are bound by
+SHA-256 `90c5ed742ac555ef8e2695702f236cf9b9b60b2a77748c0ee2474a32c07c3bf1`
+and `41d41bb8b3df2c4988ffac7b6b80cef79dac462289a908de532a7b04b0cc681c`.
+Two successful raw results remain private at hashes
+`8f9d6258574ff9765a47cf6ade6da353c8086d377ff28df208851e4beb2961d6`
+and `db901839eeaa78f924ecf501167f609323427304fffd29b8b8a59a8e2bb9ba03`.
+The pinned official binary hash is
+`8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff`.
+Raw bytes, endpoints, diagnostics, and the exploratory probe remain private;
+official and rLSL source were not inspected.
+
 ## LSLC-003P
 
 The implementation is independently authored from the accepted LSLC-003B

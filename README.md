@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-003Q records observation-only protocol-110 String framing for one bounded
+13-byte value, one channel, and one caller record in two repeated loopback runs.
+It is evidence for a later bounded candidate, not a String implementation,
+activation, arbitrary String support, or broad compatibility.
+
 LSLC-003P implements a selected-but-run-disabled bounded sequence runtime for
 exactly two homogeneous channels and three ordered records across double64,
 int32, int16, and int8. It is finite IPv4-loopback candidate behavior bound to

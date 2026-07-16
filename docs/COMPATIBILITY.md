@@ -1,5 +1,16 @@
 # Compatibility
 
+## LSLC-003Q bounded String observation
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 runs passed both finite
+IPv4-loopback directions for one channel and one 13-byte ASCII/UTF-8 caller
+value. The official outlet emitted two identical initialization records whose
+String value is `10`, then the caller timestamp and value; each observed String
+used length form 1 with the exact UTF-8 byte count. The reverse official inlet
+pulled the exact timestamp and value. Damage, empty/oversized values, multiple
+records/channels, non-loopback behavior, implementation, and activation remain
+unobserved or outside scope.
+
 ## LSLC-003P bounded runtime breadth
 
 LSLC-003P implements local finite loopback behavior for the exact LSLC-003O

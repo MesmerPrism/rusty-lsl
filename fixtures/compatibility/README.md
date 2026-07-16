@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+`lslc-003q-bounded-string-record-observation.json` contains only the sanitized
+one-channel, one-record String framing outcomes, private artifact hashes,
+negative classifications, and nonclaims from two pinned black-box repeats.
+
 `lslc-003p-bounded-multichannel-record-sequence-runtime.json` records the
 sanitized closed implementation envelope and nonclaims for the LSLC-003P
 two-channel, three-record fixed-width numeric runtime.
