@@ -7,7 +7,7 @@
   "created_at": "2026-07-16T12:36:00Z",
   "tier": "standard",
   "result": "pass",
-  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"fb0d1f4f047add136b7946d1229560be2770391f","head_revision":"a4ba9e72d4286e17a93152bbc5e47194e6949129","branch":"codex/rlsl-autonomous"}],
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"fb0d1f4f047add136b7946d1229560be2770391f","head_revision":"33c49e9903c8c67dbbe0a1ed4b9837a78c7a8a35","branch":"codex/rlsl-autonomous"}],
   "changed_paths": [
     {"repo_id":"rusty-lsl","path":"AGENTS.md"},
     {"repo_id":"rusty-lsl","path":"README.md"},
