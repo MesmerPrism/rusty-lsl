@@ -647,3 +647,11 @@ LSLC-003Y-observed 128-byte value while retaining all zero-through-127 cases.
 Synthetic loopback preserves timestamp, value, and socket cleanup; 129 bytes
 reject. This adds no claim for other shapes, length forms, networks, devices,
 or broad compatibility.
+
+## LSLC-004A
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for one independently authored exact-129-byte
+ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
+and used length form one with length 129. This evidence adds no runtime support
+or broader value, count, length-form, network, device, or authority claim.

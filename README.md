@@ -113,3 +113,7 @@ LSLC-003Z extends the closed capability-gated String runtime only through that
 observed exact 128-byte boundary. Existing empty and nonempty cases remain;
 129 bytes reject, and activation, framing form, finite loopback, and authority
 do not widen.
+
+LSLC-004A records sanitized pinned black-box evidence that one independently
+authored exact-129-byte String uses length form one with length 129 in both
+finite loopback directions. It changes no runtime or activation.

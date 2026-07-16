@@ -1,0 +1,10 @@
+{
+  "schema": "rusty.lsl.compatibility.lslc_004a.v1",
+  "unit_id": "rlsl-lslc-004a-exact-129-string-observation",
+  "official": {"package":"pylsl","version":"1.18.2","library_version":117,"protocol_version":110,"implementation_source_used":false},
+  "bounds": {"channels":1,"caller_records":1,"initialization_records":2,"directions":2,"repeats":2,"payload_bytes":129,"network":"ipv4-loopback","finite_deadlines":true},
+  "caller_record": {"classification":"independently-authored-exact-129-byte-ascii-utf8","utf8_bytes":129,"unicode_scalar_values":129,"value_sha256":"dd23d3f4a1c9d87628ea816d79c22d0c1a64d1a72a0d05797c7c914a27d19bc3","official_outlet_to_private_inlet":{"outcome":"pass","marker":2,"timestamp":1234.5,"length_form":1,"length":129,"record_sha256":"fa4f7158968b5eb2c8ec9e3c5a5070b5c0362ee573d8a433fb30e75115251754"},"private_outlet_to_official_inlet":{"outcome":"pass","timestamp":1234.5,"channels":1,"value_sha256":"dd23d3f4a1c9d87628ea816d79c22d0c1a64d1a72a0d05797c7c914a27d19bc3"}},
+  "provenance": {"driver_sha256":"fa83bfe6f657ecbc468d1b42551a4df4b7a52763c9443f3422b36a7a1e0aa977","configuration_sha256":"cdaf455c5a36f471b0bcf6f98fed1e1a00f4ef77044a619803167ca58f3e6d81","official_binary_sha256":"8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff","raw_attempt_sha256":["b21f77643faa8cd54b72932ea2054d6bb13b8cd83bfce0f5c0976aca7ec9ca12","7464c50fa35bb166d711dd96bc72d64de195e50d8f101e9d3e7e35d8718e8cd2"]},
+  "excluded_private_evidence": {"pylsl_1_18_1_drift_runs":2,"acceptance_use":false,"driver":false,"raw_records":false,"value_text":false,"endpoints":false,"diagnostics":false,"environment":false,"machine_identity":false},
+  "claims": {"implementation_change":false,"runtime_change":false,"activation_change":false,"empty_or_other_values":false,"multiple_channels_or_records":false,"arbitrary_length_forms":false,"non_loopback":false,"devices":false,"broad_compatibility":false,"authority":false}
+}
