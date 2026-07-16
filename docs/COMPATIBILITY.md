@@ -640,6 +640,14 @@ ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
 and used length form one with length 128. This evidence adds no runtime support
 or broader value, count, length-form, network, device, or authority claim.
 
+## LSLC-004D
+
+One synthetic Windows loopback test composes the unchanged requester with one
+peer joined to the LSLC-004C-observed group. It checks one query, one bounded
+response, explicit bind, existing cancellation/deadline owner tests, and
+membership/socket cleanup. This is not official-endpoint evidence, portable
+retry policy, responder support, non-loopback support, or cross-platform proof.
+
 ## LSLC-004B
 
 The independently authored capability-gated runtime now accepts the exact

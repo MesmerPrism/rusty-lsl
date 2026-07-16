@@ -713,6 +713,14 @@ using only the LSLC-003Y-observed one-byte length form. A 129-byte value rejects
 before I/O. Capability admission, channel/record shape, deadlines,
 cancellation, socket cleanup, dependencies, and authority are unchanged.
 
+## LSLC-004D multicast requester conformance
+
+The production prefix remains byte-identical to accepted LSLC-004C. A
+test-only joined-loopback peer composes with the existing explicit-bind,
+explicit-destination requester for exactly one query and one response at
+239.255.172.215:16571, then drops membership and releases its socket. No
+responder runtime or interface-selection policy is added.
+
 ## LSLC-004B exact 129-byte String runtime
 
 The same closed composition now accepts zero through 129 UTF-8 payload bytes,

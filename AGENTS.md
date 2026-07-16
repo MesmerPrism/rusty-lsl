@@ -384,6 +384,13 @@ one-byte length form, StringSample plus handshake activation, finite loopback,
 deadline, cancellation, cleanup, dependencies, devices, unsafe/FFI posture,
 commands, and authority.
 
+LSLC-004D adds only synthetic test conformance between the byte-unchanged
+explicit-destination UDP requester and one joined-loopback peer at exactly
+239.255.172.215:16571. One query and one response compose under the existing
+finite deadline, cancellation, and cleanup contracts. It adds no responder
+runtime, membership or interface policy, other network scope, device,
+dependency, unsafe/FFI, routing, admission, or Manifold authority.
+
 LSLC-004C adds only sanitized pinned black-box evidence for the documented
 IPv4 group `239.255.172.215:16571` on one explicit loopback interface. Two
 repeats passed membership join/receive/drop/rejoin and both finite query/

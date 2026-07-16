@@ -314,6 +314,11 @@ nonclaims for the LSLC-003Q/003S-bound String implementation.
 mixed-width and exact-127-byte pinned observation evidence, hashes, bounds,
 private-evidence exclusions, and nonclaims.
 
+`lslc-004d-ipv4-multicast-discovery-runtime-conformance.json` binds only the
+synthetic joined-loopback composition, exact group and port, one query and one
+response, finite lifecycle invariants, accepted production-prefix hash,
+single-platform limitation, and nonclaims.
+
 ## LSLC-004B
 
 `lslc-004b-exact-129-string-record-runtime.json` binds the exact-129

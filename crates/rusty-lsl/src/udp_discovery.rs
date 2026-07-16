@@ -384,6 +384,7 @@ mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
     use crate::{ShortInfoQuery, ShortInfoQueryWireLimits, StreamInfoObservedDocumentParseLimit};
+    use std::net::Ipv4Addr;
     use std::sync::Arc;
     use std::thread;
 
@@ -696,5 +697,53 @@ mod tests {
                 .query_id(),
             7
         );
+    }
+
+    #[test]
+    fn lslc_004d_explicit_loopback_requester_composes_with_one_joined_peer() {
+        const GROUP: Ipv4Addr = Ipv4Addr::new(239, 255, 172, 215);
+        const INTERFACE: Ipv4Addr = Ipv4Addr::LOCALHOST;
+        const PORT: u16 = 16_571;
+
+        let peer = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, PORT)).unwrap();
+        peer.join_multicast_v4(&GROUP, &INTERFACE).unwrap();
+        peer.set_read_timeout(Some(Duration::from_secs(1))).unwrap();
+        let expected_query = query().as_bytes().to_vec();
+        let response = response();
+        let expected_response = response.clone();
+        let response_len = response.len();
+        let worker = thread::spawn(move || {
+            let mut bytes = [0u8; 256];
+            let (length, source) = peer.recv_from(&mut bytes).unwrap();
+            assert_eq!(&bytes[..length], expected_query);
+            assert_eq!(source.ip(), std::net::IpAddr::V4(INTERFACE));
+            peer.send_to(&response, source).unwrap();
+            peer.leave_multicast_v4(&GROUP, &INTERFACE).unwrap();
+        });
+
+        let run = run_udp_discovery(
+            activation(),
+            config(
+                "127.0.0.1:0".parse().unwrap(),
+                SocketAddr::from((GROUP, PORT)),
+                response_len,
+                1,
+                Duration::from_millis(20),
+                Duration::from_secs(1),
+            ),
+            &query(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        worker.join().unwrap();
+
+        assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
+        assert_eq!(run.responses().len(), 1);
+        assert_eq!(run.responses()[0].query_id(), 7);
+        assert_eq!(run.responses()[0].as_bytes(), expected_response.as_slice());
+        assert!(run.responses()[0].source().ip().is_loopback());
+
+        let rebound = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, PORT)).unwrap();
+        assert_eq!(rebound.local_addr().unwrap().port(), PORT);
     }
 }

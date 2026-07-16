@@ -127,3 +127,8 @@ do not widen.
 LSLC-004A records sanitized pinned black-box evidence that one independently
 authored exact-129-byte String uses length form one with length 129 in both
 finite loopback directions. It changes no runtime or activation.
+
+LSLC-004D adds only a synthetic test of the unchanged explicit-destination UDP
+requester against one joined loopback peer at exactly 239.255.172.215:16571.
+It preserves the existing finite deadline, cancellation, cleanup, activation,
+API, dependencies, and authority boundaries.
