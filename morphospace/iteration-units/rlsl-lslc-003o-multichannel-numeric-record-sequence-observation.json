@@ -100,8 +100,8 @@
       "owner": "rusty-lsl",
       "path": "README.md",
       "skill_id": null,
-      "action": "review-no-change",
-      "change_reason": "The compact capability router already directs compatibility claims to their owning document and must not expand for observation-only evidence unless validation proves a missing route.",
+      "action": "update",
+      "change_reason": "Retain compact routing while explicitly naming the bounded observation-only evidence and its non-implementation status.",
       "status": "planned",
       "validation": "Run documentation routing and public-boundary gates."
     },
@@ -130,8 +130,8 @@
       "owner": "rusty-lsl",
       "path": "docs/VALIDATION.md",
       "skill_id": null,
-      "action": "review-no-change",
-      "change_reason": "The policy-owned validation router already defines profile authority; only update if the machine-readable policy gains an explicit LSLC-003O semantic delta.",
+      "action": "update",
+      "change_reason": "Route the focused observation validator through the policy-owned profile without creating a competing gate inventory.",
       "status": "planned",
       "validation": "Run policy drift and documentation reconstruction gates."
     },
