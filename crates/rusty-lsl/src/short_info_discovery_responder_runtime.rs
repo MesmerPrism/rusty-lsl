@@ -130,6 +130,9 @@ impl ShortInfoResponderRun {
 pub enum ShortInfoResponderError {
     /// The exact multicast composition requires an explicit loopback interface.
     NonLoopbackMulticastInterface,
+    /// The exact multicast composition requires a caller-explicit concrete
+    /// unicast or loopback IPv4 interface address.
+    NonConcreteMulticastInterface,
     /// Bind failed.
     Bind(ErrorKind),
     /// Joining the exact IPv4 multicast group failed.
@@ -204,7 +207,7 @@ pub fn run_short_info_responder(
 /// Runs the existing bounded responder on the exact documented IPv4 multicast
 /// destination and one caller-explicit loopback interface.
 pub fn run_explicit_loopback_multicast_short_info_responder(
-    _activation: ShortInfoResponderActivation,
+    activation: ShortInfoResponderActivation,
     interface: Ipv4Addr,
     limits: ShortInfoResponderLimits,
     query_limits: ShortInfoQueryWireLimits,
@@ -214,6 +217,35 @@ pub fn run_explicit_loopback_multicast_short_info_responder(
 ) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
     if !interface.is_loopback() {
         return Err(ShortInfoResponderError::NonLoopbackMulticastInterface);
+    }
+    run_explicit_ipv4_multicast_short_info_responder(
+        activation,
+        interface,
+        limits,
+        query_limits,
+        response_limits,
+        body,
+        cancelled,
+    )
+}
+
+/// Runs the existing bounded responder on the exact documented IPv4 multicast
+/// destination and one caller-explicit concrete IPv4 interface.
+///
+/// This entry point does not enumerate interfaces, select a default, or fall
+/// back from the supplied address. Unspecified, multicast, and broadcast
+/// interface values reject before socket I/O.
+pub fn run_explicit_ipv4_multicast_short_info_responder(
+    _activation: ShortInfoResponderActivation,
+    interface: Ipv4Addr,
+    limits: ShortInfoResponderLimits,
+    query_limits: ShortInfoQueryWireLimits,
+    response_limits: ShortInfoResponseEnvelopeLimits,
+    body: &ParsedStreamInfoObservedDocument<'_>,
+    cancelled: &AtomicBool,
+) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
+    if interface.is_unspecified() || interface.is_multicast() || interface == Ipv4Addr::BROADCAST {
+        return Err(ShortInfoResponderError::NonConcreteMulticastInterface);
     }
     let destination = SocketAddr::new(
         IpAddr::V4(DOCUMENTED_IPV4_MULTICAST_GROUP),
@@ -613,6 +645,92 @@ mod tests {
             ),
             Err(ShortInfoResponderError::NonLoopbackMulticastInterface)
         );
+    }
+
+    #[test]
+    fn lslc_004j_concrete_interface_entry_point_preserves_loopback_composition() {
+        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        response_socket
+            .set_read_timeout(Some(Duration::from_secs(1)))
+            .unwrap();
+        let response_port = response_socket.local_addr().unwrap().port();
+        let text = body();
+        let worker = thread::spawn(move || {
+            let parsed = ParsedStreamInfoObservedDocument::parse(
+                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+                &text,
+            )
+            .unwrap();
+            run_explicit_ipv4_multicast_short_info_responder(
+                activation(),
+                Ipv4Addr::LOCALHOST,
+                limits(1024, 1),
+                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
+                &parsed,
+                &AtomicBool::new(false),
+            )
+        });
+        thread::sleep(Duration::from_millis(20));
+        let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
+        let query = ShortInfoQuery::new(
+            "name='explicit-interface'".into(),
+            response_port,
+            89,
+            query_limits,
+        )
+        .unwrap();
+        let wire = ShortInfoQueryWire::encode(&query, query_limits).unwrap();
+        response_socket
+            .send_to(
+                wire.as_bytes(),
+                (
+                    DOCUMENTED_IPV4_MULTICAST_GROUP,
+                    DOCUMENTED_IPV4_MULTICAST_PORT,
+                ),
+            )
+            .unwrap();
+        let mut bytes = [0_u8; 1024];
+        let (count, _) = response_socket.recv_from(&mut bytes).unwrap();
+        assert!(std::str::from_utf8(&bytes[..count])
+            .unwrap()
+            .starts_with("89\r\n"));
+        let run = worker.join().unwrap().unwrap();
+        assert_eq!(run.requests(), 1);
+        assert_eq!(
+            run.termination(),
+            ShortInfoResponderTermination::RequestLimit
+        );
+        assert!(UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)).is_ok());
+    }
+
+    #[test]
+    fn lslc_004j_nonconcrete_interfaces_reject_before_io() {
+        let text = body();
+        let parsed = ParsedStreamInfoObservedDocument::parse(
+            StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+            &text,
+        )
+        .unwrap();
+        for interface in [
+            Ipv4Addr::UNSPECIFIED,
+            DOCUMENTED_IPV4_MULTICAST_GROUP,
+            Ipv4Addr::BROADCAST,
+        ] {
+            assert_eq!(
+                run_explicit_ipv4_multicast_short_info_responder(
+                    activation(),
+                    interface,
+                    limits(1024, 1),
+                    ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                    ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
+                    &parsed,
+                    &AtomicBool::new(false),
+                ),
+                Err(ShortInfoResponderError::NonConcreteMulticastInterface)
+            );
+        }
     }
 
     #[test]

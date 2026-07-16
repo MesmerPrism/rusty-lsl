@@ -158,6 +158,7 @@ pub use runtime_activation::{
 };
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
 pub use short_info_discovery_responder_runtime::{
+    run_explicit_ipv4_multicast_short_info_responder,
     run_explicit_loopback_multicast_short_info_responder, run_short_info_responder,
     ShortInfoResponderActivation, ShortInfoResponderActivationError, ShortInfoResponderError,
     ShortInfoResponderLimitError, ShortInfoResponderLimits, ShortInfoResponderRun,
