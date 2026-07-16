@@ -391,6 +391,13 @@ finite deadline, cancellation, and cleanup contracts. It adds no responder
 runtime, membership or interface policy, other network scope, device,
 dependency, unsafe/FFI, routing, admission, or Manifold authority.
 
+LSLC-004E adds one capability-gated responder composition for exactly
+239.255.172.215:16571 on one caller-explicit IPv4 loopback interface. It reuses
+the LSLC-002Z parser, envelope, request bound, deadline, cancellation, and
+cleanup loop for one query/response. It adds no generic membership or interface
+policy, other network scope, ambient activation, device, dependency, unsafe/FFI,
+routing, admission, or Manifold authority.
+
 LSLC-004C adds only sanitized pinned black-box evidence for the documented
 IPv4 group `239.255.172.215:16571` on one explicit loopback interface. Two
 repeats passed membership join/receive/drop/rejoin and both finite query/

@@ -648,6 +648,14 @@ response, explicit bind, existing cancellation/deadline owner tests, and
 membership/socket cleanup. This is not official-endpoint evidence, portable
 retry policy, responder support, non-loopback support, or cross-platform proof.
 
+## LSLC-004E
+
+Synthetic single-platform conformance passes for one explicitly activated
+joined-loopback responder at the LSLC-004C-observed group: one query, one
+response, exact response identifier, non-loopback rejection, and port cleanup.
+This does not establish other interfaces, groups, address families, retries,
+cross-platform behavior, official-endpoint conformance, or routing authority.
+
 ## LSLC-004B
 
 The independently authored capability-gated runtime now accepts the exact

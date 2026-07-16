@@ -91,6 +91,11 @@ accepted LSLC-004C, rejects six damaged fixture mutations, runs the focused
 synthetic multicast test, retains the deadline/cancellation owner markers, and
 checks the public boundary.
 
+LSLC-004E is checked by `tools/check_lslc_004e.ps1` and policy gate
+`lslc-004e-runtime`. It runs the exact joined-loopback owner test, rejects six
+damaged fixture mutations, retains the LSLC-002Z cancellation/deadline owner
+route, checks documentation and public boundaries, and forbids broader claims.
+
 LSLC-004B is checked by `tools/check_lslc_004b.ps1` and policy gate
 `lslc-004b-runtime`. It validates exact-129 loopback and cleanup, typed
 130-byte rejection, preservation markers, six damaged fixture mutations,

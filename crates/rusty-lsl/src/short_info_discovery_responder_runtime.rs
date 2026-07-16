@@ -9,7 +9,7 @@ use crate::{
     ShortInfoResponseEnvelopeEncodeError, ShortInfoResponseEnvelopeLimits,
 };
 use std::io::ErrorKind;
-use std::net::{SocketAddr, UdpSocket};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
@@ -18,6 +18,10 @@ pub const SHORT_INFO_RESPONDER_FEATURE_ID: &str = "short-info-discovery-responde
 /// Explicit effective marker.
 pub const SHORT_INFO_RESPONDER_EFFECTIVE_MARKER: &str =
     "rusty.lsl.short_info_discovery_responder.effective";
+/// Exact LSLC-004C-observed IPv4 multicast group.
+pub const DOCUMENTED_IPV4_MULTICAST_GROUP: Ipv4Addr = Ipv4Addr::new(239, 255, 172, 215);
+/// Exact LSLC-004C-observed UDP discovery port.
+pub const DOCUMENTED_IPV4_MULTICAST_PORT: u16 = 16_571;
 
 /// Nominal proof of explicit activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -124,8 +128,12 @@ impl ShortInfoResponderRun {
 /// Stable bounded responder failure.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ShortInfoResponderError {
+    /// The exact multicast composition requires an explicit loopback interface.
+    NonLoopbackMulticastInterface,
     /// Bind failed.
     Bind(ErrorKind),
+    /// Joining the exact IPv4 multicast group failed.
+    JoinMulticast(ErrorKind),
     /// Local-address read failed.
     LocalAddress(ErrorKind),
     /// Timeout setup failed.
@@ -182,6 +190,70 @@ pub fn run_short_info_responder(
     let local_address = socket
         .local_addr()
         .map_err(|e| ShortInfoResponderError::LocalAddress(e.kind()))?;
+    run_short_info_responder_on_socket(
+        socket,
+        local_address,
+        limits,
+        query_limits,
+        response_limits,
+        body,
+        cancelled,
+    )
+}
+
+/// Runs the existing bounded responder on the exact documented IPv4 multicast
+/// destination and one caller-explicit loopback interface.
+pub fn run_explicit_loopback_multicast_short_info_responder(
+    _activation: ShortInfoResponderActivation,
+    interface: Ipv4Addr,
+    limits: ShortInfoResponderLimits,
+    query_limits: ShortInfoQueryWireLimits,
+    response_limits: ShortInfoResponseEnvelopeLimits,
+    body: &ParsedStreamInfoObservedDocument<'_>,
+    cancelled: &AtomicBool,
+) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
+    if !interface.is_loopback() {
+        return Err(ShortInfoResponderError::NonLoopbackMulticastInterface);
+    }
+    let destination = SocketAddr::new(
+        IpAddr::V4(DOCUMENTED_IPV4_MULTICAST_GROUP),
+        DOCUMENTED_IPV4_MULTICAST_PORT,
+    );
+    if cancelled.load(Ordering::Acquire) {
+        return Ok(ShortInfoResponderRun {
+            local_address: destination,
+            termination: ShortInfoResponderTermination::Cancelled,
+            requests: 0,
+        });
+    }
+    let socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT))
+        .map_err(|e| ShortInfoResponderError::Bind(e.kind()))?;
+    socket
+        .join_multicast_v4(&DOCUMENTED_IPV4_MULTICAST_GROUP, &interface)
+        .map_err(|e| ShortInfoResponderError::JoinMulticast(e.kind()))?;
+    let local_address = socket
+        .local_addr()
+        .map_err(|e| ShortInfoResponderError::LocalAddress(e.kind()))?;
+    run_short_info_responder_on_socket(
+        socket,
+        local_address,
+        limits,
+        query_limits,
+        response_limits,
+        body,
+        cancelled,
+    )
+}
+
+fn run_short_info_responder_on_socket(
+    socket: UdpSocket,
+    local_address: SocketAddr,
+    limits: ShortInfoResponderLimits,
+    query_limits: ShortInfoQueryWireLimits,
+    response_limits: ShortInfoResponseEnvelopeLimits,
+    body: &ParsedStreamInfoObservedDocument<'_>,
+    cancelled: &AtomicBool,
+) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
     let probe = limits
         .max_datagram_bytes
         .checked_add(1)
@@ -444,5 +516,98 @@ mod tests {
         .unwrap();
         assert_eq!(run.termination(), ShortInfoResponderTermination::Deadline);
         assert!(UdpSocket::bind(address).is_ok());
+    }
+
+    #[test]
+    fn lslc_004e_exact_group_explicit_loopback_serves_one_query_and_cleans_up() {
+        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        response_socket
+            .set_read_timeout(Some(Duration::from_secs(1)))
+            .unwrap();
+        let response_port = response_socket.local_addr().unwrap().port();
+        let text = body();
+        let worker = thread::spawn(move || {
+            let parsed = ParsedStreamInfoObservedDocument::parse(
+                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+                &text,
+            )
+            .unwrap();
+            run_explicit_loopback_multicast_short_info_responder(
+                activation(),
+                Ipv4Addr::LOCALHOST,
+                limits(1024, 1),
+                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
+                &parsed,
+                &AtomicBool::new(false),
+            )
+        });
+        thread::sleep(Duration::from_millis(20));
+        let query = ShortInfoQuery::new(
+            "name='multicast'".into(),
+            response_port,
+            79,
+            ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+        )
+        .unwrap();
+        let wire =
+            ShortInfoQueryWire::encode(&query, ShortInfoQueryWireLimits::new(128, 256).unwrap())
+                .unwrap();
+        response_socket
+            .send_to(
+                wire.as_bytes(),
+                (
+                    DOCUMENTED_IPV4_MULTICAST_GROUP,
+                    DOCUMENTED_IPV4_MULTICAST_PORT,
+                ),
+            )
+            .unwrap();
+        let mut bytes = [0_u8; 1024];
+        let (count, source) = response_socket.recv_from(&mut bytes).unwrap();
+        assert!(source.ip().is_loopback());
+        assert!(std::str::from_utf8(&bytes[..count])
+            .unwrap()
+            .starts_with("79\r\n"));
+        let run = worker.join().unwrap().unwrap();
+        assert_eq!(run.requests(), 1);
+        assert_eq!(
+            run.termination(),
+            ShortInfoResponderTermination::RequestLimit
+        );
+        let mut rebound = None;
+        for _ in 0..20 {
+            match UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)) {
+                Ok(socket) => {
+                    rebound = Some(socket);
+                    break;
+                }
+                Err(error) if error.kind() == ErrorKind::AddrInUse => {
+                    thread::sleep(Duration::from_millis(10));
+                }
+                Err(error) => panic!("unexpected cleanup probe failure: {error}"),
+            }
+        }
+        assert!(rebound.is_some());
+
+        let damaged_text = body();
+        let parsed = ParsedStreamInfoObservedDocument::parse(
+            StreamInfoObservedDocumentParseLimit::new(damaged_text.len()).unwrap(),
+            &damaged_text,
+        )
+        .unwrap();
+        assert_eq!(
+            run_explicit_loopback_multicast_short_info_responder(
+                activation(),
+                Ipv4Addr::new(192, 0, 2, 1),
+                limits(1024, 1),
+                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(damaged_text.len(), damaged_text.len() + 32,)
+                    .unwrap(),
+                &parsed,
+                &AtomicBool::new(false),
+            ),
+            Err(ShortInfoResponderError::NonLoopbackMulticastInterface)
+        );
     }
 }

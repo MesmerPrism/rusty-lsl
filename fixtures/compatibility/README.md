@@ -319,6 +319,10 @@ synthetic joined-loopback composition, exact group and port, one query and one
 response, finite lifecycle invariants, accepted production-prefix hash,
 single-platform limitation, and nonclaims.
 
+`lslc-004e-explicit-loopback-multicast-responder-runtime.json` binds the exact
+group, port, explicit loopback interface, responder capability, one
+query/response, finite cleanup, single-platform limit, and nonclaims.
+
 ## LSLC-004B
 
 `lslc-004b-exact-129-string-record-runtime.json` binds the exact-129

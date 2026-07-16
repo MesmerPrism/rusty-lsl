@@ -701,6 +701,7 @@ mod tests {
 
     #[test]
     fn lslc_004d_explicit_loopback_requester_composes_with_one_joined_peer() {
+        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
         const GROUP: Ipv4Addr = Ipv4Addr::new(239, 255, 172, 215);
         const INTERFACE: Ipv4Addr = Ipv4Addr::LOCALHOST;
         const PORT: u16 = 16_571;

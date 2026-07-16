@@ -721,6 +721,14 @@ explicit-destination requester for exactly one query and one response at
 239.255.172.215:16571, then drops membership and releases its socket. No
 responder runtime or interface-selection policy is added.
 
+## LSLC-004E exact multicast responder
+
+An exact-group entry point binds port 16571, rejects non-loopback interface
+addresses before I/O, joins 239.255.172.215 on the caller's loopback interface,
+and delegates to the unchanged LSLC-002Z bounded responder loop. Socket scope
+owns membership cleanup; there is no enumerator, default selector, background
+worker, or generic membership service.
+
 ## LSLC-004B exact 129-byte String runtime
 
 The same closed composition now accepts zero through 129 UTF-8 payload bytes,

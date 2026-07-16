@@ -132,3 +132,8 @@ LSLC-004D adds only a synthetic test of the unchanged explicit-destination UDP
 requester against one joined loopback peer at exactly 239.255.172.215:16571.
 It preserves the existing finite deadline, cancellation, cleanup, activation,
 API, dependencies, and authority boundaries.
+
+LSLC-004E adds only an explicitly activated responder for the same exact group
+on a caller-selected loopback interface. It serves one bounded existing
+short-info query/response and then releases membership and the socket; broader
+interface, group, family, retry, routing, and authority policy remain absent.
