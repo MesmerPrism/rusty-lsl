@@ -11,7 +11,7 @@
     {
       "repo_id": "rusty-lsl",
       "base_revision": "186bfb895d333daaa8ad241d018bd3ecb9b7e960",
-      "head_revision": "d085888d8704c77fc7007edfeb1e296b01575dba",
+      "head_revision": "7bd748903317e5c46bcdd2d30ab27258b5181118",
       "branch": "codex/rlsl-autonomous"
     }
   ],
@@ -87,6 +87,10 @@
     {
       "repo_id": "rusty-lsl",
       "path": "tools/validation-policy.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/receipts/rlsl-lslc-004a-record-validation.json"
     }
   ],
   "artifacts": [
