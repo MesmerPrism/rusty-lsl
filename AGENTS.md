@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-003S adds a distinct capability-only `StringSample` module identity to
+the closed activation set. It is selected in lock revision 14 but remains
+run-disabled and requires both exact-lock admission, the stream-handshake
+dependency, and an explicit caller capability request. Enum, descriptor, lock,
+or source presence alone causes no String transport, I/O, framing, runtime
+effect, device behavior, ambient activation, or authority.
+
 LSLC-003Q adds only two repeated sanitized black-box observations for one
 nonempty 13-byte ASCII/UTF-8 String, exactly one channel, two initialization
 records, and one caller record in both finite IPv4-loopback directions. It adds

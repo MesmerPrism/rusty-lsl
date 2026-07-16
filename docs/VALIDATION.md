@@ -1,5 +1,14 @@
 # Validation
 
+LSLC-003S focused activation validation runs
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003s.ps1`.
+It validates the exact descriptor source binding, resolver-owned relative
+paths, canonical lock fingerprint/revision, workspace registry, nominal
+capability, dependency closure, absence-is-inert behavior, damaged fixture
+inventory, all LSLC-003C preservation checks, Rust tests, and public boundary.
+It proves no String transport, I/O, framing, runtime execution, device behavior,
+ambient activation, or authority.
+
 LSLC-003Q focused validation runs
 `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003q.ps1`.
 The policy-owned `lslc-003q-observation` gate checks exact sanitized bounds,

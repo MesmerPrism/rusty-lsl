@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-003S registers a distinct `StringSample` capability in the closed feature
+lock. It is selected-but-run-disabled and capability-only: no String transport
+or runtime effect exists until a later reviewed runtime consumes exact nominal
+admission plus the existing handshake dependency.
+
 LSLC-003Q records observation-only protocol-110 String framing for one bounded
 13-byte value, one channel, and one caller record in two repeated loopback runs.
 It is evidence for a later bounded candidate, not a String implementation,

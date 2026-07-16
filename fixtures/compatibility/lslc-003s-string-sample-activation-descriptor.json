@@ -1,0 +1,10 @@
+{
+  "schema":"rusty.lsl.lslc_003s.string_sample_activation.v1",
+  "module":{"id":"string-sample","effective_marker":"rusty.lsl.string_sample.effective","dependency":"stream-handshake","capability":"module-nominal-private-construction"},
+  "lock":{"revision":14,"fingerprint":"7a1088f2dbd46d33734f5136b01b9e4e2298825db5a1e7df2bdbd94b826c773b","selected":true,"run_activation_default":"disabled","activation_rule":"selected-lock-and-runtime-input"},
+  "effects":{"runtime_execution":false,"transport":false,"io":false,"permissions":[],"runtime_input":"explicit caller StringSample capability request"},
+  "valid":["string-with-stream-handshake","empty-selection-is-inert"],
+  "damaged":["absent-string-selection","unknown-module","marker-mismatch","duplicate-string-module","stale-lock-fingerprint","missing-stream-handshake-dependency","unselected-module"],
+  "preserves":["all-eight-prior-module-identities","all-prior-effective-markers","all-prior-dependencies","private-capability-construction","consumer-issued-receipt"],
+  "nonclaims":["String transport","String framing","runtime effect execution","ambient activation","device behavior","Manifold authority"]
+}

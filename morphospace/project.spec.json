@@ -2,7 +2,7 @@
   "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/project-spec-v2.schema.json",
   "schema": "rusty.morphospace.workflow.project_spec.v2",
   "project_id": "rusty-lsl",
-  "revision": 2,
+  "revision": 3,
   "owner": "rusty-lsl-project",
   "purpose": "Develop an independently authored Rust implementation of Lab Streaming Layer compatibility with explicit typed Rusty Morphospace observation and proposal hooks.",
   "activation_model": {
@@ -17,6 +17,7 @@
       "fixed-width-numeric-sample",
       "integrated-clock-correction",
       "short-info-discovery-responder",
+      "string-sample",
       "stream-handshake",
       "timestamped-float32-sample",
       "udp-discovery"
@@ -28,6 +29,7 @@
       "fixed-width-numeric-sample",
       "integrated-clock-correction",
       "short-info-discovery-responder",
+      "string-sample",
       "stream-handshake",
       "timestamped-float32-sample",
       "udp-discovery"
@@ -49,6 +51,11 @@
     ]
   },
   "authority_map": [
+    {
+      "parameter": "lsl.string-sample-capability",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
     {
       "parameter": "lsl.fixed-width-numeric-sample-runtime",
       "owner": "rusty-lsl",
@@ -187,6 +194,19 @@
       "source_repo": "rusty-lsl",
       "dependencies": [
         "timestamped-float32-sample"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "string-sample",
+      "feature_id": "string-sample",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.string_sample.activation.v1",
+      "contract_revision": "lslc-003s",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "stream-handshake"
       ],
       "selected": true
     },

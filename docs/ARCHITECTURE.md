@@ -1,5 +1,15 @@
 # Architecture
 
+## LSLC-003S StringSample activation descriptor
+
+`StringSample` has its own opaque `RuntimeModuleCapability`, effective marker,
+and declared `StreamHandshake` dependency. Admission rejects stale locks,
+unknown or duplicate modules, mismatched markers, missing dependencies, and
+absent selections. Lock revision 14 selects the descriptor while retaining
+`run_activation_default: disabled`; the descriptor declares no executable
+effect or permission. Capability construction stays private and all eight
+prior module identities and relationships remain unchanged.
+
 ## LSLC-003P bounded record sequence
 
 LSLC-003P composes the existing fixed-width numeric handshake and bounded

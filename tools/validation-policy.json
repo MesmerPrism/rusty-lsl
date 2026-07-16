@@ -15,6 +15,7 @@
       "cargo-shape",
       "rust-tests",
       "current-closure",
+      "lslc-003s-activation",
       "public-boundary",
       "documentation-router",
       "lslc-003o-observation",
@@ -27,6 +28,7 @@
       "cargo-shape",
       "rust-tests",
       "current-closure",
+      "lslc-003s-activation",
       "public-boundary",
       "documentation-router",
       "lslc-003o-observation",
@@ -41,6 +43,7 @@
       "cargo-shape",
       "rust-tests",
       "current-closure",
+      "lslc-003s-activation",
       "public-boundary",
       "documentation-router",
       "lslc-003o-observation",
@@ -180,6 +183,15 @@
         "network": "forbidden",
         "timeout_seconds": 300
       }
+    },
+    {
+      "id":"lslc-003s-activation","owner":"rusty-lsl-activation-authority","state":"current",
+      "command":["powershell","-NoProfile","-ExecutionPolicy","Bypass","-File","tools/check_lslc_003s.ps1"],
+      "depends_on":["current-closure"],"change_categories":["activation","validation","state-machine"],
+      "affected_paths":["AGENTS.md","README.md","crates/rusty-lsl/src/runtime_activation.rs","docs/ARCHITECTURE.md","docs/VALIDATION.md","fixtures/compatibility/lslc-003c-lock-bound-runtime-activation-capability.json","fixtures/compatibility/lslc-003s-string-sample-activation-descriptor.json","morphospace/feature.lock.json","morphospace/features/string-sample.json","morphospace/project.spec.json","morphospace/workspace.state.json","tools/check_lslc_003c.py","tools/check_lslc_003s.py","tools/check_lslc_003s.ps1"],
+      "proves":["StringSample is a distinct default-inert lock-bound nominal capability with exact descriptor, dependency, rejection, registry, and preservation evidence"],
+      "does_not_prove":["String transport, framing, I/O, runtime effect execution, ambient activation, devices, or authority beyond Rusty LSL module admission"],
+      "environment":{"network":"forbidden","timeout_seconds":180}
     },
     {
       "id": "public-boundary",
@@ -432,6 +444,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-003s-string-sample-capability","decision":"Add a distinct selected-but-run-disabled StringSample module capability and descriptor to closed lock revision 14.","reason":"A later bounded String runtime must consume module-nominal authority rather than reuse numeric or handshake-only admission.","preserves":["all prior module identities and dependencies","default-disabled activation","explicit runtime input requirement","private capability construction","no ambient effects"],"does_not_authorize":["String transport or framing","runtime execution","devices","dependencies","Manifold authority"]},
     {
       "id":"lslc-003q-bounded-string-observation-gate",
       "decision":"Standard, Deep, and CI validation require the public-safe LSLC-003Q String observation checker after the public-boundary gate.",
