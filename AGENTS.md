@@ -346,3 +346,9 @@ accepts exactly one channel, one caller record, and a nonempty value of at most
 127 UTF-8 bytes using only the LSLC-003Q-observed initialization and one-byte
 length form. It adds no ambient activation, broader framing, devices,
 dependencies, unsafe/FFI, copied source, or Manifold authority.
+
+LSLC-003U adds only sanitized black-box evidence that the existing one-channel,
+one-record String envelope preserves one independently authored mixed-width
+9-byte UTF-8 value and one independently authored exact-127-byte value in both
+finite loopback directions. Two pinned repeats per case passed. It changes no
+implementation, activation, framing authority, device, dependency, or runtime.

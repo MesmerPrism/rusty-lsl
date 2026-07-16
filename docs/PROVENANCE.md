@@ -561,3 +561,10 @@ LSLC-003T is independently authored from the sanitized LSLC-003Q black-box
 observation and LSLC-003S activation contract. Official liblsl and rLSL source
 were not implementation inputs; private drivers, raw records, endpoints, and
 machine identities remain outside the repository.
+
+## LSLC-003U
+
+The public fixture contains only independently authored value classifications,
+dimensions, exact framing outcomes, and SHA-256 bindings. Drivers, raw results,
+endpoints, diagnostics, machine identities, and four successful but unpinned
+pylsl 1.18.1 drift runs remain private and are excluded from acceptance.

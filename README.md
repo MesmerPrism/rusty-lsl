@@ -88,3 +88,7 @@ receipts for the exact scope of each claim.
 LSLC-003T provides the closed capability-gated one-channel, one-record bounded
 String loopback runtime observed by LSLC-003Q. It remains run-disabled unless
 the caller presents the selected LSLC-003S `StringSample` capability.
+
+LSLC-003U records sanitized pinned black-box evidence for mixed-width UTF-8 and
+the exact 127-byte boundary. Private drivers, raw records, endpoints,
+diagnostics, and version-drift runs remain outside the repository.

@@ -601,3 +601,10 @@ LSLC-003T implements only the LSLC-003Q observation envelope: marker two,
 timestamp, one-byte length form, and 1..=127 UTF-8 payload bytes for one channel
 and one caller record on finite IPv4 loopback. This is not a broad String,
 wire, endpoint, or ecosystem compatibility claim.
+
+## LSLC-003U
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for a mixed-width 9-byte UTF-8 value and an exact
+127-byte value. This evidence does not cover empty or larger values, additional
+channels or records, other length forms, non-loopback use, or broad compatibility.

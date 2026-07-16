@@ -59,3 +59,8 @@ LSLC-003T is checked by `tools/check_lslc_003t.ps1` and policy gate
 `lslc-003t-runtime`, covering exact capability composition, valid loopback,
 damaged framing, UTF-8 and byte bounds, cancellation, deadline, cleanup,
 provenance, documentation, and public boundary.
+
+LSLC-003U is checked by `tools/check_lslc_003u.ps1` and policy gate
+`lslc-003u-observation`. The gate validates the two exact cases, four pinned
+attempt hashes, six damaged mutations, documentation routes, limitations, and
+the current public boundary without executing an oracle in portable validation.

@@ -1,0 +1,14 @@
+{
+  "schema": "rusty.lsl.compatibility.lslc_003u.v1",
+  "unit_id": "rlsl-lslc-003u-string-utf8-boundary-observation",
+  "official": {"package":"pylsl","version":"1.18.2","library_version":117,"protocol_version":110,"implementation_source_used":false},
+  "bounds": {"channels":1,"caller_records":1,"initialization_records":2,"directions":2,"repeats_per_case":2,"min_payload_bytes":1,"max_payload_bytes":127,"network":"ipv4-loopback","finite_deadlines":true},
+  "initialization": [{"marker":2,"timestamp":123456.789,"length_form":1,"length":2,"value":"10"},{"marker":2,"timestamp":123456.789,"length_form":1,"length":2,"value":"10"}],
+  "cases": [
+    {"case_id":"multibyte-utf8","classification":"independently-authored-mixed-width-utf8","utf8_bytes":9,"unicode_scalar_values":3,"value_sha256":"b67d65e7e8f62685c0d4aba062482099a499979226255fbf85d222a8081cae3d","official_outlet_to_private_inlet":{"outcome":"pass","marker":2,"timestamp":1234.5,"length_form":1,"length":9,"record_sha256":"9baf8c8a6cf5b4a5b3f824229337e073d197bc2cf8be1bb494b720998f102a9c"},"private_outlet_to_official_inlet":{"outcome":"pass","timestamp":1234.5,"value_sha256":"b67d65e7e8f62685c0d4aba062482099a499979226255fbf85d222a8081cae3d"}},
+    {"case_id":"exact-127-utf8-bytes","classification":"independently-authored-exact-byte-boundary-with-multibyte-prefix","utf8_bytes":127,"unicode_scalar_values":126,"value_sha256":"6ebfbdf595881c1c15d5012f37b23ffcb3ef2aa9c246deb709a3a6bbf29f00cc","official_outlet_to_private_inlet":{"outcome":"pass","marker":2,"timestamp":1234.5,"length_form":1,"length":127,"record_sha256":"98c5393c397962899c45d15ae4ef49aaf278f3c38c59827b09c82a2ab36b9767"},"private_outlet_to_official_inlet":{"outcome":"pass","timestamp":1234.5,"value_sha256":"6ebfbdf595881c1c15d5012f37b23ffcb3ef2aa9c246deb709a3a6bbf29f00cc"}}
+  ],
+  "provenance": {"driver_sha256":"cbd328b98a39524471633eede170f60ea7a59379344f7860724d7e7349805a3a","configuration_sha256":"1c282598597cd3f628f7a4f1849bacd118eb069128ab61b173df8a5b5878f56c","official_binary_sha256":"8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff","raw_attempt_sha256":["22e403fd85ad2704279040a6ac12719b317ceca39d612cba6245943a3dcc50fa","aec8120d23962128cfd017fc5c8c6a3aac1df90f6ca2c358a217604a4bab9117","dd9ff667427526f88f11a1e9091ea48572de3c7d4dff445d891fb09437cc3b1d","1ef2c286bf568312cf0fd7488b2e55da11fd2566d1ef641dd9a945bd968e4386"]},
+  "excluded_private_evidence": {"pylsl_1_18_1_drift_runs":4,"acceptance_use":false,"raw_records":false,"endpoints":false,"diagnostics":false,"machine_identity":false},
+  "claims": {"implementation_change":false,"activation_change":false,"empty_or_over_127":false,"multiple_channels_or_records":false,"arbitrary_length_forms":false,"non_loopback":false,"devices":false,"broad_compatibility":false,"authority":false}
+}

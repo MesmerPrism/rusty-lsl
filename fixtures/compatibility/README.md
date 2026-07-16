@@ -307,3 +307,9 @@ records only capability composition, unchanged-runtime, and boundary claims.
 `lslc-003t-bounded-string-record-runtime.json` records the sanitized closed
 runtime bounds, capability prerequisites, valid cases, damaged cases, and
 nonclaims for the LSLC-003Q/003S-bound String implementation.
+
+## LSLC-003U
+
+`lslc-003u-string-utf8-boundary-observation.json` contains only sanitized
+mixed-width and exact-127-byte pinned observation evidence, hashes, bounds,
+private-evidence exclusions, and nonclaims.
