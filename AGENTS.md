@@ -376,3 +376,10 @@ authored 128-byte ASCII/UTF-8 String caller record uses length form one with
 length 128 in both finite IPv4-loopback directions. Two pinned repeats passed.
 It adds no runtime, activation, other value/count breadth, device, dependency,
 copied source, command, or Manifold authority.
+
+LSLC-003Z extends only the existing capability-gated one-channel, one-record
+String runtime maximum from 127 to the LSLC-003Y-observed exact 128 UTF-8
+bytes. Zero through 127 remain accepted and 129 rejects. It preserves the
+one-byte length form, StringSample plus handshake activation, finite loopback,
+deadline, cancellation, cleanup, dependencies, devices, unsafe/FFI posture,
+commands, and authority.

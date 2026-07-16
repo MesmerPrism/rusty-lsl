@@ -705,3 +705,10 @@ caller supplies both the distinct `StringSample` capability and stream-
 handshake activation. Empty data uses the separately observed one-byte length
 form with length zero; it does not change channel/record shape, activation,
 socket ownership, deadlines, cancellation, cleanup, or authority.
+
+## LSLC-003Z exact 128-byte String runtime
+
+The same closed composition now accepts zero through 128 UTF-8 payload bytes,
+using only the LSLC-003Y-observed one-byte length form. A 129-byte value rejects
+before I/O. Capability admission, channel/record shape, deadlines,
+cancellation, socket cleanup, dependencies, and authority are unchanged.

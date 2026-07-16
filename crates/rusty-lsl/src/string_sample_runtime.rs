@@ -383,8 +383,8 @@ mod tests {
             ""
         );
         assert_eq!(
-            StringSampleRecord::new(1.0, "x".repeat(128)),
-            Err(StringSampleError::ValueTooLong { actual: 128 })
+            StringSampleRecord::new(1.0, "x".repeat(129)),
+            Err(StringSampleError::ValueTooLong { actual: 129 })
         );
         assert_eq!(
             StringSampleRecord::new(f64::NAN, "x".into()),
