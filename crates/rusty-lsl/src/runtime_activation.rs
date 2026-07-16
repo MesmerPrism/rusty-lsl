@@ -10,7 +10,7 @@ pub const ACCEPTED_FEATURE_LOCK_FINGERPRINT: &str =
 pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 13;
 
 const MAX_CONSUMER_ID_BYTES: usize = 128;
-const MODULE_COUNT: usize = 8;
+const MODULE_COUNT: usize = 9;
 
 /// A module selected by the accepted lock.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -25,6 +25,8 @@ pub enum RuntimeModule {
     IntegratedClockCorrection,
     /// Finite short-info discovery responder.
     ShortInfoDiscoveryResponder,
+    /// Capability-only bounded String sample module.
+    StringSample,
     /// Bounded stream handshake runtime.
     StreamHandshake,
     /// Timestamped Float32 sample runtime.
@@ -43,6 +45,7 @@ impl RuntimeModule {
             Self::FixedWidthNumericSample => "fixed-width-numeric-sample",
             Self::IntegratedClockCorrection => "integrated-clock-correction",
             Self::ShortInfoDiscoveryResponder => "short-info-discovery-responder",
+            Self::StringSample => "string-sample",
             Self::StreamHandshake => "stream-handshake",
             Self::TimestampedFloat32Sample => "timestamped-float32-sample",
             Self::UdpDiscovery => "udp-discovery",
@@ -60,6 +63,7 @@ impl RuntimeModule {
             Self::ShortInfoDiscoveryResponder => {
                 "rusty.lsl.short_info_discovery_responder.effective"
             }
+            Self::StringSample => "rusty.lsl.string_sample.effective",
             Self::StreamHandshake => "rusty.lsl.stream_handshake.effective",
             Self::TimestampedFloat32Sample => "rusty.lsl.timestamped_float32_sample.effective",
             Self::UdpDiscovery => "rusty.lsl.udp_discovery.effective",
@@ -77,6 +81,7 @@ impl RuntimeModule {
             "fixed-width-numeric-sample" => Some(Self::FixedWidthNumericSample),
             "integrated-clock-correction" => Some(Self::IntegratedClockCorrection),
             "short-info-discovery-responder" => Some(Self::ShortInfoDiscoveryResponder),
+            "string-sample" => Some(Self::StringSample),
             "stream-handshake" => Some(Self::StreamHandshake),
             "timestamped-float32-sample" => Some(Self::TimestampedFloat32Sample),
             "udp-discovery" => Some(Self::UdpDiscovery),
@@ -90,7 +95,7 @@ impl RuntimeModule {
                 Some(Self::TimestampedFloat32Sample)
             }
             Self::FiniteSampleRecovery => Some(Self::BoundedSampleQueue),
-            Self::FixedWidthNumericSample | Self::TimestampedFloat32Sample => {
+            Self::FixedWidthNumericSample | Self::StringSample | Self::TimestampedFloat32Sample => {
                 Some(Self::StreamHandshake)
             }
             Self::ShortInfoDiscoveryResponder | Self::StreamHandshake | Self::UdpDiscovery => None,
@@ -560,5 +565,48 @@ mod tests {
         ShortInfoResponderActivation::new(capability(RuntimeModule::ShortInfoDiscoveryResponder))
             .unwrap();
         UdpDiscoveryActivation::new(capability(RuntimeModule::UdpDiscovery)).unwrap();
+    }
+
+    #[test]
+    fn lslc_003s_string_sample_is_distinct_dependency_closed_and_inert_when_absent() {
+        assert_eq!(RuntimeModule::StringSample.id(), "string-sample");
+        assert_eq!(
+            RuntimeModule::StringSample.effective_marker(),
+            "rusty.lsl.string_sample.effective"
+        );
+        assert_eq!(
+            admit_runtime_activation(
+                ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+                "consumer",
+                &[selection(RuntimeModule::StringSample)],
+            ),
+            Err(RuntimeActivationError::MissingDependency {
+                module: RuntimeModule::StringSample,
+                dependency: RuntimeModule::StreamHandshake,
+            })
+        );
+        let admitted = admit_runtime_activation(
+            ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+            "consumer",
+            &[
+                selection(RuntimeModule::StreamHandshake),
+                selection(RuntimeModule::StringSample),
+            ],
+        )
+        .unwrap();
+        assert_eq!(
+            admitted
+                .capability(RuntimeModule::StringSample)
+                .unwrap()
+                .module(),
+            RuntimeModule::StringSample
+        );
+        assert_eq!(
+            admitted.capability(RuntimeModule::FixedWidthNumericSample),
+            None
+        );
+        let empty =
+            admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, "consumer", &[]).unwrap();
+        assert_eq!(empty.capability(RuntimeModule::StringSample), None);
     }
 }
