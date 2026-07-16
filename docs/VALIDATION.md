@@ -137,3 +137,9 @@ LSLC-004A is checked by `tools/check_lslc_004a.ps1` and policy gate
 `lslc-004a-observation`. The gate validates the exact 129-byte record, two
 pinned attempt hashes, six damaged mutations, documentation routes,
 limitations, and public boundary without executing an oracle.
+
+LSLC-004J is checked by `tools/check_lslc_004j.ps1` and policy gate
+`lslc-004j-runtime`. It validates the exact destination, caller-explicit
+concrete-interface contract, two sanitized private active-interface repeats,
+loopback-wrapper preservation, typed pre-I/O nonconcrete rejection, six damaged
+fixture mutations, documentation routes, owner tests, and public boundary.

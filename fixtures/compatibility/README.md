@@ -388,3 +388,12 @@ byte bounds, one-byte length form, effects, provenance, and nonclaims.
 `lslc-003y-exact-128-string-observation.json` contains only sanitized exact-
 128-byte pinned observation evidence, framing outcomes, hashes, bounds,
 private-evidence exclusions, and nonclaims.
+
+## LSLC-004J
+
+`lslc-004j-explicit-ipv4-interface-multicast-responder.json` binds the exact
+group and caller-explicit concrete-interface runtime to its accepted source,
+two sanitized active-interface repeats, loopback preservation, nonconcrete
+rejection, private-artifact hashes, platform limitations, and authority
+nonclaims. Interface and endpoint details, driver, raw output, diagnostics,
+environment, and machine identity remain private.

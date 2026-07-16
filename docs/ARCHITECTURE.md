@@ -741,3 +741,13 @@ The same closed composition now accepts zero through 129 UTF-8 payload bytes,
 using only the LSLC-004A-observed one-byte length form. A 130-byte value rejects
 before I/O. Capability admission, channel/record shape, deadlines,
 cancellation, socket cleanup, dependencies, and authority are unchanged.
+
+## LSLC-004J explicit concrete IPv4 responder interface
+
+The new entry point validates one caller-owned IPv4 interface value and then
+uses the same exact-group bind, membership, and LSLC-002Z responder loop as the
+accepted loopback composition. Validation rejects the unspecified address,
+all multicast addresses, and the broadcast address before socket I/O. The
+existing loopback function retains its earlier typed non-loopback rejection and
+delegates only after that check. There is no interface inventory, default
+selection, fallback, retry worker, or endpoint policy.

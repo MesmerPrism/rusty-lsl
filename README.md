@@ -163,3 +163,9 @@ accepted deterministic revision-14 lock fingerprint after the project
 composition changed in LSLC-004G. The selected module set, dependencies,
 explicit effective-marker requirements, runtime behavior, and authority do not
 change; the superseded fingerprint now rejects as stale.
+
+LSLC-004J adds one separately named responder entry point for the exact
+239.255.172.215:16571 destination on a caller-supplied concrete IPv4 interface.
+It neither discovers nor chooses that interface. Unspecified, multicast, and
+broadcast values reject before socket I/O, while the earlier loopback-only API
+and all activation, deadline, cancellation, and cleanup behavior remain.

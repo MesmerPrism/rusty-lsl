@@ -721,3 +721,17 @@ IPv4-loopback directions for one independently authored exact-129-byte
 ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
 and used length form one with length 129. This evidence adds no runtime support
 or broader value, count, length-form, network, device, or authority claim.
+
+## LSLC-004J
+
+Two private serialized repeats on one caller-explicit active IPv4 interface of
+one Windows host passed production requester-to-responder composition at exact
+239.255.172.215:16571. Each repeat carried one query and one response under a
+finite deadline and released the requester socket, responder socket, and group
+membership. Portable focused tests also preserve the loopback wrapper and
+reject unspecified, multicast, and broadcast interface values before I/O.
+
+This is not official-endpoint, cross-host, cross-platform, Quest/device, IPv6,
+interface-selection, retry-policy, routing, admission, or broad compatibility
+evidence. The private interface, endpoints, driver, raw output, diagnostics,
+environment, and machine identity are excluded.

@@ -445,3 +445,11 @@ bytes. Zero through 128 remain accepted and 130 rejects. It preserves the
 one-byte length form, StringSample plus handshake activation, finite loopback,
 deadline, cancellation, cleanup, dependencies, devices, unsafe/FFI posture,
 commands, and authority.
+
+LSLC-004J generalizes only the exact-group capability-gated responder from one
+caller-explicit loopback IPv4 interface to one caller-explicit concrete IPv4
+interface. Unspecified, multicast, and broadcast interface values reject
+before I/O; the existing loopback entry point and bounded responder loop remain
+available. It adds no enumeration, default selection, ambient fallback, IPv6,
+other group/port, retries, background work, device behavior, dependency,
+routing, admission, command, or Manifold authority.
