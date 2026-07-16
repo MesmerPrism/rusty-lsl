@@ -21,7 +21,9 @@ def validate(source, archive, readme):
         if readme.count(marker) != 1: raise RouterError(f"required marker count mismatch: {marker!r}")
     for marker in FORBIDDEN:
         if marker in readme: raise RouterError(f"forbidden overclaim: {marker!r}")
-    if b"S:\\" in readme or b"C:\\Users\\" in readme: raise RouterError("private path in README")
+    drive_path = b"S:" + bytes([92])
+    user_path = b"C:" + bytes([92]) + b"Users" + bytes([92])
+    if drive_path in readme or user_path in readme: raise RouterError("private path in README")
 def main():
     source=subprocess.run(["git","show",f"{BASE}:README.md"],cwd=ROOT,capture_output=True,check=True).stdout
     validate(source,(ROOT/"docs/history/README-THROUGH-LSLC-003L.md").read_bytes(),(ROOT/"README.md").read_bytes())
