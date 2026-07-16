@@ -384,6 +384,14 @@ one-byte length form, StringSample plus handshake activation, finite loopback,
 deadline, cancellation, cleanup, dependencies, devices, unsafe/FFI posture,
 commands, and authority.
 
+LSLC-004H adds only sanitized two-repeat observation evidence for the accepted
+Rust requester and a private independently authored joined responder on one
+caller-explicit active private IPv4 host interface at exact
+239.255.172.215:16571. It changes no production bytes, responder guard,
+activation, dependency, device behavior, interface policy, routing, admission,
+command, or Manifold authority. Private driver, raw attempts, interface and
+endpoint details, diagnostics, environment, and machine identity stay private.
+
 LSLC-004D adds only synthetic test conformance between the byte-unchanged
 explicit-destination UDP requester and one joined-loopback peer at exactly
 239.255.172.215:16571. One query and one response compose under the existing

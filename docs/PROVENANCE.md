@@ -585,6 +585,15 @@ driver, configuration, pinned official binary, value, record, and two raw
 attempts. Value text, drivers, raw results, endpoints, diagnostics, environment,
 machine identity, and two pylsl 1.18.1 drift runs remain private and excluded.
 
+## LSLC-004H
+
+The private observer was independently authored against Rusty LSL's public API
+and Rust `std::net::UdpSocket`; no liblsl or rLSL source was used. The fixture
+binds the accepted commit/tree, requester/responder source hashes, private
+driver source/binary hashes, and append-only attempt-record hash. Raw records,
+interface and endpoint details, diagnostics, environment, machine identity,
+driver, and binary remain private. Two failed attempts are preserved.
+
 ## LSLC-004C
 
 The public fixture retains only the documented group/port, sanitized explicit-

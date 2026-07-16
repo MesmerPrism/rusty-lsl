@@ -577,6 +577,18 @@
       "environment": {"network":"forbidden", "timeout_seconds":60}
     },
     {
+      "id": "lslc-004h-active-interface-observation",
+      "owner": "rusty-lsl-multicast-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004h.ps1"],
+      "depends_on": ["lslc-004f-runtime-conformance", "lslc-004g-quest-device-conformance", "public-boundary"],
+      "change_categories": ["compatibility", "validation", "documentation"],
+      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004h-active-interface-rust-multicast-observation.json", "tools/check_lslc_004h.py", "tools/check_lslc_004h.ps1"],
+      "proves": ["sanitized two-repeat evidence for the accepted Rust requester and a private joined responder on one caller-explicit active IPv4 host interface, with one exact-group query/response, deadline, cancellation, and cleanup"],
+      "does_not_prove": ["production responder non-loopback behavior or changes, official endpoint behavior, portable interface or retry policy, cross-host or cross-platform reachability, devices, routing, admission, or authority"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -642,6 +654,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004h-active-interface-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized active-interface Rust socket observation after accepted host composition, Quest conformance, and public-boundary gates.","reason":"Android Java device evidence does not establish Rust std socket behavior on an active host interface; the separately bounded observation must remain hash-bound without widening production.","preserves":["accepted requester and loopback-only responder production surfaces","caller-explicit interface selection","private driver and interface exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production non-loopback responder widening","portable interface or retry policy","official, cross-host, device, or cross-platform claims","routing, admission, commands, or authority"]},
     {"id":"lslc-004g-quest-device-conformance-gate","decision":"Standard, Deep, and CI validation require the sanitized exact-head two-Quest multicast device evidence after LSLC-004F and public-boundary gates.","reason":"The device result must remain bound to exact group, dimensions, cancellation, fatal, cleanup, hashes, failures, limitations, and lane authority without replaying private headset artifacts.","preserves":["existing Rusty LSL runtime and activation","Quest packaging and lifecycle ownership","private serial, log, APK, endpoint, and diagnostic exclusion","Manifold admission and routing authority separation"],"does_not_authorize":["official endpoint or broad platform compatibility","other groups, interfaces, address families, or retry policy","ambient or production activation","Manifold admission, routing, identity, commands, or authority"]},
     {"id":"lslc-004f-exact-multicast-composition-gate","decision":"Standard, Deep, and CI validation require test-only composition of the two accepted exact-group production sides with byte-identical prefix checks.","reason":"Requester and responder evidence should compose without silently expanding either production surface or network policy.","preserves":["LSLC-004D requester production prefix","LSLC-004E responder production prefix","one exact-group loopback query/response","device and Manifold authority prohibitions"],"does_not_authorize":["production, API, or activation changes","official, Quest, or non-loopback claims","other groups, interfaces, retries, or background work","devices, routing, admission, or authority"]},
     {"id":"lslc-004e-exact-multicast-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group explicit-loopback responder checker after the multicast observation and requester-conformance gates.","reason":"Observed membership can authorize only one capability-gated responder composition that reuses the existing finite parser, envelope, cancellation, deadline, and cleanup loop.","preserves":["LSLC-002Z responder semantics and activation","LSLC-004C observation limits","one explicit loopback interface and exact group","device and Manifold authority prohibitions"],"does_not_authorize":["generic membership or interface policy","other groups, IPv6, or non-loopback interfaces","portable retry or cross-platform claims","devices, routing, admission, or authority"]},

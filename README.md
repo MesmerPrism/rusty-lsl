@@ -149,3 +149,11 @@ received its one response. Explicit cancellation, socket and multicast-lock
 cleanup, zero target-package fatals, and complete run-owned cleanup passed.
 This changes no Rusty LSL runtime or activation and grants no Manifold
 admission, routing, identity, or authority.
+
+LSLC-004H records sanitized two-repeat evidence that the accepted Rust UDP
+requester composed with an independently authored joined responder on one
+caller-explicit active private IPv4 host interface at the exact group. One
+bounded query/response, pre-I/O cancellation, no-response deadline, membership
+cleanup, and socket cleanup passed per repeat. This single Windows host
+observation does not widen the loopback-only production responder or establish
+portable interface, retry, cross-host, device, official, or Manifold behavior.

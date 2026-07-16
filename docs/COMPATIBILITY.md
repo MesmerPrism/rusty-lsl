@@ -640,6 +640,17 @@ ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
 and used length form one with length 128. This evidence adds no runtime support
 or broader value, count, length-form, network, device, or authority claim.
 
+## LSLC-004H
+
+Two serialized private Rust repeats on one caller-explicit active private IPv4
+interface of one Windows desktop host passed the exact-group composition: the
+accepted production requester sent one query and received one response from an
+independently authored joined responder. Each repeat also passed pre-I/O
+cancellation, a no-response deadline at the same multicast destination,
+membership leave, and port rebind cleanup. This does not exercise the guarded
+production responder on a non-loopback interface and proves no portable policy,
+cross-host reachability, official endpoint, device behavior, or authority.
+
 ## LSLC-004D
 
 One synthetic Windows loopback test composes the unchanged requester with one

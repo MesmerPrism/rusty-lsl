@@ -314,6 +314,14 @@ nonclaims for the LSLC-003Q/003S-bound String implementation.
 mixed-width and exact-127-byte pinned observation evidence, hashes, bounds,
 private-evidence exclusions, and nonclaims.
 
+## LSLC-004H
+
+`lslc-004h-active-interface-rust-multicast-observation.json` contains only
+sanitized exact-source, two-repeat active-interface Rust socket outcomes,
+private-artifact hashes, preserved-failure count, limitations, and nonclaims.
+Interface and endpoint details, raw records, driver, binary, diagnostics,
+environment, and machine identity remain private.
+
 `lslc-004d-ipv4-multicast-discovery-runtime-conformance.json` binds only the
 synthetic joined-loopback composition, exact group and port, one query and one
 response, finite lifecycle invariants, accepted production-prefix hash,

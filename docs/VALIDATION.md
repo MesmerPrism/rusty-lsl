@@ -85,6 +85,12 @@ LSLC-003Y is checked by `tools/check_lslc_003y.ps1` and policy gate
 pinned attempt hashes, six damaged mutations, documentation routes,
 limitations, and public boundary without executing an oracle.
 
+LSLC-004H is checked by `tools/check_lslc_004h.ps1` and policy gate
+`lslc-004h-active-interface-observation`. Portable validation checks the
+sanitized exact-source fixture, two repeat dimensions, private artifact hashes,
+six damaged mutations, documentation routes, limitations, and public boundary.
+It performs no network operation and does not replay private artifacts.
+
 LSLC-004D is checked by `tools/check_lslc_004d.ps1` and policy gate
 `lslc-004d-runtime-conformance`. It byte-compares the production prefix with
 accepted LSLC-004C, rejects six damaged fixture mutations, runs the focused
