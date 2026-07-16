@@ -1,0 +1,39 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "schema":"rusty.morphospace.workflow.iteration_unit.v1",
+  "unit_id":"rlsl-lslc-003q-bounded-string-record-observation",
+  "project_id":"rusty-lsl",
+  "objective":"Observe the smallest finite protocol-110 String sample framing envelope using independently authored private IPv4-loopback drivers and the pinned official endpoint only as a black-box oracle: exactly one channel and one caller record in each safely supported direction.",
+  "prerequisites":["rlsl-lslc-003o-multichannel-numeric-record-sequence-observation"],
+  "allowed_repositories":[{"repo_id":"rusty-lsl","allowed_paths":["AGENTS.md","README.md","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/README.md","fixtures/compatibility/lslc-003q-bounded-string-record-observation.json","morphospace/iteration-events.jsonl","morphospace/iteration-units/rlsl-lslc-003q-bounded-string-record-observation.json","morphospace/receipts/","morphospace/workspace.state.json","tools/check_lslc_003q.ps1","tools/check_lslc_003q.py","tools/validation-policy.json"]}],
+  "non_scope":["Production implementation, public Rust API, feature activation, empty or multiple records, multiple channels, arbitrary or oversized strings, int64, numeric changes, non-loopback networking, discovery, clocks, queueing, recovery, or broad compatibility.","Official or rLSL source, copied or translated source, dependencies, unsafe/FFI, devices, private raw publication, commands derived from samples, or Manifold authority."],
+  "acceptance":[
+    {"acceptance_id":"bounded-string-framing-observation","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003q.ps1","proof":"Every selected direction terminates under explicit discovery, connection, record-count, byte, string-length, and deadline bounds with sanitized framing and value evidence."},
+    {"acceptance_id":"damage-and-provenance-boundary","command":"python ./tools/check_lslc_003q.py","proof":"Initialization, length representation, UTF-8 value, marker, truncation, malformed length, cancellation, cleanup, hashes, failed attempts, and nonclaims are complete or explicitly unavailable."},
+    {"acceptance_id":"project-policy-and-workflow","command":"python ./tools/dispatch_validation.py --profile standard","proof":"Current policy, public boundary, documentation routing, and external workflow contracts pass without implementation or authority drift."}
+  ],
+  "validation":[
+    {"profile_id":"runtime-loopback","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003q.ps1"},
+    {"profile_id":"source-owner","command":"python ./tools/dispatch_validation.py --profile standard"},
+    {"profile_id":"workflow","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"}
+  ],
+  "risk_tier":"standard",
+  "device_requirement":"forbidden",
+  "outputs":["One sanitized bounded matrix for a nonempty ASCII/UTF-8 String value in exactly one channel and one caller record per safe direction.","Addressable observations for initialization, length/framing, timestamp, exact value, first failure stage, deadlines, cleanup, and private artifact hashes.","An evidence-backed decision whether a later variable-width String runtime unit is authorized or a narrower correction is required."],
+  "commit_policy":"Commit proposal and lifecycle separately; publish only sanitized bounded observations, hashes, validators, instruction routes, and receipts. Preserve failed attempts and keep drivers, raw bytes, endpoints, diagnostics, caches, and machine paths private.",
+  "push_checkpoint":"integration-batch",
+  "change_categories":["validation","public-private-boundary"],
+  "tags":["compatibility-observation","string-framing"],
+  "instruction_impact":"update",
+  "instruction_none_justification":null,
+  "instruction_surfaces":[
+    {"surface_kind":"agents","path":"AGENTS.md","owner":"rusty-lsl","skill_id":null,"action":"update","change_reason":"Route the bounded String observation and explicit non-implementation limits.","status":"planned","validation":"Run focused, public-boundary, and workflow gates."},
+    {"surface_kind":"readme","path":"README.md","owner":"rusty-lsl","skill_id":null,"action":"update","change_reason":"Route observation-only String evidence without implying implementation.","status":"planned","validation":"Run documentation and public-boundary gates."},
+    {"surface_kind":"router-doc","path":"docs/COMPATIBILITY.md","owner":"rusty-lsl","skill_id":null,"action":"update","change_reason":"Bind exact sanitized observations and limitations.","status":"planned","validation":"Run the focused observation gate."},
+    {"surface_kind":"router-doc","path":"docs/PROVENANCE.md","owner":"rusty-lsl","skill_id":null,"action":"update","change_reason":"Bind private driver, configuration, raw result, and official binary hashes without raw publication.","status":"planned","validation":"Run provenance and public-boundary gates."},
+    {"surface_kind":"router-doc","path":"docs/VALIDATION.md","owner":"rusty-lsl","skill_id":null,"action":"update","change_reason":"Route the focused observation validator through the sole policy.","status":"planned","validation":"Run policy and documentation gates."},
+    {"surface_kind":"skill","path":"<skills-root>/rusty-morphospace-context/SKILL.md","owner":"workflow-maintainer","skill_id":"rusty-morphospace-context","action":"review-no-change","change_reason":"Existing LSL ownership and public/private routing already apply.","status":"complete","validation":"Reviewed before proposal."},
+    {"surface_kind":"skill","path":"<skills-root>/system-engineering/SKILL.md","owner":"workflow-maintainer","skill_id":"system-engineering","action":"review-no-change","change_reason":"Existing evidence, activation, and authority guidance already apply.","status":"complete","validation":"Reviewed before proposal."}
+  ],
+  "status":"proposed"
+}
