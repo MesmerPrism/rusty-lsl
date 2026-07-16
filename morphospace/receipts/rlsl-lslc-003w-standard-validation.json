@@ -7,7 +7,7 @@
   "created_at": "2026-07-16T14:38:00Z",
   "tier": "standard",
   "result": "pass",
-  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"48654f492540fa9624261bb1e282015107590ab4","head_revision":"2d3e2f4e848242fa12a0eef106f7a76d43812695","branch":"codex/rlsl-autonomous"}],
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"48654f492540fa9624261bb1e282015107590ab4","head_revision":"3a460ca26a47d50a557e0b403fa5ae9bf79f8acc","branch":"codex/rlsl-autonomous"}],
   "changed_paths": [
     {"repo_id":"rusty-lsl","path":"AGENTS.md"},
     {"repo_id":"rusty-lsl","path":"README.md"},
@@ -21,6 +21,7 @@
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003w-begin-validation.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003w-claim.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003w-ready.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003w-record-validation.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003w-standard-validation.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003w-standard-validation.md"},
     {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},
