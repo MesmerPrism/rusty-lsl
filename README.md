@@ -114,6 +114,11 @@ observed exact 129-byte boundary. Existing empty and nonempty cases remain;
 130 bytes reject, and activation, framing form, finite loopback, and authority
 do not widen.
 
+LSLC-004C records sanitized single-platform evidence for one documented IPv4
+multicast discovery group on an explicit loopback interface, including finite
+query/response directions and membership cleanup. It changes no runtime and
+does not generalize interfaces, retry policy, platforms, or authority.
+
 LSLC-003Z extends the closed capability-gated String runtime only through that
 observed exact 128-byte boundary. Existing empty and nonempty cases remain;
 129 bytes reject, and activation, framing form, finite loopback, and authority

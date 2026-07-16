@@ -585,6 +585,14 @@ driver, configuration, pinned official binary, value, record, and two raw
 attempts. Value text, drivers, raw results, endpoints, diagnostics, environment,
 machine identity, and two pylsl 1.18.1 drift runs remain private and excluded.
 
+## LSLC-004C
+
+The public fixture retains only the documented group/port, sanitized explicit-
+loopback and single-platform classifications, bounded counts/timing ceilings,
+outcomes, limitations, and SHA-256 bindings. Drivers, raw packets, endpoints,
+interface identifiers, diagnostics, environment, and machine identity remain
+private. No official implementation source was inspected.
+
 ## LSLC-004A
 
 The public fixture contains only the exact-129-byte classification, dimensions,

@@ -90,6 +90,11 @@ LSLC-004B is checked by `tools/check_lslc_004b.ps1` and policy gate
 130-byte rejection, preservation markers, six damaged fixture mutations,
 documentation routes, and public boundary.
 
+LSLC-004C is checked by `tools/check_lslc_004c.ps1` and policy gate
+`lslc-004c-observation`. It validates the exact group, explicit-loopback and
+single-platform scope, two repeats, membership cleanup, both finite directions,
+hash bindings, six damaged mutations, documentation routes, and public boundary.
+
 LSLC-003Z is checked by `tools/check_lslc_003z.ps1` and policy gate
 `lslc-003z-runtime`. It validates exact-128 loopback and cleanup, typed
 129-byte rejection, preservation markers, six damaged fixture mutations,

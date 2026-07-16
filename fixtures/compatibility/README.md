@@ -320,6 +320,12 @@ private-evidence exclusions, and nonclaims.
 observation to the closed capability-gated runtime, zero-through-129 byte
 bounds, typed 130-byte rejection, effects, provenance, and nonclaims.
 
+## LSLC-004C
+
+`lslc-004c-ipv4-multicast-discovery-observation.json` contains only sanitized
+single-group IPv4 multicast outcomes, bounded counts/timing ceilings,
+membership cleanup, platform limitations, hashes, and nonclaims.
+
 ## LSLC-004A
 
 `lslc-004a-exact-129-string-observation.json` contains only sanitized exact-

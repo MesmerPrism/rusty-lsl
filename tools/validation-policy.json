@@ -26,6 +26,7 @@
       "lslc-003y-observation",
       "lslc-004a-observation",
       "lslc-004b-runtime",
+      "lslc-004c-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -44,6 +45,7 @@
       "lslc-003y-observation",
       "lslc-004a-observation",
       "lslc-004b-runtime",
+      "lslc-004c-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -64,6 +66,7 @@
       "lslc-003y-observation",
       "lslc-004a-observation",
       "lslc-004b-runtime",
+      "lslc-004c-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -502,6 +505,18 @@
       "environment": {"network":"loopback-only", "timeout_seconds":180}
     },
     {
+      "id": "lslc-004c-observation",
+      "owner": "rusty-lsl-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004c.ps1"],
+      "depends_on": ["public-boundary"],
+      "change_categories": ["compatibility", "validation", "public-private-boundary"],
+      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/lslc-004c-ipv4-multicast-discovery-observation.json", "tools/check_lslc_004c.py", "tools/check_lslc_004c.ps1"],
+      "proves": ["sanitized pinned two-repeat evidence for one documented IPv4 group on an explicit loopback interface, membership cleanup, two finite directions, hashes, platform limits, and damaged mutations"],
+      "does_not_prove": ["production multicast runtime, portable retry policy, other groups, IPv6, interface enumeration or default selection, non-loopback interfaces, cross-platform behavior, devices, routing, admission, or authority"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -567,6 +582,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004c-ipv4-multicast-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe single-group IPv4 multicast observation checker after public-boundary validation.","reason":"Membership, explicit interface use, finite directions, cleanup, counts, timing ceilings, platform limits, hashes, and nonclaims must remain synchronized without portable multicast execution.","preserves":["network-forbidden portable validation","observation versus implementation separation","Rusty LSL compatibility ownership","device and Manifold authority prohibitions"],"does_not_authorize":["production multicast runtime","portable retry inference","other groups, IPv6, or interface policy","private artifact publication","devices, routing, admission, or authority"]},
     {"id":"lslc-003z-bound-check-superseded-by-lslc-004b","decision":"Retain accepted LSLC-003Z as a historical gate but remove its fixed-128 source assertion from current profiles and the observation dependency path; LSLC-004B preserves its owner case while asserting the authorized 129/130 boundary.","reason":"The older checker intentionally rejects any change to MAX_STRING_BYTES 128 and cannot validate the separately observed exact-129 extension.","preserves":["all LSLC-003Z Rust owner behavior","LSLC-004A public observation evidence","zero-through-128 String behavior","closed activation and finite cleanup","historical evidence bytes","device and authority prohibitions"],"does_not_authorize":["rewriting historical evidence","values above 129 bytes","additional channels, records, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
     {"id":"lslc-004b-exact-129-string-runtime-gate","decision":"Standard, Deep, and CI validation require the focused exact-129 String runtime checker after accepted observations and activation closure.","reason":"The newly authorized boundary must remain composed with exact 130-byte rejection, prior empty/nonempty behavior, cleanup, and nonclaims.","preserves":["all prior owner tests","StringSample and handshake activation closure","one channel and one caller record","finite deadline, cancellation, and cleanup","device and authority prohibitions"],"does_not_authorize":["values above 129 bytes","additional channels, records, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
     {"id":"lslc-004a-exact-129-string-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe exact-129-byte String observation checker after public-boundary, LSLC-003Y evidence, and LSLC-003Z runtime gates.","reason":"The next byte boundary must remain synchronized with two pinned attempt hashes, exact length-form-one framing, private drift exclusion, and nonclaims without portable oracle execution or runtime widening.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","StringSample activation closure","device and authority prohibitions"],"does_not_authorize":["runtime or activation changes","private artifact publication","oracle execution in CI","other String dimensions or length forms","devices or authority"]},

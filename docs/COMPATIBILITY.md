@@ -648,6 +648,15 @@ Synthetic loopback preserves timestamp, value, and socket cleanup; 130 bytes
 reject. This adds no claim for other shapes, length forms, networks, devices,
 or broad compatibility.
 
+## LSLC-004C
+
+Two pinned repeats on one Windows desktop host passed membership join,
+loopback receive, drop and rejoin for `239.255.172.215:16571`. One bounded
+official resolver call produced three received multicast query datagrams per
+repeat; one private multicast query produced one matching official response
+per repeat. Counts and timings are observations, not a portable retry policy.
+No other group, family, interface, platform, runtime, or authority is claimed.
+
 ## LSLC-003Z
 
 The independently authored capability-gated runtime now accepts the exact

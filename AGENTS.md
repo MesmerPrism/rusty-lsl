@@ -384,6 +384,13 @@ one-byte length form, StringSample plus handshake activation, finite loopback,
 deadline, cancellation, cleanup, dependencies, devices, unsafe/FFI posture,
 commands, and authority.
 
+LSLC-004C adds only sanitized pinned black-box evidence for the documented
+IPv4 group `239.255.172.215:16571` on one explicit loopback interface. Two
+repeats passed membership join/receive/drop/rejoin and both finite query/
+response directions. Observed datagram counts are not a portable retry policy.
+It adds no runtime, activation, other group/family/interface behavior, device,
+dependency, command, stream admission, routing, or Manifold authority.
+
 LSLC-004A adds only sanitized black-box evidence that exactly one independently
 authored 129-byte ASCII/UTF-8 String caller record uses length form one with
 length 129 in both finite IPv4-loopback directions. Two pinned repeats passed.
