@@ -576,3 +576,11 @@ framing outcomes, and SHA-256 bindings for the independently authored private
 driver, configuration, pinned official binary, and two raw attempts. The
 driver, raw records, endpoints, diagnostics, environment, and machine identity
 remain private. No official implementation source was inspected.
+
+## LSLC-003Y
+
+The public fixture contains only the exact-128-byte classification, dimensions,
+framing outcomes, and SHA-256 bindings for the independently authored private
+driver, configuration, pinned official binary, value, record, and two raw
+attempts. Value text, drivers, raw results, endpoints, diagnostics, environment,
+machine identity, and two pylsl 1.18.1 drift runs remain private and excluded.

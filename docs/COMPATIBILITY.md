@@ -631,3 +631,11 @@ empty value with the existing LSLC-003T capability-gated finite loopback path.
 Synthetic validation preserves timestamp, zero payload bytes, and socket
 cleanup. This is not evidence for additional channels, records, length forms,
 non-loopback behavior, or broad compatibility.
+
+## LSLC-003Y
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for one independently authored exact-128-byte
+ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
+and used length form one with length 128. This evidence adds no runtime support
+or broader value, count, length-form, network, device, or authority claim.

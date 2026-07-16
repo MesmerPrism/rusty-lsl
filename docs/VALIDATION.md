@@ -79,3 +79,8 @@ LSLC-003X is checked by `tools/check_lslc_003x.ps1` and policy gate
 `lslc-003x-runtime`. It validates empty-value loopback, prior bounds and
 capability markers, six damaged fixture mutations, cleanup, documentation
 routes, and the public boundary.
+
+LSLC-003Y is checked by `tools/check_lslc_003y.ps1` and policy gate
+`lslc-003y-observation`. The gate validates the exact 128-byte record, two
+pinned attempt hashes, six damaged mutations, documentation routes,
+limitations, and public boundary without executing an oracle.

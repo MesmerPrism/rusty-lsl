@@ -104,3 +104,7 @@ environment, and machine identity remain outside the repository.
 LSLC-003X extends the existing capability-gated one-channel, one-record String
 runtime only to the LSLC-003W-observed empty value. The 127-byte maximum,
 one-byte length form, finite loopback behavior, and activation closure remain.
+
+LSLC-003Y records sanitized pinned black-box evidence that one independently
+authored exact-128-byte String uses length form one with length 128 in both
+finite loopback directions. It changes no runtime or activation.

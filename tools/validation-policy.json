@@ -25,6 +25,7 @@
       "lslc-003u-observation",
       "lslc-003w-observation",
       "lslc-003x-runtime",
+      "lslc-003y-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -42,6 +43,7 @@
       "lslc-003u-observation",
       "lslc-003w-observation",
       "lslc-003x-runtime",
+      "lslc-003y-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -61,6 +63,7 @@
       "lslc-003u-observation",
       "lslc-003w-observation",
       "lslc-003x-runtime",
+      "lslc-003y-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -451,6 +454,18 @@
       "environment": {"network":"loopback-only", "timeout_seconds":180}
     },
     {
+      "id": "lslc-003y-observation",
+      "owner": "rusty-lsl-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003y.ps1"],
+      "depends_on": ["public-boundary", "lslc-003u-observation", "lslc-003x-runtime"],
+      "change_categories": ["compatibility", "validation", "public-private-boundary"],
+      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/lslc-003y-exact-128-string-observation.json", "tools/check_lslc_003y.py", "tools/check_lslc_003y.ps1"],
+      "proves": ["the sanitized pinned two-repeat exact-128-byte String observation, hashes, length-form-one framing, limitations, routes, and damaged mutations are complete"],
+      "does_not_prove": ["private oracle freshness beyond bound hashes, implementation or activation changes, other values, multiple channels or records, arbitrary length forms, non-loopback compatibility, devices, or authority"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -516,6 +531,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-003y-exact-128-string-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe exact-128-byte String observation checker after public-boundary, LSLC-003U, and LSLC-003X gates.","reason":"The next byte boundary must remain synchronized with two pinned attempt hashes, exact length-form-one framing, private drift exclusion, and nonclaims without portable oracle execution or runtime widening.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","StringSample activation closure","device and authority prohibitions"],"does_not_authorize":["runtime or activation changes","private artifact publication","oracle execution in CI","other String dimensions or length forms","devices or authority"]},
     {"id":"lslc-003v-prefix-check-superseded-by-lslc-003x","decision":"Remove LSLC-003V's byte-identical LSLC-003U production-prefix assertion from current execution profiles while retaining its gate record and its two nonempty cases in the owner test suite; LSLC-003X directly depends on LSLC-003T, LSLC-003U, and LSLC-003W.","reason":"An authorized empty-value production extension necessarily changes the old prefix, so executing that historical no-production-change assertion would reject the new accepted claim rather than preserve nonempty conformance.","preserves":["the LSLC-003V mixed-width and exact-127-byte Rust tests","LSLC-003T nonempty framing and maximum","LSLC-003U and LSLC-003W observation gates","StringSample activation closure","all device and authority prohibitions"],"does_not_authorize":["changes to historical LSLC-003V evidence","additional channels, records, lengths, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
     {"id":"lslc-003x-empty-string-runtime-gate","decision":"Standard, Deep, and CI validation require the focused empty-String runtime checker after the accepted LSLC-003T runtime and LSLC-003W observation gates.","reason":"The observed zero-payload case must remain continuously composed with capability admission, the 127-byte maximum, finite loopback, cleanup, and exact nonclaims.","preserves":["LSLC-003S StringSample activation closure","LSLC-003T nonempty behavior and maximum","one channel and one caller record","finite deadline, cancellation, and cleanup","device and authority prohibitions"],"does_not_authorize":["additional channels, records, or length forms","non-loopback behavior","ambient activation","devices, dependencies, commands, or authority"]},
     {"id":"lslc-003w-empty-string-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe LSLC-003W empty-String observation checker after its public-boundary, LSLC-003Q evidence, and LSLC-003V unchanged-runtime dependencies.","reason":"The separately observed empty record must remain synchronized with two pinned attempt hashes, exact zero-payload one-byte framing, and nonclaims without portable oracle execution or a runtime change.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","unchanged LSLC-003T runtime and LSLC-003S activation","device and authority prohibitions"],"does_not_authorize":["implementation or activation changes","private artifact publication","oracle execution in CI","new length forms or broader String dimensions","devices or authority"]},

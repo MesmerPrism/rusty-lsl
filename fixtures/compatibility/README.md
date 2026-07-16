@@ -331,3 +331,9 @@ bounds, private-evidence exclusions, and nonclaims.
 `lslc-003x-empty-string-record-runtime.json` binds the LSLC-003W empty
 observation to the existing capability-gated runtime, exact zero-through-127
 byte bounds, one-byte length form, effects, provenance, and nonclaims.
+
+## LSLC-003Y
+
+`lslc-003y-exact-128-string-observation.json` contains only sanitized exact-
+128-byte pinned observation evidence, framing outcomes, hashes, bounds,
+private-evidence exclusions, and nonclaims.

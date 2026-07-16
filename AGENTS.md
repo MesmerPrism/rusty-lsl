@@ -370,3 +370,9 @@ nonempty values through 127 UTF-8 bytes, one-byte length form, finite loopback,
 deadline, cancellation, cleanup, StringSample plus handshake admission, and
 default-disabled activation. It adds no other breadth, dependency, device,
 unsafe/FFI, copied source, command, or Manifold authority.
+
+LSLC-003Y adds only sanitized black-box evidence that exactly one independently
+authored 128-byte ASCII/UTF-8 String caller record uses length form one with
+length 128 in both finite IPv4-loopback directions. Two pinned repeats passed.
+It adds no runtime, activation, other value/count breadth, device, dependency,
+copied source, command, or Manifold authority.
