@@ -74,3 +74,8 @@ LSLC-003W is checked by `tools/check_lslc_003w.ps1` and policy gate
 `lslc-003w-observation`. The gate validates the exact empty record, two pinned
 attempt hashes, six damaged mutations, documentation routes, limitations, and
 the public boundary without executing an oracle in portable validation.
+
+LSLC-003X is checked by `tools/check_lslc_003x.ps1` and policy gate
+`lslc-003x-runtime`. It validates empty-value loopback, prior bounds and
+capability markers, six damaged fixture mutations, cleanup, documentation
+routes, and the public boundary.

@@ -698,3 +698,10 @@ generalize activation or framing authority.
 Only the private Rust test module gains boundary conformance cases. The
 production prefix is checked byte-for-byte against accepted revision
 `f1e68657253b572c6f1bfae58747b11637ec07ee`; module composition is unchanged.
+## LSLC-003X empty String runtime
+
+The String runtime accepts zero through 127 UTF-8 payload bytes only after the
+caller supplies both the distinct `StringSample` capability and stream-
+handshake activation. Empty data uses the separately observed one-byte length
+form with length zero; it does not change channel/record shape, activation,
+socket ownership, deadlines, cancellation, cleanup, or authority.

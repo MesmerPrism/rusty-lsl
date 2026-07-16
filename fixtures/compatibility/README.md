@@ -325,3 +325,9 @@ production-prefix invariant.
 `lslc-003w-empty-string-record-observation.json` contains only sanitized
 empty-String pinned observation evidence, exact framing outcomes, hashes,
 bounds, private-evidence exclusions, and nonclaims.
+
+## LSLC-003X
+
+`lslc-003x-empty-string-record-runtime.json` binds the LSLC-003W empty
+observation to the existing capability-gated runtime, exact zero-through-127
+byte bounds, one-byte length form, effects, provenance, and nonclaims.

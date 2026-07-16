@@ -623,3 +623,11 @@ official-outlet record retained marker two and timestamp 1234.5 and used the
 already observed one-byte length form with length zero. This evidence adds no
 runtime support and does not cover additional channels or records, other
 length forms, non-loopback use, devices, or broad compatibility.
+
+## LSLC-003X
+
+The independently authored Rust runtime now composes the LSLC-003W-observed
+empty value with the existing LSLC-003T capability-gated finite loopback path.
+Synthetic validation preserves timestamp, zero payload bytes, and socket
+cleanup. This is not evidence for additional channels, records, length forms,
+non-loopback behavior, or broad compatibility.

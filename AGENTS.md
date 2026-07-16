@@ -363,3 +363,10 @@ caller record uses the already observed one-byte length form with zero payload
 bytes in both finite IPv4-loopback directions. Two pinned repeats passed. It
 adds no runtime, activation, nonempty/oversized breadth, arbitrary length form,
 device, dependency, copied source, command, or Manifold authority.
+
+LSLC-003X adds only the LSLC-003W-observed empty value to the existing
+capability-gated one-channel, one-record String runtime. It preserves all prior
+nonempty values through 127 UTF-8 bytes, one-byte length form, finite loopback,
+deadline, cancellation, cleanup, StringSample plus handshake admission, and
+default-disabled activation. It adds no other breadth, dependency, device,
+unsafe/FFI, copied source, command, or Manifold authority.

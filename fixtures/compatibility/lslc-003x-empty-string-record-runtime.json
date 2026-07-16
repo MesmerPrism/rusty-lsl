@@ -1,0 +1,12 @@
+{
+  "schema": "rusty.lsl.compatibility.lslc_003x.v1",
+  "unit_id": "rlsl-lslc-003x-empty-string-record-runtime",
+  "authority": {"observation":"rlsl-lslc-003w-empty-string-record-observation","runtime":"rlsl-lslc-003t-bounded-string-record-runtime","activation":"rlsl-lslc-003s-string-sample-activation-descriptor","required_module":"string-sample","required_dependency":"stream-handshake"},
+  "bounds": {"channels":1,"caller_records":1,"initialization_records":2,"min_payload_bytes":0,"max_payload_bytes":127,"network":"ipv4-loopback","finite_deadlines":true},
+  "framing": {"marker":2,"caller_timestamp":1234.5,"length_form":1,"empty_length":0,"length_unit":"utf8-bytes"},
+  "valid_cases": ["empty-observed-value","prior-nonempty-values","distinct-string-capability","loopback-cleanup"],
+  "damaged_cases": ["wrong-module-capability","oversized","nonfinite-timestamp","wrong-marker","wrong-initialization","wrong-length-form","truncated","invalid-utf8","cancelled","deadline","io","handshake"],
+  "effects": {"default_activation":false,"ambient_activation":false,"devices":false,"dependencies_added":false,"unsafe_or_ffi":false,"commands":false,"manifold_authority":false},
+  "provenance": {"implementation":"independently-authored","official_source_used":false,"rlsl_source_used":false,"private_raw_evidence_published":false},
+  "claims": {"one_channel_one_record":true,"arbitrary_strings":false,"multiple_channels_or_records":false,"other_length_forms":false,"non_loopback":false,"broad_compatibility":false}
+}

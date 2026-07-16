@@ -22,7 +22,7 @@ pub const STRING_SAMPLE_EFFECTIVE_MARKER: &str = "rusty.lsl.string_sample.effect
 const INITIALIZATION_TIMESTAMP: f64 = 123_456.789;
 const MAX_STRING_BYTES: usize = 127;
 
-/// One finite raw timestamp beside one nonempty bounded UTF-8 String.
+/// One finite raw timestamp beside one bounded UTF-8 String.
 #[derive(Clone, Debug, PartialEq)]
 pub struct StringSampleRecord {
     timestamp: f64,
@@ -33,9 +33,6 @@ impl StringSampleRecord {
     pub fn new(timestamp: f64, value: String) -> Result<Self, StringSampleError> {
         if !timestamp.is_finite() {
             return Err(StringSampleError::InvalidTimestamp);
-        }
-        if value.is_empty() {
-            return Err(StringSampleError::EmptyValue);
         }
         if value.len() > MAX_STRING_BYTES {
             return Err(StringSampleError::ValueTooLong {
@@ -229,9 +226,6 @@ fn read_header(
         return Err(StringSampleError::InvalidLengthForm { actual: header[9] });
     }
     let length = header[10] as usize;
-    if length == 0 {
-        return Err(StringSampleError::EmptyValue);
-    }
     if length > MAX_STRING_BYTES {
         return Err(StringSampleError::ValueTooLong { actual: length });
     }
@@ -385,8 +379,8 @@ mod tests {
             Err(StringSampleActivationError::WrongModule)
         );
         assert_eq!(
-            StringSampleRecord::new(1.0, String::new()),
-            Err(StringSampleError::EmptyValue)
+            StringSampleRecord::new(1.0, String::new()).unwrap().value(),
+            ""
         );
         assert_eq!(
             StringSampleRecord::new(1.0, "x".repeat(128)),
@@ -476,5 +470,35 @@ mod tests {
             assert_eq!(worker.join().unwrap().unwrap(), address);
             assert!(TcpListener::bind(address).is_ok());
         }
+    }
+
+    #[test]
+    fn lslc_003x_empty_string_preserves_timestamp_and_cleanup() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let worker = thread::spawn(move || {
+            run_string_sample_outlet(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                limits(),
+                StringSampleRecord::new(1234.5, String::new()).unwrap(),
+                &AtomicBool::new(false),
+            )
+        });
+        let received = run_string_sample_inlet(
+            activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            limits(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(received.timestamp().to_bits(), 1234.5f64.to_bits());
+        assert_eq!(received.value(), "");
+        assert_eq!(worker.join().unwrap().unwrap(), address);
+        assert!(TcpListener::bind(address).is_ok());
     }
 }

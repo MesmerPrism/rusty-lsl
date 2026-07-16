@@ -100,3 +100,7 @@ LSLC-003W records sanitized pinned black-box evidence for exactly one empty
 String caller record in both finite IPv4-loopback directions. It changes no
 runtime or activation; private drivers, raw records, endpoints, diagnostics,
 environment, and machine identity remain outside the repository.
+
+LSLC-003X extends the existing capability-gated one-channel, one-record String
+runtime only to the LSLC-003W-observed empty value. The 127-byte maximum,
+one-byte length form, finite loopback behavior, and activation closure remain.
