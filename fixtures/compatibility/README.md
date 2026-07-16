@@ -397,3 +397,10 @@ two sanitized active-interface repeats, loopback preservation, nonconcrete
 rejection, private-artifact hashes, platform limitations, and authority
 nonclaims. Interface and endpoint details, driver, raw output, diagnostics,
 environment, and machine identity remain private.
+
+## LSLC-004K
+
+`lslc-004k-active-interface-official-resolver-observation.json` contains only
+sanitized pinned-official active-interface query/response outcomes, exact
+group and finite dimensions, public-source and private-artifact hashes,
+cleanup, single-platform limitations, exclusions, and authority nonclaims.

@@ -609,3 +609,12 @@ framing outcomes, and SHA-256 bindings for the independently authored private
 driver, configuration, pinned official binary, value, record, and two raw
 attempts. Value text, drivers, raw results, endpoints, diagnostics, environment,
 machine identity, and two pylsl 1.18.1 drift runs remain private and excluded.
+## LSLC-004K active-interface official resolver observation
+
+The oracle is pinned pylsl 1.18.2 with liblsl 1.17 and protocol 110. The
+independently authored private driver, generated configuration, raw queries,
+response, interface and endpoint details, diagnostics, environment, and
+machine identity remain outside the repository. The public fixture binds the
+driver, configuration, both raw attempts, attempt record, and unchanged public
+source baseline by SHA-256. The driver is compatibility evidence, not source
+input or a production dependency.

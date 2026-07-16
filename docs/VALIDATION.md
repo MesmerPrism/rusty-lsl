@@ -143,3 +143,9 @@ LSLC-004J is checked by `tools/check_lslc_004j.ps1` and policy gate
 concrete-interface contract, two sanitized private active-interface repeats,
 loopback-wrapper preservation, typed pre-I/O nonconcrete rejection, six damaged
 fixture mutations, documentation routes, owner tests, and public boundary.
+
+LSLC-004K is checked by `tools/check_lslc_004k.ps1` and policy gate
+`lslc-004k-observation`. Portable validation checks exact pinned versions,
+group/interface scope, two sanitized query/response and cleanup results,
+private-artifact hashes, limitations, six damaged mutations, documentation
+routes, and public boundary without executing the private oracle.

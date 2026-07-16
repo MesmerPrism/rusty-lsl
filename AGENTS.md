@@ -453,3 +453,12 @@ before I/O; the existing loopback entry point and bounded responder loop remain
 available. It adds no enumeration, default selection, ambient fallback, IPv6,
 other group/port, retries, background work, device behavior, dependency,
 routing, admission, command, or Manifold authority.
+
+LSLC-004K adds only sanitized two-repeat observation evidence that pinned pylsl
+1.18.2/liblsl 1.17/protocol 110 emitted one exact-group query per repeat on one
+caller-explicit active private IPv4 host interface, accepted one independently
+authored bounded response, and returned the matching source. It changes no
+runtime, API, activation, dependency, device behavior, interface policy,
+routing, admission, command, or Manifold authority. Private drivers, raw
+records, configuration, interfaces, endpoints, diagnostics, environment, and
+machine identity stay private.

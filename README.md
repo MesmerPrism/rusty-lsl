@@ -169,3 +169,9 @@ LSLC-004J adds one separately named responder entry point for the exact
 It neither discovers nor chooses that interface. Unspecified, multicast, and
 broadcast values reject before socket I/O, while the earlier loopback-only API
 and all activation, deadline, cancellation, and cleanup behavior remain.
+
+LSLC-004K records sanitized pinned-official evidence on one caller-explicit
+active IPv4 interface. In two private repeats the resolver emitted the exact
+group query, accepted one independently authored bounded response, returned
+the matching source, and cleanup passed. This observation changes no Rusty LSL
+production surface and is not portable interface, cross-host, or device proof.

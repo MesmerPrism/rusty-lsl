@@ -31,6 +31,7 @@
       "lslc-004e-runtime",
       "lslc-004g-quest-device-conformance",
       "lslc-004j-runtime",
+      "lslc-004k-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -54,6 +55,7 @@
       "lslc-004e-runtime",
       "lslc-004g-quest-device-conformance",
       "lslc-004j-runtime",
+      "lslc-004k-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -79,6 +81,7 @@
       "lslc-004e-runtime",
       "lslc-004g-quest-device-conformance",
       "lslc-004j-runtime",
+      "lslc-004k-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -613,6 +616,18 @@
       "environment": {"network":"loopback-only", "timeout_seconds":180}
     },
     {
+      "id": "lslc-004k-observation",
+      "owner": "rusty-lsl-multicast-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004k.ps1"],
+      "depends_on": ["lslc-004c-observation", "lslc-004j-runtime", "public-boundary"],
+      "change_categories": ["validation", "public-private-boundary"],
+      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004k-active-interface-official-resolver-observation.json", "tools/check_lslc_004k.py", "tools/check_lslc_004k.ps1"],
+      "proves": ["sanitized two-repeat evidence that the pinned official resolver emitted one exact-group query on a caller-explicit active private IPv4 interface, accepted one independently authored bounded response, returned the matching source, and cleaned up"],
+      "does_not_prove": ["production responder execution or official outlet behavior, interface selection or retry policy, cross-host, cross-platform, device, or broad compatibility, routing, admission, or authority"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -678,6 +693,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004k-active-interface-official-resolver-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized pinned-official active-interface resolver observation after the accepted exact-group observation and explicit-interface runtime gates.","reason":"A later official-to-production responder conformance claim first needs separately bounded evidence that the pinned official resolver emits and accepts the independently observed exchange on one active host interface.","preserves":["byte-unchanged requester and responder production sources","caller-explicit interface and exact group scope","private oracle driver, configuration, interface, endpoint, and raw-record exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production changes or official-to-production conformance","interface enumeration, default selection, fallback, or retry policy","cross-host, cross-platform, device, or broad compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004f-prefix-check-superseded-by-lslc-004j","decision":"Retain accepted LSLC-004F as a historical gate but remove its byte-identical responder-prefix checker from current profiles and dependency paths; LSLC-004J preserves the one-query/one-response composition in the responder owner suite while checking the separately authorized production extension.","reason":"LSLC-004F intentionally rejects every responder production change, so it cannot validate the separately observed and reviewed explicit concrete-interface generalization.","preserves":["LSLC-004F accepted fixture, checker, and receipt bytes","the production requester and exact-group loopback composition owner test","LSLC-004E loopback API, activation, finite behavior, and cleanup","device and Manifold authority prohibitions"],"does_not_authorize":["rewriting historical LSLC-004F evidence","requester changes or broader responder behavior","interface enumeration, default selection, fallback, retries, or other network scope","devices, routing, admission, commands, or authority"]},
     {"id":"lslc-004j-explicit-ipv4-interface-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group caller-explicit concrete IPv4 responder checker after the active-interface observation and accepted activation projection.","reason":"LSLC-004H supplies the narrow Rust socket evidence needed to generalize only responder membership from loopback to one caller-owned concrete IPv4 address without creating interface-selection policy.","preserves":["exact 239.255.172.215:16571 destination","LSLC-004E loopback entry point and LSLC-002Z finite loop","explicit capability activation, deadline, cancellation, and cleanup","private interface exclusion and Quest/Manifold authority boundaries"],"does_not_authorize":["interface enumeration, default selection, or ambient fallback","IPv6, other groups, multiple requests, retries, or background work","official, portable, cross-host, cross-platform, or device compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004i-revision-14-runtime-lock-rebinding-gate","decision":"Standard, Deep, and CI validation require exact projection of the accepted deterministic revision-14 feature lock into runtime activation and current fixtures.","reason":"LSLC-004G changed the complete project composition and resolver fingerprint without changing selected modules; runtime admission must reject the superseded complete-lock identity and admit only the current one.","preserves":["default-inert activation","nine selected modules and dependencies","explicit caller capability requests","historical receipts and the LSLC-004H blocker"],"does_not_authorize":["feature-lock or project-spec changes","new runtime behavior or ambient activation","devices or networking","routing, admission, commands, or authority"]},

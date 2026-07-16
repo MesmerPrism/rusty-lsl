@@ -735,3 +735,16 @@ This is not official-endpoint, cross-host, cross-platform, Quest/device, IPv6,
 interface-selection, retry-policy, routing, admission, or broad compatibility
 evidence. The private interface, endpoints, driver, raw output, diagnostics,
 environment, and machine identity are excluded.
+
+## LSLC-004K
+
+Two private serialized repeats with pylsl 1.18.2/liblsl 1.17/protocol 110 on
+one caller-explicit active IPv4 interface of one Windows host each produced one
+exact-group short-info query. An independently authored bounded responder sent
+one matching response, and the official resolver returned the matching source
+within the finite deadline. Membership and socket cleanup passed.
+
+The ambient pylsl 1.18.1 installation is version drift and is excluded. This
+does not execute or validate the production responder, an official outlet,
+cross-host reachability, other platforms or interfaces, retry policy, devices,
+or Manifold routing/admission authority.
