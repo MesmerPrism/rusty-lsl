@@ -205,9 +205,25 @@ def dispatch(
 
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
-    manifest = Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else root / "tools/current-gates-v2.json"
+    role = None
+    arguments = sys.argv[1:]
+    if len(arguments) == 2 and arguments[0] == "--role":
+        role = arguments[1]
+        if role not in ("historical", "current"):
+            print("Current-gates dispatch failed: invalid role", file=sys.stderr)
+            return 1
+        arguments = []
+    manifest = Path(arguments[0]).resolve() if len(arguments) == 1 else root / "tools/current-gates-v2.json"
+    if len(arguments) > 1:
+        print("Current-gates dispatch failed: invalid arguments", file=sys.stderr)
+        return 1
     try:
-        dispatch(load_and_validate(manifest, root), root)
+        roles = load_and_validate(manifest, root)
+        if role == "historical":
+            roles["current"] = []
+        elif role == "current":
+            roles["historical"] = []
+        dispatch(roles, root)
     except (ManifestError, RuntimeError) as error:
         print(f"Current-gates dispatch failed: {error}", file=sys.stderr)
         return 1

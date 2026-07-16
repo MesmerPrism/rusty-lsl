@@ -26,67 +26,7 @@ function Invoke-Checked {
 }
 
 try {
-    Invoke-Checked cargo fmt --all --check
-    $metadata = cargo metadata --offline --locked --no-deps --format-version 1 |
-        ConvertFrom-Json
-    if ($LASTEXITCODE -ne 0) {
-        throw 'Unable to inspect Cargo metadata.'
-    }
-
-    Invoke-Checked cargo test --workspace --all-targets --offline --locked
-    # Historical focused receipts remain immutable evidence for their accepted
-    # inert-lock revisions. The rolling owner gate exercises their Rust code
-    # through the complete test suite without reapplying superseded empty-lock
-    # assertions after LSLC-002P's reviewed activation.
-    # LSLC-002P's focused receipt pins its original single-feature lock. Its
-    # runtime and cleanup behavior are covered above after additive feature
-    # selection; do not reapply that historical composition assertion.
-    Invoke-Checked python tools/dispatch_current_gates.py
-    Invoke-Checked python tools/check_public_boundaries.py
-    Invoke-Checked git diff --check
-
-    $packages = @($metadata.packages)
-    if ($packages.Count -ne 1 -or $packages[0].name -ne 'rusty-lsl') {
-        throw 'The scaffold must contain exactly one package named rusty-lsl.'
-    }
-
-    $expectedManifest = [IO.Path]::GetFullPath(
-        (Join-Path $repoRoot 'crates\rusty-lsl\Cargo.toml')
-    )
-    $actualManifest = [IO.Path]::GetFullPath($packages[0].manifest_path)
-    if ($actualManifest -ne $expectedManifest) {
-        throw 'The only package must remain at crates/rusty-lsl/Cargo.toml.'
-    }
-
-    $workspaceMembers = @($metadata.workspace_members)
-    if (
-        $workspaceMembers.Count -ne 1 -or
-        $workspaceMembers[0] -ne $packages[0].id
-    ) {
-        throw 'The workspace must contain exactly the rusty-lsl package.'
-    }
-
-    if ($null -eq $packages[0].publish -or @($packages[0].publish).Count -ne 0) {
-        throw 'The scaffold package must remain publish = false.'
-    }
-
-    if (@($packages[0].features.PSObject.Properties).Count -ne 0) {
-        throw 'The scaffold must expose no Cargo features.'
-    }
-
-    $dependencies = @($packages[0].dependencies)
-    if ($dependencies.Count -ne 0) {
-        throw 'The scaffold dependency closure must remain empty.'
-    }
-
-    $targets = @($packages[0].targets)
-    $libraryTargets = @($targets | Where-Object { @($_.kind) -contains 'lib' })
-    $testTargets = @($targets | Where-Object { @($_.kind) -contains 'test' })
-    if ($libraryTargets.Count -ne 1 -or $testTargets.Count -ne 1 -or $testTargets[0].name -ne 'public_api') {
-        throw 'The workspace must expose one library and the external public_api consumer test.'
-    }
-
-    Write-Host 'Rusty LSL source-only checks passed.'
+    Invoke-Checked python tools/dispatch_validation.py --profile standard
 }
 finally {
     Pop-Location

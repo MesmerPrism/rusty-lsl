@@ -20,8 +20,7 @@ jobs:
         run: |
           rustup toolchain install 1.80.0 --profile minimal --component rustfmt,clippy
           rustup default 1.80.0
-      - name: Validate complete current gate manifest
+      - name: Validate policy-owned CI profile
         shell: powershell
         run: |
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_003k.ps1
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_all.ps1
+          python .\tools\dispatch_validation.py --profile ci

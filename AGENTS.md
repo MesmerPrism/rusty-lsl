@@ -295,102 +295,22 @@ commands run, results, unresolved risks, and rollback point.
 
 ## Validation
 
-Run:
+The sole current policy authority is `tools/validation-policy.json`; CI and
+local wrappers must not carry independent gate inventories. Use the facade:
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_all.ps1
+```text
+python ./tools/dispatch_validation.py --profile quick
+python ./tools/dispatch_validation.py --profile standard
+python ./tools/dispatch_validation.py --profile deep
 ```
 
-For compatibility-baseline edits, also run the focused gate directly:
+`tools/check_all.ps1` remains the compatibility wrapper for `standard`.
+`docs/VALIDATION.md` routes the policy, exact historical guide, inventory, and
+ADR. Receipts are execution evidence, never policy authority.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_strm_000.ps1
-```
-
-For bounded-contract edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_001.ps1
-```
-
-For timestamped-chunk contract edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_002.ps1
-```
-
-For stream-descriptor contract edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_003.ps1
-```
-
-For bounded metadata-tree contract edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_004.ps1
-```
-
-For descriptor/sample binding edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_005.ps1
-```
-
-For timestamped descriptor/sample composition edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_006.ps1
-```
-
-For timestamped descriptor/chunk composition edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_007.ps1
-```
-
-For stream-definition composition edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_core_008.ps1
-```
-
-For LSLC-001A corpus or corpus-documentation edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001a.ps1
-```
-
-For LSLC-001B XML name/text value-contract edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001b.ps1
-```
-
-For LSLC-001C XML character-data representation edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001c.ps1
-```
-
-For LSLC-001D XML leaf-element composition edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001d.ps1
-```
-
-For LSLC-001E XML container/leaf hierarchy edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001e.ps1
-```
-
-For LSLC-001F metadata-to-XML-element-tree projection edits, also run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001f.ps1
-```
-
-The gates prove only the source-level baseline, local Rust contract semantics,
-and inert dependency/activation closure. They do not prove protocol behavior,
-interoperability, clock behavior, transport, or runtime support.
+Every future unit declares validation impact as `none` with a specific
+justification, `implementation-only`, or `policy`. Unit-specific gates become
+pinned historical evidence after acceptance; durable invariants move to stable
+owner-named current gate IDs. Profile, claim, limitation, or state changes
+require an explicit machine-readable semantic delta. The policy's
+`does_not_prove` fields remain binding evidence limits.

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MesmerPrism/rusty-lsl/tools/validation-policy.schema.json",
+  "title": "Rusty LSL current validation policy",
+  "type": "object",
+  "required": ["schema", "revision", "authority", "historical_index", "profiles", "gates", "semantic_deltas"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema": {"const": "rusty.lsl.validation_policy.v1"},
+    "revision": {"const": 1},
+    "authority": {"const": "tools/validation-policy.json"},
+    "historical_index": {"const": "tools/validation-historical-gates.json"},
+    "profiles": {"type": "object", "required": ["quick", "standard", "deep", "ci"], "additionalProperties": {"type": "array", "items": {"type": "string"}, "minItems": 1}},
+    "gates": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "owner", "state", "command", "depends_on", "change_categories", "affected_paths", "proves", "does_not_prove", "environment"], "additionalProperties": false}},
+    "semantic_deltas": {"type": "array"}
+  }
+}

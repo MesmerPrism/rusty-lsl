@@ -1,0 +1,339 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-lsl/tools/validation-policy.schema.json",
+  "schema": "rusty.lsl.validation_policy.v1",
+  "revision": 1,
+  "authority": "tools/validation-policy.json",
+  "historical_index": "tools/validation-historical-gates.json",
+  "profiles": {
+    "quick": [
+      "rust-format",
+      "rust-tests",
+      "current-closure"
+    ],
+    "standard": [
+      "rust-format",
+      "cargo-shape",
+      "rust-tests",
+      "current-closure",
+      "public-boundary",
+      "documentation-router",
+      "git-diff-hygiene"
+    ],
+    "deep": [
+      "rust-format",
+      "cargo-shape",
+      "rust-tests",
+      "current-closure",
+      "public-boundary",
+      "documentation-router",
+      "git-diff-hygiene",
+      "pinned-rust-180-clippy",
+      "pinned-historical-replay"
+    ],
+    "ci": [
+      "rust-format",
+      "cargo-shape",
+      "rust-tests",
+      "current-closure",
+      "public-boundary",
+      "documentation-router",
+      "git-diff-hygiene",
+      "pinned-rust-180-clippy"
+    ]
+  },
+  "gates": [
+    {
+      "id": "rust-format",
+      "owner": "rusty-lsl-source",
+      "state": "current",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "implementation",
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        "Cargo.toml",
+        "crates/"
+      ],
+      "proves": [
+        "tracked Rust formatting matches rustfmt"
+      ],
+      "does_not_prove": [
+        "behavior or interoperability"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
+    },
+    {
+      "id": "cargo-shape",
+      "owner": "rusty-lsl-composition",
+      "state": "current",
+      "command": [
+        "python",
+        "tools/check_cargo_shape.py"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "implementation",
+        "dependency",
+        "activation",
+        "validation"
+      ],
+      "affected_paths": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "crates/"
+      ],
+      "proves": [
+        "one unpublished dependency-free feature-free rusty-lsl package and expected targets"
+      ],
+      "does_not_prove": [
+        "runtime activation or protocol behavior"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
+    },
+    {
+      "id": "rust-tests",
+      "owner": "rusty-lsl-source",
+      "state": "current",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--all-targets",
+        "--offline",
+        "--locked"
+      ],
+      "depends_on": [
+        "cargo-shape"
+      ],
+      "change_categories": [
+        "implementation",
+        "validation"
+      ],
+      "affected_paths": [
+        "crates/",
+        "fixtures/"
+      ],
+      "proves": [
+        "complete local Rust test suite passes"
+      ],
+      "does_not_prove": [
+        "official endpoint interoperability or device behavior"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 600
+      }
+    },
+    {
+      "id": "current-closure",
+      "owner": "rusty-lsl-activation",
+      "state": "current",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003j.ps1"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "activation",
+        "implementation",
+        "validation",
+        "state-machine"
+      ],
+      "affected_paths": [
+        "crates/",
+        "morphospace/"
+      ],
+      "proves": [
+        "descriptor, lock, activation, and workspace relationships are closed"
+      ],
+      "does_not_prove": [
+        "historical acceptance or live device behavior"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 300
+      }
+    },
+    {
+      "id": "public-boundary",
+      "owner": "rusty-lsl-public-boundary",
+      "state": "current",
+      "command": [
+        "python",
+        "tools/dispatch_validation.py",
+        "--internal-gate",
+        "public-boundary"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "documentation",
+        "implementation",
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "."
+      ],
+      "proves": [
+        "tracked current content satisfies the public-safe boundary scan"
+      ],
+      "does_not_prove": [
+        "absence of secrets outside tracked scope"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
+    },
+    {
+      "id": "documentation-router",
+      "owner": "rusty-lsl-documentation",
+      "state": "current",
+      "command": [
+        "python",
+        "tools/check_documentation_router.py"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "documentation",
+        "validation"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/VALIDATION.md",
+        "docs/history/"
+      ],
+      "proves": [
+        "compact first-hop routers, exact archives, and validation projection are synchronized"
+      ],
+      "does_not_prove": [
+        "implementation semantics"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
+    },
+    {
+      "id": "git-diff-hygiene",
+      "owner": "rusty-lsl-source",
+      "state": "current",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "implementation",
+        "documentation",
+        "validation"
+      ],
+      "affected_paths": [
+        "."
+      ],
+      "proves": [
+        "working diff has no Git whitespace errors"
+      ],
+      "does_not_prove": [
+        "clean worktree or committed state"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
+    },
+    {
+      "id": "pinned-rust-180-clippy",
+      "owner": "rusty-lsl-lint-policy",
+      "state": "current",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003k.ps1"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "implementation",
+        "validation",
+        "dependency"
+      ],
+      "affected_paths": [
+        "crates/",
+        "tools/clippy-baseline-rust-1.80.json"
+      ],
+      "proves": [
+        "pinned Rust 1.80 Clippy diagnostic multiset equals the accepted baseline"
+      ],
+      "does_not_prove": [
+        "warning-free code or later-toolchain cleanliness"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "toolchain": "rust-1.80.0",
+        "timeout_seconds": 900
+      }
+    },
+    {
+      "id": "pinned-historical-replay",
+      "owner": "rusty-lsl-validation-history",
+      "state": "current",
+      "command": [
+        "python",
+        "tools/dispatch_current_gates.py",
+        "--role",
+        "historical"
+      ],
+      "depends_on": [],
+      "change_categories": [
+        "validation",
+        "state-machine"
+      ],
+      "affected_paths": [
+        "tools/current-gates-v2.json",
+        "morphospace/receipts/"
+      ],
+      "proves": [
+        "immutable pinned historical checkers replay at bound ancestral commits"
+      ],
+      "does_not_prove": [
+        "current source behavior beyond historical pins"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 7200
+      }
+    }
+  ],
+  "semantic_deltas": [
+    {
+      "id": "historical-evidence-terminal-newline",
+      "decision": "Hash-pinned immutable historical receipts remain subject to every path, binary, UTF-8, private-content, credential, build-artifact, and whitespace boundary, but are exempt from the mutable-text terminal-newline rule when and only when their exact current bytes equal the committed HEAD bytes.",
+      "reason": "The accepted LSLC-003M receipt predates its own post-acceptance aggregate scan and has no terminal newline; modifying accepted evidence would violate the stronger immutability authority.",
+      "preserves": ["all public/private content rules", "exact historical bytes", "terminal-newline enforcement for current and mutable files"],
+      "does_not_authorize": ["content exemptions", "path exemptions", "receipt rewrites", "new newline-less evidence"]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"schema":"rusty.lsl.validation_historical_index.v1","revision":1,"source_manifest":"tools/current-gates-v2.json","source_manifest_sha256":"f597112396acf0762ea500463f1d2716fe2a1c0c5437374f8327cb438224cb41","immutability":"Entries are pinned evidence; policy authority remains tools/validation-policy.json."}

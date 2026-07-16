@@ -42,6 +42,8 @@ documents below, not by this summary.
 - [Provenance](docs/PROVENANCE.md) — independent authorship and evidence
   classification.
 - [Validation](docs/VALIDATION.md) — current commands and what they prove.
+- [Validation policy](tools/validation-policy.json) — the sole current gate,
+  profile, claim, and limitation authority used by local and CI dispatch.
 - [Corpus](docs/CORPUS.md) and [oracle policy](docs/ORACLE.md) — public
   documentation inputs and black-box observation discipline.
 - [Licensing](docs/LICENSING.md) and [supply chain](docs/SUPPLY_CHAIN.md) —
