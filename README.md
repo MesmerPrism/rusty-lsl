@@ -137,3 +137,7 @@ LSLC-004E adds only an explicitly activated responder for the same exact group
 on a caller-selected loopback interface. It serves one bounded existing
 short-info query/response and then releases membership and the socket; broader
 interface, group, family, retry, routing, and authority policy remain absent.
+
+LSLC-004F composes the unchanged accepted requester and responder only in a
+synthetic test for one exact-group loopback query/response. It adds no runtime
+surface or device claim.

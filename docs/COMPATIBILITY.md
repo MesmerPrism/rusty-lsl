@@ -656,6 +656,13 @@ response, exact response identifier, non-loopback rejection, and port cleanup.
 This does not establish other interfaces, groups, address families, retries,
 cross-platform behavior, official-endpoint conformance, or routing authority.
 
+## LSLC-004F
+
+One synthetic production-to-production loopback exchange passes at the exact
+documented group with one query, one response, matching identifier, finite
+termination, and cleanup. This is not Quest, official-endpoint, non-loopback,
+cross-platform, retry, routing, or broad compatibility evidence.
+
 ## LSLC-004B
 
 The independently authored capability-gated runtime now accepts the exact

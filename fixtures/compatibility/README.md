@@ -323,6 +323,10 @@ single-platform limitation, and nonclaims.
 group, port, explicit loopback interface, responder capability, one
 query/response, finite cleanup, single-platform limit, and nonclaims.
 
+`lslc-004f-exact-multicast-discovery-composition-conformance.json` binds both
+accepted production-prefix hashes, the exact one-query/one-response loopback
+composition, cleanup, and nonclaims.
+
 ## LSLC-004B
 
 `lslc-004b-exact-129-string-record-runtime.json` binds the exact-129

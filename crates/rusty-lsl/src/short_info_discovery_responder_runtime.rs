@@ -331,7 +331,11 @@ fn run_short_info_responder_on_socket(
 mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
-    use crate::{ShortInfoQuery, ShortInfoQueryWire, StreamInfoObservedDocumentParseLimit};
+    use crate::{
+        run_udp_discovery, ShortInfoQuery, ShortInfoQueryWire,
+        StreamInfoObservedDocumentParseLimit, UdpDiscoveryActivation, UdpDiscoveryConfig,
+        UdpDiscoveryLimits, UdpDiscoveryTermination,
+    };
     use std::thread;
 
     fn activation() -> ShortInfoResponderActivation {
@@ -609,5 +613,73 @@ mod tests {
             ),
             Err(ShortInfoResponderError::NonLoopbackMulticastInterface)
         );
+    }
+
+    #[test]
+    fn lslc_004f_unchanged_requester_and_responder_compose_exactly_once() {
+        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let probe = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let requester_bind = probe.local_addr().unwrap();
+        drop(probe);
+        let text = body();
+        let response_maximum = text.len() + 32;
+        let responder = thread::spawn(move || {
+            let parsed = ParsedStreamInfoObservedDocument::parse(
+                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+                &text,
+            )
+            .unwrap();
+            run_explicit_loopback_multicast_short_info_responder(
+                activation(),
+                Ipv4Addr::LOCALHOST,
+                limits(1024, 1),
+                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(text.len(), response_maximum).unwrap(),
+                &parsed,
+                &AtomicBool::new(false),
+            )
+        });
+        thread::sleep(Duration::from_millis(20));
+        let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
+        let query = ShortInfoQuery::new(
+            "name='production-composition'".into(),
+            requester_bind.port(),
+            83,
+            query_limits,
+        )
+        .unwrap();
+        let wire = ShortInfoQueryWire::encode(&query, query_limits).unwrap();
+        let run = run_udp_discovery(
+            UdpDiscoveryActivation::new(test_capability(RuntimeModule::UdpDiscovery)).unwrap(),
+            UdpDiscoveryConfig::new(
+                requester_bind,
+                SocketAddr::from((
+                    DOCUMENTED_IPV4_MULTICAST_GROUP,
+                    DOCUMENTED_IPV4_MULTICAST_PORT,
+                )),
+                UdpDiscoveryLimits::new(
+                    response_maximum,
+                    1,
+                    Duration::from_millis(10),
+                    Duration::from_secs(1),
+                )
+                .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(body().len(), response_maximum).unwrap(),
+            ),
+            &wire,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        let responder_run = responder.join().unwrap().unwrap();
+        assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
+        assert_eq!(run.responses().len(), 1);
+        assert_eq!(run.responses()[0].query_id(), 83);
+        assert_eq!(responder_run.requests(), 1);
+        assert_eq!(
+            responder_run.termination(),
+            ShortInfoResponderTermination::RequestLimit
+        );
+        assert!(UdpSocket::bind(requester_bind).is_ok());
+        assert!(UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)).is_ok());
     }
 }

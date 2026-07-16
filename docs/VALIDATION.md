@@ -96,6 +96,11 @@ LSLC-004E is checked by `tools/check_lslc_004e.ps1` and policy gate
 damaged fixture mutations, retains the LSLC-002Z cancellation/deadline owner
 route, checks documentation and public boundaries, and forbids broader claims.
 
+LSLC-004F is checked by `tools/check_lslc_004f.ps1` and policy gate
+`lslc-004f-runtime-conformance`. It byte-checks both accepted production
+prefixes, rejects six damaged fixtures, runs one exact composition test, and
+checks documentation and public boundaries.
+
 LSLC-004B is checked by `tools/check_lslc_004b.ps1` and policy gate
 `lslc-004b-runtime`. It validates exact-129 loopback and cleanup, typed
 130-byte rejection, preservation markers, six damaged fixture mutations,

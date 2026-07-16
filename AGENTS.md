@@ -398,6 +398,12 @@ cleanup loop for one query/response. It adds no generic membership or interface
 policy, other network scope, ambient activation, device, dependency, unsafe/FFI,
 routing, admission, or Manifold authority.
 
+LSLC-004F adds only synthetic test conformance composing the byte-unchanged
+accepted requester and responder for one query and one response at exact
+239.255.172.215:16571 on explicit loopback. It adds no production, API,
+activation, network-scope, device, dependency, routing, admission, or authority
+change.
+
 LSLC-004C adds only sanitized pinned black-box evidence for the documented
 IPv4 group `239.255.172.215:16571` on one explicit loopback interface. Two
 repeats passed membership join/receive/drop/rejoin and both finite query/

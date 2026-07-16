@@ -729,6 +729,12 @@ and delegates to the unchanged LSLC-002Z bounded responder loop. Socket scope
 owns membership cleanup; there is no enumerator, default selector, background
 worker, or generic membership service.
 
+## LSLC-004F exact multicast composition
+
+A test-only owner case composes the accepted requester and responder under the
+shared multicast test lock. Both production prefixes remain byte-identical to
+LSLC-004E; the test adds no endpoint policy or runtime surface.
+
 ## LSLC-004B exact 129-byte String runtime
 
 The same closed composition now accepts zero through 129 UTF-8 payload bytes,

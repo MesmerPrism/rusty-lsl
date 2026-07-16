@@ -29,6 +29,7 @@
       "lslc-004c-observation",
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
+      "lslc-004f-runtime-conformance",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -50,6 +51,7 @@
       "lslc-004c-observation",
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
+      "lslc-004f-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -73,6 +75,7 @@
       "lslc-004c-observation",
       "lslc-004d-runtime-conformance",
       "lslc-004e-runtime",
+      "lslc-004f-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -547,6 +550,18 @@
       "environment": {"network":"loopback-only", "timeout_seconds":180}
     },
     {
+      "id": "lslc-004f-runtime-conformance",
+      "owner": "rusty-lsl-multicast-discovery-composition",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004f.ps1"],
+      "depends_on": ["lslc-004d-runtime-conformance", "lslc-004e-runtime", "public-boundary"],
+      "change_categories": ["compatibility", "validation", "documentation"],
+      "affected_paths": ["crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "fixtures/compatibility/lslc-004f-exact-multicast-discovery-composition-conformance.json", "tools/check_lslc_004f.py", "tools/check_lslc_004f.ps1"],
+      "proves": ["the byte-unchanged accepted requester and responder compose for one exact-group loopback query/response with finite cleanup"],
+      "does_not_prove": ["production or API changes, official or Quest compatibility, other groups or interfaces, retries, devices, routing, admission, or authority"],
+      "environment": {"network":"loopback-only", "timeout_seconds":180}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -612,6 +627,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004f-exact-multicast-composition-gate","decision":"Standard, Deep, and CI validation require test-only composition of the two accepted exact-group production sides with byte-identical prefix checks.","reason":"Requester and responder evidence should compose without silently expanding either production surface or network policy.","preserves":["LSLC-004D requester production prefix","LSLC-004E responder production prefix","one exact-group loopback query/response","device and Manifold authority prohibitions"],"does_not_authorize":["production, API, or activation changes","official, Quest, or non-loopback claims","other groups, interfaces, retries, or background work","devices, routing, admission, or authority"]},
     {"id":"lslc-004e-exact-multicast-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group explicit-loopback responder checker after the multicast observation and requester-conformance gates.","reason":"Observed membership can authorize only one capability-gated responder composition that reuses the existing finite parser, envelope, cancellation, deadline, and cleanup loop.","preserves":["LSLC-002Z responder semantics and activation","LSLC-004C observation limits","one explicit loopback interface and exact group","device and Manifold authority prohibitions"],"does_not_authorize":["generic membership or interface policy","other groups, IPv6, or non-loopback interfaces","portable retry or cross-platform claims","devices, routing, admission, or authority"]},
     {"id":"lslc-004d-multicast-requester-conformance-gate","decision":"Standard, Deep, and CI validation require test-only exact-group multicast requester conformance after the LSLC-004C observation gate.","reason":"The existing explicit-destination requester must remain byte-unchanged while composing with the observed group under one bounded synthetic query/response and cleanup.","preserves":["LSLC-002P production requester and activation","LSLC-004C observation boundary","finite deadline and cancellation owner behavior","device and Manifold authority prohibitions"],"does_not_authorize":["production responder or membership policy","portable retry inference","other groups, address families, or non-loopback interfaces","devices, routing, admission, or authority"]},
     {"id":"lslc-004c-ipv4-multicast-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe single-group IPv4 multicast observation checker after public-boundary validation.","reason":"Membership, explicit interface use, finite directions, cleanup, counts, timing ceilings, platform limits, hashes, and nonclaims must remain synchronized without portable multicast execution.","preserves":["network-forbidden portable validation","observation versus implementation separation","Rusty LSL compatibility ownership","device and Manifold authority prohibitions"],"does_not_authorize":["production multicast runtime","portable retry inference","other groups, IPv6, or interface policy","private artifact publication","devices, routing, admission, or authority"]},
