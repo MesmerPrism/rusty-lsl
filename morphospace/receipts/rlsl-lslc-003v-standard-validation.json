@@ -11,7 +11,7 @@
     {
       "repo_id": "rusty-lsl",
       "base_revision": "f1e68657253b572c6f1bfae58747b11637ec07ee",
-      "head_revision": "4b7d62d0f488fda5a419565a6f8b3cf88bfc9d52",
+      "head_revision": "805be00e1052be5cc5ee0057092e5b498b4098aa",
       "branch": "codex/rlsl-autonomous"
     }
   ],
