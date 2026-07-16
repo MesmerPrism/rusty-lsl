@@ -132,7 +132,7 @@
   ],
   "prerequisites": [
     "rlsl-lslc-003z-exact-128-string-record-runtime",
-    "rlsl-lslc-003y-exact-129-string-observation"
+    "rlsl-lslc-004a-exact-129-string-observation"
   ],
   "project_id": "rusty-lsl",
   "push_checkpoint": "integration-batch",
