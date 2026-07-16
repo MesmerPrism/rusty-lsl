@@ -7,13 +7,13 @@
   "created_at": "2026-07-16T16:05:00Z",
   "tier": "standard",
   "result": "pass",
-  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"c1cc3674f11df55ad136cbab40b8f0bbe17948c6","head_revision":"24689708a28b9c1153d8b7ef73e473e3faf26c09","branch":"codex/rlsl-autonomous"}],
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"c1cc3674f11df55ad136cbab40b8f0bbe17948c6","head_revision":"2b03855612a6a0e569ac763189b9203ee2e4b88c","branch":"codex/rlsl-autonomous"}],
   "changed_paths": [
     {"repo_id":"rusty-lsl","path":"AGENTS.md"}, {"repo_id":"rusty-lsl","path":"README.md"},
     {"repo_id":"rusty-lsl","path":"docs/COMPATIBILITY.md"}, {"repo_id":"rusty-lsl","path":"docs/PROVENANCE.md"}, {"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
     {"repo_id":"rusty-lsl","path":"fixtures/compatibility/README.md"}, {"repo_id":"rusty-lsl","path":"fixtures/compatibility/lslc-003y-exact-128-string-observation.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"}, {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-003y-exact-128-string-observation.json"},
-    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-begin-validation.json"}, {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-claim.json"}, {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-ready.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-begin-validation.json"}, {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-claim.json"}, {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-ready.json"}, {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-record-validation.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-standard-validation.json"}, {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003y-standard-validation.md"},
     {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"}, {"repo_id":"rusty-lsl","path":"tools/check_lslc_003y.ps1"}, {"repo_id":"rusty-lsl","path":"tools/check_lslc_003y.py"}, {"repo_id":"rusty-lsl","path":"tools/validation-policy.json"}
   ],
