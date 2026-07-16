@@ -1,5 +1,14 @@
 # Compatibility
 
+## LSLC-003P bounded runtime breadth
+
+LSLC-003P implements local finite loopback behavior for the exact LSLC-003O
+matrix: four fixed-width formats, two homogeneous channels, two initialization
+records, and three ordered caller records. Tests preserve timestamp/value bits,
+channel and record order, typed failures, and cleanup. This is not evidence for
+arbitrary counts, String/int64, non-loopback networking, activation, or broad
+compatibility.
+
 ## LSLC-003O bounded multichannel record-sequence observation
 
 Two repeat runs against pinned `pylsl 1.18.2`, library 117, protocol 110 pass

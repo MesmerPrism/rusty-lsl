@@ -1,5 +1,11 @@
 # Validation
 
+LSLC-003P focused validation runs
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003p.ps1`.
+The policy-owned `lslc-003p-runtime` gate proves only the closed two-channel,
+three-record local runtime contract, not activation, arbitrary counts,
+non-loopback behavior, devices, or broad compatibility.
+
 The sole current validation-policy authority is
 [`tools/validation-policy.json`](../tools/validation-policy.json). Run its portable facade:
 

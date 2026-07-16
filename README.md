@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-003P implements a selected-but-run-disabled bounded sequence runtime for
+exactly two homogeneous channels and three ordered records across double64,
+int32, int16, and int8. It is finite IPv4-loopback candidate behavior bound to
+LSLC-003O evidence, not activation, arbitrary-count support, non-loopback
+support, broad ecosystem compatibility, or authority.
+
 Rusty LSL is an independently authored Rust implementation of bounded Lab
 Streaming Layer compatibility surfaces. Project-owned source is licensed
 AGPL-3.0-or-later. Official liblsl is used only as a pinned black-box

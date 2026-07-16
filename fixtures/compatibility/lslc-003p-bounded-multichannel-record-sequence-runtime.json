@@ -1,0 +1,43 @@
+{
+  "schema": "rusty.lsl.compatibility.lslc_003p.v1",
+  "unit_id": "rlsl-lslc-003p-bounded-multichannel-record-sequence-runtime",
+  "basis": "lslc-003o-sanitized-black-box-observation",
+  "status": "implemented-local-loopback",
+  "bounds": {
+    "channel_count": 2,
+    "caller_record_count": 3,
+    "initialization_record_count": 2,
+    "formats": ["double64", "int32", "int16", "int8"],
+    "finite_deadline": true,
+    "cancellation": true,
+    "network": "caller-selected-ipv4-loopback"
+  },
+  "preserves": [
+    "record-order",
+    "channel-order",
+    "timestamp-bits",
+    "double64-bits",
+    "signed-integer-values"
+  ],
+  "typed_failures": [
+    "invalid-timestamp",
+    "sequence-format-mismatch",
+    "invalid-initialization",
+    "invalid-marker",
+    "truncated",
+    "cancelled",
+    "deadline",
+    "io",
+    "handshake"
+  ],
+  "claims": {
+    "runtime_activation": false,
+    "arbitrary_channel_count": false,
+    "arbitrary_record_count": false,
+    "string_or_int64": false,
+    "non_loopback": false,
+    "broad_compatibility": false,
+    "device_validation": false,
+    "authority": false
+  }
+}

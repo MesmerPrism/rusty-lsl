@@ -1,5 +1,13 @@
 # Architecture
 
+## LSLC-003P bounded record sequence
+
+LSLC-003P composes the existing fixed-width numeric handshake and bounded
+transport into three ordered timestamped records, each with exactly two
+homogeneous channels. Constructors reject non-finite timestamps and the first
+format mismatch before I/O. Inlet acceptance is atomic after initialization
+and all three complete records arrive. Activation and authority are unchanged.
+
 ## Consumer role and plane facades
 
 The crate root remains the compatibility facade and sole public-name source.

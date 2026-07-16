@@ -75,6 +75,26 @@ impl FixedWidthNumericValue {
             Self::Int8(_) => [hex(&[5]), hex(&[3])],
         }
     }
+    fn sequence_initialization(self) -> [[Self; 2]; 2] {
+        match self {
+            Self::Double64(_) => [
+                [Self::Double64(16_777_221.0), Self::Double64(-16_777_222.0)],
+                [Self::Double64(16_777_219.0), Self::Double64(-16_777_220.0)],
+            ],
+            Self::Int32(_) => [
+                [Self::Int32(65_541), Self::Int32(-65_542)],
+                [Self::Int32(65_539), Self::Int32(-65_540)],
+            ],
+            Self::Int16(_) => [
+                [Self::Int16(261), Self::Int16(-262)],
+                [Self::Int16(259), Self::Int16(-260)],
+            ],
+            Self::Int8(_) => [
+                [Self::Int8(5), Self::Int8(-6)],
+                [Self::Int8(3), Self::Int8(-4)],
+            ],
+        }
+    }
     fn from_bytes(template: Self, b: &[u8]) -> Self {
         match template {
             Self::Double64(_) => Self::Double64(f64::from_le_bytes(b.try_into().unwrap())),
@@ -93,6 +113,68 @@ fn hex(v: &[u8]) -> Vec<u8> {
 pub struct FixedWidthNumericRecord {
     timestamp: f64,
     value: FixedWidthNumericValue,
+}
+
+/// Exactly two homogeneous channel values beside one finite raw timestamp.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FixedWidthNumericPairRecord {
+    timestamp: f64,
+    values: [FixedWidthNumericValue; 2],
+}
+impl FixedWidthNumericPairRecord {
+    /// Admits only a finite timestamp and one homogeneous format.
+    pub fn new(
+        timestamp: f64,
+        values: [FixedWidthNumericValue; 2],
+    ) -> Result<Self, FixedWidthNumericSampleError> {
+        if !timestamp.is_finite() {
+            return Err(FixedWidthNumericSampleError::InvalidTimestamp);
+        }
+        if values[0].format() != values[1].format() {
+            return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: 1,
+            });
+        }
+        Ok(Self { timestamp, values })
+    }
+    /// Timestamp.
+    pub const fn timestamp(self) -> f64 {
+        self.timestamp
+    }
+    /// Two channel values in caller order.
+    pub const fn values(self) -> [FixedWidthNumericValue; 2] {
+        self.values
+    }
+}
+
+/// Exactly three ordered, homogeneous two-channel records.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FixedWidthNumericRecordSequence {
+    records: [FixedWidthNumericPairRecord; 3],
+}
+impl FixedWidthNumericRecordSequence {
+    /// Validates one closed three-record format family atomically.
+    pub fn new(
+        records: [FixedWidthNumericPairRecord; 3],
+    ) -> Result<Self, FixedWidthNumericSampleError> {
+        let format = records[0].values[0].format();
+        for (record, candidate) in records.iter().enumerate() {
+            for (channel, value) in candidate.values.iter().enumerate() {
+                if value.format() != format {
+                    return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                        record,
+                        channel,
+                    });
+                }
+            }
+        }
+        Ok(Self { records })
+    }
+    /// Three records in caller order.
+    pub const fn records(self) -> [FixedWidthNumericPairRecord; 3] {
+        self.records
+    }
 }
 impl FixedWidthNumericRecord {
     /// Admits only a finite timestamp.
@@ -198,6 +280,13 @@ pub enum FixedWidthNumericSampleError {
         /// Record index.
         index: usize,
     },
+    /// A sequence channel did not use the first channel's format.
+    SequenceFormatMismatch {
+        /// Record index.
+        record: usize,
+        /// Channel index.
+        channel: usize,
+    },
 }
 
 fn transfer(
@@ -296,6 +385,131 @@ fn read_initialization(
         }
     }
     Ok(())
+}
+
+fn pair_bytes(values: [FixedWidthNumericValue; 2]) -> Vec<u8> {
+    let mut bytes = Vec::with_capacity(values[0].width() * 2);
+    bytes.extend_from_slice(&values[0].bytes());
+    bytes.extend_from_slice(&values[1].bytes());
+    bytes
+}
+
+fn write_sequence_initialization(
+    stream: &mut TcpStream,
+    template: FixedWidthNumericValue,
+    limits: FixedWidthNumericSampleLimits,
+    cancelled: &AtomicBool,
+) -> Result<(), FixedWidthNumericSampleError> {
+    for values in template.sequence_initialization() {
+        write_record(
+            stream,
+            INIT_TIMESTAMP,
+            &pair_bytes(values),
+            limits,
+            cancelled,
+        )?;
+    }
+    Ok(())
+}
+
+fn read_sequence_initialization(
+    stream: &mut TcpStream,
+    template: FixedWidthNumericValue,
+    limits: FixedWidthNumericSampleLimits,
+    cancelled: &AtomicBool,
+) -> Result<(), FixedWidthNumericSampleError> {
+    for (index, values) in template.sequence_initialization().into_iter().enumerate() {
+        let expected = encode(INIT_TIMESTAMP, &pair_bytes(values));
+        let mut actual = vec![0; expected.len()];
+        transfer(stream, Some(&mut actual), &[], limits, cancelled)?;
+        if actual != expected {
+            return Err(FixedWidthNumericSampleError::InvalidInitialization { index });
+        }
+    }
+    Ok(())
+}
+
+fn read_pair_record(
+    stream: &mut TcpStream,
+    template: FixedWidthNumericValue,
+    limits: FixedWidthNumericSampleLimits,
+    cancelled: &AtomicBool,
+) -> Result<FixedWidthNumericPairRecord, FixedWidthNumericSampleError> {
+    let width = template.width();
+    let mut bytes = vec![0; 9 + width * 2];
+    transfer(stream, Some(&mut bytes), &[], limits, cancelled)?;
+    if bytes[0] != 2 {
+        return Err(FixedWidthNumericSampleError::InvalidMarker { actual: bytes[0] });
+    }
+    FixedWidthNumericPairRecord::new(
+        f64::from_le_bytes(bytes[1..9].try_into().unwrap()),
+        [
+            FixedWidthNumericValue::from_bytes(template, &bytes[9..9 + width]),
+            FixedWidthNumericValue::from_bytes(template, &bytes[9 + width..]),
+        ],
+    )
+}
+
+/// Sends observed two-channel initialization and exactly three caller records.
+pub fn run_fixed_width_numeric_sequence_outlet(
+    activation: FixedWidthNumericSampleActivation,
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    limits: FixedWidthNumericSampleLimits,
+    sequence: FixedWidthNumericRecordSequence,
+    cancelled: &AtomicBool,
+) -> Result<SocketAddr, FixedWidthNumericSampleError> {
+    let template = sequence.records[0].values[0];
+    let (mut stream, local, _) = accept_handshake_stream_with_format(
+        listener,
+        identity,
+        handshake_limits,
+        cancelled,
+        template.width(),
+        template.supports_subnormals(),
+    )
+    .map_err(FixedWidthNumericSampleError::Handshake)?;
+    let _ = activation.handshake;
+    write_sequence_initialization(&mut stream, template, limits, cancelled)?;
+    for record in sequence.records {
+        write_record(
+            &mut stream,
+            record.timestamp,
+            &pair_bytes(record.values),
+            limits,
+            cancelled,
+        )?;
+    }
+    Ok(local)
+}
+
+/// Receives observed two-channel initialization and exactly three caller records.
+pub fn run_fixed_width_numeric_sequence_inlet(
+    activation: FixedWidthNumericSampleActivation,
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    limits: FixedWidthNumericSampleLimits,
+    template: FixedWidthNumericValue,
+    cancelled: &AtomicBool,
+) -> Result<FixedWidthNumericRecordSequence, FixedWidthNumericSampleError> {
+    let mut stream = connect_handshake_stream_with_format(
+        peer,
+        identity,
+        handshake_limits,
+        cancelled,
+        template.width(),
+        template.supports_subnormals(),
+    )
+    .map_err(FixedWidthNumericSampleError::Handshake)?;
+    let _ = activation.handshake;
+    read_sequence_initialization(&mut stream, template, limits, cancelled)?;
+    FixedWidthNumericRecordSequence::new([
+        read_pair_record(&mut stream, template, limits, cancelled)?,
+        read_pair_record(&mut stream, template, limits, cancelled)?,
+        read_pair_record(&mut stream, template, limits, cancelled)?,
+    ])
 }
 /// Sends initialization and one caller record.
 pub fn run_fixed_width_numeric_outlet(
@@ -476,6 +690,217 @@ mod tests {
             ),
             Err(FixedWidthNumericSampleError::InvalidInitialization { index: 1 })
         );
+        worker.join().unwrap();
+    }
+
+    fn sequence(template: FixedWidthNumericValue) -> FixedWidthNumericRecordSequence {
+        let values = match template {
+            FixedWidthNumericValue::Double64(_) => [
+                [
+                    FixedWidthNumericValue::Double64(-0.0),
+                    FixedWidthNumericValue::Double64(f64::from_bits(0x7ff8_0000_0000_0042)),
+                ],
+                [
+                    FixedWidthNumericValue::Double64(3.5),
+                    FixedWidthNumericValue::Double64(-4.5),
+                ],
+                [
+                    FixedWidthNumericValue::Double64(5.5),
+                    FixedWidthNumericValue::Double64(-6.5),
+                ],
+            ],
+            FixedWidthNumericValue::Int32(_) => [
+                [
+                    FixedWidthNumericValue::Int32(i32::MIN + 1),
+                    FixedWidthNumericValue::Int32(i32::MAX),
+                ],
+                [
+                    FixedWidthNumericValue::Int32(3),
+                    FixedWidthNumericValue::Int32(-4),
+                ],
+                [
+                    FixedWidthNumericValue::Int32(5),
+                    FixedWidthNumericValue::Int32(-6),
+                ],
+            ],
+            FixedWidthNumericValue::Int16(_) => [
+                [
+                    FixedWidthNumericValue::Int16(i16::MIN + 1),
+                    FixedWidthNumericValue::Int16(i16::MAX),
+                ],
+                [
+                    FixedWidthNumericValue::Int16(3),
+                    FixedWidthNumericValue::Int16(-4),
+                ],
+                [
+                    FixedWidthNumericValue::Int16(5),
+                    FixedWidthNumericValue::Int16(-6),
+                ],
+            ],
+            FixedWidthNumericValue::Int8(_) => [
+                [
+                    FixedWidthNumericValue::Int8(i8::MIN + 1),
+                    FixedWidthNumericValue::Int8(i8::MAX),
+                ],
+                [
+                    FixedWidthNumericValue::Int8(3),
+                    FixedWidthNumericValue::Int8(-4),
+                ],
+                [
+                    FixedWidthNumericValue::Int8(5),
+                    FixedWidthNumericValue::Int8(-6),
+                ],
+            ],
+        };
+        FixedWidthNumericRecordSequence::new([
+            FixedWidthNumericPairRecord::new(1234.5, values[0]).unwrap(),
+            FixedWidthNumericPairRecord::new(1235.5, values[1]).unwrap(),
+            FixedWidthNumericPairRecord::new(1236.5, values[2]).unwrap(),
+        ])
+        .unwrap()
+    }
+
+    #[test]
+    fn lslc_003p_four_formats_preserve_two_channels_three_records_and_cleanup() {
+        for template in [
+            FixedWidthNumericValue::Double64(0.0),
+            FixedWidthNumericValue::Int32(0),
+            FixedWidthNumericValue::Int16(0),
+            FixedWidthNumericValue::Int8(0),
+        ] {
+            let expected = sequence(template);
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let worker = thread::spawn(move || {
+                run_fixed_width_numeric_sequence_outlet(
+                    activation(),
+                    listener,
+                    &id(),
+                    hl(),
+                    sl(),
+                    expected,
+                    &AtomicBool::new(false),
+                )
+            });
+            let actual = run_fixed_width_numeric_sequence_inlet(
+                activation(),
+                address,
+                &id(),
+                hl(),
+                sl(),
+                template,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            for (actual, expected) in actual.records().into_iter().zip(expected.records()) {
+                assert_eq!(actual.timestamp().to_bits(), expected.timestamp().to_bits());
+                for (actual, expected) in actual.values().into_iter().zip(expected.values()) {
+                    match (actual, expected) {
+                        (
+                            FixedWidthNumericValue::Double64(a),
+                            FixedWidthNumericValue::Double64(e),
+                        ) => assert_eq!(a.to_bits(), e.to_bits()),
+                        _ => assert_eq!(actual, expected),
+                    }
+                }
+            }
+            assert_eq!(worker.join().unwrap().unwrap(), address);
+            assert!(TcpListener::bind(address).is_ok());
+        }
+    }
+
+    #[test]
+    fn lslc_003p_shape_format_timestamp_and_truncation_fail_closed() {
+        assert_eq!(
+            FixedWidthNumericPairRecord::new(
+                1.0,
+                [
+                    FixedWidthNumericValue::Int16(1),
+                    FixedWidthNumericValue::Int8(2)
+                ],
+            ),
+            Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: 1
+            })
+        );
+        assert_eq!(
+            FixedWidthNumericPairRecord::new(
+                f64::NAN,
+                [
+                    FixedWidthNumericValue::Int8(1),
+                    FixedWidthNumericValue::Int8(2)
+                ],
+            ),
+            Err(FixedWidthNumericSampleError::InvalidTimestamp)
+        );
+        let mismatched = [
+            FixedWidthNumericPairRecord::new(
+                1.0,
+                [
+                    FixedWidthNumericValue::Int8(1),
+                    FixedWidthNumericValue::Int8(2),
+                ],
+            )
+            .unwrap(),
+            FixedWidthNumericPairRecord::new(
+                2.0,
+                [
+                    FixedWidthNumericValue::Int16(3),
+                    FixedWidthNumericValue::Int16(4),
+                ],
+            )
+            .unwrap(),
+            FixedWidthNumericPairRecord::new(
+                3.0,
+                [
+                    FixedWidthNumericValue::Int8(5),
+                    FixedWidthNumericValue::Int8(6),
+                ],
+            )
+            .unwrap(),
+        ];
+        assert_eq!(
+            FixedWidthNumericRecordSequence::new(mismatched),
+            Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 1,
+                channel: 0
+            })
+        );
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let worker = thread::spawn(move || {
+            let (mut stream, _, _) = accept_handshake_stream_with_format(
+                listener,
+                &id(),
+                hl(),
+                &AtomicBool::new(false),
+                1,
+                false,
+            )
+            .unwrap();
+            write_sequence_initialization(
+                &mut stream,
+                FixedWidthNumericValue::Int8(0),
+                sl(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            write_record(&mut stream, 1.0, &[1, 2], sl(), &AtomicBool::new(false)).unwrap();
+        });
+        assert!(matches!(
+            run_fixed_width_numeric_sequence_inlet(
+                activation(),
+                address,
+                &id(),
+                hl(),
+                sl(),
+                FixedWidthNumericValue::Int8(0),
+                &AtomicBool::new(false),
+            ),
+            Err(FixedWidthNumericSampleError::Truncated { .. })
+        ));
         worker.join().unwrap();
     }
 }

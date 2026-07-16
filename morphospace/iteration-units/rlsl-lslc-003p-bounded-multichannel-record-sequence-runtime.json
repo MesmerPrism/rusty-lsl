@@ -1,1 +1,177 @@
-{"$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json","acceptance":[{"acceptance_id":"bounded-two-channel-three-record-runtime","command":"cargo test --workspace --all-targets --offline --locked lslc_003p","proof":"Double64, int32, int16, and int8 preserve two-channel value order, three-record order, timestamps, exact float bits or integer values, and the observed format-specific initialization under closed limits."},{"acceptance_id":"finite-failure-and-cleanup","command":"cargo test --workspace --all-targets --offline --locked lslc_003p","proof":"Wrong shape, wrong record count, cross-format initialization, truncation, malformed records, cancellation, deadlines, and cleanup fail closed with typed evidence and no partial accepted sequence."},{"acceptance_id":"observation-bound-runtime-evidence","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003p.ps1","proof":"The runtime surface, focused tests, sanitized fixture, provenance, and limitations remain exactly bound to accepted LSLC-003O evidence."},{"acceptance_id":"project-policy-and-workflow","command":"python ./tools/dispatch_validation.py --profile standard","proof":"Current policy, public boundary, documentation routing, instruction synchronization, and external workflow contracts pass without activation or authority drift."}],"allowed_repositories":[{"allowed_paths":["AGENTS.md","README.md","crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs","crates/rusty-lsl/src/lib.rs","docs/ARCHITECTURE.md","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/README.md","fixtures/compatibility/lslc-003p-bounded-multichannel-record-sequence-runtime.json","morphospace/iteration-events.jsonl","morphospace/iteration-units/rlsl-lslc-003p-bounded-multichannel-record-sequence-runtime.json","morphospace/receipts/","morphospace/workspace.state.json","tools/check_lslc_003p.ps1","tools/check_lslc_003p.py","tools/validation-policy.json"],"repo_id":"rusty-lsl"}],"change_categories":["runtime","public-api","validation"],"commit_policy":"Commit proposal and lifecycle separately; implement only inside the exact allowed paths; preserve private observations and failed attempts; publish sanitized tests, fixture, documentation, and receipts only.","device_requirement":"forbidden","instruction_impact":"update","instruction_none_justification":null,"instruction_surfaces":[{"action":"update","change_reason":"Bound the exact two-channel, three-record runtime envelope and retain all activation, authority, format, and compatibility exclusions.","owner":"rusty-lsl","path":"AGENTS.md","skill_id":null,"status":"planned","surface_kind":"agents","validation":"Run the focused runtime, public-boundary, and workflow gates."},{"action":"update","change_reason":"Route the new selected-but-run-disabled runtime breadth without implying activation or broad compatibility.","owner":"rusty-lsl","path":"README.md","skill_id":null,"status":"planned","surface_kind":"readme","validation":"Run documentation routing and public-boundary gates."},{"action":"update","change_reason":"Describe the closed sequence composition and its unchanged ownership boundary.","owner":"rusty-lsl","path":"docs/ARCHITECTURE.md","skill_id":null,"status":"planned","surface_kind":"router-doc","validation":"Run focused structural and documentation checks."},{"action":"update","change_reason":"Separate implemented bounded behavior from the narrower LSLC-003O observation and all untested breadth.","owner":"rusty-lsl","path":"docs/COMPATIBILITY.md","skill_id":null,"status":"planned","surface_kind":"router-doc","validation":"Run the focused runtime gate."},{"action":"update","change_reason":"Bind implementation inputs to independently authored code and sanitized LSLC-003O evidence only.","owner":"rusty-lsl","path":"docs/PROVENANCE.md","skill_id":null,"status":"planned","surface_kind":"router-doc","validation":"Run provenance and public-boundary gates."},{"action":"update","change_reason":"Route the focused implementation gate through the sole current validation policy.","owner":"rusty-lsl","path":"docs/VALIDATION.md","skill_id":null,"status":"planned","surface_kind":"router-doc","validation":"Run policy drift and documentation reconstruction gates."},{"action":"review-no-change","change_reason":"Existing Rusty LSL ownership, activation, and public/private routing already bound this runtime-only unit.","owner":"workflow-maintainer","path":"<skills-root>/rusty-morphospace-context/SKILL.md","skill_id":"rusty-morphospace-context","status":"complete","surface_kind":"skill","validation":"Reviewed installed routing before proposal."},{"action":"review-no-change","change_reason":"Existing closed activation, evidence, authority, and bounded data-plane guidance already applies.","owner":"workflow-maintainer","path":"<skills-root>/system-engineering/SKILL.md","skill_id":"system-engineering","status":"complete","surface_kind":"skill","validation":"Reviewed installed system-engineering guidance before proposal."}],"non_scope":["Arbitrary channel or record counts, chunks, String or int64, variable-width framing, format conversion, multicast, multiple interfaces, non-loopback networking, discovery changes, queueing, recovery, clock algorithms, or broad ecosystem compatibility.","Feature activation, authority changes, devices, dependencies, unsafe or FFI, official implementation source, copied or translated source, private raw publication, commands derived from samples, or Manifold authority."],"objective":"Extend the existing independently authored fixed-width numeric runtime through one closed, finite envelope of exactly two homogeneous channels and exactly three ordered timestamped caller records, using only LSLC-003O sanitized observations and the accepted LSLC-003B runtime family.","outputs":["One closed public runtime sequence type and finite inlet/outlet operations for exactly two homogeneous channels and exactly three timestamped records across the four LSLC-003O formats.","Typed atomic shape, initialization, truncation, malformed-record, cancellation, deadline, and cleanup evidence with exact ordering preservation.","A sanitized implementation fixture and focused validator binding every runtime claim and limitation to accepted LSLC-003O observations."],"prerequisites":["rlsl-lslc-003b-fixed-width-numeric-sample-runtime-family","rlsl-lslc-003o-multichannel-numeric-record-sequence-observation"],"project_id":"rusty-lsl","push_checkpoint":"integration-batch","risk_tier":"standard","schema":"rusty.morphospace.workflow.iteration_unit.v1","status":"active","unit_id":"rlsl-lslc-003p-bounded-multichannel-record-sequence-runtime","validation":[{"command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003p.ps1","profile_id":"runtime-loopback"},{"command":"python ./tools/dispatch_validation.py --profile standard","profile_id":"source-owner"},{"command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","profile_id":"workflow"}]}
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "acceptance": [
+    {
+      "acceptance_id": "bounded-two-channel-three-record-runtime",
+      "command": "cargo test --workspace --all-targets --offline --locked lslc_003p",
+      "proof": "Double64, int32, int16, and int8 preserve two-channel value order, three-record order, timestamps, exact float bits or integer values, and the observed format-specific initialization under closed limits."
+    },
+    {
+      "acceptance_id": "finite-failure-and-cleanup",
+      "command": "cargo test --workspace --all-targets --offline --locked lslc_003p",
+      "proof": "Wrong shape, wrong record count, cross-format initialization, truncation, malformed records, cancellation, deadlines, and cleanup fail closed with typed evidence and no partial accepted sequence."
+    },
+    {
+      "acceptance_id": "observation-bound-runtime-evidence",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003p.ps1",
+      "proof": "The runtime surface, focused tests, sanitized fixture, provenance, and limitations remain exactly bound to accepted LSLC-003O evidence."
+    },
+    {
+      "acceptance_id": "project-policy-and-workflow",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "proof": "Current policy, public boundary, documentation routing, instruction synchronization, and external workflow contracts pass without activation or authority drift."
+    }
+  ],
+  "allowed_repositories": [
+    {
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
+        "crates/rusty-lsl/src/lib.rs",
+        "docs/ARCHITECTURE.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-003p-bounded-multichannel-record-sequence-runtime.json",
+        "morphospace/iteration-events.jsonl",
+        "morphospace/iteration-units/rlsl-lslc-003p-bounded-multichannel-record-sequence-runtime.json",
+        "morphospace/receipts/",
+        "morphospace/workspace.state.json",
+        "tools/check_lslc_003p.ps1",
+        "tools/check_lslc_003p.py",
+        "tools/validation-policy.json"
+      ],
+      "repo_id": "rusty-lsl"
+    }
+  ],
+  "change_categories": [
+    "implementation",
+    "validation"
+  ],
+  "tags": [
+    "runtime",
+    "public-api"
+  ],
+  "commit_policy": "Commit proposal and lifecycle separately; implement only inside the exact allowed paths; preserve private observations and failed attempts; publish sanitized tests, fixture, documentation, and receipts only.",
+  "device_requirement": "forbidden",
+  "instruction_impact": "update",
+  "instruction_none_justification": null,
+  "instruction_surfaces": [
+    {
+      "action": "update",
+      "change_reason": "Bound the exact two-channel, three-record runtime envelope and retain all activation, authority, format, and compatibility exclusions.",
+      "owner": "rusty-lsl",
+      "path": "AGENTS.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "agents",
+      "validation": "Run the focused runtime, public-boundary, and workflow gates."
+    },
+    {
+      "action": "update",
+      "change_reason": "Route the new selected-but-run-disabled runtime breadth without implying activation or broad compatibility.",
+      "owner": "rusty-lsl",
+      "path": "README.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "readme",
+      "validation": "Run documentation routing and public-boundary gates."
+    },
+    {
+      "action": "update",
+      "change_reason": "Describe the closed sequence composition and its unchanged ownership boundary.",
+      "owner": "rusty-lsl",
+      "path": "docs/ARCHITECTURE.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "router-doc",
+      "validation": "Run focused structural and documentation checks."
+    },
+    {
+      "action": "update",
+      "change_reason": "Separate implemented bounded behavior from the narrower LSLC-003O observation and all untested breadth.",
+      "owner": "rusty-lsl",
+      "path": "docs/COMPATIBILITY.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "router-doc",
+      "validation": "Run the focused runtime gate."
+    },
+    {
+      "action": "update",
+      "change_reason": "Bind implementation inputs to independently authored code and sanitized LSLC-003O evidence only.",
+      "owner": "rusty-lsl",
+      "path": "docs/PROVENANCE.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "router-doc",
+      "validation": "Run provenance and public-boundary gates."
+    },
+    {
+      "action": "update",
+      "change_reason": "Route the focused implementation gate through the sole current validation policy.",
+      "owner": "rusty-lsl",
+      "path": "docs/VALIDATION.md",
+      "skill_id": null,
+      "status": "complete",
+      "surface_kind": "router-doc",
+      "validation": "Run policy drift and documentation reconstruction gates."
+    },
+    {
+      "action": "review-no-change",
+      "change_reason": "Existing Rusty LSL ownership, activation, and public/private routing already bound this runtime-only unit.",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/rusty-morphospace-context/SKILL.md",
+      "skill_id": "rusty-morphospace-context",
+      "status": "complete",
+      "surface_kind": "skill",
+      "validation": "Reviewed installed routing before proposal."
+    },
+    {
+      "action": "review-no-change",
+      "change_reason": "Existing closed activation, evidence, authority, and bounded data-plane guidance already applies.",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/system-engineering/SKILL.md",
+      "skill_id": "system-engineering",
+      "status": "complete",
+      "surface_kind": "skill",
+      "validation": "Reviewed installed system-engineering guidance before proposal."
+    }
+  ],
+  "non_scope": [
+    "Arbitrary channel or record counts, chunks, String or int64, variable-width framing, format conversion, multicast, multiple interfaces, non-loopback networking, discovery changes, queueing, recovery, clock algorithms, or broad ecosystem compatibility.",
+    "Feature activation, authority changes, devices, dependencies, unsafe or FFI, official implementation source, copied or translated source, private raw publication, commands derived from samples, or Manifold authority."
+  ],
+  "objective": "Extend the existing independently authored fixed-width numeric runtime through one closed, finite envelope of exactly two homogeneous channels and exactly three ordered timestamped caller records, using only LSLC-003O sanitized observations and the accepted LSLC-003B runtime family.",
+  "outputs": [
+    "One closed public runtime sequence type and finite inlet/outlet operations for exactly two homogeneous channels and exactly three timestamped records across the four LSLC-003O formats.",
+    "Typed atomic shape, initialization, truncation, malformed-record, cancellation, deadline, and cleanup evidence with exact ordering preservation.",
+    "A sanitized implementation fixture and focused validator binding every runtime claim and limitation to accepted LSLC-003O observations."
+  ],
+  "prerequisites": [
+    "rlsl-lslc-003b-fixed-width-numeric-sample-runtime-family",
+    "rlsl-lslc-003o-multichannel-numeric-record-sequence-observation"
+  ],
+  "project_id": "rusty-lsl",
+  "push_checkpoint": "integration-batch",
+  "risk_tier": "standard",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "status": "active",
+  "unit_id": "rlsl-lslc-003p-bounded-multichannel-record-sequence-runtime",
+  "validation": [
+    {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003p.ps1",
+      "profile_id": "runtime-loopback"
+    },
+    {
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "profile_id": "source-owner"
+    },
+    {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "profile_id": "workflow"
+    }
+  ]
+}

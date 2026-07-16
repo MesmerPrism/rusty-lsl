@@ -18,6 +18,7 @@
       "public-boundary",
       "documentation-router",
       "lslc-003o-observation",
+      "lslc-003p-runtime",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -28,6 +29,7 @@
       "public-boundary",
       "documentation-router",
       "lslc-003o-observation",
+      "lslc-003p-runtime",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -40,6 +42,7 @@
       "public-boundary",
       "documentation-router",
       "lslc-003o-observation",
+      "lslc-003p-runtime",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -277,6 +280,49 @@
       }
     },
     {
+      "id": "lslc-003p-runtime",
+      "owner": "rusty-lsl-runtime",
+      "state": "current",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003p.ps1"
+      ],
+      "depends_on": [
+        "lslc-003o-observation"
+      ],
+      "change_categories": [
+        "implementation",
+        "validation"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
+        "crates/rusty-lsl/src/lib.rs",
+        "docs/ARCHITECTURE.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/",
+        "tools/check_lslc_003p.py",
+        "tools/check_lslc_003p.ps1"
+      ],
+      "proves": [
+        "the closed LSLC-003P two-channel three-record fixed-width runtime, focused failures, fixture, and documentation routes pass"
+      ],
+      "does_not_prove": [
+        "activation, arbitrary channel or record counts, String or int64, variable-width framing, non-loopback compatibility, devices, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 180
+      }
+    },
+    {
       "id": "git-diff-hygiene",
       "owner": "rusty-lsl-source",
       "state": "current",
@@ -371,6 +417,23 @@
     }
   ],
   "semantic_deltas": [
+    {
+      "id": "lslc-003p-bounded-sequence-runtime-gate",
+      "decision": "Standard, Deep, and CI validation require the LSLC-003P focused runtime gate after its LSLC-003O evidence dependency.",
+      "reason": "The new public runtime breadth must remain exactly synchronized with its closed observed dimensions and limitations.",
+      "preserves": [
+        "the sole policy authority",
+        "all prior current gates",
+        "network-forbidden validation",
+        "activation and authority boundaries"
+      ],
+      "does_not_authorize": [
+        "arbitrary counts or formats",
+        "non-loopback claims",
+        "devices",
+        "Manifold authority"
+      ]
+    },
     {
       "id": "lslc-003o-bounded-observation-gate",
       "decision": "Standard, Deep, and CI validation now require the public-safe LSLC-003O observation checker after the public-boundary gate.",

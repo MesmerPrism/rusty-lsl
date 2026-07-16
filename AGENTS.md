@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-003P adds only a selected, run-disabled, finite IPv4-loopback composition
+for exactly two homogeneous channels and exactly three ordered caller records
+in double64, int32, int16, or int8. It preserves the LSLC-003O-observed
+initialization, channel/record order, timestamps, and values. It does not
+generalize counts, add formats, activate a feature, claim non-loopback or broad
+compatibility, use devices, or grant runtime or Manifold authority.
+
 ## Work-Unit History
 
 Chronological LSLC unit notes are preserved byte-for-byte in

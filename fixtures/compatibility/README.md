@@ -1,5 +1,9 @@
 # STRM-000 compatibility fixtures
 
+`lslc-003p-bounded-multichannel-record-sequence-runtime.json` records the
+sanitized closed implementation envelope and nonclaims for the LSLC-003P
+two-channel, three-record fixed-width numeric runtime.
+
 `lslc-003o-multichannel-numeric-record-sequence-observation.json` contains
 only sanitized two-channel, three-record, two-direction outcomes for four
 pinned-official numeric formats, exact typed initialization values, bounded

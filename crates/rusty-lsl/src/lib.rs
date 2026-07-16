@@ -116,7 +116,9 @@ pub use finite_sample_recovery_runtime::{
     FINITE_SAMPLE_RECOVERY_FEATURE_ID,
 };
 pub use fixed_width_numeric_sample_runtime::{
-    run_fixed_width_numeric_inlet, run_fixed_width_numeric_outlet, FixedWidthNumericRecord,
+    run_fixed_width_numeric_inlet, run_fixed_width_numeric_outlet,
+    run_fixed_width_numeric_sequence_inlet, run_fixed_width_numeric_sequence_outlet,
+    FixedWidthNumericPairRecord, FixedWidthNumericRecord, FixedWidthNumericRecordSequence,
     FixedWidthNumericSampleActivation, FixedWidthNumericSampleActivationError,
     FixedWidthNumericSampleError, FixedWidthNumericSampleLimitError, FixedWidthNumericSampleLimits,
     FixedWidthNumericValue, FIXED_WIDTH_NUMERIC_SAMPLE_EFFECTIVE_MARKER,

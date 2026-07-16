@@ -1,5 +1,12 @@
 # Provenance
 
+## LSLC-003P
+
+The implementation is independently authored from the accepted LSLC-003B
+runtime and LSLC-003O sanitized black-box observations. Official source and
+rLSL source were not inspected or used. Private drivers, raw records,
+endpoints, and diagnostics remain outside the repository.
+
 ## LSLC-003O private observation provenance
 
 The public fixture binds the independently authored driver, configuration,
