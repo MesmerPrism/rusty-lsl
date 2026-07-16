@@ -20,7 +20,7 @@ pub const STRING_SAMPLE_FEATURE_ID: &str = "string-sample";
 /// Explicit runtime marker.
 pub const STRING_SAMPLE_EFFECTIVE_MARKER: &str = "rusty.lsl.string_sample.effective";
 const INITIALIZATION_TIMESTAMP: f64 = 123_456.789;
-const MAX_STRING_BYTES: usize = 127;
+const MAX_STRING_BYTES: usize = 128;
 
 /// One finite raw timestamp beside one bounded UTF-8 String.
 #[derive(Clone, Debug, PartialEq)]
@@ -121,7 +121,7 @@ pub enum StringSampleError {
     InvalidTimestamp,
     /// String was empty.
     EmptyValue,
-    /// String exceeded 127 UTF-8 bytes.
+    /// String exceeded 128 UTF-8 bytes.
     ValueTooLong {
         /// Observed byte count.
         actual: usize,
@@ -500,5 +500,41 @@ mod tests {
         assert_eq!(received.value(), "");
         assert_eq!(worker.join().unwrap().unwrap(), address);
         assert!(TcpListener::bind(address).is_ok());
+    }
+
+    #[test]
+    fn lslc_003z_exact_128_bytes_preserve_timestamp_and_cleanup() {
+        let value = "a".repeat(128);
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let expected = value.clone();
+        let worker = thread::spawn(move || {
+            run_string_sample_outlet(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                limits(),
+                StringSampleRecord::new(1236.5, value).unwrap(),
+                &AtomicBool::new(false),
+            )
+        });
+        let received = run_string_sample_inlet(
+            activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            limits(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(received.timestamp().to_bits(), 1236.5f64.to_bits());
+        assert_eq!(received.value(), expected);
+        assert_eq!(worker.join().unwrap().unwrap(), address);
+        assert!(TcpListener::bind(address).is_ok());
+        assert_eq!(
+            StringSampleRecord::new(1236.5, "a".repeat(129)),
+            Err(StringSampleError::ValueTooLong { actual: 129 })
+        );
     }
 }
