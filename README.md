@@ -95,3 +95,8 @@ diagnostics, and version-drift runs remain outside the repository.
 
 LSLC-003V confirms the unchanged LSLC-003T runtime handles both LSLC-003U
 value classes in synthetic finite loopback; it changes tests and evidence only.
+
+LSLC-003W records sanitized pinned black-box evidence for exactly one empty
+String caller record in both finite IPv4-loopback directions. It changes no
+runtime or activation; private drivers, raw records, endpoints, diagnostics,
+environment, and machine identity remain outside the repository.

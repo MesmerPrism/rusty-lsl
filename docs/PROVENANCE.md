@@ -568,3 +568,11 @@ The public fixture contains only independently authored value classifications,
 dimensions, exact framing outcomes, and SHA-256 bindings. Drivers, raw results,
 endpoints, diagnostics, machine identities, and four successful but unpinned
 pylsl 1.18.1 drift runs remain private and are excluded from acceptance.
+
+## LSLC-003W
+
+The public fixture contains only the empty-value classification, exact bounded
+framing outcomes, and SHA-256 bindings for the independently authored private
+driver, configuration, pinned official binary, and two raw attempts. The
+driver, raw records, endpoints, diagnostics, environment, and machine identity
+remain private. No official implementation source was inspected.

@@ -614,3 +614,12 @@ channels or records, other length forms, non-loopback use, or broad compatibilit
 The unchanged Rust runtime passes synthetic loopback for the exact two LSLC-003U
 value classes with timestamp preservation and socket cleanup. This is local
 conformance evidence, not an additional official-oracle or breadth claim.
+
+## LSLC-003W
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for exactly one empty String caller record. The
+official-outlet record retained marker two and timestamp 1234.5 and used the
+already observed one-byte length form with length zero. This evidence adds no
+runtime support and does not cover additional channels or records, other
+length forms, non-loopback use, devices, or broad compatibility.

@@ -357,3 +357,9 @@ one-record String envelope preserves one independently authored mixed-width
 9-byte UTF-8 value and one independently authored exact-127-byte value in both
 finite loopback directions. Two pinned repeats per case passed. It changes no
 implementation, activation, framing authority, device, dependency, or runtime.
+
+LSLC-003W adds only sanitized black-box evidence that exactly one empty String
+caller record uses the already observed one-byte length form with zero payload
+bytes in both finite IPv4-loopback directions. Two pinned repeats passed. It
+adds no runtime, activation, nonempty/oversized breadth, arbitrary length form,
+device, dependency, copied source, command, or Manifold authority.

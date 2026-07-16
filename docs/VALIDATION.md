@@ -69,3 +69,8 @@ LSLC-003V is checked by `tools/check_lslc_003v.ps1` and policy gate
 `lslc-003v-runtime-conformance`, including the accepted production-prefix byte
 comparison, two focused loopback cases, damaged fixture mutations, routes, and
 public boundary.
+
+LSLC-003W is checked by `tools/check_lslc_003w.ps1` and policy gate
+`lslc-003w-observation`. The gate validates the exact empty record, two pinned
+attempt hashes, six damaged mutations, documentation routes, limitations, and
+the public boundary without executing an oracle in portable validation.

@@ -319,3 +319,9 @@ private-evidence exclusions, and nonclaims.
 `lslc-003v-string-utf8-boundary-runtime-conformance.json` binds the two observed
 value hashes to test-only synthetic runtime conformance and the unchanged
 production-prefix invariant.
+
+## LSLC-003W
+
+`lslc-003w-empty-string-record-observation.json` contains only sanitized
+empty-String pinned observation evidence, exact framing outcomes, hashes,
+bounds, private-evidence exclusions, and nonclaims.
