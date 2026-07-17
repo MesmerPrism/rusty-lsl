@@ -1,5 +1,9 @@
 # Validation
 
+LSLC-004Y focused coverage checks projection-before-I/O, one finite synthetic
+loopback handshake, delegated typed failures, cancellation, and cleanup. Device
+validation is forbidden.
+
 The focused owner-determinism check is
 `cargo test -p rusty-lsl lslc_002z -- --test-threads=1`. The tests retain their
 original assertions and cleanup checks while beginning with exact socket ownership;

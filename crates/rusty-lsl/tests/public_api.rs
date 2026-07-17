@@ -56,3 +56,9 @@ fn lslc_004x_selected_endpoint_projection_is_public() {
         rusty_lsl::TypedUdpDiscoveryEndpointError,
     > = rusty_lsl::propose_typed_udp_discovery_ipv4_service_endpoint;
 }
+
+#[test]
+fn lslc_004y_selected_discovery_handshake_types_are_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryHandshakeError>() > 0);
+    let _composition = rusty_lsl::run_selected_typed_udp_discovery_inlet_handshake;
+}

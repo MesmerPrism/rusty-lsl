@@ -1,5 +1,13 @@
 # Architecture
 
+## LSLC-004Y selected discovery handshake composition
+
+LSLC-004Y is a thin owner-preserving edge: caller-selected typed discovery
+state is projected by LSLC-004X, then passed to the existing independently
+activated finite inlet handshake. Projection failure precedes TCP I/O. The
+composition owns no selection, identity, retry/fallback, persistent socket,
+sample transport, routing, admission, or Manifold authority.
+
 Standard host validation transfers ownership of an already bound loopback UDP
 socket into the same private responder runner used by production entry points.
 This closes only the test readiness window. A test-only shared mutex recovers

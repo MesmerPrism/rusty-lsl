@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-004Y adds an explicit bounded composition from one caller-selected typed
+discovery response to the existing separately activated inlet handshake. It
+preserves strict endpoint and handshake errors and adds no automatic selection,
+fallback, identity derivation, retained socket, sample transport, or authority.
+
 Host validation uses pre-bound unicast responder sockets and non-cascading
 test-only multicast serialization. These mechanisms change neither public APIs
 nor production socket, timeout, activation, cleanup, or authority behavior.

@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-004Y composes only one caller-selected accepted typed discovery response
+through the LSLC-004X strict IPv4 service projection into the separately
+capability-gated finite inlet handshake. The caller still owns selection,
+identity, limits, cancellation, and both runtime inputs. It adds no discovery,
+fallback, retry, retained connection, sample transport, admission, or authority.
+
 The Standard owner gate's unicast responder tests transfer an already bound
 test socket into the existing internal runner, so readiness has no released-port
 window. Shared multicast test serialization recovers test-only mutex poison so
