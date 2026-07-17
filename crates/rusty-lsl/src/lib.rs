@@ -35,13 +35,31 @@
 //! clocks, inlet, outlet, FFI, or Morphospace authority behavior.
 
 #[cfg(test)]
-pub(crate) static MULTICAST_LOOPBACK_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+/// Test-only mutex whose ownership remains recoverable after a failed assertion.
+pub(crate) struct RecoveringTestMutex(std::sync::Mutex<()>);
+
+#[cfg(test)]
+impl RecoveringTestMutex {
+    /// Creates an unlocked test-only mutex.
+    pub(crate) const fn new() -> Self {
+        Self(std::sync::Mutex::new(()))
+    }
+
+    /// Acquires the mutex while retaining ownership after earlier test panic poison.
+    pub(crate) fn lock(&self) -> Result<std::sync::MutexGuard<'_, ()>, std::convert::Infallible> {
+        Ok(self
+            .0
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner))
+    }
+}
+
+#[cfg(test)]
+pub(crate) static MULTICAST_LOOPBACK_TEST_LOCK: RecoveringTestMutex = RecoveringTestMutex::new();
 
 #[cfg(test)]
 pub(crate) fn lock_multicast_loopback_tests() -> std::sync::MutexGuard<'static, ()> {
-    MULTICAST_LOOPBACK_TEST_LOCK
-        .lock()
-        .unwrap_or_else(std::sync::PoisonError::into_inner)
+    MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap()
 }
 
 mod bounded_fixed_record_transport;
