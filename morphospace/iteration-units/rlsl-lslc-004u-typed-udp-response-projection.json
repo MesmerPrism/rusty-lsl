@@ -1,1 +1,134 @@
-{"$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json","acceptance":[{"acceptance_id":"bounded-typed-response-projection","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004u.ps1","proof":"One accepted response projects through existing UTF-8, envelope, and typed admission with caller limits, exact source/typed state, stable delegated errors, and no UDP-module byte change."},{"acceptance_id":"standard-closure","command":"python ./tools/dispatch_validation.py --profile standard","proof":"Focused, public API, owner, Standard, public-boundary, instruction, and workflow gates pass."}],"allowed_repositories":[{"allowed_paths":["AGENTS.md","README.md","crates/rusty-lsl/src/lib.rs","crates/rusty-lsl/src/typed_udp_discovery_response.rs","crates/rusty-lsl/tests/public_api.rs","docs/ARCHITECTURE.md","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/README.md","fixtures/compatibility/lslc-004u-typed-udp-response-projection.json","morphospace/iteration-events.jsonl","morphospace/iteration-units/rlsl-lslc-004u-typed-udp-response-projection.json","morphospace/receipts/","morphospace/workspace.state.json","tools/check_lslc_004u.ps1","tools/check_lslc_004u.py","tools/validation-policy.json"],"repo_id":"rusty-lsl"}],"change_categories":["implementation","validation"],"commit_policy":"Keep UDP runtime bytes unchanged; independently author only local composition code and public-safe evidence.","device_requirement":"forbidden","instruction_impact":"update","instruction_none_justification":null,"instruction_surfaces":[{"action":"update","change_reason":"Bound local typed projection and nonclaims.","owner":"rusty-lsl","path":"AGENTS.md","status":"planned","surface_kind":"agents","validation":"Run public boundary."},{"action":"update","change_reason":"Route the bounded local contract.","owner":"rusty-lsl","path":"README.md","status":"planned","surface_kind":"readme","validation":"Run public API check."},{"action":"update","change_reason":"Place local projection without runtime authority.","owner":"rusty-lsl","path":"docs/ARCHITECTURE.md","status":"planned","surface_kind":"router-doc","validation":"Run focused checker."},{"action":"review-no-change","change_reason":"Existing composition rules apply.","owner":"workflow-maintainer","path":"<skills-root>/system-engineering/SKILL.md","skill_id":"system-engineering","status":"planned","surface_kind":"skill","validation":"Review contract."},{"action":"review-no-change","change_reason":"Existing lane separation applies.","owner":"workflow-maintainer","path":"<skills-root>/rusty-morphospace-context/SKILL.md","skill_id":"rusty-morphospace-context","status":"planned","surface_kind":"skill","validation":"Review boundary."}],"non_scope":["UDP runtime changes; new parsing/admission semantics; implicit limits; activation; I/O; network/interface/group/family/retry/device changes; dependencies; routing/admission/Manifold authority."],"objective":"Add one dependency-free bounded local projection from an already accepted UDP discovery response into the existing typed short-info observation while retaining its unchanged source address.","outputs":["Local typed UDP response projection module and public contract.","Focused positive/delegated-error tests and public API check.","Fixture/checker/docs/policy route."],"prerequisites":["rlsl-lslc-004t-requester-typed-observation-conformance"],"project_id":"rusty-lsl","push_checkpoint":"integration-batch","risk_tier":"standard","schema":"rusty.morphospace.workflow.iteration_unit.v1","status":"active","tags":["multicast-discovery","typed-observation","local-projection"],"unit_id":"rlsl-lslc-004u-typed-udp-response-projection","validation":[{"command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004u.ps1","profile_id":"source-only"},{"command":"python ./tools/dispatch_validation.py --profile standard","profile_id":"source-owner"},{"command":"pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","profile_id":"workflow"}]}
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/iteration-unit.schema.json",
+  "acceptance": [
+    {
+      "acceptance_id": "bounded-typed-response-projection",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004u.ps1",
+      "proof": "One accepted response projects through existing UTF-8, envelope, and typed admission with caller limits, exact source/typed state, stable delegated errors, and no UDP-module byte change."
+    },
+    {
+      "acceptance_id": "standard-closure",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "proof": "Focused, public API, owner, Standard, public-boundary, instruction, and workflow gates pass."
+    }
+  ],
+  "allowed_repositories": [
+    {
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/lib.rs",
+        "crates/rusty-lsl/src/typed_udp_discovery_response.rs",
+        "crates/rusty-lsl/tests/public_api.rs",
+        "docs/ARCHITECTURE.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004u-typed-udp-response-projection.json",
+        "morphospace/iteration-events.jsonl",
+        "morphospace/iteration-units/rlsl-lslc-004u-typed-udp-response-projection.json",
+        "morphospace/receipts/",
+        "morphospace/workspace.state.json",
+        "tools/check_lslc_004u.ps1",
+        "tools/check_lslc_004u.py",
+        "tools/validation-policy.json"
+      ],
+      "repo_id": "rusty-lsl"
+    }
+  ],
+  "change_categories": [
+    "implementation",
+    "validation"
+  ],
+  "commit_policy": "Keep UDP runtime bytes unchanged; independently author only local composition code and public-safe evidence.",
+  "device_requirement": "forbidden",
+  "instruction_impact": "update",
+  "instruction_none_justification": null,
+  "instruction_surfaces": [
+    {
+      "action": "update",
+      "change_reason": "Bound local typed projection and nonclaims.",
+      "owner": "rusty-lsl",
+      "path": "AGENTS.md",
+      "status": "complete",
+      "surface_kind": "agents",
+      "validation": "Run public boundary."
+    },
+    {
+      "action": "update",
+      "change_reason": "Route the bounded local contract.",
+      "owner": "rusty-lsl",
+      "path": "README.md",
+      "status": "complete",
+      "surface_kind": "readme",
+      "validation": "Run public API check."
+    },
+    {
+      "action": "update",
+      "change_reason": "Place local projection without runtime authority.",
+      "owner": "rusty-lsl",
+      "path": "docs/ARCHITECTURE.md",
+      "status": "complete",
+      "surface_kind": "router-doc",
+      "validation": "Run focused checker."
+    },
+    {
+      "action": "review-no-change",
+      "change_reason": "Existing composition rules apply.",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/system-engineering/SKILL.md",
+      "skill_id": "system-engineering",
+      "status": "complete",
+      "surface_kind": "skill",
+      "validation": "Review contract."
+    },
+    {
+      "action": "review-no-change",
+      "change_reason": "Existing lane separation applies.",
+      "owner": "workflow-maintainer",
+      "path": "<skills-root>/rusty-morphospace-context/SKILL.md",
+      "skill_id": "rusty-morphospace-context",
+      "status": "complete",
+      "surface_kind": "skill",
+      "validation": "Review boundary."
+    }
+  ],
+  "non_scope": [
+    "UDP runtime changes; new parsing/admission semantics; implicit limits; activation; I/O; network/interface/group/family/retry/device changes; dependencies; routing/admission/Manifold authority."
+  ],
+  "objective": "Add one dependency-free bounded local projection from an already accepted UDP discovery response into the existing typed short-info observation while retaining its unchanged source address.",
+  "outputs": [
+    "Local typed UDP response projection module and public contract.",
+    "Focused positive/delegated-error tests and public API check.",
+    "Fixture/checker/docs/policy route."
+  ],
+  "prerequisites": [
+    "rlsl-lslc-004t-requester-typed-observation-conformance"
+  ],
+  "project_id": "rusty-lsl",
+  "push_checkpoint": "integration-batch",
+  "risk_tier": "standard",
+  "schema": "rusty.morphospace.workflow.iteration_unit.v1",
+  "status": "active",
+  "tags": [
+    "multicast-discovery",
+    "typed-observation",
+    "local-projection"
+  ],
+  "unit_id": "rlsl-lslc-004u-typed-udp-response-projection",
+  "validation": [
+    {
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004u.ps1",
+      "profile_id": "source-only"
+    },
+    {
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "profile_id": "source-owner"
+    },
+    {
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "profile_id": "workflow"
+    }
+  ]
+}

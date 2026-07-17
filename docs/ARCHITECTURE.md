@@ -751,3 +751,9 @@ all multicast addresses, and the broadcast address before socket I/O. The
 existing loopback function retains its earlier typed non-loopback rejection and
 delegates only after that check. There is no interface inventory, default
 selection, fallback, retry worker, or endpoint policy.
+
+## LSLC-004U local typed UDP projection
+
+`TypedUdpDiscoveryResponse` sits after bounded UDP admission and delegates
+existing parsing/admission. It owns typed state plus the copied observed source,
+not sockets, discovery policy, activation, devices, or authority.

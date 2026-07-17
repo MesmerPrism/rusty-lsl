@@ -33,3 +33,9 @@ fn consumer_can_construct_an_inert_public_contract_without_private_modules() {
     let sample = contract::Sample::new(limits, 1, vec![7.0_f32]).expect("bounded sample");
     assert_eq!(sample.values(), &[7.0_f32]);
 }
+
+#[test]
+fn lslc_004u_typed_udp_projection_types_are_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryResponse>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryResponseError>() > 0);
+}

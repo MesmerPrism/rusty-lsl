@@ -201,3 +201,6 @@ LSLC-004P adds the opposite observation direction: two pinned-official outlet
 responses were admitted by the unchanged explicit-destination requester on one
 bounded active IPv4 host-interface path. It adds no requester-interface policy,
 production widening, multicast portability, or authority.
+
+LSLC-004U exposes a bounded local `TypedUdpDiscoveryResponse` projection from
+one accepted UDP response with explicit caller limits and no I/O or activation.

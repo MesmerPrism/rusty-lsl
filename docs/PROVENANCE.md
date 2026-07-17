@@ -686,3 +686,8 @@ selects a valid nominal-rate spelling independently while preserving the public
 711-byte document bound through independent padding. The checker byte-compares
 and hashes the complete production portion before `cfg(test)` against the
 accepted pre-unit blob. No oracle byte/value or external source is used.
+
+## LSLC-004U local projection provenance
+
+The module is independently authored from existing public Rusty LSL contracts.
+The accepted UDP blob stays exact; test values are independent and public-safe.

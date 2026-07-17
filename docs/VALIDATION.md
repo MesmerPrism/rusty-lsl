@@ -205,3 +205,8 @@ LSLC-004T is checked with
 It verifies the exact unchanged production prefix, runs the focused typed
 composition and damaged delegation, rejects ten evidence mutations, and checks
 documentation plus the public boundary.
+
+LSLC-004U is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004u.ps1`.
+It pins the unchanged UDP blob, tests positive and delegated-error paths,
+checks public API visibility, rejects ten mutations, and runs public boundary.

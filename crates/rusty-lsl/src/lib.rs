@@ -83,6 +83,7 @@ mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
 mod timestamped_float32_sample_runtime;
 mod typed_short_info_response_observation;
+mod typed_udp_discovery_response;
 mod udp_discovery;
 mod xml_character_data;
 mod xml_element_serialization;
@@ -269,6 +270,7 @@ pub use timestamped_float32_sample_runtime::{
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
 };
+pub use typed_udp_discovery_response::{TypedUdpDiscoveryResponse, TypedUdpDiscoveryResponseError};
 pub use udp_discovery::{
     run_udp_discovery, UdpDiscoveryActivation, UdpDiscoveryActivationError, UdpDiscoveryConfig,
     UdpDiscoveryError, UdpDiscoveryLimitError, UdpDiscoveryLimits, UdpDiscoveryResponse,

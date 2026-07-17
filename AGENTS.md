@@ -526,3 +526,8 @@ existing parsed-envelope and typed observation/admission contracts. Query ID,
 typed name/count, response source, bounds, termination, and cleanup are
 preserved; noncanonical channel count delegates the existing typed error. It
 adds no production, parser, admission, activation, network/device, or authority.
+
+LSLC-004U adds only a dependency-free, non-I/O local projection borrowing one
+already accepted UDP response and caller-selected envelope/admission limits.
+It returns existing typed observation state plus the unchanged source and
+delegates existing errors. The UDP module stays byte-identical; no policy or authority follows.

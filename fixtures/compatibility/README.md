@@ -458,3 +458,8 @@ authored retained UDP response through the existing parsed envelope and typed
 observation/admission layers. It records exact production-prefix identity,
 typed preservation, unchanged damaged delegation, inherited bounded behavior,
 limitations, and nonclaims.
+
+## LSLC-004U
+
+`lslc-004u-typed-udp-response-projection.json` binds the unchanged UDP blob to
+the caller-bounded projection, delegated errors, public API, and nonclaims.

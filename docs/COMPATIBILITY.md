@@ -833,3 +833,9 @@ count, and response source remain exact; response-limit termination and bind
 cleanup pass. A noncanonical channel count still returns the existing typed
 `InvalidChannelCount` delegation. Existing LSLC-004S deadline, cancellation,
 and structure-damage behavior remains pinned. No broader behavior follows.
+
+## LSLC-004U
+
+One local projection preserves source, query ID, typed name/count, and recovery
+of typed parts. Invalid UTF-8, envelope damage, and noncanonical typed values
+delegate existing errors. It adds no wire/runtime behavior or compatibility breadth.
