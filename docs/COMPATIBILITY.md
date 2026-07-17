@@ -811,3 +811,14 @@ ordered `info` child-role structure agree. This supports only two-repeat length
 and minimum-structure evidence on one Windows host. It does not establish
 stable response bytes or values, production parsing, portable interface or
 retry policy, devices, broad compatibility, routing, admission, or authority.
+
+## LSLC-004S
+
+One test-only loopback peer constructs fresh field and correlation values while
+matching only LSLC-004R's public 732-byte response, 711-byte canonical document,
+19-digit/CRLF envelope, and ordered roles. The unchanged requester/parser
+admits and retains the response and source, correlates the query, terminates at
+one response, preserves deadline and pre-send cancellation, and releases the
+caller bind. Envelope, length, role/order, and terminal-LF damage rejects.
+This is structural conformance, not official-byte stability or broader runtime,
+network, device, compatibility, routing, admission, or authority evidence.

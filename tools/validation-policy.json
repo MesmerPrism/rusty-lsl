@@ -38,6 +38,7 @@
       "lslc-004o-observation",
       "lslc-004p-observation",
       "lslc-004r-observation",
+      "lslc-004s-runtime-conformance",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -68,6 +69,7 @@
       "lslc-004o-observation",
       "lslc-004p-observation",
       "lslc-004r-observation",
+      "lslc-004s-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -100,6 +102,7 @@
       "lslc-004o-observation",
       "lslc-004p-observation",
       "lslc-004r-observation",
+      "lslc-004s-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -1491,6 +1494,18 @@
       }
     },
     {
+      "id": "lslc-004s-runtime-conformance",
+      "owner": "rusty-lsl-multicast-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004s.ps1"],
+      "depends_on": ["lslc-004r-observation", "public-boundary"],
+      "change_categories": ["validation", "implementation"],
+      "affected_paths": ["AGENTS.md", "crates/rusty-lsl/src/udp_discovery.rs", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004s-official-response-production-requester-conformance.json", "tools/check_lslc_004s.py", "tools/check_lslc_004s.ps1"],
+      "proves": ["independently authored public-structure response composition through the unchanged bounded requester/parser with exact production-prefix identity, retention, correlation, deadline/cancellation, damaged rejection, and cleanup"],
+      "does_not_prove": ["official response byte/value stability, production changes, interface/group/family/retry policy, devices, broad compatibility, routing, admission, or authority"],
+      "environment": {"network": "forbidden", "timeout_seconds": 120}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -2090,6 +2105,13 @@
         "receipt rewrites",
         "new newline-less evidence"
       ]
+    },
+    {
+      "id": "lslc-004s-official-response-production-requester-conformance-gate",
+      "decision": "Standard, Deep, and CI validation require independently authored test-only conformance from the public LSLC-004R response structure through unchanged production requester/parser components.",
+      "reason": "LSLC-004R provides addressable length and ordered-role evidence but explicitly shows dynamic bytes; independent values test only the supported public structure without replay or stability inference.",
+      "preserves": ["exact pre-unit production source", "bounded retention, correlation, deadline/cancellation, and cleanup", "private oracle bytes and values excluded", "inert activation and Quest/Manifold boundaries"],
+      "does_not_authorize": ["official byte/value replay or stability claims", "production/API/activation/dependency changes", "interface/group/family/retry/device widening", "routing, admission, commands, or authority"]
     },
     {
       "id": "lslc-004r-official-outlet-response-datagram-observation-gate",

@@ -193,3 +193,9 @@ It verifies two addressable response and document hashes/lengths, minimum
 sanitized structure, honest dynamic-byte limits, ten damaged mutations,
 documentation routes, and the current public boundary without replaying the
 private oracle or response values.
+
+LSLC-004S is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004s.ps1`.
+It verifies exact production-prefix identity, runs the two focused owner tests,
+rejects ten damaged fixture mutations, checks documentation and the public
+boundary, and never replays an official response or private value.

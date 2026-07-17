@@ -668,3 +668,13 @@ correlations, source identifiers, endpoints, interface details, diagnostics,
 paths, environment, and machine identity remain private. No external
 implementation source was inspected or translated, and no private value is a
 portable fixture or production input.
+
+## LSLC-004S independent response conformance
+
+Every response field, correlation value, address-shaped string, port-shaped
+string, and padding byte in the test is independently authored. Only the public
+LSLC-004R lengths, envelope syntax, canonical XML declaration/root, and ordered
+role names are used as inputs. The checker pins the entire pre-unit production
+source blob and reconstructs it byte-for-byte before the test-only suffix. No
+private capture, endpoint, identifier, or external implementation source was
+used or copied.

@@ -804,4 +804,167 @@ mod tests {
         drop(run);
         assert!(UdpSocket::bind((interface, reply_port)).is_ok());
     }
+
+    fn lslc_004s_independent_document() -> String {
+        let names = [
+            "name",
+            "type",
+            "channel_count",
+            "channel_format",
+            "source_id",
+            "nominal_srate",
+            "version",
+            "created_at",
+            "uid",
+            "session_id",
+            "hostname",
+            "v4address",
+            "v4data_port",
+            "v4service_port",
+            "v6address",
+            "v6data_port",
+            "v6service_port",
+        ];
+        let mut values = [
+            "independent-alpha".to_owned(),
+            "independent-beta".to_owned(),
+            "1".to_owned(),
+            "float32".to_owned(),
+            "fresh-source-token".to_owned(),
+            "0".to_owned(),
+            "110".to_owned(),
+            "1234.5".to_owned(),
+            "fresh-uid-token".to_owned(),
+            "independent-session".to_owned(),
+            "independent-host".to_owned(),
+            "203.0.113.7".to_owned(),
+            "41001".to_owned(),
+            "41002".to_owned(),
+            "2001:db8::7".to_owned(),
+            "41003".to_owned(),
+            "41004".to_owned(),
+        ];
+        let render = |values: &[String; 17]| {
+            let mut text = String::from("<?xml version=\"1.0\"?>\n<info>\n");
+            for (name, value) in names.into_iter().zip(values) {
+                text.push_str(&format!("\t<{name}>{value}</{name}>\n"));
+            }
+            text.push_str("\t<desc />\n</info>\n");
+            text
+        };
+        let initial = render(&values);
+        values[10].push_str(&"q".repeat(711 - initial.len()));
+        let document = render(&values);
+        assert_eq!(document.len(), 711);
+        document
+    }
+
+    #[test]
+    fn lslc_004s_independent_public_structure_composes_with_unchanged_requester() {
+        let peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = peer.local_addr().unwrap();
+        let query_id = 4_321_098_765_432_109_876_u64;
+        let limits = ShortInfoQueryWireLimits::new(8, 128).unwrap();
+        let query = ShortInfoQuery::new("fresh".to_owned(), 41_111, query_id, limits).unwrap();
+        let wire = ShortInfoQueryWire::encode(&query, limits).unwrap();
+        let expected_query = wire.as_bytes().to_vec();
+        let response = format!("{query_id}\r\n{}", lslc_004s_independent_document()).into_bytes();
+        assert_eq!(response.len(), 732);
+        let expected_response = response.clone();
+        let worker = thread::spawn(move || {
+            let mut bytes = [0_u8; 256];
+            let (length, source) = peer.recv_from(&mut bytes).unwrap();
+            assert_eq!(&bytes[..length], expected_query);
+            peer.send_to(&response, source).unwrap();
+        });
+        let bind_probe = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let bind_address = bind_probe.local_addr().unwrap();
+        drop(bind_probe);
+        let run = run_udp_discovery(
+            activation(),
+            UdpDiscoveryConfig::new(
+                bind_address,
+                destination,
+                UdpDiscoveryLimits::new(732, 1, Duration::from_millis(10), Duration::from_secs(1))
+                    .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(711, 732).unwrap(),
+            ),
+            &wire,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        worker.join().unwrap();
+        assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
+        assert_eq!(run.responses()[0].query_id(), query_id);
+        assert_eq!(run.responses()[0].as_bytes(), expected_response);
+        assert_eq!(run.responses()[0].source(), destination);
+        drop(run);
+        assert!(UdpSocket::bind(bind_address).is_ok());
+
+        let sink = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = sink.local_addr().unwrap();
+        let deadline_worker = thread::spawn(move || {
+            let mut bytes = [0_u8; 256];
+            sink.recv_from(&mut bytes).unwrap();
+        });
+        let deadline = run_udp_discovery(
+            activation(),
+            config(
+                "127.0.0.1:0".parse().unwrap(),
+                destination,
+                732,
+                1,
+                Duration::from_millis(5),
+                Duration::from_millis(20),
+            ),
+            &wire,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        deadline_worker.join().unwrap();
+        assert_eq!(deadline.termination(), UdpDiscoveryTermination::Deadline);
+        let cancelled = AtomicBool::new(true);
+        let cancelled_run = run_udp_discovery(
+            activation(),
+            config(
+                "127.0.0.1:0".parse().unwrap(),
+                destination,
+                732,
+                1,
+                Duration::from_millis(5),
+                Duration::from_millis(20),
+            ),
+            &wire,
+            &cancelled,
+        )
+        .unwrap();
+        assert_eq!(
+            cancelled_run.termination(),
+            UdpDiscoveryTermination::Cancelled
+        );
+    }
+
+    #[test]
+    fn lslc_004s_public_structure_damage_rejects() {
+        let query_id = 4_321_098_765_432_109_876_u64;
+        let document = lslc_004s_independent_document();
+        let accepted = format!("{query_id}\r\n{document}");
+        let limits = ShortInfoResponseEnvelopeLimits::new(711, 732).unwrap();
+        assert!(ParsedShortInfoResponseEnvelope::parse(&accepted, limits).is_ok());
+        for damaged in [
+            accepted.replacen("\r\n", "\n", 1),
+            accepted.replacen("<name>", "<type>", 1),
+            accepted.replacen("<type>", "<name>", 1),
+            accepted.replacen("<v6service_port>", "<v7service_port>", 1),
+            accepted.trim_end_matches('\n').to_owned(),
+        ] {
+            assert!(ParsedShortInfoResponseEnvelope::parse(
+                &damaged,
+                ShortInfoResponseEnvelopeLimits::new(711, 732).unwrap(),
+            )
+            .is_err());
+        }
+        let one_past = format!("{accepted}x");
+        assert!(ParsedShortInfoResponseEnvelope::parse(&one_past, limits).is_err());
+    }
 }

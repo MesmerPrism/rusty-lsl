@@ -442,3 +442,11 @@ document hashes and lengths, minimum sanitized envelope/XML structure, explicit
 dynamic-byte limitations, cleanup, private-capsule hashes, and nonclaims. Raw
 bytes, values, endpoints, identifiers, interface details, and diagnostics stay
 outside the repository.
+
+## LSLC-004S
+
+`lslc-004s-official-response-production-requester-conformance.json` binds the
+LSLC-004R public lengths and role grammar to one independently authored,
+test-only response through the unchanged requester/parser. It records bounded
+retention, correlation, termination, cleanup, damaged cases, exact production
+prefix identity, limitations, and nonclaims without oracle bytes or values.

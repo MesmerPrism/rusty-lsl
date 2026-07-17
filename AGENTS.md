@@ -511,3 +511,11 @@ envelope/XML structure are public; raw bytes, values, endpoints, identifiers,
 interface details, and diagnostics remain private. The response bytes differed,
 so only length and structure stability across these two repeats is claimed. It
 changes no production, activation, device, routing, admission, or authority.
+
+LSLC-004S adds only test-side conformance from independently authored values
+matching the LSLC-004R public 19-digit/CRLF envelope, 711-byte canonical
+document, and ordered role structure through the unchanged UDP requester and
+document parser. It proves bounded admission/retention, correlation,
+deadline/cancellation, damaged rejection, and cleanup on loopback. It replays
+no private value, changes no production byte, and adds no interface, retry,
+device, compatibility, routing, admission, or Manifold authority.
