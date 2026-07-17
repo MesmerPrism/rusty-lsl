@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-004X strictly projects one caller-selected accepted typed response's canonical
+concrete-unicast IPv4 address and nonzero service port into a `SocketAddrV4` proposal.
+It performs no I/O or connection and grants no routing, admission, activation, or
+authority.
+
 LSLC-004W adds only an allocation-free caller-explicit exact-name suggestion over an
 already accepted bounded typed UDP discovery run. It returns the first receive-order
 index or no suggestion and adds no I/O, ranking, endpoint selection, connection,

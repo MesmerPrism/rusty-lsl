@@ -83,6 +83,7 @@ mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
 mod timestamped_float32_sample_runtime;
 mod typed_short_info_response_observation;
+mod typed_udp_discovery_endpoint;
 mod typed_udp_discovery_response;
 mod typed_udp_discovery_run;
 mod typed_udp_discovery_selection;
@@ -271,6 +272,9 @@ pub use timestamped_float32_sample_runtime::{
 };
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
+};
+pub use typed_udp_discovery_endpoint::{
+    propose_typed_udp_discovery_ipv4_service_endpoint, TypedUdpDiscoveryEndpointError,
 };
 pub use typed_udp_discovery_response::{TypedUdpDiscoveryResponse, TypedUdpDiscoveryResponseError};
 pub use typed_udp_discovery_run::{

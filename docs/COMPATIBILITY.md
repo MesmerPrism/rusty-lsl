@@ -1,5 +1,9 @@
 # Compatibility
 
+LSLC-004X is strict local endpoint-text policy over already accepted typed state.
+It is not observed liblsl behavior and proves no reachability, connection,
+interoperability, device behavior, routing, admission, or authority.
+
 LSLC-004W is local candidate selection policy and is not observed liblsl behavior or
 evidence of discovery, endpoint, connection, platform, device, or ecosystem compatibility.
 

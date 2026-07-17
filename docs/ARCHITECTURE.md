@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-004X sits after caller-explicit LSLC-004W suggestion and accepted typed UDP
+discovery state. It parses only the selected response's existing `v4address` and
+`v4service_port` text into a canonical, concrete-unicast `SocketAddrV4` proposal.
+Connection setup remains separately activated and caller-owned; no endpoint authority,
+fallback, ranking, I/O, routing, admission, or Manifold authority moves here.
+
 LSLC-004W sits strictly after typed UDP discovery admission. A nonempty caller name
 may be compared exactly against retained typed response names, producing at most one
 first receive-order index. The suggestion is local advisory evidence; socket ownership,

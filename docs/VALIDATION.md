@@ -6,6 +6,10 @@ loopback cases. Historical workflow vocabulary must be checked through
 `tools/check_lslc_004q.ps1`, which binds the accepted LSLC-004Q adoption receipt and exact
 owner commit; the raw owner validator is not a substitute for that project-owned route.
 
+LSLC-004X focused coverage checks canonical concrete-unicast IPv4 service endpoint
+projection and malformed, noncanonical, zero-port, unspecified, multicast, and
+broadcast rejection without I/O.
+
 LSLC-004W focused coverage checks exact first-match suggestion, no-match, empty-input
 rejection, and unchanged typed-discovery behavior. It is source-only and forbids device
 or official-oracle claims.

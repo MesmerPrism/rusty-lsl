@@ -45,3 +45,14 @@ fn lslc_004v_typed_udp_discovery_run_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryRun>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryRunError>() > 0);
 }
+
+#[test]
+fn lslc_004x_selected_endpoint_projection_is_public() {
+    let _projection: fn(
+        &rusty_lsl::TypedUdpDiscoveryRun,
+        usize,
+    ) -> Result<
+        std::net::SocketAddrV4,
+        rusty_lsl::TypedUdpDiscoveryEndpointError,
+    > = rusty_lsl::propose_typed_udp_discovery_ipv4_service_endpoint;
+}
