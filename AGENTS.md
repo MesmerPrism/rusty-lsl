@@ -1,5 +1,10 @@
 # Rusty LSL Agent Notes
 
+The Standard aggregate Rust owner gate runs test binaries serially so unrelated
+timing-sensitive loopback tests do not contend with each other. Historical workflow
+vocabulary is validated only through the accepted LSLC-004Q hash-bound adoption route;
+do not weaken tests or rewrite immutable historical descriptors.
+
 LSLC-004W adds only an allocation-free exact-name suggestion over an accepted typed
 UDP discovery run. It returns the first receive-order index or none and grants no I/O,
 endpoint, connection, admission, routing, device, runtime activation, or authority.

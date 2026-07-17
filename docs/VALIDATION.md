@@ -1,5 +1,11 @@
 # Validation
 
+The aggregate `rust-tests` owner gate preserves the complete workspace/all-targets suite
+and runs its test binaries with `--test-threads=1` to isolate unrelated timing-sensitive
+loopback cases. Historical workflow vocabulary must be checked through
+`tools/check_lslc_004q.ps1`, which binds the accepted LSLC-004Q adoption receipt and exact
+owner commit; the raw owner validator is not a substitute for that project-owned route.
+
 LSLC-004W focused coverage checks exact first-match suggestion, no-match, empty-input
 rejection, and unchanged typed-discovery behavior. It is source-only and forbids device
 or official-oracle claims.

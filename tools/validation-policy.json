@@ -189,7 +189,9 @@
         "--workspace",
         "--all-targets",
         "--offline",
-        "--locked"
+        "--locked",
+        "--",
+        "--test-threads=1"
       ],
       "depends_on": [
         "cargo-shape"
@@ -203,7 +205,7 @@
         "fixtures/"
       ],
       "proves": [
-        "complete local Rust test suite passes"
+        "complete local Rust test suite passes without timing-sensitive loopback tests contending with unrelated tests"
       ],
       "does_not_prove": [
         "official endpoint interoperability or device behavior"
