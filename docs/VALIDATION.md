@@ -162,3 +162,8 @@ LSLC-004N addressable official-query evidence is checked with
 It verifies exact hashes/lengths, sanitized grammar, pin and two-repeat limits,
 ten damaged mutations, documentation routes, and the current public boundary;
 it does not replay the private oracle.
+
+LSLC-004M is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004m.ps1`.
+The route runs the focused owner test, ten damaged fixture mutations, exact
+production-prefix binding, public boundary, and the current Standard profile.

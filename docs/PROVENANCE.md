@@ -628,3 +628,11 @@ Public evidence binds the private driver, two raw attempt records, and aggregate
 capsule by SHA-256. Raw datagrams, reply-routing/correlation values, interface
 and endpoints, paths, diagnostics, environment, and machine identity remain
 private.
+
+## LSLC-004M structural conformance
+
+The test is independently authored from LSLC-004N's public-safe grammar and
+exact datagram hash. Its routing and correlation values are independently
+selected; no private raw datagram or observed value is copied. The checker
+hashes the production prefix before `#[cfg(test)]` to prove production bytes
+remain unchanged.

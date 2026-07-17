@@ -762,3 +762,15 @@ Complete-byte equality is evidence only for these two repeats on one Windows
 host and active interface. It does not establish portable or long-term query
 stability, production responder conformance, cross-host behavior, devices, or
 Manifold authority.
+
+## LSLC-004M
+
+A portable test presents the LSLC-004N three-line, 65-byte short-info query
+grammar to the unchanged exact-group responder using independently selected
+five-digit reply routing and twenty-digit query correlation values. One query
+produces one bounded response, request-limit termination, and membership/socket
+cleanup; existing deadline and cancellation owners remain current.
+
+This is structural conformance, not replay of the private observed datagram or
+its values. It does not execute an official endpoint, active non-loopback or
+cross-host path, interface policy, devices, or Manifold authority.

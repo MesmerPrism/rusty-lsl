@@ -734,6 +734,69 @@ mod tests {
     }
 
     #[test]
+    fn lslc_004m_observed_official_query_structure_reaches_unchanged_responder() {
+        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        response_socket
+            .set_read_timeout(Some(Duration::from_secs(1)))
+            .unwrap();
+        let response_port = response_socket.local_addr().unwrap().port();
+        assert_eq!(response_port.to_string().len(), 5);
+        let text = body();
+        let worker = thread::spawn(move || {
+            let parsed = ParsedStreamInfoObservedDocument::parse(
+                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+                &text,
+            )
+            .unwrap();
+            run_explicit_ipv4_multicast_short_info_responder(
+                activation(),
+                Ipv4Addr::LOCALHOST,
+                limits(1024, 1),
+                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
+                &parsed,
+                &AtomicBool::new(false),
+            )
+        });
+        thread::sleep(Duration::from_millis(20));
+        let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
+        let query_id = 10_000_000_000_000_000_001_u64;
+        let query = ShortInfoQuery::new(
+            "session_id='default'".into(),
+            response_port,
+            query_id,
+            query_limits,
+        )
+        .unwrap();
+        let wire = ShortInfoQueryWire::encode(&query, query_limits).unwrap();
+        assert_eq!(wire.as_bytes().len(), 65);
+        assert!(wire.as_bytes().starts_with(b"LSL:shortinfo\r\n"));
+        assert!(wire.as_bytes().ends_with(b"\r\n"));
+        response_socket
+            .send_to(
+                wire.as_bytes(),
+                (
+                    DOCUMENTED_IPV4_MULTICAST_GROUP,
+                    DOCUMENTED_IPV4_MULTICAST_PORT,
+                ),
+            )
+            .unwrap();
+        let mut bytes = [0_u8; 1024];
+        let (count, _) = response_socket.recv_from(&mut bytes).unwrap();
+        assert!(std::str::from_utf8(&bytes[..count])
+            .unwrap()
+            .starts_with("10000000000000000001\r\n"));
+        let run = worker.join().unwrap().unwrap();
+        assert_eq!(run.requests(), 1);
+        assert_eq!(
+            run.termination(),
+            ShortInfoResponderTermination::RequestLimit
+        );
+        assert!(UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)).is_ok());
+    }
+
+    #[test]
     fn lslc_004f_unchanged_requester_and_responder_compose_exactly_once() {
         let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
         let probe = UdpSocket::bind("127.0.0.1:0").unwrap();

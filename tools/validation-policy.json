@@ -34,6 +34,7 @@
       "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
       "lslc-004n-observation",
+      "lslc-004m-runtime-conformance",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -60,6 +61,7 @@
       "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
       "lslc-004n-observation",
+      "lslc-004m-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -88,6 +90,7 @@
       "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
       "lslc-004n-observation",
+      "lslc-004m-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -658,6 +661,18 @@
       "environment": {"network":"forbidden", "timeout_seconds":60}
     },
     {
+      "id": "lslc-004m-runtime-conformance",
+      "owner": "rusty-lsl-short-info-responder-runtime",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004m.ps1"],
+      "depends_on": ["lslc-004j-runtime", "lslc-004n-observation", "public-boundary"],
+      "change_categories": ["validation", "compatibility", "documentation"],
+      "affected_paths": ["AGENTS.md", "README.md", "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004m-official-query-production-responder-conformance.json", "tools/check_lslc_004m.py", "tools/check_lslc_004m.ps1"],
+      "proves": ["test-only structural conformance between the LSLC-004N public official-query grammar and unchanged caller-explicit exact-group responder with one bounded response, finite termination, and cleanup"],
+      "does_not_prove": ["replay or acceptance of private observed values, production changes, active nonloopback or official endpoint execution, interface or retry policy, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"],
+      "environment": {"network":"loopback-only", "timeout_seconds":180}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -723,6 +738,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004m-official-query-production-responder-conformance-gate","decision":"Standard, Deep, and CI validation require test-only structural conformance from the addressable LSLC-004N official query grammar into the unchanged exact-group responder.","reason":"LSLC-004N closes the prior authority blocker while keeping private reply-routing and query-correlation values unpublished and unreplayed.","preserves":["unchanged production prefix and inert activation","caller-explicit interface and exact 239.255.172.215:16571 scope","independently selected five- and twenty-digit values","finite deadline/cancellation/termination and cleanup owners","Quest and Manifold authority boundaries"],"does_not_authorize":["private observed-value replay or exact-datagram execution","production or API changes","active nonloopback, official endpoint, cross-host, cross-platform, or device compatibility","interface/default/retry policy, routing, admission, commands, or authority"]},
     {"id":"lslc-004n-official-query-datagram-observation-gate","decision":"Standard, Deep, and CI validation require addressable sanitized per-attempt identity and minimal structure for the pinned official pre-response query datagram.","reason":"LSLC-004M cannot honestly bind official-query conformance to LSLC-004K whole-attempt hashes without an addressable query observation.","preserves":["exact 239.255.172.215:16571 and caller-explicit active-interface scope","black-box oracle and independently authored parser separation","private raw bytes, routing/correlation values, interface/endpoints, diagnostics, environment, and machine identity","two-repeat-only stability limitation and all LSL/Quest/Manifold authority boundaries"],"does_not_authorize":["production or activation changes","query stability beyond two repeats","other groups, interfaces, address families, retries, devices, or broad compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004l-immutable-receipt-head-identity-gate","decision":"Standard, Deep, and CI validation require focused proof that the current dispatcher implements the existing historical-evidence-terminal-newline decision through exact tracked HEAD-byte identity.","reason":"The fixed historical baseline admitted LSLC-003M but contradicted the generic declared rule and rejected the later accepted byte-identical LSLC-004J receipt.","preserves":["exact accepted LSLC-003M and LSLC-004J receipt bytes","the stricter direct raw public-boundary checker","all path, binary, UTF-8, private-content, credential, build-artifact, trailing-whitespace, mutable-file, and non-receipt newline rules","append-only workflow history"],"does_not_authorize":["new, untracked, or modified newline-less receipts","newline-less non-receipts","content, path, credential, binary, build, or whitespace exemptions","runtime, device, routing, admission, command, or authority widening"]},
     {"id":"lslc-004k-active-interface-official-resolver-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized pinned-official active-interface resolver observation after the accepted exact-group observation and explicit-interface runtime gates.","reason":"A later official-to-production responder conformance claim first needs separately bounded evidence that the pinned official resolver emits and accepts the independently observed exchange on one active host interface.","preserves":["byte-unchanged requester and responder production sources","caller-explicit interface and exact group scope","private oracle driver, configuration, interface, endpoint, and raw-record exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production changes or official-to-production conformance","interface enumeration, default selection, fallback, or retry policy","cross-host, cross-platform, device, or broad compatibility","routing, admission, commands, or authority"]},

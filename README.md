@@ -186,3 +186,8 @@ LSLC-004N adds addressable observation-only evidence for two identical 65-byte
 pinned-official short-info query datagrams. It publishes exact hashes and a
 sanitized three-line grammar without publishing reply-routing/correlation
 values or claiming stability beyond the two bounded repeats.
+
+LSLC-004M test-only conformance shows that the unchanged exact-group responder
+accepts the LSLC-004N-observed public query grammar with independently selected
+five- and twenty-digit values. It does not replay private observed values or
+change production runtime behavior.

@@ -412,3 +412,10 @@ datagram hashes and lengths, minimal sanitized three-line query grammar,
 two-repeat equality limits, pinned versions, finite cleanup, private-capsule
 hashes, exclusions, and authority nonclaims. Raw bytes and private routing and
 correlation values remain outside the repository.
+
+## LSLC-004M
+
+`lslc-004m-official-query-production-responder-conformance.json` binds the
+LSLC-004N exact datagram identity and public grammar to one test-only bounded
+query/response through the unchanged responder, with independent private-field
+values, cleanup, production-prefix hash, limitations, and nonclaims.

@@ -477,3 +477,10 @@ caller-explicit active private interface. It publishes per-attempt SHA-256 and
 length plus minimal public-safe grammar; reply-port/query-id values, raw bytes,
 interface/endpoints, diagnostics, environment, and machine identity remain
 private. Equality proves only these two repeats and adds no runtime or authority.
+
+LSLC-004M adds only test-only structural conformance between the LSLC-004N
+published official query grammar and the unchanged caller-explicit exact-group
+production responder. It independently selects private-field-shaped values,
+replays no observed reply port or query id, preserves production bytes,
+deadline/cancellation/cleanup owners and inert activation, and adds no broader
+network, device, compatibility, routing, admission, or Manifold authority.
