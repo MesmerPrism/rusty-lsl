@@ -173,3 +173,9 @@ LSLC-004O is checked with
 It verifies two sanitized official-to-production results, exact production
 prefix, ten damaged mutations, public boundary, instructions, and Standard;
 the private oracle and active interface are not replayed by portable gates.
+
+LSLC-004P is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004p.ps1`.
+It verifies two sanitized official-outlet-to-production-requester results,
+exact accepted requester bytes, ten damaged mutations, public boundary,
+instructions, and Standard; the private outlet and interface are not replayed.

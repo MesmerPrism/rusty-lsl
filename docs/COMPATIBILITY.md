@@ -786,3 +786,16 @@ source, completed finitely, and released membership and sockets.
 Three failed harness attempts are retained privately. This evidence is limited
 to one host, platform, interface, and exact group; it adds no default selection,
 retry, IPv6, cross-host/device, broad compatibility, or Manifold authority.
+
+## LSLC-004P
+
+Two serialized pylsl 1.18.2/liblsl 1.17/protocol-110 outlets on one Windows
+host responded to the unchanged Rusty LSL explicit-destination requester at
+239.255.172.215:16571 through one bounded active IPv4 interface path. Each
+repeat sent one exact requester datagram, admitted one matching-source response,
+reached the response bound, and released the caller-selected socket.
+
+The raw response, correlation values, endpoints, interface identity, and
+diagnostics remain private and hash-bound. This does not establish requester
+interface-selection policy, multicast portability, default selection, retries,
+cross-host/device behavior, broad compatibility, or Manifold authority.

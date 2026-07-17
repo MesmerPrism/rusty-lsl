@@ -491,3 +491,9 @@ interface at exact 239.255.172.215:16571. One query, response, matching source,
 finite completion, membership cleanup, and socket cleanup passed per repeat.
 The ignored harness adds no production effect; all private network and raw
 evidence remains excluded, and no broader compatibility or authority follows.
+
+LSLC-004P records only two serialized pinned-official outlet compositions
+against the unchanged explicit-destination requester at exact
+239.255.172.215:16571 through one bounded active IPv4 host-interface path.
+It adds no requester-interface policy, production change, portable multicast
+claim, device scope, retry policy, routing/admission behavior, or authority.

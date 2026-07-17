@@ -426,3 +426,10 @@ values, cleanup, production-prefix hash, limitations, and nonclaims.
 sanitized pinned-official-to-unchanged-production active-interface repeats,
 exact dimensions, matching resolution, finite cleanup, private artifact and
 failure hashes, single-platform limitations, exclusions, and nonclaims.
+
+## LSLC-004P
+
+`lslc-004p-official-outlet-production-requester-observation.json` binds two
+sanitized pinned-official-outlet-to-unchanged-requester active-interface
+repeats, requester datagram hashes, matching response admission, finite cleanup,
+private capsule hashes, single-platform limitations, exclusions, and nonclaims.

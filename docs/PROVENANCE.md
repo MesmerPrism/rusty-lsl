@@ -646,3 +646,13 @@ evidence binds the unchanged production prefix, driver, two successful records,
 three failures, and aggregate capsule by SHA-256. Raw output, interface,
 endpoints, query correlation, commands, diagnostics, environment, and machine
 identity remain private.
+
+## LSLC-004P official-outlet observation
+
+The pinned official outlet remains a black-box endpoint. An independently
+authored private orchestrator starts it and invokes one ignored Rust owner
+harness that calls the accepted requester with caller-explicit bind and
+destination values. Public evidence binds the accepted requester blob, two
+requester datagram hashes, driver, successful records, aggregate capsule, and
+one preserved failed derivation attempt. Raw responses, routing/correlation
+values, interface/endpoints, diagnostics, environment, and identity stay private.

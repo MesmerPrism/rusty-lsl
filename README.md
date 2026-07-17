@@ -196,3 +196,8 @@ LSLC-004O adds sanitized observation-only evidence that two pinned-official
 resolver calls reached the unchanged exact-group production responder on one
 explicit active host interface and returned one matching source with cleanup.
 It adds no production widening or portable interface policy.
+
+LSLC-004P adds the opposite observation direction: two pinned-official outlet
+responses were admitted by the unchanged explicit-destination requester on one
+bounded active IPv4 host-interface path. It adds no requester-interface policy,
+production widening, multicast portability, or authority.

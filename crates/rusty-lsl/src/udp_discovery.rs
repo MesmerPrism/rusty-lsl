@@ -747,4 +747,61 @@ mod tests {
         let rebound = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, PORT)).unwrap();
         assert_eq!(rebound.local_addr().unwrap().port(), PORT);
     }
+
+    #[test]
+    #[ignore = "requires the private pinned official LSLC-004P outlet harness"]
+    fn lslc_004p_private_official_outlet_observation_driver() {
+        const GROUP: Ipv4Addr = Ipv4Addr::new(239, 255, 172, 215);
+        const PORT: u16 = 16_571;
+        let interface: Ipv4Addr = std::env::var("RLSL_LSLC_004P_INTERFACE")
+            .expect("private driver supplies an explicit active IPv4 interface")
+            .parse()
+            .expect("private interface is IPv4");
+        let reply_port: u16 = std::env::var("RLSL_LSLC_004P_REPLY_PORT")
+            .expect("private driver supplies the reserved reply port")
+            .parse()
+            .expect("private reply port is u16");
+        let expected_source = std::env::var("RLSL_LSLC_004P_SOURCE_TOKEN")
+            .expect("private driver supplies the independently selected source token");
+        let query_id = 9_223_372_036_854_775_123_u64;
+        let query_limits = ShortInfoQueryWireLimits::new(20, 128).unwrap();
+        let query = ShortInfoQuery::new(
+            "session_id='default'".to_owned(),
+            reply_port,
+            query_id,
+            query_limits,
+        )
+        .unwrap();
+        let wire = ShortInfoQueryWire::encode(&query, query_limits).unwrap();
+        let run = run_udp_discovery(
+            activation(),
+            UdpDiscoveryConfig::new(
+                SocketAddr::from((interface, reply_port)),
+                SocketAddr::from((GROUP, PORT)),
+                UdpDiscoveryLimits::new(
+                    65_535,
+                    1,
+                    Duration::from_millis(25),
+                    Duration::from_secs(3),
+                )
+                .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(65_500, 65_535).unwrap(),
+            ),
+            &wire,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(
+            run.local_address(),
+            SocketAddr::from((interface, reply_port))
+        );
+        assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
+        assert_eq!(run.responses().len(), 1);
+        assert_eq!(run.responses()[0].query_id(), query_id);
+        assert_eq!(run.responses()[0].source().ip(), interface);
+        let text = std::str::from_utf8(run.responses()[0].as_bytes()).unwrap();
+        assert!(text.contains(&expected_source));
+        drop(run);
+        assert!(UdpSocket::bind((interface, reply_port)).is_ok());
+    }
 }

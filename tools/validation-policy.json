@@ -36,6 +36,7 @@
       "lslc-004n-observation",
       "lslc-004m-runtime-conformance",
       "lslc-004o-observation",
+      "lslc-004p-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -64,6 +65,7 @@
       "lslc-004n-observation",
       "lslc-004m-runtime-conformance",
       "lslc-004o-observation",
+      "lslc-004p-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -94,6 +96,7 @@
       "lslc-004n-observation",
       "lslc-004m-runtime-conformance",
       "lslc-004o-observation",
+      "lslc-004p-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -230,13 +233,51 @@
       }
     },
     {
-      "id":"lslc-003s-activation","owner":"rusty-lsl-activation-authority","state":"current",
-      "command":["powershell","-NoProfile","-ExecutionPolicy","Bypass","-File","tools/check_lslc_003s.ps1"],
-      "depends_on":["current-closure"],"change_categories":["activation","validation","state-machine"],
-      "affected_paths":["AGENTS.md","README.md","crates/rusty-lsl/src/runtime_activation.rs","docs/ARCHITECTURE.md","docs/VALIDATION.md","fixtures/compatibility/lslc-003c-lock-bound-runtime-activation-capability.json","fixtures/compatibility/lslc-003s-string-sample-activation-descriptor.json","morphospace/feature.lock.json","morphospace/features/string-sample.json","morphospace/project.spec.json","morphospace/workspace.state.json","tools/check_lslc_003c.py","tools/check_lslc_003s.py","tools/check_lslc_003s.ps1"],
-      "proves":["StringSample is a distinct default-inert lock-bound nominal capability with exact descriptor, dependency, rejection, registry, and preservation evidence"],
-      "does_not_prove":["String transport, framing, I/O, runtime effect execution, ambient activation, devices, or authority beyond Rusty LSL module admission"],
-      "environment":{"network":"forbidden","timeout_seconds":180}
+      "id": "lslc-003s-activation",
+      "owner": "rusty-lsl-activation-authority",
+      "state": "current",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003s.ps1"
+      ],
+      "depends_on": [
+        "current-closure"
+      ],
+      "change_categories": [
+        "activation",
+        "validation",
+        "state-machine"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/runtime_activation.rs",
+        "docs/ARCHITECTURE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/lslc-003c-lock-bound-runtime-activation-capability.json",
+        "fixtures/compatibility/lslc-003s-string-sample-activation-descriptor.json",
+        "morphospace/feature.lock.json",
+        "morphospace/features/string-sample.json",
+        "morphospace/project.spec.json",
+        "morphospace/workspace.state.json",
+        "tools/check_lslc_003c.py",
+        "tools/check_lslc_003s.py",
+        "tools/check_lslc_003s.ps1"
+      ],
+      "proves": [
+        "StringSample is a distinct default-inert lock-bound nominal capability with exact descriptor, dependency, rejection, registry, and preservation evidence"
+      ],
+      "does_not_prove": [
+        "String transport, framing, I/O, runtime effect execution, ambient activation, devices, or authority beyond Rusty LSL module admission"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "public-boundary",
@@ -386,13 +427,41 @@
       "id": "lslc-003q-observation",
       "owner": "rusty-lsl-compatibility-evidence",
       "state": "current",
-      "command": ["powershell","-NoProfile","-ExecutionPolicy","Bypass","-File","tools/check_lslc_003q.ps1"],
-      "depends_on": ["public-boundary"],
-      "change_categories": ["validation","public-private-boundary"],
-      "affected_paths": ["AGENTS.md","README.md","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/","tools/check_lslc_003q.py","tools/check_lslc_003q.ps1"],
-      "proves": ["the sanitized LSLC-003Q one-channel one-record String observation, hashes, limitations, routes, and damaged mutations are complete"],
-      "does_not_prove": ["private oracle freshness beyond bound hashes, String implementation, activation, damaged-peer behavior, arbitrary Strings, non-loopback compatibility, devices, or authority"],
-      "environment": {"network":"forbidden","timeout_seconds":120}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003q.ps1"
+      ],
+      "depends_on": [
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/",
+        "tools/check_lslc_003q.py",
+        "tools/check_lslc_003q.ps1"
+      ],
+      "proves": [
+        "the sanitized LSLC-003Q one-channel one-record String observation, hashes, limitations, routes, and damaged mutations are complete"
+      ],
+      "does_not_prove": [
+        "private oracle freshness beyond bound hashes, String implementation, activation, damaged-peer behavior, arbitrary Strings, non-loopback compatibility, devices, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
     },
     {
       "id": "git-diff-hygiene",
@@ -427,265 +496,955 @@
       "id": "lslc-003t-runtime",
       "owner": "rusty-lsl-string-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003t.ps1"],
-      "depends_on": ["lslc-003s-activation", "lslc-003q-observation"],
-      "change_categories": ["implementation", "validation"],
-      "affected_paths": ["crates/rusty-lsl/src/string_sample_runtime.rs", "fixtures/compatibility/lslc-003t-bounded-string-record-runtime.json", "tools/check_lslc_003t.py"],
-      "proves": ["one capability-gated bounded one-channel one-record String loopback runtime and typed damaged cases"],
-      "does_not_prove": ["arbitrary String framing, multiple channels or records, non-loopback compatibility, ambient activation, devices, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":300}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003t.ps1"
+      ],
+      "depends_on": [
+        "lslc-003s-activation",
+        "lslc-003q-observation"
+      ],
+      "change_categories": [
+        "implementation",
+        "validation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/string_sample_runtime.rs",
+        "fixtures/compatibility/lslc-003t-bounded-string-record-runtime.json",
+        "tools/check_lslc_003t.py"
+      ],
+      "proves": [
+        "one capability-gated bounded one-channel one-record String loopback runtime and typed damaged cases"
+      ],
+      "does_not_prove": [
+        "arbitrary String framing, multiple channels or records, non-loopback compatibility, ambient activation, devices, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 300
+      }
     },
     {
       "id": "lslc-003u-observation",
       "owner": "rusty-lsl-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003u.ps1"],
-      "depends_on": ["public-boundary", "lslc-003q-observation"],
-      "change_categories": ["compatibility", "validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/lslc-003u-string-utf8-boundary-observation.json", "tools/check_lslc_003u.py", "tools/check_lslc_003u.ps1"],
-      "proves": ["the sanitized pinned two-repeat mixed-width and exact-127-byte String observations, hashes, limitations, routes, and damaged mutations are complete"],
-      "does_not_prove": ["private oracle freshness beyond bound hashes, implementation changes, empty or larger Strings, multiple channels or records, other length forms, non-loopback compatibility, devices, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":120}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003u.ps1"
+      ],
+      "depends_on": [
+        "public-boundary",
+        "lslc-003q-observation"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/lslc-003u-string-utf8-boundary-observation.json",
+        "tools/check_lslc_003u.py",
+        "tools/check_lslc_003u.ps1"
+      ],
+      "proves": [
+        "the sanitized pinned two-repeat mixed-width and exact-127-byte String observations, hashes, limitations, routes, and damaged mutations are complete"
+      ],
+      "does_not_prove": [
+        "private oracle freshness beyond bound hashes, implementation changes, empty or larger Strings, multiple channels or records, other length forms, non-loopback compatibility, devices, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
     },
     {
       "id": "lslc-003v-runtime-conformance",
       "owner": "rusty-lsl-string-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003v.ps1"],
-      "depends_on": ["lslc-003t-runtime", "lslc-003u-observation"],
-      "change_categories": ["compatibility", "validation"],
-      "affected_paths": ["crates/rusty-lsl/src/string_sample_runtime.rs", "fixtures/compatibility/lslc-003v-string-utf8-boundary-runtime-conformance.json", "tools/check_lslc_003v.py", "tools/check_lslc_003v.ps1"],
-      "proves": ["the accepted production prefix is unchanged and both LSLC-003U value classes pass synthetic capability-gated runtime loopback with cleanup"],
-      "does_not_prove": ["production changes, new framing, broader String dimensions, additional official compatibility, non-loopback behavior, devices, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003v.ps1"
+      ],
+      "depends_on": [
+        "lslc-003t-runtime",
+        "lslc-003u-observation"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/string_sample_runtime.rs",
+        "fixtures/compatibility/lslc-003v-string-utf8-boundary-runtime-conformance.json",
+        "tools/check_lslc_003v.py",
+        "tools/check_lslc_003v.ps1"
+      ],
+      "proves": [
+        "the accepted production prefix is unchanged and both LSLC-003U value classes pass synthetic capability-gated runtime loopback with cleanup"
+      ],
+      "does_not_prove": [
+        "production changes, new framing, broader String dimensions, additional official compatibility, non-loopback behavior, devices, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-003w-observation",
       "owner": "rusty-lsl-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003w.ps1"],
-      "depends_on": ["public-boundary", "lslc-003q-observation"],
-      "change_categories": ["compatibility", "validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/lslc-003w-empty-string-record-observation.json", "tools/check_lslc_003w.py", "tools/check_lslc_003w.ps1"],
-      "proves": ["the sanitized pinned two-repeat empty-String observation, hashes, exact one-byte zero-length framing, limitations, routes, and damaged mutations are complete"],
-      "does_not_prove": ["private oracle freshness beyond bound hashes, implementation or activation changes, nonempty or oversized Strings, multiple channels or records, other length forms, non-loopback compatibility, devices, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003w.ps1"
+      ],
+      "depends_on": [
+        "public-boundary",
+        "lslc-003q-observation"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/lslc-003w-empty-string-record-observation.json",
+        "tools/check_lslc_003w.py",
+        "tools/check_lslc_003w.ps1"
+      ],
+      "proves": [
+        "the sanitized pinned two-repeat empty-String observation, hashes, exact one-byte zero-length framing, limitations, routes, and damaged mutations are complete"
+      ],
+      "does_not_prove": [
+        "private oracle freshness beyond bound hashes, implementation or activation changes, nonempty or oversized Strings, multiple channels or records, other length forms, non-loopback compatibility, devices, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-003x-runtime",
       "owner": "rusty-lsl-string-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003x.ps1"],
-      "depends_on": ["lslc-003t-runtime", "lslc-003u-observation", "lslc-003w-observation"],
-      "change_categories": ["implementation", "compatibility", "validation"],
-      "affected_paths": ["crates/rusty-lsl/src/string_sample_runtime.rs", "fixtures/compatibility/lslc-003x-empty-string-record-runtime.json", "tools/check_lslc_003x.py", "tools/check_lslc_003x.ps1"],
-      "proves": ["the capability-gated one-channel one-record runtime preserves the observed empty String timestamp, one-byte zero length, and cleanup while retaining prior bounds"],
-      "does_not_prove": ["additional channels or records, values above 127 bytes, other length forms, non-loopback compatibility, ambient activation, devices, dependencies, commands, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003x.ps1"
+      ],
+      "depends_on": [
+        "lslc-003t-runtime",
+        "lslc-003u-observation",
+        "lslc-003w-observation"
+      ],
+      "change_categories": [
+        "implementation",
+        "compatibility",
+        "validation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/string_sample_runtime.rs",
+        "fixtures/compatibility/lslc-003x-empty-string-record-runtime.json",
+        "tools/check_lslc_003x.py",
+        "tools/check_lslc_003x.ps1"
+      ],
+      "proves": [
+        "the capability-gated one-channel one-record runtime preserves the observed empty String timestamp, one-byte zero length, and cleanup while retaining prior bounds"
+      ],
+      "does_not_prove": [
+        "additional channels or records, values above 127 bytes, other length forms, non-loopback compatibility, ambient activation, devices, dependencies, commands, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-003y-observation",
       "owner": "rusty-lsl-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003y.ps1"],
-      "depends_on": ["public-boundary", "lslc-003u-observation"],
-      "change_categories": ["compatibility", "validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/lslc-003y-exact-128-string-observation.json", "tools/check_lslc_003y.py", "tools/check_lslc_003y.ps1"],
-      "proves": ["the sanitized pinned two-repeat exact-128-byte String observation, hashes, length-form-one framing, limitations, routes, and damaged mutations are complete"],
-      "does_not_prove": ["private oracle freshness beyond bound hashes, implementation or activation changes, other values, multiple channels or records, arbitrary length forms, non-loopback compatibility, devices, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003y.ps1"
+      ],
+      "depends_on": [
+        "public-boundary",
+        "lslc-003u-observation"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/lslc-003y-exact-128-string-observation.json",
+        "tools/check_lslc_003y.py",
+        "tools/check_lslc_003y.ps1"
+      ],
+      "proves": [
+        "the sanitized pinned two-repeat exact-128-byte String observation, hashes, length-form-one framing, limitations, routes, and damaged mutations are complete"
+      ],
+      "does_not_prove": [
+        "private oracle freshness beyond bound hashes, implementation or activation changes, other values, multiple channels or records, arbitrary length forms, non-loopback compatibility, devices, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-003z-runtime",
       "owner": "rusty-lsl-string-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_003z.ps1"],
-      "depends_on": ["lslc-003s-activation", "lslc-003u-observation", "lslc-003w-observation", "lslc-003y-observation"],
-      "change_categories": ["implementation", "compatibility", "validation"],
-      "affected_paths": ["crates/rusty-lsl/src/string_sample_runtime.rs", "fixtures/compatibility/lslc-003z-exact-128-string-record-runtime.json", "tools/check_lslc_003z.py", "tools/check_lslc_003z.ps1"],
-      "proves": ["the closed capability-gated String runtime accepts the observed exact 128-byte boundary, rejects 129 bytes, and preserves prior cases and cleanup"],
-      "does_not_prove": ["additional channels or records, values above 128 bytes, other length forms, non-loopback compatibility, ambient activation, devices, dependencies, commands, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_003z.ps1"
+      ],
+      "depends_on": [
+        "lslc-003s-activation",
+        "lslc-003u-observation",
+        "lslc-003w-observation",
+        "lslc-003y-observation"
+      ],
+      "change_categories": [
+        "implementation",
+        "compatibility",
+        "validation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/string_sample_runtime.rs",
+        "fixtures/compatibility/lslc-003z-exact-128-string-record-runtime.json",
+        "tools/check_lslc_003z.py",
+        "tools/check_lslc_003z.ps1"
+      ],
+      "proves": [
+        "the closed capability-gated String runtime accepts the observed exact 128-byte boundary, rejects 129 bytes, and preserves prior cases and cleanup"
+      ],
+      "does_not_prove": [
+        "additional channels or records, values above 128 bytes, other length forms, non-loopback compatibility, ambient activation, devices, dependencies, commands, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-004a-observation",
       "owner": "rusty-lsl-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004a.ps1"],
-      "depends_on": ["public-boundary", "lslc-003y-observation"],
-      "change_categories": ["compatibility", "validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/lslc-004a-exact-129-string-observation.json", "tools/check_lslc_004a.py", "tools/check_lslc_004a.ps1"],
-      "proves": ["the sanitized pinned two-repeat exact-129-byte String observation, hashes, length-form-one framing, limitations, routes, and damaged mutations are complete"],
-      "does_not_prove": ["private oracle freshness beyond bound hashes, implementation or activation changes, other values, multiple channels or records, arbitrary length forms, non-loopback compatibility, devices, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004a.ps1"
+      ],
+      "depends_on": [
+        "public-boundary",
+        "lslc-003y-observation"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/lslc-004a-exact-129-string-observation.json",
+        "tools/check_lslc_004a.py",
+        "tools/check_lslc_004a.ps1"
+      ],
+      "proves": [
+        "the sanitized pinned two-repeat exact-129-byte String observation, hashes, length-form-one framing, limitations, routes, and damaged mutations are complete"
+      ],
+      "does_not_prove": [
+        "private oracle freshness beyond bound hashes, implementation or activation changes, other values, multiple channels or records, arbitrary length forms, non-loopback compatibility, devices, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-004b-runtime",
       "owner": "rusty-lsl-string-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004b.ps1"],
-      "depends_on": ["lslc-003s-activation", "lslc-003u-observation", "lslc-003w-observation", "lslc-003y-observation", "lslc-004a-observation"],
-      "change_categories": ["implementation", "compatibility", "validation"],
-      "affected_paths": ["crates/rusty-lsl/src/string_sample_runtime.rs", "fixtures/compatibility/lslc-004b-exact-129-string-record-runtime.json", "tools/check_lslc_004b.py", "tools/check_lslc_004b.ps1"],
-      "proves": ["the closed capability-gated String runtime accepts the observed exact 129-byte boundary, rejects 130 bytes, and preserves prior cases and cleanup"],
-      "does_not_prove": ["additional channels or records, values above 129 bytes, other length forms, non-loopback compatibility, ambient activation, devices, dependencies, commands, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004b.ps1"
+      ],
+      "depends_on": [
+        "lslc-003s-activation",
+        "lslc-003u-observation",
+        "lslc-003w-observation",
+        "lslc-003y-observation",
+        "lslc-004a-observation"
+      ],
+      "change_categories": [
+        "implementation",
+        "compatibility",
+        "validation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/string_sample_runtime.rs",
+        "fixtures/compatibility/lslc-004b-exact-129-string-record-runtime.json",
+        "tools/check_lslc_004b.py",
+        "tools/check_lslc_004b.ps1"
+      ],
+      "proves": [
+        "the closed capability-gated String runtime accepts the observed exact 129-byte boundary, rejects 130 bytes, and preserves prior cases and cleanup"
+      ],
+      "does_not_prove": [
+        "additional channels or records, values above 129 bytes, other length forms, non-loopback compatibility, ambient activation, devices, dependencies, commands, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-004c-observation",
       "owner": "rusty-lsl-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004c.ps1"],
-      "depends_on": ["public-boundary"],
-      "change_categories": ["compatibility", "validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/lslc-004c-ipv4-multicast-discovery-observation.json", "tools/check_lslc_004c.py", "tools/check_lslc_004c.ps1"],
-      "proves": ["sanitized pinned two-repeat evidence for one documented IPv4 group on an explicit loopback interface, membership cleanup, two finite directions, hashes, platform limits, and damaged mutations"],
-      "does_not_prove": ["production multicast runtime, portable retry policy, other groups, IPv6, interface enumeration or default selection, non-loopback interfaces, cross-platform behavior, devices, routing, admission, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004c.ps1"
+      ],
+      "depends_on": [
+        "public-boundary"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/lslc-004c-ipv4-multicast-discovery-observation.json",
+        "tools/check_lslc_004c.py",
+        "tools/check_lslc_004c.ps1"
+      ],
+      "proves": [
+        "sanitized pinned two-repeat evidence for one documented IPv4 group on an explicit loopback interface, membership cleanup, two finite directions, hashes, platform limits, and damaged mutations"
+      ],
+      "does_not_prove": [
+        "production multicast runtime, portable retry policy, other groups, IPv6, interface enumeration or default selection, non-loopback interfaces, cross-platform behavior, devices, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-004d-runtime-conformance",
       "owner": "rusty-lsl-udp-discovery-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004d.ps1"],
-      "depends_on": ["lslc-004c-observation", "public-boundary"],
-      "change_categories": ["compatibility", "validation", "documentation"],
-      "affected_paths": ["crates/rusty-lsl/src/udp_discovery.rs", "fixtures/compatibility/lslc-004d-ipv4-multicast-discovery-runtime-conformance.json", "tools/check_lslc_004d.py", "tools/check_lslc_004d.ps1"],
-      "proves": ["the unchanged explicit-destination requester composes with one synthetic joined-loopback peer at the exact observed group for one query and one bounded response with cleanup"],
-      "does_not_prove": ["responder runtime, membership or interface policy, portable retry behavior, other groups or address families, non-loopback or cross-platform support, devices, routing, admission, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004d.ps1"
+      ],
+      "depends_on": [
+        "lslc-004c-observation",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/udp_discovery.rs",
+        "fixtures/compatibility/lslc-004d-ipv4-multicast-discovery-runtime-conformance.json",
+        "tools/check_lslc_004d.py",
+        "tools/check_lslc_004d.ps1"
+      ],
+      "proves": [
+        "the unchanged explicit-destination requester composes with one synthetic joined-loopback peer at the exact observed group for one query and one bounded response with cleanup"
+      ],
+      "does_not_prove": [
+        "responder runtime, membership or interface policy, portable retry behavior, other groups or address families, non-loopback or cross-platform support, devices, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-004e-runtime",
       "owner": "rusty-lsl-short-info-responder-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004e.ps1"],
-      "depends_on": ["lslc-004c-observation", "lslc-004d-runtime-conformance", "public-boundary"],
-      "change_categories": ["implementation", "compatibility", "validation", "documentation"],
-      "affected_paths": ["crates/rusty-lsl/src/lib.rs", "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "fixtures/compatibility/lslc-004e-explicit-loopback-multicast-responder-runtime.json", "tools/check_lslc_004e.py", "tools/check_lslc_004e.ps1"],
-      "proves": ["one explicitly activated exact-group IPv4 loopback responder reuses the existing bounded query/response loop and cleans up after one request"],
-      "does_not_prove": ["generic membership or interface policy, other groups or address families, multiple requests, portable retry or cross-platform behavior, devices, routing, admission, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004e.ps1"
+      ],
+      "depends_on": [
+        "lslc-004c-observation",
+        "lslc-004d-runtime-conformance",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "implementation",
+        "compatibility",
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/lib.rs",
+        "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
+        "fixtures/compatibility/lslc-004e-explicit-loopback-multicast-responder-runtime.json",
+        "tools/check_lslc_004e.py",
+        "tools/check_lslc_004e.ps1"
+      ],
+      "proves": [
+        "one explicitly activated exact-group IPv4 loopback responder reuses the existing bounded query/response loop and cleans up after one request"
+      ],
+      "does_not_prove": [
+        "generic membership or interface policy, other groups or address families, multiple requests, portable retry or cross-platform behavior, devices, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-004f-runtime-conformance",
       "owner": "rusty-lsl-multicast-discovery-composition",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004f.ps1"],
-      "depends_on": ["lslc-004d-runtime-conformance", "lslc-004e-runtime", "public-boundary"],
-      "change_categories": ["compatibility", "validation", "documentation"],
-      "affected_paths": ["crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "fixtures/compatibility/lslc-004f-exact-multicast-discovery-composition-conformance.json", "tools/check_lslc_004f.py", "tools/check_lslc_004f.ps1"],
-      "proves": ["the byte-unchanged accepted requester and responder compose for one exact-group loopback query/response with finite cleanup"],
-      "does_not_prove": ["production or API changes, official or Quest compatibility, other groups or interfaces, retries, devices, routing, admission, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004f.ps1"
+      ],
+      "depends_on": [
+        "lslc-004d-runtime-conformance",
+        "lslc-004e-runtime",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
+        "fixtures/compatibility/lslc-004f-exact-multicast-discovery-composition-conformance.json",
+        "tools/check_lslc_004f.py",
+        "tools/check_lslc_004f.ps1"
+      ],
+      "proves": [
+        "the byte-unchanged accepted requester and responder compose for one exact-group loopback query/response with finite cleanup"
+      ],
+      "does_not_prove": [
+        "production or API changes, official or Quest compatibility, other groups or interfaces, retries, devices, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-004g-quest-device-conformance",
       "owner": "rusty-lsl-quest-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004g.ps1"],
-      "depends_on": ["lslc-004d-runtime-conformance", "lslc-004e-runtime", "public-boundary"],
-      "change_categories": ["validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004g-quest-ipv4-multicast-device-conformance.json", "tools/check_lslc_004g.py", "tools/check_lslc_004g.ps1"],
-      "proves": ["sanitized exact-head evidence that two Quest 3S peers completed explicit-interface exact-group join/drop/rejoin, one peer query/response, cancellation, target-package fatal scan, and run-owned cleanup"],
-      "does_not_prove": ["private artifact contents beyond hashes, official liblsl behavior, other platforms or networks, production activation, interface or retry policy, Manifold admission, routing, identity, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004g.ps1"
+      ],
+      "depends_on": [
+        "lslc-004d-runtime-conformance",
+        "lslc-004e-runtime",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004g-quest-ipv4-multicast-device-conformance.json",
+        "tools/check_lslc_004g.py",
+        "tools/check_lslc_004g.ps1"
+      ],
+      "proves": [
+        "sanitized exact-head evidence that two Quest 3S peers completed explicit-interface exact-group join/drop/rejoin, one peer query/response, cancellation, target-package fatal scan, and run-owned cleanup"
+      ],
+      "does_not_prove": [
+        "private artifact contents beyond hashes, official liblsl behavior, other platforms or networks, production activation, interface or retry policy, Manifold admission, routing, identity, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-004h-active-interface-observation",
       "owner": "rusty-lsl-multicast-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004h.ps1"],
-      "depends_on": ["lslc-004d-runtime-conformance", "lslc-004e-runtime", "lslc-004g-quest-device-conformance", "public-boundary"],
-      "change_categories": ["compatibility", "validation", "documentation"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004h-active-interface-rust-multicast-observation.json", "tools/check_lslc_004h.py", "tools/check_lslc_004h.ps1"],
-      "proves": ["sanitized two-repeat evidence for the accepted Rust requester and a private joined responder on one caller-explicit active IPv4 host interface, with one exact-group query/response, deadline, cancellation, and cleanup"],
-      "does_not_prove": ["production responder non-loopback behavior or changes, official endpoint behavior, portable interface or retry policy, cross-host or cross-platform reachability, devices, routing, admission, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004h.ps1"
+      ],
+      "depends_on": [
+        "lslc-004d-runtime-conformance",
+        "lslc-004e-runtime",
+        "lslc-004g-quest-device-conformance",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "compatibility",
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004h-active-interface-rust-multicast-observation.json",
+        "tools/check_lslc_004h.py",
+        "tools/check_lslc_004h.ps1"
+      ],
+      "proves": [
+        "sanitized two-repeat evidence for the accepted Rust requester and a private joined responder on one caller-explicit active IPv4 host interface, with one exact-group query/response, deadline, cancellation, and cleanup"
+      ],
+      "does_not_prove": [
+        "production responder non-loopback behavior or changes, official endpoint behavior, portable interface or retry policy, cross-host or cross-platform reachability, devices, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-004i-revision-14-runtime-lock-rebinding",
       "owner": "rusty-lsl-runtime-activation-authority",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004i.ps1"],
-      "depends_on": ["lslc-003s-activation", "public-boundary"],
-      "change_categories": ["implementation", "validation", "documentation"],
-      "affected_paths": ["AGENTS.md", "README.md", "crates/rusty-lsl/src/runtime_activation.rs", "docs/VALIDATION.md", "fixtures/compatibility/lslc-003c-lock-bound-runtime-activation-capability.json", "fixtures/compatibility/lslc-003s-string-sample-activation-descriptor.json", "tools/check_lslc_004i.py", "tools/check_lslc_004i.ps1"],
-      "proves": ["the runtime admission constant and current activation fixtures project the deterministic accepted revision-14 lock, current admission passes, and the superseded fingerprint rejects"],
-      "does_not_prove": ["new modules, ambient activation, changed dependencies or runtime behavior, devices, networking, routing, admission, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":240}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004i.ps1"
+      ],
+      "depends_on": [
+        "lslc-003s-activation",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "implementation",
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/runtime_activation.rs",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/lslc-003c-lock-bound-runtime-activation-capability.json",
+        "fixtures/compatibility/lslc-003s-string-sample-activation-descriptor.json",
+        "tools/check_lslc_004i.py",
+        "tools/check_lslc_004i.ps1"
+      ],
+      "proves": [
+        "the runtime admission constant and current activation fixtures project the deterministic accepted revision-14 lock, current admission passes, and the superseded fingerprint rejects"
+      ],
+      "does_not_prove": [
+        "new modules, ambient activation, changed dependencies or runtime behavior, devices, networking, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 240
+      }
     },
     {
       "id": "lslc-004j-runtime",
       "owner": "rusty-lsl-short-info-responder-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004j.ps1"],
-      "depends_on": ["lslc-004e-runtime", "lslc-004h-active-interface-observation", "lslc-004i-revision-14-runtime-lock-rebinding", "public-boundary"],
-      "change_categories": ["implementation", "compatibility", "validation", "documentation"],
-      "affected_paths": ["AGENTS.md", "README.md", "crates/rusty-lsl/src/lib.rs", "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "docs/ARCHITECTURE.md", "docs/COMPATIBILITY.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004j-explicit-ipv4-interface-multicast-responder.json", "tools/check_lslc_004j.py", "tools/check_lslc_004j.ps1"],
-      "proves": ["one explicitly activated exact-group responder accepts one caller-explicit concrete IPv4 interface, preserves the loopback wrapper and finite loop, rejects nonconcrete interface values before I/O, and is bound to two sanitized private active-interface compositions"],
-      "does_not_prove": ["interface enumeration or default selection, ambient fallback, other groups or address families, portable retry behavior, official, cross-host, cross-platform, or device compatibility, routing, admission, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004j.ps1"
+      ],
+      "depends_on": [
+        "lslc-004e-runtime",
+        "lslc-004h-active-interface-observation",
+        "lslc-004i-revision-14-runtime-lock-rebinding",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "implementation",
+        "compatibility",
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/lib.rs",
+        "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
+        "docs/ARCHITECTURE.md",
+        "docs/COMPATIBILITY.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004j-explicit-ipv4-interface-multicast-responder.json",
+        "tools/check_lslc_004j.py",
+        "tools/check_lslc_004j.ps1"
+      ],
+      "proves": [
+        "one explicitly activated exact-group responder accepts one caller-explicit concrete IPv4 interface, preserves the loopback wrapper and finite loop, rejects nonconcrete interface values before I/O, and is bound to two sanitized private active-interface compositions"
+      ],
+      "does_not_prove": [
+        "interface enumeration or default selection, ambient fallback, other groups or address families, portable retry behavior, official, cross-host, cross-platform, or device compatibility, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-004k-observation",
       "owner": "rusty-lsl-multicast-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004k.ps1"],
-      "depends_on": ["lslc-004c-observation", "lslc-004j-runtime", "public-boundary"],
-      "change_categories": ["validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004k-active-interface-official-resolver-observation.json", "tools/check_lslc_004k.py", "tools/check_lslc_004k.ps1"],
-      "proves": ["sanitized two-repeat evidence that the pinned official resolver emitted one exact-group query on a caller-explicit active private IPv4 interface, accepted one independently authored bounded response, returned the matching source, and cleaned up"],
-      "does_not_prove": ["production responder execution or official outlet behavior, interface selection or retry policy, cross-host, cross-platform, device, or broad compatibility, routing, admission, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004k.ps1"
+      ],
+      "depends_on": [
+        "lslc-004c-observation",
+        "lslc-004j-runtime",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004k-active-interface-official-resolver-observation.json",
+        "tools/check_lslc_004k.py",
+        "tools/check_lslc_004k.ps1"
+      ],
+      "proves": [
+        "sanitized two-repeat evidence that the pinned official resolver emitted one exact-group query on a caller-explicit active private IPv4 interface, accepted one independently authored bounded response, returned the matching source, and cleaned up"
+      ],
+      "does_not_prove": [
+        "production responder execution or official outlet behavior, interface selection or retry policy, cross-host, cross-platform, device, or broad compatibility, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-004l-immutable-receipt-head-identity",
       "owner": "rusty-lsl-validation-authority",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004l.ps1"],
-      "depends_on": ["public-boundary"],
-      "change_categories": ["validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/VALIDATION.md", "tools/check_lslc_004l.ps1", "tools/dispatch_validation.py", "tools/test_dispatch_public_boundary_policy.py", "tools/validation-policy.json"],
-      "proves": ["the dispatcher implements the declared immutable-receipt newline exception through exact tracked HEAD-byte identity and retains focused positive and damaged coverage"],
-      "does_not_prove": ["changes to accepted receipts or historical events, exemptions for new, modified, untracked, non-receipt, or privately damaged content, direct raw-checker changes, runtime, device, or authority widening"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004l.ps1"
+      ],
+      "depends_on": [
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/VALIDATION.md",
+        "tools/check_lslc_004l.ps1",
+        "tools/dispatch_validation.py",
+        "tools/test_dispatch_public_boundary_policy.py",
+        "tools/validation-policy.json"
+      ],
+      "proves": [
+        "the dispatcher implements the declared immutable-receipt newline exception through exact tracked HEAD-byte identity and retains focused positive and damaged coverage"
+      ],
+      "does_not_prove": [
+        "changes to accepted receipts or historical events, exemptions for new, modified, untracked, non-receipt, or privately damaged content, direct raw-checker changes, runtime, device, or authority widening"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-004n-observation",
       "owner": "rusty-lsl-multicast-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004n.ps1"],
-      "depends_on": ["lslc-004k-observation", "public-boundary"],
-      "change_categories": ["validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004n-official-query-datagram-observation.json", "tools/check_lslc_004n.py", "tools/check_lslc_004n.ps1"],
-      "proves": ["two serialized pinned-official pre-response query captures are addressable by exact per-attempt SHA-256 and length, minimal sanitized grammar, private-capsule hashes, finite completion, and cleanup"],
-      "does_not_prove": ["stability beyond two repeats, private routing or correlation values, raw query publication, production responder conformance, interface or retry policy, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004n.ps1"
+      ],
+      "depends_on": [
+        "lslc-004k-observation",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004n-official-query-datagram-observation.json",
+        "tools/check_lslc_004n.py",
+        "tools/check_lslc_004n.ps1"
+      ],
+      "proves": [
+        "two serialized pinned-official pre-response query captures are addressable by exact per-attempt SHA-256 and length, minimal sanitized grammar, private-capsule hashes, finite completion, and cleanup"
+      ],
+      "does_not_prove": [
+        "stability beyond two repeats, private routing or correlation values, raw query publication, production responder conformance, interface or retry policy, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "lslc-004m-runtime-conformance",
       "owner": "rusty-lsl-short-info-responder-runtime",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004m.ps1"],
-      "depends_on": ["lslc-004j-runtime", "lslc-004n-observation", "public-boundary"],
-      "change_categories": ["validation", "compatibility", "documentation"],
-      "affected_paths": ["AGENTS.md", "README.md", "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004m-official-query-production-responder-conformance.json", "tools/check_lslc_004m.py", "tools/check_lslc_004m.ps1"],
-      "proves": ["test-only structural conformance between the LSLC-004N public official-query grammar and unchanged caller-explicit exact-group responder with one bounded response, finite termination, and cleanup"],
-      "does_not_prove": ["replay or acceptance of private observed values, production changes, active nonloopback or official endpoint execution, interface or retry policy, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"],
-      "environment": {"network":"loopback-only", "timeout_seconds":180}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004m.ps1"
+      ],
+      "depends_on": [
+        "lslc-004j-runtime",
+        "lslc-004n-observation",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "compatibility",
+        "documentation"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004m-official-query-production-responder-conformance.json",
+        "tools/check_lslc_004m.py",
+        "tools/check_lslc_004m.ps1"
+      ],
+      "proves": [
+        "test-only structural conformance between the LSLC-004N public official-query grammar and unchanged caller-explicit exact-group responder with one bounded response, finite termination, and cleanup"
+      ],
+      "does_not_prove": [
+        "replay or acceptance of private observed values, production changes, active nonloopback or official endpoint execution, interface or retry policy, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "loopback-only",
+        "timeout_seconds": 180
+      }
     },
     {
       "id": "lslc-004o-observation",
       "owner": "rusty-lsl-multicast-compatibility-evidence",
       "state": "current",
-      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004o.ps1"],
-      "depends_on": ["lslc-004m-runtime-conformance", "lslc-004n-observation", "public-boundary"],
-      "change_categories": ["validation", "public-private-boundary"],
-      "affected_paths": ["AGENTS.md", "README.md", "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004o-official-resolver-production-responder-observation.json", "tools/check_lslc_004o.py", "tools/check_lslc_004o.ps1"],
-      "proves": ["two serialized pinned-official resolver calls reached one unchanged production responder on one explicit active IPv4 interface with one matching query/response, finite completion, membership cleanup, and socket cleanup"],
-      "does_not_prove": ["production changes, default interface or retry policy, other groups or address families, official outlet, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"],
-      "environment": {"network":"forbidden", "timeout_seconds":60}
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004o.ps1"
+      ],
+      "depends_on": [
+        "lslc-004m-runtime-conformance",
+        "lslc-004n-observation",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004o-official-resolver-production-responder-observation.json",
+        "tools/check_lslc_004o.py",
+        "tools/check_lslc_004o.ps1"
+      ],
+      "proves": [
+        "two serialized pinned-official resolver calls reached one unchanged production responder on one explicit active IPv4 interface with one matching query/response, finite completion, membership cleanup, and socket cleanup"
+      ],
+      "does_not_prove": [
+        "production changes, default interface or retry policy, other groups or address families, official outlet, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
+    },
+    {
+      "id": "lslc-004p-observation",
+      "owner": "rusty-lsl-multicast-compatibility-evidence",
+      "state": "current",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004p.ps1"
+      ],
+      "depends_on": [
+        "lslc-004o-observation",
+        "lslc-004n-observation",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/udp_discovery.rs",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004p-official-outlet-production-requester-observation.json",
+        "tools/check_lslc_004p.py",
+        "tools/check_lslc_004p.ps1"
+      ],
+      "proves": [
+        "two serialized pinned-official outlets responded to the unchanged explicit-destination requester through one bounded active IPv4 interface path with exact requester hashes, matching response admission, finite completion, and socket cleanup"
+      ],
+      "does_not_prove": [
+        "production changes, requester interface-selection or retry policy, multicast portability, other groups or address families, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
     },
     {
       "id": "pinned-rust-180-clippy",
@@ -753,38 +1512,489 @@
     }
   ],
   "semantic_deltas": [
-    {"id":"lslc-004o-official-resolver-production-responder-observation-gate","decision":"Standard, Deep, and CI validation require sanitized two-repeat pinned-official resolver to unchanged production responder evidence.","reason":"The accepted addressable query grammar and structural conformance justify one bounded active-interface black-box composition before any broader compatibility claim.","preserves":["unchanged production prefix and inert activation","exact group/port and caller-explicit interface","one finite query/response, matching source, deadline/cancellation, membership and socket cleanup","private endpoints, correlation values, raw output, diagnostics, environment, and machine identity","Quest and Manifold authority boundaries"],"does_not_authorize":["production/API/activation changes","interface enumeration/default/fallback/retry policy","other groups, IPv6, cross-host, cross-platform, devices, or broad compatibility","routing, admission, commands, or authority"]},
-    {"id":"lslc-004m-official-query-production-responder-conformance-gate","decision":"Standard, Deep, and CI validation require test-only structural conformance from the addressable LSLC-004N official query grammar into the unchanged exact-group responder.","reason":"LSLC-004N closes the prior authority blocker while keeping private reply-routing and query-correlation values unpublished and unreplayed.","preserves":["unchanged production prefix and inert activation","caller-explicit interface and exact 239.255.172.215:16571 scope","independently selected five- and twenty-digit values","finite deadline/cancellation/termination and cleanup owners","Quest and Manifold authority boundaries"],"does_not_authorize":["private observed-value replay or exact-datagram execution","production or API changes","active nonloopback, official endpoint, cross-host, cross-platform, or device compatibility","interface/default/retry policy, routing, admission, commands, or authority"]},
-    {"id":"lslc-004n-official-query-datagram-observation-gate","decision":"Standard, Deep, and CI validation require addressable sanitized per-attempt identity and minimal structure for the pinned official pre-response query datagram.","reason":"LSLC-004M cannot honestly bind official-query conformance to LSLC-004K whole-attempt hashes without an addressable query observation.","preserves":["exact 239.255.172.215:16571 and caller-explicit active-interface scope","black-box oracle and independently authored parser separation","private raw bytes, routing/correlation values, interface/endpoints, diagnostics, environment, and machine identity","two-repeat-only stability limitation and all LSL/Quest/Manifold authority boundaries"],"does_not_authorize":["production or activation changes","query stability beyond two repeats","other groups, interfaces, address families, retries, devices, or broad compatibility","routing, admission, commands, or authority"]},
-    {"id":"lslc-004l-immutable-receipt-head-identity-gate","decision":"Standard, Deep, and CI validation require focused proof that the current dispatcher implements the existing historical-evidence-terminal-newline decision through exact tracked HEAD-byte identity.","reason":"The fixed historical baseline admitted LSLC-003M but contradicted the generic declared rule and rejected the later accepted byte-identical LSLC-004J receipt.","preserves":["exact accepted LSLC-003M and LSLC-004J receipt bytes","the stricter direct raw public-boundary checker","all path, binary, UTF-8, private-content, credential, build-artifact, trailing-whitespace, mutable-file, and non-receipt newline rules","append-only workflow history"],"does_not_authorize":["new, untracked, or modified newline-less receipts","newline-less non-receipts","content, path, credential, binary, build, or whitespace exemptions","runtime, device, routing, admission, command, or authority widening"]},
-    {"id":"lslc-004k-active-interface-official-resolver-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized pinned-official active-interface resolver observation after the accepted exact-group observation and explicit-interface runtime gates.","reason":"A later official-to-production responder conformance claim first needs separately bounded evidence that the pinned official resolver emits and accepts the independently observed exchange on one active host interface.","preserves":["byte-unchanged requester and responder production sources","caller-explicit interface and exact group scope","private oracle driver, configuration, interface, endpoint, and raw-record exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production changes or official-to-production conformance","interface enumeration, default selection, fallback, or retry policy","cross-host, cross-platform, device, or broad compatibility","routing, admission, commands, or authority"]},
-    {"id":"lslc-004f-prefix-check-superseded-by-lslc-004j","decision":"Retain accepted LSLC-004F as a historical gate but remove its byte-identical responder-prefix checker from current profiles and dependency paths; LSLC-004J preserves the one-query/one-response composition in the responder owner suite while checking the separately authorized production extension.","reason":"LSLC-004F intentionally rejects every responder production change, so it cannot validate the separately observed and reviewed explicit concrete-interface generalization.","preserves":["LSLC-004F accepted fixture, checker, and receipt bytes","the production requester and exact-group loopback composition owner test","LSLC-004E loopback API, activation, finite behavior, and cleanup","device and Manifold authority prohibitions"],"does_not_authorize":["rewriting historical LSLC-004F evidence","requester changes or broader responder behavior","interface enumeration, default selection, fallback, retries, or other network scope","devices, routing, admission, commands, or authority"]},
-    {"id":"lslc-004j-explicit-ipv4-interface-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group caller-explicit concrete IPv4 responder checker after the active-interface observation and accepted activation projection.","reason":"LSLC-004H supplies the narrow Rust socket evidence needed to generalize only responder membership from loopback to one caller-owned concrete IPv4 address without creating interface-selection policy.","preserves":["exact 239.255.172.215:16571 destination","LSLC-004E loopback entry point and LSLC-002Z finite loop","explicit capability activation, deadline, cancellation, and cleanup","private interface exclusion and Quest/Manifold authority boundaries"],"does_not_authorize":["interface enumeration, default selection, or ambient fallback","IPv6, other groups, multiple requests, retries, or background work","official, portable, cross-host, cross-platform, or device compatibility","routing, admission, commands, or authority"]},
-    {"id":"lslc-004i-revision-14-runtime-lock-rebinding-gate","decision":"Standard, Deep, and CI validation require exact projection of the accepted deterministic revision-14 feature lock into runtime activation and current fixtures.","reason":"LSLC-004G changed the complete project composition and resolver fingerprint without changing selected modules; runtime admission must reject the superseded complete-lock identity and admit only the current one.","preserves":["default-inert activation","nine selected modules and dependencies","explicit caller capability requests","historical receipts and the LSLC-004H blocker"],"does_not_authorize":["feature-lock or project-spec changes","new runtime behavior or ambient activation","devices or networking","routing, admission, commands, or authority"]},
-    {"id":"lslc-004h-active-interface-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized active-interface Rust socket observation after accepted host composition, Quest conformance, and public-boundary gates.","reason":"Android Java device evidence does not establish Rust std socket behavior on an active host interface; the separately bounded observation must remain hash-bound without widening production.","preserves":["accepted requester and loopback-only responder production surfaces","caller-explicit interface selection","private driver and interface exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production non-loopback responder widening","portable interface or retry policy","official, cross-host, device, or cross-platform claims","routing, admission, commands, or authority"]},
-    {"id":"lslc-004g-quest-device-conformance-gate","decision":"Standard, Deep, and CI validation require the sanitized exact-head two-Quest multicast device evidence after LSLC-004F and public-boundary gates.","reason":"The device result must remain bound to exact group, dimensions, cancellation, fatal, cleanup, hashes, failures, limitations, and lane authority without replaying private headset artifacts.","preserves":["existing Rusty LSL runtime and activation","Quest packaging and lifecycle ownership","private serial, log, APK, endpoint, and diagnostic exclusion","Manifold admission and routing authority separation"],"does_not_authorize":["official endpoint or broad platform compatibility","other groups, interfaces, address families, or retry policy","ambient or production activation","Manifold admission, routing, identity, commands, or authority"]},
-    {"id":"lslc-004f-exact-multicast-composition-gate","decision":"Standard, Deep, and CI validation require test-only composition of the two accepted exact-group production sides with byte-identical prefix checks.","reason":"Requester and responder evidence should compose without silently expanding either production surface or network policy.","preserves":["LSLC-004D requester production prefix","LSLC-004E responder production prefix","one exact-group loopback query/response","device and Manifold authority prohibitions"],"does_not_authorize":["production, API, or activation changes","official, Quest, or non-loopback claims","other groups, interfaces, retries, or background work","devices, routing, admission, or authority"]},
-    {"id":"lslc-004e-exact-multicast-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group explicit-loopback responder checker after the multicast observation and requester-conformance gates.","reason":"Observed membership can authorize only one capability-gated responder composition that reuses the existing finite parser, envelope, cancellation, deadline, and cleanup loop.","preserves":["LSLC-002Z responder semantics and activation","LSLC-004C observation limits","one explicit loopback interface and exact group","device and Manifold authority prohibitions"],"does_not_authorize":["generic membership or interface policy","other groups, IPv6, or non-loopback interfaces","portable retry or cross-platform claims","devices, routing, admission, or authority"]},
-    {"id":"lslc-004d-multicast-requester-conformance-gate","decision":"Standard, Deep, and CI validation require test-only exact-group multicast requester conformance after the LSLC-004C observation gate.","reason":"The existing explicit-destination requester must remain byte-unchanged while composing with the observed group under one bounded synthetic query/response and cleanup.","preserves":["LSLC-002P production requester and activation","LSLC-004C observation boundary","finite deadline and cancellation owner behavior","device and Manifold authority prohibitions"],"does_not_authorize":["production responder or membership policy","portable retry inference","other groups, address families, or non-loopback interfaces","devices, routing, admission, or authority"]},
-    {"id":"lslc-004c-ipv4-multicast-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe single-group IPv4 multicast observation checker after public-boundary validation.","reason":"Membership, explicit interface use, finite directions, cleanup, counts, timing ceilings, platform limits, hashes, and nonclaims must remain synchronized without portable multicast execution.","preserves":["network-forbidden portable validation","observation versus implementation separation","Rusty LSL compatibility ownership","device and Manifold authority prohibitions"],"does_not_authorize":["production multicast runtime","portable retry inference","other groups, IPv6, or interface policy","private artifact publication","devices, routing, admission, or authority"]},
-    {"id":"lslc-003z-bound-check-superseded-by-lslc-004b","decision":"Retain accepted LSLC-003Z as a historical gate but remove its fixed-128 source assertion from current profiles and the observation dependency path; LSLC-004B preserves its owner case while asserting the authorized 129/130 boundary.","reason":"The older checker intentionally rejects any change to MAX_STRING_BYTES 128 and cannot validate the separately observed exact-129 extension.","preserves":["all LSLC-003Z Rust owner behavior","LSLC-004A public observation evidence","zero-through-128 String behavior","closed activation and finite cleanup","historical evidence bytes","device and authority prohibitions"],"does_not_authorize":["rewriting historical evidence","values above 129 bytes","additional channels, records, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
-    {"id":"lslc-004b-exact-129-string-runtime-gate","decision":"Standard, Deep, and CI validation require the focused exact-129 String runtime checker after accepted observations and activation closure.","reason":"The newly authorized boundary must remain composed with exact 130-byte rejection, prior empty/nonempty behavior, cleanup, and nonclaims.","preserves":["all prior owner tests","StringSample and handshake activation closure","one channel and one caller record","finite deadline, cancellation, and cleanup","device and authority prohibitions"],"does_not_authorize":["values above 129 bytes","additional channels, records, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
-    {"id":"lslc-004a-exact-129-string-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe exact-129-byte String observation checker after public-boundary, LSLC-003Y evidence, and LSLC-003Z runtime gates.","reason":"The next byte boundary must remain synchronized with two pinned attempt hashes, exact length-form-one framing, private drift exclusion, and nonclaims without portable oracle execution or runtime widening.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","StringSample activation closure","device and authority prohibitions"],"does_not_authorize":["runtime or activation changes","private artifact publication","oracle execution in CI","other String dimensions or length forms","devices or authority"]},
-    {"id":"lslc-003t-003x-bound-checks-superseded-by-lslc-003z","decision":"Retain the accepted LSLC-003T and LSLC-003X gates as historical records but remove their fixed-127 source assertions from current profiles and from the LSLC-003Y observation dependency path; LSLC-003Z directly preserves their runtime cases in the owner suite and focused checker while asserting the authorized 128/129 boundary.","reason":"Both older checkers intentionally reject any change to MAX_STRING_BYTES 127, so they cannot validate the separately observed and authorized exact-128 extension; LSLC-003Y is observation-only and does not require current runtime execution.","preserves":["all LSLC-003T and LSLC-003X Rust owner cases","LSLC-003Y public observation evidence","empty and nonempty zero-through-127 behavior","StringSample and handshake activation closure","finite deadline, cancellation, damaged framing, and cleanup","historical evidence bytes","device and authority prohibitions"],"does_not_authorize":["rewriting historical fixtures or checkers","values above 128 bytes","additional channels, records, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
-    {"id":"lslc-003z-exact-128-string-runtime-gate","decision":"Standard, Deep, and CI validation require the focused exact-128 String runtime checker after LSLC-003X runtime and LSLC-003Y observation gates.","reason":"The newly authorized byte boundary must remain composed with exact 129-byte rejection, prior empty/nonempty behavior, closed activation, cleanup, and nonclaims.","preserves":["all prior current gates","zero-through-127 String behavior","StringSample and handshake activation closure","one channel and one caller record","finite deadline, cancellation, and cleanup","device and authority prohibitions"],"does_not_authorize":["values above 128 bytes","additional channels, records, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
-    {"id":"lslc-003y-exact-128-string-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe exact-128-byte String observation checker after public-boundary, LSLC-003U, and LSLC-003X gates.","reason":"The next byte boundary must remain synchronized with two pinned attempt hashes, exact length-form-one framing, private drift exclusion, and nonclaims without portable oracle execution or runtime widening.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","StringSample activation closure","device and authority prohibitions"],"does_not_authorize":["runtime or activation changes","private artifact publication","oracle execution in CI","other String dimensions or length forms","devices or authority"]},
-    {"id":"lslc-003v-prefix-check-superseded-by-lslc-003x","decision":"Remove LSLC-003V's byte-identical LSLC-003U production-prefix assertion from current execution profiles while retaining its gate record and its two nonempty cases in the owner test suite; LSLC-003X directly depends on LSLC-003T, LSLC-003U, and LSLC-003W.","reason":"An authorized empty-value production extension necessarily changes the old prefix, so executing that historical no-production-change assertion would reject the new accepted claim rather than preserve nonempty conformance.","preserves":["the LSLC-003V mixed-width and exact-127-byte Rust tests","LSLC-003T nonempty framing and maximum","LSLC-003U and LSLC-003W observation gates","StringSample activation closure","all device and authority prohibitions"],"does_not_authorize":["changes to historical LSLC-003V evidence","additional channels, records, lengths, or length forms","non-loopback behavior","ambient activation, devices, dependencies, commands, or authority"]},
-    {"id":"lslc-003x-empty-string-runtime-gate","decision":"Standard, Deep, and CI validation require the focused empty-String runtime checker after the accepted LSLC-003T runtime and LSLC-003W observation gates.","reason":"The observed zero-payload case must remain continuously composed with capability admission, the 127-byte maximum, finite loopback, cleanup, and exact nonclaims.","preserves":["LSLC-003S StringSample activation closure","LSLC-003T nonempty behavior and maximum","one channel and one caller record","finite deadline, cancellation, and cleanup","device and authority prohibitions"],"does_not_authorize":["additional channels, records, or length forms","non-loopback behavior","ambient activation","devices, dependencies, commands, or authority"]},
-    {"id":"lslc-003w-empty-string-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe LSLC-003W empty-String observation checker after its public-boundary, LSLC-003Q evidence, and LSLC-003V unchanged-runtime dependencies.","reason":"The separately observed empty record must remain synchronized with two pinned attempt hashes, exact zero-payload one-byte framing, and nonclaims without portable oracle execution or a runtime change.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","unchanged LSLC-003T runtime and LSLC-003S activation","device and authority prohibitions"],"does_not_authorize":["implementation or activation changes","private artifact publication","oracle execution in CI","new length forms or broader String dimensions","devices or authority"]},
-    {"id":"lslc-003v-string-runtime-conformance-gate","decision":"Standard, Deep, and CI validation require test-only conformance for the two LSLC-003U value classes while byte-checking the production prefix against the accepted baseline.","reason":"Observed boundary breadth should remain continuously composed with the existing runtime without silently changing production framing or activation.","preserves":["LSLC-003T production bytes and public API","LSLC-003S activation closure","all prior gates and evidence boundaries","device and authority prohibitions"],"does_not_authorize":["production or API changes","new framing or bounds","oracle execution in CI","devices, dependencies, or authority"]},
-    {"id":"lslc-003u-string-boundary-observation-gate","decision":"Standard, Deep, and CI validation require the public-safe LSLC-003U boundary observation checker after its public-boundary and LSLC-003Q evidence dependencies.","reason":"The sanitized multibyte and exact-127-byte evidence must remain synchronized with four pinned attempt hashes, private drift exclusion, exact bounds, and nonclaims without portable oracle execution.","preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","activation, device, and authority boundaries"],"does_not_authorize":["implementation or activation changes","private artifact publication","oracle execution in CI","new length forms or broader String dimensions","devices or authority"]},
-    {"id":"lslc-003s-string-sample-capability","decision":"Add a distinct selected-but-run-disabled StringSample module capability and descriptor to closed lock revision 14.","reason":"A later bounded String runtime must consume module-nominal authority rather than reuse numeric or handshake-only admission.","preserves":["all prior module identities and dependencies","default-disabled activation","explicit runtime input requirement","private capability construction","no ambient effects"],"does_not_authorize":["String transport or framing","runtime execution","devices","dependencies","Manifold authority"]},
     {
-      "id":"lslc-003q-bounded-string-observation-gate",
-      "decision":"Standard, Deep, and CI validation require the public-safe LSLC-003Q String observation checker after the public-boundary gate.",
-      "reason":"The new observation must stay synchronized with its exact framing dimensions, private hashes, negative classifications, and nonclaims without executing the private oracle in portable validation.",
-      "preserves":["all prior current gates","network-forbidden portable validation","observation versus implementation separation","activation and authority boundaries"],
-      "does_not_authorize":["String implementation","private artifact publication","oracle execution in CI","devices","authority"]
+      "id": "lslc-004o-official-resolver-production-responder-observation-gate",
+      "decision": "Standard, Deep, and CI validation require sanitized two-repeat pinned-official resolver to unchanged production responder evidence.",
+      "reason": "The accepted addressable query grammar and structural conformance justify one bounded active-interface black-box composition before any broader compatibility claim.",
+      "preserves": [
+        "unchanged production prefix and inert activation",
+        "exact group/port and caller-explicit interface",
+        "one finite query/response, matching source, deadline/cancellation, membership and socket cleanup",
+        "private endpoints, correlation values, raw output, diagnostics, environment, and machine identity",
+        "Quest and Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "production/API/activation changes",
+        "interface enumeration/default/fallback/retry policy",
+        "other groups, IPv6, cross-host, cross-platform, devices, or broad compatibility",
+        "routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004m-official-query-production-responder-conformance-gate",
+      "decision": "Standard, Deep, and CI validation require test-only structural conformance from the addressable LSLC-004N official query grammar into the unchanged exact-group responder.",
+      "reason": "LSLC-004N closes the prior authority blocker while keeping private reply-routing and query-correlation values unpublished and unreplayed.",
+      "preserves": [
+        "unchanged production prefix and inert activation",
+        "caller-explicit interface and exact 239.255.172.215:16571 scope",
+        "independently selected five- and twenty-digit values",
+        "finite deadline/cancellation/termination and cleanup owners",
+        "Quest and Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "private observed-value replay or exact-datagram execution",
+        "production or API changes",
+        "active nonloopback, official endpoint, cross-host, cross-platform, or device compatibility",
+        "interface/default/retry policy, routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004n-official-query-datagram-observation-gate",
+      "decision": "Standard, Deep, and CI validation require addressable sanitized per-attempt identity and minimal structure for the pinned official pre-response query datagram.",
+      "reason": "LSLC-004M cannot honestly bind official-query conformance to LSLC-004K whole-attempt hashes without an addressable query observation.",
+      "preserves": [
+        "exact 239.255.172.215:16571 and caller-explicit active-interface scope",
+        "black-box oracle and independently authored parser separation",
+        "private raw bytes, routing/correlation values, interface/endpoints, diagnostics, environment, and machine identity",
+        "two-repeat-only stability limitation and all LSL/Quest/Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "production or activation changes",
+        "query stability beyond two repeats",
+        "other groups, interfaces, address families, retries, devices, or broad compatibility",
+        "routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004l-immutable-receipt-head-identity-gate",
+      "decision": "Standard, Deep, and CI validation require focused proof that the current dispatcher implements the existing historical-evidence-terminal-newline decision through exact tracked HEAD-byte identity.",
+      "reason": "The fixed historical baseline admitted LSLC-003M but contradicted the generic declared rule and rejected the later accepted byte-identical LSLC-004J receipt.",
+      "preserves": [
+        "exact accepted LSLC-003M and LSLC-004J receipt bytes",
+        "the stricter direct raw public-boundary checker",
+        "all path, binary, UTF-8, private-content, credential, build-artifact, trailing-whitespace, mutable-file, and non-receipt newline rules",
+        "append-only workflow history"
+      ],
+      "does_not_authorize": [
+        "new, untracked, or modified newline-less receipts",
+        "newline-less non-receipts",
+        "content, path, credential, binary, build, or whitespace exemptions",
+        "runtime, device, routing, admission, command, or authority widening"
+      ]
+    },
+    {
+      "id": "lslc-004k-active-interface-official-resolver-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the sanitized pinned-official active-interface resolver observation after the accepted exact-group observation and explicit-interface runtime gates.",
+      "reason": "A later official-to-production responder conformance claim first needs separately bounded evidence that the pinned official resolver emits and accepts the independently observed exchange on one active host interface.",
+      "preserves": [
+        "byte-unchanged requester and responder production sources",
+        "caller-explicit interface and exact group scope",
+        "private oracle driver, configuration, interface, endpoint, and raw-record exclusion",
+        "Quest packaging and Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "production changes or official-to-production conformance",
+        "interface enumeration, default selection, fallback, or retry policy",
+        "cross-host, cross-platform, device, or broad compatibility",
+        "routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004f-prefix-check-superseded-by-lslc-004j",
+      "decision": "Retain accepted LSLC-004F as a historical gate but remove its byte-identical responder-prefix checker from current profiles and dependency paths; LSLC-004J preserves the one-query/one-response composition in the responder owner suite while checking the separately authorized production extension.",
+      "reason": "LSLC-004F intentionally rejects every responder production change, so it cannot validate the separately observed and reviewed explicit concrete-interface generalization.",
+      "preserves": [
+        "LSLC-004F accepted fixture, checker, and receipt bytes",
+        "the production requester and exact-group loopback composition owner test",
+        "LSLC-004E loopback API, activation, finite behavior, and cleanup",
+        "device and Manifold authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "rewriting historical LSLC-004F evidence",
+        "requester changes or broader responder behavior",
+        "interface enumeration, default selection, fallback, retries, or other network scope",
+        "devices, routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004j-explicit-ipv4-interface-responder-gate",
+      "decision": "Standard, Deep, and CI validation require the exact-group caller-explicit concrete IPv4 responder checker after the active-interface observation and accepted activation projection.",
+      "reason": "LSLC-004H supplies the narrow Rust socket evidence needed to generalize only responder membership from loopback to one caller-owned concrete IPv4 address without creating interface-selection policy.",
+      "preserves": [
+        "exact 239.255.172.215:16571 destination",
+        "LSLC-004E loopback entry point and LSLC-002Z finite loop",
+        "explicit capability activation, deadline, cancellation, and cleanup",
+        "private interface exclusion and Quest/Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "interface enumeration, default selection, or ambient fallback",
+        "IPv6, other groups, multiple requests, retries, or background work",
+        "official, portable, cross-host, cross-platform, or device compatibility",
+        "routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004i-revision-14-runtime-lock-rebinding-gate",
+      "decision": "Standard, Deep, and CI validation require exact projection of the accepted deterministic revision-14 feature lock into runtime activation and current fixtures.",
+      "reason": "LSLC-004G changed the complete project composition and resolver fingerprint without changing selected modules; runtime admission must reject the superseded complete-lock identity and admit only the current one.",
+      "preserves": [
+        "default-inert activation",
+        "nine selected modules and dependencies",
+        "explicit caller capability requests",
+        "historical receipts and the LSLC-004H blocker"
+      ],
+      "does_not_authorize": [
+        "feature-lock or project-spec changes",
+        "new runtime behavior or ambient activation",
+        "devices or networking",
+        "routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004h-active-interface-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the sanitized active-interface Rust socket observation after accepted host composition, Quest conformance, and public-boundary gates.",
+      "reason": "Android Java device evidence does not establish Rust std socket behavior on an active host interface; the separately bounded observation must remain hash-bound without widening production.",
+      "preserves": [
+        "accepted requester and loopback-only responder production surfaces",
+        "caller-explicit interface selection",
+        "private driver and interface exclusion",
+        "Quest packaging and Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "production non-loopback responder widening",
+        "portable interface or retry policy",
+        "official, cross-host, device, or cross-platform claims",
+        "routing, admission, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004g-quest-device-conformance-gate",
+      "decision": "Standard, Deep, and CI validation require the sanitized exact-head two-Quest multicast device evidence after LSLC-004F and public-boundary gates.",
+      "reason": "The device result must remain bound to exact group, dimensions, cancellation, fatal, cleanup, hashes, failures, limitations, and lane authority without replaying private headset artifacts.",
+      "preserves": [
+        "existing Rusty LSL runtime and activation",
+        "Quest packaging and lifecycle ownership",
+        "private serial, log, APK, endpoint, and diagnostic exclusion",
+        "Manifold admission and routing authority separation"
+      ],
+      "does_not_authorize": [
+        "official endpoint or broad platform compatibility",
+        "other groups, interfaces, address families, or retry policy",
+        "ambient or production activation",
+        "Manifold admission, routing, identity, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004f-exact-multicast-composition-gate",
+      "decision": "Standard, Deep, and CI validation require test-only composition of the two accepted exact-group production sides with byte-identical prefix checks.",
+      "reason": "Requester and responder evidence should compose without silently expanding either production surface or network policy.",
+      "preserves": [
+        "LSLC-004D requester production prefix",
+        "LSLC-004E responder production prefix",
+        "one exact-group loopback query/response",
+        "device and Manifold authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "production, API, or activation changes",
+        "official, Quest, or non-loopback claims",
+        "other groups, interfaces, retries, or background work",
+        "devices, routing, admission, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004e-exact-multicast-responder-gate",
+      "decision": "Standard, Deep, and CI validation require the exact-group explicit-loopback responder checker after the multicast observation and requester-conformance gates.",
+      "reason": "Observed membership can authorize only one capability-gated responder composition that reuses the existing finite parser, envelope, cancellation, deadline, and cleanup loop.",
+      "preserves": [
+        "LSLC-002Z responder semantics and activation",
+        "LSLC-004C observation limits",
+        "one explicit loopback interface and exact group",
+        "device and Manifold authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "generic membership or interface policy",
+        "other groups, IPv6, or non-loopback interfaces",
+        "portable retry or cross-platform claims",
+        "devices, routing, admission, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004d-multicast-requester-conformance-gate",
+      "decision": "Standard, Deep, and CI validation require test-only exact-group multicast requester conformance after the LSLC-004C observation gate.",
+      "reason": "The existing explicit-destination requester must remain byte-unchanged while composing with the observed group under one bounded synthetic query/response and cleanup.",
+      "preserves": [
+        "LSLC-002P production requester and activation",
+        "LSLC-004C observation boundary",
+        "finite deadline and cancellation owner behavior",
+        "device and Manifold authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "production responder or membership policy",
+        "portable retry inference",
+        "other groups, address families, or non-loopback interfaces",
+        "devices, routing, admission, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004c-ipv4-multicast-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the public-safe single-group IPv4 multicast observation checker after public-boundary validation.",
+      "reason": "Membership, explicit interface use, finite directions, cleanup, counts, timing ceilings, platform limits, hashes, and nonclaims must remain synchronized without portable multicast execution.",
+      "preserves": [
+        "network-forbidden portable validation",
+        "observation versus implementation separation",
+        "Rusty LSL compatibility ownership",
+        "device and Manifold authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "production multicast runtime",
+        "portable retry inference",
+        "other groups, IPv6, or interface policy",
+        "private artifact publication",
+        "devices, routing, admission, or authority"
+      ]
+    },
+    {
+      "id": "lslc-003z-bound-check-superseded-by-lslc-004b",
+      "decision": "Retain accepted LSLC-003Z as a historical gate but remove its fixed-128 source assertion from current profiles and the observation dependency path; LSLC-004B preserves its owner case while asserting the authorized 129/130 boundary.",
+      "reason": "The older checker intentionally rejects any change to MAX_STRING_BYTES 128 and cannot validate the separately observed exact-129 extension.",
+      "preserves": [
+        "all LSLC-003Z Rust owner behavior",
+        "LSLC-004A public observation evidence",
+        "zero-through-128 String behavior",
+        "closed activation and finite cleanup",
+        "historical evidence bytes",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "rewriting historical evidence",
+        "values above 129 bytes",
+        "additional channels, records, or length forms",
+        "non-loopback behavior",
+        "ambient activation, devices, dependencies, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004b-exact-129-string-runtime-gate",
+      "decision": "Standard, Deep, and CI validation require the focused exact-129 String runtime checker after accepted observations and activation closure.",
+      "reason": "The newly authorized boundary must remain composed with exact 130-byte rejection, prior empty/nonempty behavior, cleanup, and nonclaims.",
+      "preserves": [
+        "all prior owner tests",
+        "StringSample and handshake activation closure",
+        "one channel and one caller record",
+        "finite deadline, cancellation, and cleanup",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "values above 129 bytes",
+        "additional channels, records, or length forms",
+        "non-loopback behavior",
+        "ambient activation, devices, dependencies, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-004a-exact-129-string-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the public-safe exact-129-byte String observation checker after public-boundary, LSLC-003Y evidence, and LSLC-003Z runtime gates.",
+      "reason": "The next byte boundary must remain synchronized with two pinned attempt hashes, exact length-form-one framing, private drift exclusion, and nonclaims without portable oracle execution or runtime widening.",
+      "preserves": [
+        "all prior current gates",
+        "network-forbidden portable validation",
+        "observation versus implementation separation",
+        "StringSample activation closure",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "runtime or activation changes",
+        "private artifact publication",
+        "oracle execution in CI",
+        "other String dimensions or length forms",
+        "devices or authority"
+      ]
+    },
+    {
+      "id": "lslc-003t-003x-bound-checks-superseded-by-lslc-003z",
+      "decision": "Retain the accepted LSLC-003T and LSLC-003X gates as historical records but remove their fixed-127 source assertions from current profiles and from the LSLC-003Y observation dependency path; LSLC-003Z directly preserves their runtime cases in the owner suite and focused checker while asserting the authorized 128/129 boundary.",
+      "reason": "Both older checkers intentionally reject any change to MAX_STRING_BYTES 127, so they cannot validate the separately observed and authorized exact-128 extension; LSLC-003Y is observation-only and does not require current runtime execution.",
+      "preserves": [
+        "all LSLC-003T and LSLC-003X Rust owner cases",
+        "LSLC-003Y public observation evidence",
+        "empty and nonempty zero-through-127 behavior",
+        "StringSample and handshake activation closure",
+        "finite deadline, cancellation, damaged framing, and cleanup",
+        "historical evidence bytes",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "rewriting historical fixtures or checkers",
+        "values above 128 bytes",
+        "additional channels, records, or length forms",
+        "non-loopback behavior",
+        "ambient activation, devices, dependencies, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-003z-exact-128-string-runtime-gate",
+      "decision": "Standard, Deep, and CI validation require the focused exact-128 String runtime checker after LSLC-003X runtime and LSLC-003Y observation gates.",
+      "reason": "The newly authorized byte boundary must remain composed with exact 129-byte rejection, prior empty/nonempty behavior, closed activation, cleanup, and nonclaims.",
+      "preserves": [
+        "all prior current gates",
+        "zero-through-127 String behavior",
+        "StringSample and handshake activation closure",
+        "one channel and one caller record",
+        "finite deadline, cancellation, and cleanup",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "values above 128 bytes",
+        "additional channels, records, or length forms",
+        "non-loopback behavior",
+        "ambient activation, devices, dependencies, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-003y-exact-128-string-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the public-safe exact-128-byte String observation checker after public-boundary, LSLC-003U, and LSLC-003X gates.",
+      "reason": "The next byte boundary must remain synchronized with two pinned attempt hashes, exact length-form-one framing, private drift exclusion, and nonclaims without portable oracle execution or runtime widening.",
+      "preserves": [
+        "all prior current gates",
+        "network-forbidden portable validation",
+        "observation versus implementation separation",
+        "StringSample activation closure",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "runtime or activation changes",
+        "private artifact publication",
+        "oracle execution in CI",
+        "other String dimensions or length forms",
+        "devices or authority"
+      ]
+    },
+    {
+      "id": "lslc-003v-prefix-check-superseded-by-lslc-003x",
+      "decision": "Remove LSLC-003V's byte-identical LSLC-003U production-prefix assertion from current execution profiles while retaining its gate record and its two nonempty cases in the owner test suite; LSLC-003X directly depends on LSLC-003T, LSLC-003U, and LSLC-003W.",
+      "reason": "An authorized empty-value production extension necessarily changes the old prefix, so executing that historical no-production-change assertion would reject the new accepted claim rather than preserve nonempty conformance.",
+      "preserves": [
+        "the LSLC-003V mixed-width and exact-127-byte Rust tests",
+        "LSLC-003T nonempty framing and maximum",
+        "LSLC-003U and LSLC-003W observation gates",
+        "StringSample activation closure",
+        "all device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "changes to historical LSLC-003V evidence",
+        "additional channels, records, lengths, or length forms",
+        "non-loopback behavior",
+        "ambient activation, devices, dependencies, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-003x-empty-string-runtime-gate",
+      "decision": "Standard, Deep, and CI validation require the focused empty-String runtime checker after the accepted LSLC-003T runtime and LSLC-003W observation gates.",
+      "reason": "The observed zero-payload case must remain continuously composed with capability admission, the 127-byte maximum, finite loopback, cleanup, and exact nonclaims.",
+      "preserves": [
+        "LSLC-003S StringSample activation closure",
+        "LSLC-003T nonempty behavior and maximum",
+        "one channel and one caller record",
+        "finite deadline, cancellation, and cleanup",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "additional channels, records, or length forms",
+        "non-loopback behavior",
+        "ambient activation",
+        "devices, dependencies, commands, or authority"
+      ]
+    },
+    {
+      "id": "lslc-003w-empty-string-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the public-safe LSLC-003W empty-String observation checker after its public-boundary, LSLC-003Q evidence, and LSLC-003V unchanged-runtime dependencies.",
+      "reason": "The separately observed empty record must remain synchronized with two pinned attempt hashes, exact zero-payload one-byte framing, and nonclaims without portable oracle execution or a runtime change.",
+      "preserves": [
+        "all prior current gates",
+        "network-forbidden portable validation",
+        "observation versus implementation separation",
+        "unchanged LSLC-003T runtime and LSLC-003S activation",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "implementation or activation changes",
+        "private artifact publication",
+        "oracle execution in CI",
+        "new length forms or broader String dimensions",
+        "devices or authority"
+      ]
+    },
+    {
+      "id": "lslc-003v-string-runtime-conformance-gate",
+      "decision": "Standard, Deep, and CI validation require test-only conformance for the two LSLC-003U value classes while byte-checking the production prefix against the accepted baseline.",
+      "reason": "Observed boundary breadth should remain continuously composed with the existing runtime without silently changing production framing or activation.",
+      "preserves": [
+        "LSLC-003T production bytes and public API",
+        "LSLC-003S activation closure",
+        "all prior gates and evidence boundaries",
+        "device and authority prohibitions"
+      ],
+      "does_not_authorize": [
+        "production or API changes",
+        "new framing or bounds",
+        "oracle execution in CI",
+        "devices, dependencies, or authority"
+      ]
+    },
+    {
+      "id": "lslc-003u-string-boundary-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the public-safe LSLC-003U boundary observation checker after its public-boundary and LSLC-003Q evidence dependencies.",
+      "reason": "The sanitized multibyte and exact-127-byte evidence must remain synchronized with four pinned attempt hashes, private drift exclusion, exact bounds, and nonclaims without portable oracle execution.",
+      "preserves": [
+        "all prior current gates",
+        "network-forbidden portable validation",
+        "observation versus implementation separation",
+        "activation, device, and authority boundaries"
+      ],
+      "does_not_authorize": [
+        "implementation or activation changes",
+        "private artifact publication",
+        "oracle execution in CI",
+        "new length forms or broader String dimensions",
+        "devices or authority"
+      ]
+    },
+    {
+      "id": "lslc-003s-string-sample-capability",
+      "decision": "Add a distinct selected-but-run-disabled StringSample module capability and descriptor to closed lock revision 14.",
+      "reason": "A later bounded String runtime must consume module-nominal authority rather than reuse numeric or handshake-only admission.",
+      "preserves": [
+        "all prior module identities and dependencies",
+        "default-disabled activation",
+        "explicit runtime input requirement",
+        "private capability construction",
+        "no ambient effects"
+      ],
+      "does_not_authorize": [
+        "String transport or framing",
+        "runtime execution",
+        "devices",
+        "dependencies",
+        "Manifold authority"
+      ]
+    },
+    {
+      "id": "lslc-003q-bounded-string-observation-gate",
+      "decision": "Standard, Deep, and CI validation require the public-safe LSLC-003Q String observation checker after the public-boundary gate.",
+      "reason": "The new observation must stay synchronized with its exact framing dimensions, private hashes, negative classifications, and nonclaims without executing the private oracle in portable validation.",
+      "preserves": [
+        "all prior current gates",
+        "network-forbidden portable validation",
+        "observation versus implementation separation",
+        "activation and authority boundaries"
+      ],
+      "does_not_authorize": [
+        "String implementation",
+        "private artifact publication",
+        "oracle execution in CI",
+        "devices",
+        "authority"
+      ]
     },
     {
       "id": "lslc-003p-bounded-sequence-runtime-gate",
@@ -825,8 +2035,35 @@
       "id": "historical-evidence-terminal-newline",
       "decision": "Hash-pinned immutable historical receipts remain subject to every path, binary, UTF-8, private-content, credential, build-artifact, and whitespace boundary, but are exempt from the mutable-text terminal-newline rule when and only when their exact current bytes equal the committed HEAD bytes.",
       "reason": "The accepted LSLC-003M receipt predates its own post-acceptance aggregate scan and has no terminal newline; modifying accepted evidence would violate the stronger immutability authority.",
-      "preserves": ["all public/private content rules", "exact historical bytes", "terminal-newline enforcement for current and mutable files"],
-      "does_not_authorize": ["content exemptions", "path exemptions", "receipt rewrites", "new newline-less evidence"]
+      "preserves": [
+        "all public/private content rules",
+        "exact historical bytes",
+        "terminal-newline enforcement for current and mutable files"
+      ],
+      "does_not_authorize": [
+        "content exemptions",
+        "path exemptions",
+        "receipt rewrites",
+        "new newline-less evidence"
+      ]
+    },
+    {
+      "id": "lslc-004p-official-outlet-production-requester-observation-gate",
+      "decision": "Standard, Deep, and CI validation require sanitized two-repeat pinned-official outlet to unchanged production requester evidence.",
+      "reason": "The accepted requester and preceding opposite-direction observation justify one bounded active-interface black-box composition before any requester policy or broader compatibility claim.",
+      "preserves": [
+        "unchanged production requester and inert activation",
+        "exact group/port and caller-explicit destination",
+        "one finite query/response, matching source, deadline/cancellation, and socket cleanup",
+        "private endpoints, correlation values, raw output, diagnostics, environment, and machine identity",
+        "Quest and Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "production/API/activation changes",
+        "requester interface enumeration/default/fallback/retry policy",
+        "other groups, IPv6, cross-host, cross-platform, devices, or broad compatibility",
+        "routing, admission, commands, or authority"
+      ]
     }
   ]
 }
