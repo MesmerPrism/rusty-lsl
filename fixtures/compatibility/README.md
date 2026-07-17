@@ -404,3 +404,11 @@ environment, and machine identity remain private.
 sanitized pinned-official active-interface query/response outcomes, exact
 group and finite dimensions, public-source and private-artifact hashes,
 cleanup, single-platform limitations, exclusions, and authority nonclaims.
+
+## LSLC-004N
+
+`lslc-004n-official-query-datagram-observation.json` contains per-attempt exact
+datagram hashes and lengths, minimal sanitized three-line query grammar,
+two-repeat equality limits, pinned versions, finite cleanup, private-capsule
+hashes, exclusions, and authority nonclaims. Raw bytes and private routing and
+correlation values remain outside the repository.

@@ -470,3 +470,10 @@ It preserves the stricter direct raw checker and every path, binary, UTF-8,
 private-content, credential, build-artifact, trailing-whitespace, mutable-file,
 and non-receipt newline rule. Accepted LSLC-003M and LSLC-004J receipt bytes and
 all historical events remain unchanged.
+
+LSLC-004N records only two serialized pre-response black-box captures of the
+pinned official IPv4 short-info query at exact 239.255.172.215:16571 on one
+caller-explicit active private interface. It publishes per-attempt SHA-256 and
+length plus minimal public-safe grammar; reply-port/query-id values, raw bytes,
+interface/endpoints, diagnostics, environment, and machine identity remain
+private. Equality proves only these two repeats and adds no runtime or authority.

@@ -33,6 +33,7 @@
       "lslc-004j-runtime",
       "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
+      "lslc-004n-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -58,6 +59,7 @@
       "lslc-004j-runtime",
       "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
+      "lslc-004n-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -85,6 +87,7 @@
       "lslc-004j-runtime",
       "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
+      "lslc-004n-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -643,6 +646,18 @@
       "environment": {"network":"forbidden", "timeout_seconds":60}
     },
     {
+      "id": "lslc-004n-observation",
+      "owner": "rusty-lsl-multicast-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004n.ps1"],
+      "depends_on": ["lslc-004k-observation", "public-boundary"],
+      "change_categories": ["validation", "public-private-boundary"],
+      "affected_paths": ["AGENTS.md", "README.md", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004n-official-query-datagram-observation.json", "tools/check_lslc_004n.py", "tools/check_lslc_004n.ps1"],
+      "proves": ["two serialized pinned-official pre-response query captures are addressable by exact per-attempt SHA-256 and length, minimal sanitized grammar, private-capsule hashes, finite completion, and cleanup"],
+      "does_not_prove": ["stability beyond two repeats, private routing or correlation values, raw query publication, production responder conformance, interface or retry policy, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -708,6 +723,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004n-official-query-datagram-observation-gate","decision":"Standard, Deep, and CI validation require addressable sanitized per-attempt identity and minimal structure for the pinned official pre-response query datagram.","reason":"LSLC-004M cannot honestly bind official-query conformance to LSLC-004K whole-attempt hashes without an addressable query observation.","preserves":["exact 239.255.172.215:16571 and caller-explicit active-interface scope","black-box oracle and independently authored parser separation","private raw bytes, routing/correlation values, interface/endpoints, diagnostics, environment, and machine identity","two-repeat-only stability limitation and all LSL/Quest/Manifold authority boundaries"],"does_not_authorize":["production or activation changes","query stability beyond two repeats","other groups, interfaces, address families, retries, devices, or broad compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004l-immutable-receipt-head-identity-gate","decision":"Standard, Deep, and CI validation require focused proof that the current dispatcher implements the existing historical-evidence-terminal-newline decision through exact tracked HEAD-byte identity.","reason":"The fixed historical baseline admitted LSLC-003M but contradicted the generic declared rule and rejected the later accepted byte-identical LSLC-004J receipt.","preserves":["exact accepted LSLC-003M and LSLC-004J receipt bytes","the stricter direct raw public-boundary checker","all path, binary, UTF-8, private-content, credential, build-artifact, trailing-whitespace, mutable-file, and non-receipt newline rules","append-only workflow history"],"does_not_authorize":["new, untracked, or modified newline-less receipts","newline-less non-receipts","content, path, credential, binary, build, or whitespace exemptions","runtime, device, routing, admission, command, or authority widening"]},
     {"id":"lslc-004k-active-interface-official-resolver-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized pinned-official active-interface resolver observation after the accepted exact-group observation and explicit-interface runtime gates.","reason":"A later official-to-production responder conformance claim first needs separately bounded evidence that the pinned official resolver emits and accepts the independently observed exchange on one active host interface.","preserves":["byte-unchanged requester and responder production sources","caller-explicit interface and exact group scope","private oracle driver, configuration, interface, endpoint, and raw-record exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production changes or official-to-production conformance","interface enumeration, default selection, fallback, or retry policy","cross-host, cross-platform, device, or broad compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004f-prefix-check-superseded-by-lslc-004j","decision":"Retain accepted LSLC-004F as a historical gate but remove its byte-identical responder-prefix checker from current profiles and dependency paths; LSLC-004J preserves the one-query/one-response composition in the responder owner suite while checking the separately authorized production extension.","reason":"LSLC-004F intentionally rejects every responder production change, so it cannot validate the separately observed and reviewed explicit concrete-interface generalization.","preserves":["LSLC-004F accepted fixture, checker, and receipt bytes","the production requester and exact-group loopback composition owner test","LSLC-004E loopback API, activation, finite behavior, and cleanup","device and Manifold authority prohibitions"],"does_not_authorize":["rewriting historical LSLC-004F evidence","requester changes or broader responder behavior","interface enumeration, default selection, fallback, retries, or other network scope","devices, routing, admission, commands, or authority"]},

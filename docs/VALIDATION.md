@@ -156,3 +156,9 @@ binds exact immutable LSLC-003M and LSLC-004J bytes and rejects modified or new
 receipts, non-receipts, private paths/content, credentials, build artifacts,
 and trailing whitespace. It also hash-checks that the direct raw checker and
 both accepted receipts remain byte-identical.
+
+LSLC-004N addressable official-query evidence is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004n.ps1`.
+It verifies exact hashes/lengths, sanitized grammar, pin and two-repeat limits,
+ten damaged mutations, documentation routes, and the current public boundary;
+it does not replay the private oracle.

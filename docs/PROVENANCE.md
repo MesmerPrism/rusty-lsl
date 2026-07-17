@@ -618,3 +618,13 @@ machine identity remain outside the repository. The public fixture binds the
 driver, configuration, both raw attempts, attempt record, and unchanged public
 source baseline by SHA-256. The driver is compatibility evidence, not source
 input or a production dependency.
+
+## LSLC-004N pinned query datagram observation
+
+The oracle is an installed pinned pylsl 1.18.2/liblsl 1.17/protocol-110 binary
+used only as a black-box endpoint. The capture and structural parser were
+independently authored without inspecting or copying wrapper or liblsl source.
+Public evidence binds the private driver, two raw attempt records, and aggregate
+capsule by SHA-256. Raw datagrams, reply-routing/correlation values, interface
+and endpoints, paths, diagnostics, environment, and machine identity remain
+private.

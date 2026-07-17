@@ -181,3 +181,8 @@ immutable-evidence decision: only a tracked receipt whose current bytes exactly
 equal its `HEAD` blob may retain historical missing-newline bytes. New,
 untracked, modified, non-receipt, or otherwise damaged content still rejects;
 the direct raw boundary checker remains unchanged.
+
+LSLC-004N adds addressable observation-only evidence for two identical 65-byte
+pinned-official short-info query datagrams. It publishes exact hashes and a
+sanitized three-line grammar without publishing reply-routing/correlation
+values or claiming stability beyond the two bounded repeats.

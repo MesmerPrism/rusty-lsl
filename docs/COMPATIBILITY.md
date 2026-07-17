@@ -748,3 +748,17 @@ The ambient pylsl 1.18.1 installation is version drift and is excluded. This
 does not execute or validate the production responder, an official outlet,
 cross-host reachability, other platforms or interfaces, retry policy, devices,
 or Manifold routing/admission authority.
+
+## LSLC-004N
+
+Two fresh serialized pylsl 1.18.2/liblsl 1.17/protocol-110 black-box repeats
+captured the official query before any response. Both were 65 bytes and had the
+same published SHA-256. Each was UTF-8/ASCII with three CRLF-terminated lines:
+the `LSL:shortinfo` role, the default-session predicate, then one five-digit
+reply-port token and one twenty-digit query-correlation token separated by one
+space. The token values remain private.
+
+Complete-byte equality is evidence only for these two repeats on one Windows
+host and active interface. It does not establish portable or long-term query
+stability, production responder conformance, cross-host behavior, devices, or
+Manifold authority.
