@@ -31,6 +31,7 @@
       "lslc-004e-runtime",
       "lslc-004g-quest-device-conformance",
       "lslc-004j-runtime",
+      "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
       "git-diff-hygiene"
     ],
@@ -55,6 +56,7 @@
       "lslc-004e-runtime",
       "lslc-004g-quest-device-conformance",
       "lslc-004j-runtime",
+      "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
@@ -81,6 +83,7 @@
       "lslc-004e-runtime",
       "lslc-004g-quest-device-conformance",
       "lslc-004j-runtime",
+      "lslc-004l-immutable-receipt-head-identity",
       "lslc-004k-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
@@ -628,6 +631,18 @@
       "environment": {"network":"forbidden", "timeout_seconds":60}
     },
     {
+      "id": "lslc-004l-immutable-receipt-head-identity",
+      "owner": "rusty-lsl-validation-authority",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004l.ps1"],
+      "depends_on": ["public-boundary"],
+      "change_categories": ["validation", "public-private-boundary"],
+      "affected_paths": ["AGENTS.md", "README.md", "docs/VALIDATION.md", "tools/check_lslc_004l.ps1", "tools/dispatch_validation.py", "tools/test_dispatch_public_boundary_policy.py", "tools/validation-policy.json"],
+      "proves": ["the dispatcher implements the declared immutable-receipt newline exception through exact tracked HEAD-byte identity and retains focused positive and damaged coverage"],
+      "does_not_prove": ["changes to accepted receipts or historical events, exemptions for new, modified, untracked, non-receipt, or privately damaged content, direct raw-checker changes, runtime, device, or authority widening"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -693,6 +708,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004l-immutable-receipt-head-identity-gate","decision":"Standard, Deep, and CI validation require focused proof that the current dispatcher implements the existing historical-evidence-terminal-newline decision through exact tracked HEAD-byte identity.","reason":"The fixed historical baseline admitted LSLC-003M but contradicted the generic declared rule and rejected the later accepted byte-identical LSLC-004J receipt.","preserves":["exact accepted LSLC-003M and LSLC-004J receipt bytes","the stricter direct raw public-boundary checker","all path, binary, UTF-8, private-content, credential, build-artifact, trailing-whitespace, mutable-file, and non-receipt newline rules","append-only workflow history"],"does_not_authorize":["new, untracked, or modified newline-less receipts","newline-less non-receipts","content, path, credential, binary, build, or whitespace exemptions","runtime, device, routing, admission, command, or authority widening"]},
     {"id":"lslc-004k-active-interface-official-resolver-observation-gate","decision":"Standard, Deep, and CI validation require the sanitized pinned-official active-interface resolver observation after the accepted exact-group observation and explicit-interface runtime gates.","reason":"A later official-to-production responder conformance claim first needs separately bounded evidence that the pinned official resolver emits and accepts the independently observed exchange on one active host interface.","preserves":["byte-unchanged requester and responder production sources","caller-explicit interface and exact group scope","private oracle driver, configuration, interface, endpoint, and raw-record exclusion","Quest packaging and Manifold authority boundaries"],"does_not_authorize":["production changes or official-to-production conformance","interface enumeration, default selection, fallback, or retry policy","cross-host, cross-platform, device, or broad compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004f-prefix-check-superseded-by-lslc-004j","decision":"Retain accepted LSLC-004F as a historical gate but remove its byte-identical responder-prefix checker from current profiles and dependency paths; LSLC-004J preserves the one-query/one-response composition in the responder owner suite while checking the separately authorized production extension.","reason":"LSLC-004F intentionally rejects every responder production change, so it cannot validate the separately observed and reviewed explicit concrete-interface generalization.","preserves":["LSLC-004F accepted fixture, checker, and receipt bytes","the production requester and exact-group loopback composition owner test","LSLC-004E loopback API, activation, finite behavior, and cleanup","device and Manifold authority prohibitions"],"does_not_authorize":["rewriting historical LSLC-004F evidence","requester changes or broader responder behavior","interface enumeration, default selection, fallback, retries, or other network scope","devices, routing, admission, commands, or authority"]},
     {"id":"lslc-004j-explicit-ipv4-interface-responder-gate","decision":"Standard, Deep, and CI validation require the exact-group caller-explicit concrete IPv4 responder checker after the active-interface observation and accepted activation projection.","reason":"LSLC-004H supplies the narrow Rust socket evidence needed to generalize only responder membership from loopback to one caller-owned concrete IPv4 address without creating interface-selection policy.","preserves":["exact 239.255.172.215:16571 destination","LSLC-004E loopback entry point and LSLC-002Z finite loop","explicit capability activation, deadline, cancellation, and cleanup","private interface exclusion and Quest/Manifold authority boundaries"],"does_not_authorize":["interface enumeration, default selection, or ambient fallback","IPv6, other groups, multiple requests, retries, or background work","official, portable, cross-host, cross-platform, or device compatibility","routing, admission, commands, or authority"]},

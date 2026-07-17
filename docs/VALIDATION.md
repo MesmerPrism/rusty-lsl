@@ -149,3 +149,10 @@ LSLC-004K is checked by `tools/check_lslc_004k.ps1` and policy gate
 group/interface scope, two sanitized query/response and cleanup results,
 private-artifact hashes, limitations, six damaged mutations, documentation
 routes, and public boundary without executing the private oracle.
+
+LSLC-004L is checked by `tools/check_lslc_004l.ps1` and policy gate
+`lslc-004l-immutable-receipt-head-identity`. The focused self-test positively
+binds exact immutable LSLC-003M and LSLC-004J bytes and rejects modified or new
+receipts, non-receipts, private paths/content, credentials, build artifacts,
+and trailing whitespace. It also hash-checks that the direct raw checker and
+both accepted receipts remain byte-identical.

@@ -462,3 +462,11 @@ runtime, API, activation, dependency, device behavior, interface policy,
 routing, admission, command, or Manifold authority. Private drivers, raw
 records, configuration, interfaces, endpoints, diagnostics, environment, and
 machine identity stay private.
+
+LSLC-004L changes only the current validation dispatcher so the already
+declared immutable-receipt newline exception requires exact working-byte
+equality to the tracked `HEAD` blob instead of existence at one fixed baseline.
+It preserves the stricter direct raw checker and every path, binary, UTF-8,
+private-content, credential, build-artifact, trailing-whitespace, mutable-file,
+and non-receipt newline rule. Accepted LSLC-003M and LSLC-004J receipt bytes and
+all historical events remain unchanged.

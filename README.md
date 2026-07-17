@@ -175,3 +175,9 @@ active IPv4 interface. In two private repeats the resolver emitted the exact
 group query, accepted one independently authored bounded response, returned
 the matching source, and cleanup passed. This observation changes no Rusty LSL
 production surface and is not portable interface, cross-host, or device proof.
+
+LSLC-004L aligns the policy-owned public-boundary dispatcher with its existing
+immutable-evidence decision: only a tracked receipt whose current bytes exactly
+equal its `HEAD` blob may retain historical missing-newline bytes. New,
+untracked, modified, non-receipt, or otherwise damaged content still rejects;
+the direct raw boundary checker remains unchanged.
