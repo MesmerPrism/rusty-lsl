@@ -497,3 +497,9 @@ against the unchanged explicit-destination requester at exact
 239.255.172.215:16571 through one bounded active IPv4 host-interface path.
 It adds no requester-interface policy, production change, portable multicast
 claim, device scope, retry policy, routing/admission behavior, or authority.
+
+LSLC-004Q adds only a project-owned hash-bound workflow adoption receipt for
+fourteen immutable accepted or blocked units using legacy vocabulary. It pins
+the corrective owner commit, exact unit bytes and terminal evidence, maps only
+legacy routing semantics, keeps `network-interface` historical-only, and does
+not alter runtime, activation, current registries, devices, or authority.

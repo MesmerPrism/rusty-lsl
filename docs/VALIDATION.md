@@ -179,3 +179,10 @@ LSLC-004P is checked with
 It verifies two sanitized official-outlet-to-production-requester results,
 exact accepted requester bytes, ten damaged mutations, public boundary,
 instructions, and Standard; the private outlet and interface are not replayed.
+
+LSLC-004Q is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004q.ps1`
+while `RLSL_WORK_ENVIRONMENT_ROOT` names an exact clean materialization of
+owner commit `50f8e8a67641f535347c3061d531e6d4df46e535`. The gate validates all
+fourteen immutable legacy units through the project receipt and keeps every
+current unit closed against current registries.
