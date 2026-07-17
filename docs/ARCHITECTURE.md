@@ -1,5 +1,10 @@
 # Architecture
 
+LSLC-004W sits strictly after typed UDP discovery admission. A nonempty caller name
+may be compared exactly against retained typed response names, producing at most one
+first receive-order index. The suggestion is local advisory evidence; socket ownership,
+activation, endpoint choice, connection policy, and Manifold authority are unchanged.
+
 ## LSLC-003S StringSample activation descriptor
 
 `StringSample` has its own opaque `RuntimeModuleCapability`, effective marker,

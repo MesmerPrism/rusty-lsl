@@ -1,5 +1,9 @@
 # Validation
 
+LSLC-004W focused coverage checks exact first-match suggestion, no-match, empty-input
+rejection, and unchanged typed-discovery behavior. It is source-only and forbids device
+or official-oracle claims.
+
 LSLC-003S focused activation validation runs
 `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003s.ps1`.
 It validates the exact descriptor source binding, resolver-owned relative

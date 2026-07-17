@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-004W adds only an allocation-free caller-explicit exact-name suggestion over an
+already accepted bounded typed UDP discovery run. It returns the first receive-order
+index or no suggestion and adds no I/O, ranking, endpoint selection, connection,
+admission, routing, device behavior, or Manifold authority.
+
 LSLC-003S registers a distinct `StringSample` capability in the closed feature
 lock. It is selected-but-run-disabled and capability-only: no String transport
 or runtime effect exists until a later reviewed runtime consumes exact nominal

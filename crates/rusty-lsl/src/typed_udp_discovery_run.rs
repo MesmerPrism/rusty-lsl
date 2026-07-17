@@ -267,4 +267,21 @@ mod tests {
         assert_eq!(run.termination(), UdpDiscoveryTermination::Cancelled);
         assert!(run.responses().is_empty());
     }
+
+    #[test]
+    fn lslc_004w_suggests_only_the_first_exact_name_match() {
+        let run = run_with("1").unwrap();
+        assert_eq!(
+            crate::suggest_typed_udp_discovery_response(&run, "typed-run"),
+            Ok(Some(0))
+        );
+        assert_eq!(
+            crate::suggest_typed_udp_discovery_response(&run, "other"),
+            Ok(None)
+        );
+        assert_eq!(
+            crate::suggest_typed_udp_discovery_response(&run, ""),
+            Err(crate::TypedUdpDiscoverySelectionError::EmptyStreamName)
+        );
+    }
 }

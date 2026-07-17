@@ -1,5 +1,9 @@
 # Rusty LSL Agent Notes
 
+LSLC-004W adds only an allocation-free exact-name suggestion over an accepted typed
+UDP discovery run. It returns the first receive-order index or none and grants no I/O,
+endpoint, connection, admission, routing, device, runtime activation, or authority.
+
 LSLC-003S adds a distinct capability-only `StringSample` module identity to
 the closed activation set. It is selected in lock revision 14 but remains
 run-disabled and requires both exact-lock admission, the stream-handshake
