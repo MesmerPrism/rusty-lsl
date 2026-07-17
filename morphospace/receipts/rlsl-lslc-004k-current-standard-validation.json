@@ -7,12 +7,14 @@
   "created_at": "2026-07-17T00:52:53Z",
   "tier": "standard",
   "result": "pass",
-  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"1469691b8b830bcd1f0cd28b4574f63e53bda96b","head_revision":"87c1a4afe6c189bbb90c70033ec2b6eb1d890cb0","branch":"codex/rlsl-autonomous"}],
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"1469691b8b830bcd1f0cd28b4574f63e53bda96b","head_revision":"1027a13e536e76d1d6845279978de8e72fa7b364","branch":"codex/rlsl-autonomous"}],
   "changed_paths": [
     {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
     {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-004k-active-interface-official-resolver-observation.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004k-begin-validation-after-004l.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004k-current-standard-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004k-record-validation-after-004l.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004k-record-validation-current-after-004l.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004k-resume-after-004l.json"},
     {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"}
   ],
