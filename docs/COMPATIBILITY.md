@@ -822,3 +822,14 @@ one response, preserves deadline and pre-send cancellation, and releases the
 caller bind. Envelope, length, role/order, and terminal-LF damage rejects.
 This is structural conformance, not official-byte stability or broader runtime,
 network, device, compatibility, routing, admission, or authority evidence.
+
+## LSLC-004T
+
+One independently authored 732-byte response is admitted and retained by the
+unchanged caller-explicit loopback requester, reparsed by the existing bounded
+envelope/document parser, and consumed by the existing typed short-info
+observation. The 19-digit query identifier, independent stream name, one-channel
+count, and response source remain exact; response-limit termination and bind
+cleanup pass. A noncanonical channel count still returns the existing typed
+`InvalidChannelCount` delegation. Existing LSLC-004S deadline, cancellation,
+and structure-damage behavior remains pinned. No broader behavior follows.

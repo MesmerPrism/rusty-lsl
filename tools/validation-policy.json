@@ -39,6 +39,7 @@
       "lslc-004p-observation",
       "lslc-004r-observation",
       "lslc-004s-runtime-conformance",
+      "lslc-004t-runtime-conformance",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -70,6 +71,7 @@
       "lslc-004p-observation",
       "lslc-004r-observation",
       "lslc-004s-runtime-conformance",
+      "lslc-004t-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -103,6 +105,7 @@
       "lslc-004p-observation",
       "lslc-004r-observation",
       "lslc-004s-runtime-conformance",
+      "lslc-004t-runtime-conformance",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -1506,6 +1509,18 @@
       "environment": {"network": "forbidden", "timeout_seconds": 120}
     },
     {
+      "id":"lslc-004t-runtime-conformance",
+      "owner":"rusty-lsl-typed-discovery-compatibility",
+      "state":"current",
+      "command":["powershell","-NoProfile","-ExecutionPolicy","Bypass","-File","tools/check_lslc_004t.ps1"],
+      "depends_on":["lslc-004s-runtime-conformance","public-boundary"],
+      "change_categories":["implementation","validation"],
+      "affected_paths":["AGENTS.md","crates/rusty-lsl/src/udp_discovery.rs","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/README.md","fixtures/compatibility/lslc-004t-requester-typed-observation-conformance.json","tools/check_lslc_004t.py","tools/check_lslc_004t.ps1"],
+      "proves":["test-only unchanged UDP admission composes through existing parsed-envelope and typed observation/admission contracts with preserved identity, typed fields, finite termination, cleanup, and unchanged damaged delegation"],
+      "does_not_prove":["new parsing/admission semantics, production/API/activation changes, official byte stability, network/device widening, broad compatibility, routing, admission, or authority"],
+      "environment":{"network":"forbidden","timeout_seconds":120}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -2105,6 +2120,13 @@
         "receipt rewrites",
         "new newline-less evidence"
       ]
+    },
+    {
+      "id":"lslc-004t-requester-typed-observation-conformance-gate",
+      "decision":"Standard, Deep, and CI validation require test-only composition from unchanged UDP response admission into existing typed short-info observation/admission using independently authored values.",
+      "reason":"LSLC-004S proves bounded structural admission; the smallest next compatibility gap is existing typed interpretation without adding semantics or replaying oracle values.",
+      "preserves":["exact production prefix","existing parser and typed admission errors","caller bounds, correlation, termination, deadline/cancellation, and cleanup","private evidence and authority boundaries"],
+      "does_not_authorize":["new parser/admission behavior","production/API/activation/dependency changes","network/interface/group/family/retry/device widening","routing, admission, commands, or Manifold authority"]
     },
     {
       "id": "lslc-004s-official-response-production-requester-conformance-gate",

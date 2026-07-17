@@ -967,4 +967,93 @@ mod tests {
         let one_past = format!("{accepted}x");
         assert!(ParsedShortInfoResponseEnvelope::parse(&one_past, limits).is_err());
     }
+
+    fn lslc_004t_admission_limits() -> crate::StreamInfoObservedAdmissionLimits {
+        crate::StreamInfoObservedAdmissionLimits::new(
+            crate::StreamDescriptorLimits::new(64, 64, 64, 4).unwrap(),
+            crate::MetadataTreeLimits::new(1, 1, 1, 8, 8).unwrap(),
+            crate::StreamInfoVolatileFieldLimits::new(1024, 64, 64).unwrap(),
+        )
+    }
+
+    #[test]
+    fn lslc_004t_requester_response_composes_with_existing_typed_observation() {
+        let peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = peer.local_addr().unwrap();
+        let query_id = 4_321_098_765_432_109_876_u64;
+        let query_limits = ShortInfoQueryWireLimits::new(8, 128).unwrap();
+        let query =
+            ShortInfoQuery::new("typed".to_owned(), 41_112, query_id, query_limits).unwrap();
+        let wire = ShortInfoQueryWire::encode(&query, query_limits).unwrap();
+        let expected_query = wire.as_bytes().to_vec();
+        let typed_document = lslc_004s_independent_document()
+            .replacen(
+                "<nominal_srate>0</nominal_srate>",
+                "<nominal_srate>100.0000000000000</nominal_srate>",
+                1,
+            )
+            .replacen("qqqqqqqqqqqqqqqqq", "q", 1);
+        assert_eq!(typed_document.len(), 711);
+        let response = format!("{query_id}\r\n{typed_document}").into_bytes();
+        let worker = thread::spawn(move || {
+            let mut bytes = [0_u8; 256];
+            let (length, source) = peer.recv_from(&mut bytes).unwrap();
+            assert_eq!(&bytes[..length], expected_query);
+            peer.send_to(&response, source).unwrap();
+        });
+        let bind_probe = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let bind_address = bind_probe.local_addr().unwrap();
+        drop(bind_probe);
+        let run = run_udp_discovery(
+            activation(),
+            UdpDiscoveryConfig::new(
+                bind_address,
+                destination,
+                UdpDiscoveryLimits::new(732, 1, Duration::from_millis(10), Duration::from_secs(1))
+                    .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(711, 732).unwrap(),
+            ),
+            &wire,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        worker.join().unwrap();
+        assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
+        let retained = std::str::from_utf8(run.responses()[0].as_bytes()).unwrap();
+        let parsed = ParsedShortInfoResponseEnvelope::parse(
+            retained,
+            ShortInfoResponseEnvelopeLimits::new(711, 732).unwrap(),
+        )
+        .unwrap();
+        let typed =
+            crate::TypedShortInfoResponseObservation::admit(parsed, lslc_004t_admission_limits())
+                .unwrap();
+        assert_eq!(typed.query_id(), query_id);
+        assert_eq!(
+            typed.fields().definition().descriptor().name(),
+            "independent-alpha"
+        );
+        assert_eq!(typed.fields().definition().descriptor().channel_count(), 1);
+        assert_eq!(run.responses()[0].source(), destination);
+        drop(run);
+        assert!(UdpSocket::bind(bind_address).is_ok());
+
+        let damaged_document = lslc_004s_independent_document().replacen(
+            "<channel_count>1</channel_count>",
+            "<channel_count>01</channel_count>",
+            1,
+        );
+        let damaged = format!("{query_id}\r\n{damaged_document}");
+        let envelope = ParsedShortInfoResponseEnvelope::parse(
+            &damaged,
+            ShortInfoResponseEnvelopeLimits::new(damaged_document.len(), damaged.len()).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            crate::TypedShortInfoResponseObservation::admit(envelope, lslc_004t_admission_limits(),),
+            Err(crate::TypedShortInfoResponseObservationError::Admission(
+                crate::StreamInfoObservedAdmissionError::InvalidChannelCount
+            ))
+        );
+    }
 }

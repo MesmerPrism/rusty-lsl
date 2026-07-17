@@ -678,3 +678,11 @@ role names are used as inputs. The checker pins the entire pre-unit production
 source blob and reconstructs it byte-for-byte before the test-only suffix. No
 private capture, endpoint, identifier, or external implementation source was
 used or copied.
+
+## LSLC-004T typed composition provenance
+
+The test reuses only independently authored LSLC-004S test construction and
+selects a valid nominal-rate spelling independently while preserving the public
+711-byte document bound through independent padding. The checker byte-compares
+and hashes the complete production portion before `cfg(test)` against the
+accepted pre-unit blob. No oracle byte/value or external source is used.

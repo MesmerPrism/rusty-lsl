@@ -450,3 +450,11 @@ LSLC-004R public lengths and role grammar to one independently authored,
 test-only response through the unchanged requester/parser. It records bounded
 retention, correlation, termination, cleanup, damaged cases, exact production
 prefix identity, limitations, and nonclaims without oracle bytes or values.
+
+## LSLC-004T
+
+`lslc-004t-requester-typed-observation-conformance.json` binds one independently
+authored retained UDP response through the existing parsed envelope and typed
+observation/admission layers. It records exact production-prefix identity,
+typed preservation, unchanged damaged delegation, inherited bounded behavior,
+limitations, and nonclaims.

@@ -519,3 +519,10 @@ document parser. It proves bounded admission/retention, correlation,
 deadline/cancellation, damaged rejection, and cleanup on loopback. It replays
 no private value, changes no production byte, and adds no interface, retry,
 device, compatibility, routing, admission, or Manifold authority.
+
+LSLC-004T adds only test-side composition from one independently authored
+LSLC-004S-shaped response admitted by the unchanged UDP requester into the
+existing parsed-envelope and typed observation/admission contracts. Query ID,
+typed name/count, response source, bounds, termination, and cleanup are
+preserved; noncanonical channel count delegates the existing typed error. It
+adds no production, parser, admission, activation, network/device, or authority.

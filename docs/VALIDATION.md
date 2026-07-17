@@ -199,3 +199,9 @@ LSLC-004S is checked with
 It verifies exact production-prefix identity, runs the two focused owner tests,
 rejects ten damaged fixture mutations, checks documentation and the public
 boundary, and never replays an official response or private value.
+
+LSLC-004T is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004t.ps1`.
+It verifies the exact unchanged production prefix, runs the focused typed
+composition and damaged delegation, rejects ten evidence mutations, and checks
+documentation plus the public boundary.
