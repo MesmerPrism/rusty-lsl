@@ -1,0 +1,125 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-004q-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004q-historical-workflow-unit-adoption",
+  "created_at": "2026-07-17T05:02:00Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "78521036d4a195951676fb4c1c28bff439dae8b2",
+      "head_revision": "02a45b92aa8fd04b4cc27f857d0e081b9253be56",
+      "branch": "codex/rlsl-autonomous"
+    }
+  ],
+  "changed_paths": [
+    {
+      "repo_id": "rusty-lsl",
+      "path": "AGENTS.md"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "docs/VALIDATION.md"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/iteration-events.jsonl"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/iteration-units/rlsl-lslc-004q-historical-workflow-unit-adoption.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/receipts/rlsl-lslc-004q-begin-validation.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/receipts/rlsl-lslc-004q-historical-unit-adoption.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/receipts/rlsl-lslc-004q-standard-validation.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/workspace.state.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "tools/check_lslc_004q.ps1"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-004q-historical-adoption",
+      "kind": "workflow-evidence",
+      "path": "rlsl-lslc-004q-historical-unit-adoption.json",
+      "sha256": "0209cf6d13f3d1fac853201e0a69c295d7b3ac7aaa7dd0e87922e86a6de0b4f6"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "exact-historical-adoption",
+      "status": "pass",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004q.ps1",
+      "evidence_refs": [
+        "lslc-004q-historical-adoption"
+      ]
+    },
+    {
+      "acceptance_id": "owner-workflow-contract",
+      "status": "pass",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File <owner-worktree>/scripts/Test-WorkflowContracts.ps1 -RepoRoot <owner-worktree> -WorkspaceRoot ./morphospace",
+      "evidence_refs": [
+        "lslc-004q-historical-adoption"
+      ]
+    },
+    {
+      "acceptance_id": "standard-closure",
+      "status": "pass",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "evidence_refs": [
+        "lslc-004q-historical-adoption"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004q.ps1",
+      "evidence_refs": [
+        "lslc-004q-historical-adoption"
+      ]
+    },
+    {
+      "gate_id": "validation-source-owner",
+      "status": "pass",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "evidence_refs": [
+        "lslc-004q-historical-adoption"
+      ]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File <owner-worktree>/scripts/Test-WorkflowContracts.ps1 -RepoRoot <owner-worktree> -WorkspaceRoot ./morphospace",
+      "evidence_refs": [
+        "lslc-004q-historical-adoption"
+      ]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": [
+        "lslc-004q-historical-adoption"
+      ]
+    }
+  ],
+  "device_validation": null
+}
