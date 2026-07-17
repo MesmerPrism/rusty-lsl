@@ -186,3 +186,10 @@ while `RLSL_WORK_ENVIRONMENT_ROOT` names an exact clean materialization of
 owner commit `50f8e8a67641f535347c3061d531e6d4df46e535`. The gate validates all
 fourteen immutable legacy units through the project receipt and keeps every
 current unit closed against current registries.
+
+LSLC-004R is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004r.ps1`.
+It verifies two addressable response and document hashes/lengths, minimum
+sanitized structure, honest dynamic-byte limits, ten damaged mutations,
+documentation routes, and the current public boundary without replaying the
+private oracle or response values.

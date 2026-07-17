@@ -503,3 +503,11 @@ fourteen immutable accepted or blocked units using legacy vocabulary. It pins
 the corrective owner commit, exact unit bytes and terminal evidence, maps only
 legacy routing semantics, keeps `network-interface` historical-only, and does
 not alter runtime, activation, current registries, devices, or authority.
+
+LSLC-004R records only two serialized pre-parser response-datagram captures
+from pinned official outlets on one caller-explicit active IPv4 interface at
+exact 239.255.172.215:16571. Exact hashes and lengths plus minimum sanitized
+envelope/XML structure are public; raw bytes, values, endpoints, identifiers,
+interface details, and diagnostics remain private. The response bytes differed,
+so only length and structure stability across these two repeats is claimed. It
+changes no production, activation, device, routing, admission, or authority.

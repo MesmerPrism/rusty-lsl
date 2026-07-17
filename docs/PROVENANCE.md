@@ -656,3 +656,15 @@ destination values. Public evidence binds the accepted requester blob, two
 requester datagram hashes, driver, successful records, aggregate capsule, and
 one preserved failed derivation attempt. Raw responses, routing/correlation
 values, interface/endpoints, diagnostics, environment, and identity stay private.
+## LSLC-004R pinned response datagram observation
+
+An independently authored private UDP capture sent the already accepted public
+short-info request shape to two separately constructed pinned official outlets
+and captured each reply before any Rust production parser. Public evidence
+contains exact response/document hashes and lengths, independently parsed
+minimum envelope/XML structure, official pins, repeat limits, and hashes binding
+the private driver, attempts, and capsule. Raw datagrams, field values, request
+correlations, source identifiers, endpoints, interface details, diagnostics,
+paths, environment, and machine identity remain private. No external
+implementation source was inspected or translated, and no private value is a
+portable fixture or production input.

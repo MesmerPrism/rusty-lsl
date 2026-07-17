@@ -433,3 +433,12 @@ failure hashes, single-platform limitations, exclusions, and nonclaims.
 sanitized pinned-official-outlet-to-unchanged-requester active-interface
 repeats, requester datagram hashes, matching response admission, finite cleanup,
 private capsule hashes, single-platform limitations, exclusions, and nonclaims.
+
+## LSLC-004R
+
+`lslc-004r-official-outlet-response-datagram-observation.json` binds two
+serialized pinned-official pre-parser response captures with exact datagram and
+document hashes and lengths, minimum sanitized envelope/XML structure, explicit
+dynamic-byte limitations, cleanup, private-capsule hashes, and nonclaims. Raw
+bytes, values, endpoints, identifiers, interface details, and diagnostics stay
+outside the repository.

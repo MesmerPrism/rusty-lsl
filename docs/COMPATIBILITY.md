@@ -799,3 +799,15 @@ The raw response, correlation values, endpoints, interface identity, and
 diagnostics remain private and hash-bound. This does not establish requester
 interface-selection policy, multicast portability, default selection, retries,
 cross-host/device behavior, broad compatibility, or Manifold authority.
+## LSLC-004R
+
+Two serialized pinned pylsl 1.18.2/liblsl 1.17/protocol-110 outlets responded
+to the accepted short-info request on one caller-explicit active IPv4 interface
+at `239.255.172.215:16571`. Each response was captured before production
+parsing, correlated to its private request/source, completed within 3000 ms,
+and released its socket for rebind. The two 732-byte datagrams and 711-byte XML
+documents have distinct exact hashes while the decimal-id/CRLF envelope and
+ordered `info` child-role structure agree. This supports only two-repeat length
+and minimum-structure evidence on one Windows host. It does not establish
+stable response bytes or values, production parsing, portable interface or
+retry policy, devices, broad compatibility, routing, admission, or authority.

@@ -37,6 +37,7 @@
       "lslc-004m-runtime-conformance",
       "lslc-004o-observation",
       "lslc-004p-observation",
+      "lslc-004r-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -66,6 +67,7 @@
       "lslc-004m-runtime-conformance",
       "lslc-004o-observation",
       "lslc-004p-observation",
+      "lslc-004r-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -97,6 +99,7 @@
       "lslc-004m-runtime-conformance",
       "lslc-004o-observation",
       "lslc-004p-observation",
+      "lslc-004r-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -1447,6 +1450,47 @@
       }
     },
     {
+      "id": "lslc-004r-observation",
+      "owner": "rusty-lsl-multicast-compatibility-evidence",
+      "state": "current",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "tools/check_lslc_004r.ps1"
+      ],
+      "depends_on": [
+        "lslc-004p-observation",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "validation",
+        "public-private-boundary"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "docs/COMPATIBILITY.md",
+        "docs/PROVENANCE.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/README.md",
+        "fixtures/compatibility/lslc-004r-official-outlet-response-datagram-observation.json",
+        "tools/check_lslc_004r.py",
+        "tools/check_lslc_004r.ps1"
+      ],
+      "proves": [
+        "two serialized pinned-official outlet response datagrams were captured before production parsing with exact hashes and lengths, matching private correlation, finite completion, cleanup, and minimum sanitized structure"
+      ],
+      "does_not_prove": [
+        "stable response bytes or values, production parsing or changes, requester interface or retry policy, other groups/families, cross-host/platform, devices, broad compatibility, routing, admission, or authority"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
+      }
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -2045,6 +2089,24 @@
         "path exemptions",
         "receipt rewrites",
         "new newline-less evidence"
+      ]
+    },
+    {
+      "id": "lslc-004r-official-outlet-response-datagram-observation-gate",
+      "decision": "Standard, Deep, and CI validation require sanitized hash-bound two-repeat pre-parser official response-datagram evidence.",
+      "reason": "The accepted official-outlet composition did not retain addressable response bytes, so a separate observation closes the evidence prerequisite without inferring bytes from Rust or external source.",
+      "preserves": [
+        "unchanged production requester and inert activation",
+        "exact group/port and caller-explicit active interface",
+        "finite capture, correlation, deadline, and socket cleanup",
+        "private raw bytes, values, endpoints, identifiers, diagnostics, environment, and machine identity",
+        "Quest and Manifold authority boundaries"
+      ],
+      "does_not_authorize": [
+        "response replay or production/API/activation changes",
+        "stable dynamic values, interface enumeration/default/fallback/retry policy",
+        "other groups, IPv6, cross-host/platform, devices, or broad compatibility",
+        "routing, admission, commands, or authority"
       ]
     },
     {
