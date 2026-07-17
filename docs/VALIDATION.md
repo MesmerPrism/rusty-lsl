@@ -1,5 +1,10 @@
 # Validation
 
+The focused owner-determinism check is
+`cargo test -p rusty-lsl lslc_002z -- --test-threads=1`. The tests retain their
+original assertions and cleanup checks while beginning with exact socket ownership;
+shared multicast serialization does not propagate poison between tests.
+
 The aggregate `rust-tests` owner gate preserves the complete workspace/all-targets suite
 and runs its test binaries with `--test-threads=1` to isolate unrelated timing-sensitive
 loopback cases. Historical workflow vocabulary must be checked through

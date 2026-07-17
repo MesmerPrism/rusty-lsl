@@ -420,9 +420,29 @@ mod tests {
         socket.local_addr().unwrap()
     }
 
+    fn run_prebound_short_info_responder(
+        socket: UdpSocket,
+        limits: ShortInfoResponderLimits,
+        query_limits: ShortInfoQueryWireLimits,
+        response_limits: ShortInfoResponseEnvelopeLimits,
+        body: &ParsedStreamInfoObservedDocument<'_>,
+    ) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
+        let local_address = socket.local_addr().unwrap();
+        run_short_info_responder_on_socket(
+            socket,
+            local_address,
+            limits,
+            query_limits,
+            response_limits,
+            body,
+            &AtomicBool::new(false),
+        )
+    }
+
     #[test]
     fn lslc_002z_valid_query_returns_matching_envelope_and_releases_port() {
-        let address = free_address();
+        let responder_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let address = responder_socket.local_addr().unwrap();
         let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
         response_socket
             .set_read_timeout(Some(Duration::from_secs(1)))
@@ -435,17 +455,14 @@ mod tests {
                 &text,
             )
             .unwrap();
-            run_short_info_responder(
-                activation(),
-                address,
+            run_prebound_short_info_responder(
+                responder_socket,
                 limits(1024, 1),
                 ShortInfoQueryWireLimits::new(128, 256).unwrap(),
                 ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
                 &parsed,
-                &AtomicBool::new(false),
             )
         });
-        thread::sleep(Duration::from_millis(20));
         let query = ShortInfoQuery::new(
             "name='bounded'".into(),
             response_port,
@@ -474,7 +491,8 @@ mod tests {
         for (payload, expected_oversize) in
             [(b"damaged".as_slice(), false), (&[b'x'; 17][..], true)]
         {
-            let address = free_address();
+            let responder_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+            let address = responder_socket.local_addr().unwrap();
             let text = body();
             let worker = thread::spawn(move || {
                 let parsed = ParsedStreamInfoObservedDocument::parse(
@@ -482,17 +500,14 @@ mod tests {
                     &text,
                 )
                 .unwrap();
-                run_short_info_responder(
-                    activation(),
-                    address,
+                run_prebound_short_info_responder(
+                    responder_socket,
                     limits(16, 1),
                     ShortInfoQueryWireLimits::new(128, 256).unwrap(),
                     ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
                     &parsed,
-                    &AtomicBool::new(false),
                 )
             });
-            thread::sleep(Duration::from_millis(20));
             UdpSocket::bind("127.0.0.1:0")
                 .unwrap()
                 .send_to(payload, address)
@@ -556,7 +571,7 @@ mod tests {
 
     #[test]
     fn lslc_004e_exact_group_explicit_loopback_serves_one_query_and_cleans_up() {
-        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let _multicast_test_lock = crate::lock_multicast_loopback_tests();
         let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
         response_socket
             .set_read_timeout(Some(Duration::from_secs(1)))
@@ -649,7 +664,7 @@ mod tests {
 
     #[test]
     fn lslc_004j_concrete_interface_entry_point_preserves_loopback_composition() {
-        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let _multicast_test_lock = crate::lock_multicast_loopback_tests();
         let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
         response_socket
             .set_read_timeout(Some(Duration::from_secs(1)))
@@ -735,7 +750,7 @@ mod tests {
 
     #[test]
     fn lslc_004m_observed_official_query_structure_reaches_unchanged_responder() {
-        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let _multicast_test_lock = crate::lock_multicast_loopback_tests();
         let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
         response_socket
             .set_read_timeout(Some(Duration::from_secs(1)))
@@ -848,7 +863,7 @@ mod tests {
 
     #[test]
     fn lslc_004f_unchanged_requester_and_responder_compose_exactly_once() {
-        let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
+        let _multicast_test_lock = crate::lock_multicast_loopback_tests();
         let probe = UdpSocket::bind("127.0.0.1:0").unwrap();
         let requester_bind = probe.local_addr().unwrap();
         drop(probe);

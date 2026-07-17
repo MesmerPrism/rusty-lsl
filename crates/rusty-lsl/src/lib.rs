@@ -37,6 +37,13 @@
 #[cfg(test)]
 pub(crate) static MULTICAST_LOOPBACK_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
+#[cfg(test)]
+pub(crate) fn lock_multicast_loopback_tests() -> std::sync::MutexGuard<'static, ()> {
+    MULTICAST_LOOPBACK_TEST_LOCK
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
 mod bounded_fixed_record_transport;
 mod bounded_sample_queue_runtime;
 mod clock_filter_selection;

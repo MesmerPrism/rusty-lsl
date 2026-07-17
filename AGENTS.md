@@ -1,5 +1,10 @@
 # Rusty LSL Agent Notes
 
+The Standard owner gate's unicast responder tests transfer an already bound
+test socket into the existing internal runner, so readiness has no released-port
+window. Shared multicast test serialization recovers test-only mutex poison so
+one failed assertion cannot cascade; production behavior and tests are unchanged.
+
 The Standard aggregate Rust owner gate runs test binaries serially so unrelated
 timing-sensitive loopback tests do not contend with each other. Historical workflow
 vocabulary is validated only through the accepted LSLC-004Q hash-bound adoption route;

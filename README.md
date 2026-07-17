@@ -1,5 +1,9 @@
 # Rusty LSL
 
+Host validation uses pre-bound unicast responder sockets and non-cascading
+test-only multicast serialization. These mechanisms change neither public APIs
+nor production socket, timeout, activation, cleanup, or authority behavior.
+
 LSLC-004X strictly projects one caller-selected accepted typed response's canonical
 concrete-unicast IPv4 address and nonzero service port into a `SocketAddrV4` proposal.
 It performs no I/O or connection and grants no routing, admission, activation, or

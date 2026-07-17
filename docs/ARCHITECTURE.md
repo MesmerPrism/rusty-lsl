@@ -1,5 +1,10 @@
 # Architecture
 
+Standard host validation transfers ownership of an already bound loopback UDP
+socket into the same private responder runner used by production entry points.
+This closes only the test readiness window. A test-only shared mutex recovers
+poisoned ownership to prevent cascading failures; runtime paths never use it.
+
 LSLC-004X sits after caller-explicit LSLC-004W suggestion and accepted typed UDP
 discovery state. It parses only the selected response's existing `v4address` and
 `v4service_port` text into a canonical, concrete-unicast `SocketAddrV4` proposal.
