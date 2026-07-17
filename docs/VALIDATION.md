@@ -167,3 +167,9 @@ LSLC-004M is checked with
 `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004m.ps1`.
 The route runs the focused owner test, ten damaged fixture mutations, exact
 production-prefix binding, public boundary, and the current Standard profile.
+
+LSLC-004O is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004o.ps1`.
+It verifies two sanitized official-to-production results, exact production
+prefix, ten damaged mutations, public boundary, instructions, and Standard;
+the private oracle and active interface are not replayed by portable gates.

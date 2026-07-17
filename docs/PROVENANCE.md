@@ -636,3 +636,13 @@ exact datagram hash. Its routing and correlation values are independently
 selected; no private raw datagram or observed value is copied. The checker
 hashes the production prefix before `#[cfg(test)]` to prove production bytes
 remain unchanged.
+
+## LSLC-004O official-to-production observation
+
+The pinned official binary remains a black-box endpoint. An independently
+authored private orchestrator drives one ignored Rust owner harness that calls
+the accepted production responder with an explicit private interface. Public
+evidence binds the unchanged production prefix, driver, two successful records,
+three failures, and aggregate capsule by SHA-256. Raw output, interface,
+endpoints, query correlation, commands, diagnostics, environment, and machine
+identity remain private.

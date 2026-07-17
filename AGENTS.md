@@ -484,3 +484,10 @@ production responder. It independently selects private-field-shaped values,
 replays no observed reply port or query id, preserves production bytes,
 deadline/cancellation/cleanup owners and inert activation, and adds no broader
 network, device, compatibility, routing, admission, or Manifold authority.
+
+LSLC-004O records only two serialized pinned-official resolver compositions
+against the unchanged production responder on one caller-explicit active IPv4
+interface at exact 239.255.172.215:16571. One query, response, matching source,
+finite completion, membership cleanup, and socket cleanup passed per repeat.
+The ignored harness adds no production effect; all private network and raw
+evidence remains excluded, and no broader compatibility or authority follows.

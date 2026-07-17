@@ -774,3 +774,15 @@ cleanup; existing deadline and cancellation owners remain current.
 This is structural conformance, not replay of the private observed datagram or
 its values. It does not execute an official endpoint, active non-loopback or
 cross-host path, interface policy, devices, or Manifold authority.
+
+## LSLC-004O
+
+Two serialized pylsl 1.18.2/liblsl 1.17/protocol-110 resolver calls on one
+Windows host reached the unchanged Rusty LSL responder at exact
+239.255.172.215:16571 through one caller-explicit active IPv4 interface. Each
+repeat handled one query, sent one production response, returned one matching
+source, completed finitely, and released membership and sockets.
+
+Three failed harness attempts are retained privately. This evidence is limited
+to one host, platform, interface, and exact group; it adds no default selection,
+retry, IPv6, cross-host/device, broad compatibility, or Manifold authority.

@@ -191,3 +191,8 @@ LSLC-004M test-only conformance shows that the unchanged exact-group responder
 accepts the LSLC-004N-observed public query grammar with independently selected
 five- and twenty-digit values. It does not replay private observed values or
 change production runtime behavior.
+
+LSLC-004O adds sanitized observation-only evidence that two pinned-official
+resolver calls reached the unchanged exact-group production responder on one
+explicit active host interface and returned one matching source with cleanup.
+It adds no production widening or portable interface policy.

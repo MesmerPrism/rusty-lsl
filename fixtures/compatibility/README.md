@@ -419,3 +419,10 @@ correlation values remain outside the repository.
 LSLC-004N exact datagram identity and public grammar to one test-only bounded
 query/response through the unchanged responder, with independent private-field
 values, cleanup, production-prefix hash, limitations, and nonclaims.
+
+## LSLC-004O
+
+`lslc-004o-official-resolver-production-responder-observation.json` binds two
+sanitized pinned-official-to-unchanged-production active-interface repeats,
+exact dimensions, matching resolution, finite cleanup, private artifact and
+failure hashes, single-platform limitations, exclusions, and nonclaims.

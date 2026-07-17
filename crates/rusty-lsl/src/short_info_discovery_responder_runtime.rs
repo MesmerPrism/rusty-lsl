@@ -797,6 +797,56 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "private active-interface pinned-official observation harness"]
+    fn lslc_004o_private_active_interface_production_responder() {
+        let interface = std::env::var("RLSL_LSLC_004O_INTERFACE")
+            .expect("private harness requires an explicit interface")
+            .parse::<Ipv4Addr>()
+            .expect("private harness interface must be IPv4");
+        let text = format!(
+            "<?xml version=\"1.0\"?>\n<info>\n\
+\t<name>rlsl-lslc-004o</name>\n\
+\t<type>test</type>\n\
+\t<channel_count>1</channel_count>\n\
+\t<channel_format>float32</channel_format>\n\
+\t<source_id>rlsl-lslc-004o</source_id>\n\
+\t<nominal_srate>0</nominal_srate>\n\
+\t<version>1.10</version>\n\
+\t<created_at>1</created_at>\n\
+\t<uid>rlsl-lslc-004o</uid>\n\
+\t<session_id>default</session_id>\n\
+\t<hostname>rlsl-lslc-004o</hostname>\n\
+\t<v4address>{interface}</v4address>\n\
+\t<v4data_port>1</v4data_port>\n\
+\t<v4service_port>1</v4service_port>\n\
+\t<v6address>::</v6address>\n\
+\t<v6data_port>0</v6data_port>\n\
+\t<v6service_port>0</v6service_port>\n\
+\t<desc />\n</info>\n"
+        );
+        let parsed = ParsedStreamInfoObservedDocument::parse(
+            StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+            &text,
+        )
+        .unwrap();
+        let run = run_explicit_ipv4_multicast_short_info_responder(
+            activation(),
+            interface,
+            limits(1024, 1),
+            ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+            ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
+            &parsed,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(run.requests(), 1);
+        assert_eq!(
+            run.termination(),
+            ShortInfoResponderTermination::RequestLimit
+        );
+    }
+
+    #[test]
     fn lslc_004f_unchanged_requester_and_responder_compose_exactly_once() {
         let _multicast_test_lock = crate::MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap();
         let probe = UdpSocket::bind("127.0.0.1:0").unwrap();

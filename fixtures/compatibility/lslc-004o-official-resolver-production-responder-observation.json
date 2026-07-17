@@ -1,0 +1,106 @@
+{
+  "schema": "rusty.lsl.official_resolver_production_responder_observation.v1",
+  "source": {
+    "rusty_lsl_commit": "5d73d82196861570b12e5f94cbf5f6ddb803bc67",
+    "rusty_lsl_tree": "ffc2afdedb544031f867112928cc94d000676269",
+    "responder_production_prefix_sha256": "2adb4cb64fdb7e66c1615b1b0f0cb9742304cc15b0e62c2604cc3b13645a3f4b"
+  },
+  "official": {
+    "pylsl": "1.18.2",
+    "liblsl": 117,
+    "protocol": 110
+  },
+  "scope": {
+    "family": "ipv4",
+    "group": "239.255.172.215",
+    "port": 16571,
+    "interface_selection": "caller-explicit-active-private-ipv4",
+    "platform_class": "single-windows-desktop-host",
+    "serialized_repeats": 2,
+    "queries_per_repeat": 1,
+    "responses_per_repeat": 1,
+    "maximum_deadline_milliseconds": 12000
+  },
+  "results": {
+    "production_responder_started": [
+      "pass",
+      "pass"
+    ],
+    "official_query_handled": [
+      "pass",
+      "pass"
+    ],
+    "production_response_sent": [
+      "pass",
+      "pass"
+    ],
+    "official_matching_source_resolved": [
+      "pass",
+      "pass"
+    ],
+    "finite_completion": [
+      "pass",
+      "pass"
+    ],
+    "membership_cleanup": [
+      "pass",
+      "pass"
+    ],
+    "socket_cleanup": [
+      "pass",
+      "pass"
+    ],
+    "elapsed_milliseconds": [
+      1391.0,
+      1390.0
+    ]
+  },
+  "private_artifacts": {
+    "driver_source_sha256": "3bf0ac5bdfd65b625e0137949735b7de8bf3881810081dfd7ebb0d40ed70a149",
+    "successful_attempt_sha256": [
+      "8158fae7cae999f2ae876c6c38132900c908937079004b6a7a0b9fcd35e507aa",
+      "b9fc0203384b5d692e4f5a55e9bdf24683988b4f7a8d06f914c5780b4dd4d0b8"
+    ],
+    "failed_attempt_sha256": [
+      "08120a5161ac632395dcd53a4125f271cc4121c6c46d58fb251d37361491f883",
+      "1676d6d00648bb95eec6d564e2249372d6b96202040530b3fdf14925debefa1b",
+      "f98afc9d4d4e886bca14ef3dc6d6afe0c85b67efe5a9d33901b8db39b252b820"
+    ],
+    "capsule_sha256": "e55b357bc44a590c591c1a0ee17a547ace308a6dc39a14de01fb295b9d7d5076",
+    "failed_attempts_preserved": 3,
+    "published": false
+  },
+  "limitations": {
+    "single_host": true,
+    "single_platform": true,
+    "production_test_harness": true,
+    "production_bytes_changed": false,
+    "official_outlet": false,
+    "cross_host": false,
+    "cross_platform": false,
+    "quest_or_device": false,
+    "interface_enumeration": false,
+    "default_interface_selection": false,
+    "ambient_fallback": false,
+    "portable_retry_policy": false,
+    "ipv6": false
+  },
+  "claims": {
+    "bounded_official_to_production_observation": true,
+    "broad_compatibility": false,
+    "runtime_or_activation_widened": false,
+    "routing_or_admission_authority": false,
+    "manifold_authority": false
+  },
+  "private_exclusions": [
+    "driver",
+    "interface-name-address-index",
+    "endpoints",
+    "query-correlation-values",
+    "commands",
+    "raw-child-output",
+    "diagnostics",
+    "environment",
+    "machine-identity"
+  ]
+}

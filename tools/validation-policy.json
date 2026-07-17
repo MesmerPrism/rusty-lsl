@@ -35,6 +35,7 @@
       "lslc-004k-observation",
       "lslc-004n-observation",
       "lslc-004m-runtime-conformance",
+      "lslc-004o-observation",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -62,6 +63,7 @@
       "lslc-004k-observation",
       "lslc-004n-observation",
       "lslc-004m-runtime-conformance",
+      "lslc-004o-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -91,6 +93,7 @@
       "lslc-004k-observation",
       "lslc-004n-observation",
       "lslc-004m-runtime-conformance",
+      "lslc-004o-observation",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -673,6 +676,18 @@
       "environment": {"network":"loopback-only", "timeout_seconds":180}
     },
     {
+      "id": "lslc-004o-observation",
+      "owner": "rusty-lsl-multicast-compatibility-evidence",
+      "state": "current",
+      "command": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check_lslc_004o.ps1"],
+      "depends_on": ["lslc-004m-runtime-conformance", "lslc-004n-observation", "public-boundary"],
+      "change_categories": ["validation", "public-private-boundary"],
+      "affected_paths": ["AGENTS.md", "README.md", "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs", "docs/COMPATIBILITY.md", "docs/PROVENANCE.md", "docs/VALIDATION.md", "fixtures/compatibility/README.md", "fixtures/compatibility/lslc-004o-official-resolver-production-responder-observation.json", "tools/check_lslc_004o.py", "tools/check_lslc_004o.ps1"],
+      "proves": ["two serialized pinned-official resolver calls reached one unchanged production responder on one explicit active IPv4 interface with one matching query/response, finite completion, membership cleanup, and socket cleanup"],
+      "does_not_prove": ["production changes, default interface or retry policy, other groups or address families, official outlet, cross-host, cross-platform, device, broad compatibility, routing, admission, or authority"],
+      "environment": {"network":"forbidden", "timeout_seconds":60}
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -738,6 +753,7 @@
     }
   ],
   "semantic_deltas": [
+    {"id":"lslc-004o-official-resolver-production-responder-observation-gate","decision":"Standard, Deep, and CI validation require sanitized two-repeat pinned-official resolver to unchanged production responder evidence.","reason":"The accepted addressable query grammar and structural conformance justify one bounded active-interface black-box composition before any broader compatibility claim.","preserves":["unchanged production prefix and inert activation","exact group/port and caller-explicit interface","one finite query/response, matching source, deadline/cancellation, membership and socket cleanup","private endpoints, correlation values, raw output, diagnostics, environment, and machine identity","Quest and Manifold authority boundaries"],"does_not_authorize":["production/API/activation changes","interface enumeration/default/fallback/retry policy","other groups, IPv6, cross-host, cross-platform, devices, or broad compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004m-official-query-production-responder-conformance-gate","decision":"Standard, Deep, and CI validation require test-only structural conformance from the addressable LSLC-004N official query grammar into the unchanged exact-group responder.","reason":"LSLC-004N closes the prior authority blocker while keeping private reply-routing and query-correlation values unpublished and unreplayed.","preserves":["unchanged production prefix and inert activation","caller-explicit interface and exact 239.255.172.215:16571 scope","independently selected five- and twenty-digit values","finite deadline/cancellation/termination and cleanup owners","Quest and Manifold authority boundaries"],"does_not_authorize":["private observed-value replay or exact-datagram execution","production or API changes","active nonloopback, official endpoint, cross-host, cross-platform, or device compatibility","interface/default/retry policy, routing, admission, commands, or authority"]},
     {"id":"lslc-004n-official-query-datagram-observation-gate","decision":"Standard, Deep, and CI validation require addressable sanitized per-attempt identity and minimal structure for the pinned official pre-response query datagram.","reason":"LSLC-004M cannot honestly bind official-query conformance to LSLC-004K whole-attempt hashes without an addressable query observation.","preserves":["exact 239.255.172.215:16571 and caller-explicit active-interface scope","black-box oracle and independently authored parser separation","private raw bytes, routing/correlation values, interface/endpoints, diagnostics, environment, and machine identity","two-repeat-only stability limitation and all LSL/Quest/Manifold authority boundaries"],"does_not_authorize":["production or activation changes","query stability beyond two repeats","other groups, interfaces, address families, retries, devices, or broad compatibility","routing, admission, commands, or authority"]},
     {"id":"lslc-004l-immutable-receipt-head-identity-gate","decision":"Standard, Deep, and CI validation require focused proof that the current dispatcher implements the existing historical-evidence-terminal-newline decision through exact tracked HEAD-byte identity.","reason":"The fixed historical baseline admitted LSLC-003M but contradicted the generic declared rule and rejected the later accepted byte-identical LSLC-004J receipt.","preserves":["exact accepted LSLC-003M and LSLC-004J receipt bytes","the stricter direct raw public-boundary checker","all path, binary, UTF-8, private-content, credential, build-artifact, trailing-whitespace, mutable-file, and non-receipt newline rules","append-only workflow history"],"does_not_authorize":["new, untracked, or modified newline-less receipts","newline-less non-receipts","content, path, credential, binary, build, or whitespace exemptions","runtime, device, routing, admission, command, or authority widening"]},
