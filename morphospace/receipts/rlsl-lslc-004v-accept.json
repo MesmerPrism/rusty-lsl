@@ -2,14 +2,14 @@
   "schema": "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
   "project_id": "rusty-lsl",
   "unit_id": "rlsl-lslc-004v-typed-udp-discovery-run",
-  "action": "RecordValidation",
-  "timestamp": "2026-07-17T10:05:30.6149419Z",
+  "action": "Accept",
+  "timestamp": "2026-07-17T10:05:51.6850508Z",
   "executed": true,
-  "transition": "validation-pass",
+  "transition": "validating-to-accepted",
   "status_before": "validating",
-  "status_after": "validating",
+  "status_after": "accepted",
   "current_unit_before": "rlsl-lslc-004v-typed-udp-discovery-run",
-  "current_unit_after": "rlsl-lslc-004v-typed-udp-discovery-run",
+  "current_unit_after": null,
   "preservation": {
     "git_mutation_performed": false,
     "device_mutation_performed": false,
@@ -23,8 +23,8 @@
         "branch": "codex/rlsl-autonomous",
         "upstream": "origin/codex/rlsl-autonomous",
         "dirty": true,
-        "tracked_changes": 0,
-        "untracked_changes": 1,
+        "tracked_changes": 3,
+        "untracked_changes": 3,
         "ahead": 4,
         "behind": 0,
         "diverged": false,
@@ -110,5 +110,5 @@
   },
   "adoption_receipt": null,
   "push_plan": null,
-  "event_id": "rlsl-lslc-004v-typed-udp-discovery-run-validation-pass-0630"
+  "event_id": "rlsl-lslc-004v-typed-udp-discovery-run-accepted-0631"
 }
