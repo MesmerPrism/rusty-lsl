@@ -41,6 +41,7 @@
       "lslc-004s-runtime-conformance",
       "lslc-004t-runtime-conformance",
       "lslc-004u-typed-response-projection",
+      "lslc-004v-typed-discovery-run",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -74,6 +75,7 @@
       "lslc-004s-runtime-conformance",
       "lslc-004t-runtime-conformance",
       "lslc-004u-typed-response-projection",
+      "lslc-004v-typed-discovery-run",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay"
@@ -109,6 +111,7 @@
       "lslc-004s-runtime-conformance",
       "lslc-004t-runtime-conformance",
       "lslc-004u-typed-response-projection",
+      "lslc-004v-typed-discovery-run",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -1525,6 +1528,9 @@
     },
     {
       "id":"lslc-004u-typed-response-projection","owner":"rusty-lsl-typed-discovery-compatibility","state":"current","command":["powershell","-NoProfile","-ExecutionPolicy","Bypass","-File","tools/check_lslc_004u.ps1"],"depends_on":["lslc-004t-runtime-conformance","public-boundary"],"change_categories":["implementation","validation"],"affected_paths":["AGENTS.md","README.md","crates/rusty-lsl/src/lib.rs","crates/rusty-lsl/src/typed_udp_discovery_response.rs","crates/rusty-lsl/tests/public_api.rs","docs/ARCHITECTURE.md","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/README.md","fixtures/compatibility/lslc-004u-typed-udp-response-projection.json","tools/check_lslc_004u.py","tools/check_lslc_004u.ps1"],"proves":["caller-bounded non-I/O local projection from one accepted UDP response through existing typed admission with unchanged source and delegated errors"],"does_not_prove":["UDP runtime changes, new parsing/admission semantics, implicit policy, network/device behavior, broad compatibility, routing, admission, or authority"],"environment":{"network":"forbidden","timeout_seconds":120}
+    },
+    {
+      "id":"lslc-004v-typed-discovery-run","owner":"rusty-lsl-typed-discovery-runtime","state":"current","command":["pwsh","-NoProfile","-ExecutionPolicy","Bypass","-File","tools/check_lslc_004v.ps1"],"depends_on":["lslc-004u-typed-response-projection","public-boundary"],"change_categories":["implementation","validation"],"affected_paths":["AGENTS.md","README.md","crates/rusty-lsl/src/lib.rs","crates/rusty-lsl/src/typed_udp_discovery_run.rs","crates/rusty-lsl/tests/public_api.rs","docs/ARCHITECTURE.md","docs/COMPATIBILITY.md","docs/PROVENANCE.md","docs/VALIDATION.md","fixtures/compatibility/README.md","fixtures/compatibility/lslc-004v-typed-udp-discovery-run.json","tools/check_lslc_004v.py","tools/check_lslc_004v.ps1"],"proves":["one explicitly activated bounded UDP discovery call projects admitted responses in receive order through existing caller-bounded typed admission while preserving run state and indexed failures"],"does_not_prove":["new UDP policy, filtering, retries, interface selection, oracle/device behavior, broad compatibility, routing, admission, commands, or authority"],"environment":{"network":"loopback-only","timeout_seconds":120}
     },
     {
       "id": "pinned-rust-180-clippy",

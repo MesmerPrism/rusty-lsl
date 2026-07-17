@@ -757,3 +757,12 @@ selection, fallback, retry worker, or endpoint policy.
 `TypedUdpDiscoveryResponse` sits after bounded UDP admission and delegates
 existing parsing/admission. It owns typed state plus the copied observed source,
 not sockets, discovery policy, activation, devices, or authority.
+
+## LSLC-004V typed UDP discovery run
+
+`run_typed_udp_discovery` is a thin composition after the existing nominal
+UDP activation gate. The UDP owner still opens, bounds, cancels, and cleans up
+the socket. The new layer consumes its completed run, preserves local address
+and termination, and projects each admitted response in receive order through
+LSLC-004U using caller limits. It adds only fallible bounded output allocation
+and a zero-based response index around unchanged typed projection failures.

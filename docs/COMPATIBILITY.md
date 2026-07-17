@@ -839,3 +839,14 @@ and structure-damage behavior remains pinned. No broader behavior follows.
 One local projection preserves source, query ID, typed name/count, and recovery
 of typed parts. Invalid UTF-8, envelope damage, and noncanonical typed values
 delegate existing errors. It adds no wire/runtime behavior or compatibility breadth.
+
+## LSLC-004V
+
+One synthetic Rust loopback response passes from the existing explicitly
+activated bounded UDP call into the existing typed short-info observation.
+The result preserves response-limit termination, the observed local and peer
+addresses, query identifier, stream name, channel count, and receive order.
+Noncanonical channel count rejects at response index zero, and pre-I/O
+cancellation returns an empty cancelled run. This is local composition
+evidence, not another official observation, active-interface claim, Android
+Java result, Rust-on-Quest result, retry policy, or broad compatibility.

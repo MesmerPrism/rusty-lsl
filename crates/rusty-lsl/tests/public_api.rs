@@ -39,3 +39,9 @@ fn lslc_004u_typed_udp_projection_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryResponse>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryResponseError>() > 0);
 }
+
+#[test]
+fn lslc_004v_typed_udp_discovery_run_types_are_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryRun>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryRunError>() > 0);
+}

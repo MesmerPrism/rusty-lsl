@@ -531,3 +531,9 @@ LSLC-004U adds only a dependency-free, non-I/O local projection borrowing one
 already accepted UDP response and caller-selected envelope/admission limits.
 It returns existing typed observation state plus the unchanged source and
 delegates existing errors. The UDP module stays byte-identical; no policy or authority follows.
+
+LSLC-004V composes only one explicitly activated existing bounded UDP call
+with the LSLC-004U projection. It preserves local address, termination,
+receive order, response source, caller limits, and existing UDP or indexed
+typed failures. It adds no filtering, retry/interface policy, oracle/device
+claim, ambient activation, routing, admission, command, or Manifold authority.

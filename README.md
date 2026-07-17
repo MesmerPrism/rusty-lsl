@@ -204,3 +204,8 @@ production widening, multicast portability, or authority.
 
 LSLC-004U exposes a bounded local `TypedUdpDiscoveryResponse` projection from
 one accepted UDP response with explicit caller limits and no I/O or activation.
+
+LSLC-004V exposes one caller-explicit `run_typed_udp_discovery` composition.
+It uses the existing capability-gated bounded UDP call and typed projection,
+preserving run termination, local/source addresses, receive order, and indexed
+typed errors without adding discovery policy, compatibility breadth, or authority.

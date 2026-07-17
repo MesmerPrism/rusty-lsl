@@ -210,3 +210,9 @@ LSLC-004U is checked with
 `pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004u.ps1`.
 It pins the unchanged UDP blob, tests positive and delegated-error paths,
 checks public API visibility, rejects ten mutations, and runs public boundary.
+
+LSLC-004V is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004v.ps1`.
+It pins the unchanged UDP and typed-projection blobs, runs focused positive,
+indexed-damage, cancellation, cleanup, and public-API cases, rejects ten
+evidence mutations, and checks the public boundary without oracle or device work.

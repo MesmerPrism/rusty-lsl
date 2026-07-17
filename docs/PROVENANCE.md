@@ -691,3 +691,10 @@ accepted pre-unit blob. No oracle byte/value or external source is used.
 
 The module is independently authored from existing public Rusty LSL contracts.
 The accepted UDP blob stays exact; test values are independent and public-safe.
+
+## LSLC-004V typed discovery-run provenance
+
+The composition is independently authored solely from the accepted public
+Rusty LSL UDP and typed-projection contracts. Its loopback response values are
+independent and public-safe. It performs no official-oracle, Android Java,
+Quest, or external implementation intake, and both accepted owner blobs remain exact.

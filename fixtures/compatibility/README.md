@@ -463,3 +463,10 @@ limitations, and nonclaims.
 
 `lslc-004u-typed-udp-response-projection.json` binds the unchanged UDP blob to
 the caller-bounded projection, delegated errors, public API, and nonclaims.
+
+## LSLC-004V
+
+`lslc-004v-typed-udp-discovery-run.json` binds the unchanged UDP and local
+projection owners to one synthetic loopback typed-run composition. It records
+only caller bounds, preserved run/source/order state, indexed damage,
+pre-I/O cancellation, lane separation, and explicit nonclaims.
