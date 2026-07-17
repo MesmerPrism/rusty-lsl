@@ -1,0 +1,30 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-004w-current-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004w-bounded-discovery-selection-suggestion",
+  "created_at": "2026-07-17T10:58:00Z",
+  "tier": "standard",
+  "result": "blocked",
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"bfcd0b155c9422b1ad597a87a88e007e3d756f9f","head_revision":"98cdd5a5e0eb2f489374ee63893d68c684eda563","branch":"codex/rlsl-autonomous"}],
+  "changed_paths": [
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},{"repo_id":"rusty-lsl","path":"README.md"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/lib.rs"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/typed_udp_discovery_run.rs"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/typed_udp_discovery_selection.rs"},{"repo_id":"rusty-lsl","path":"docs/ARCHITECTURE.md"},{"repo_id":"rusty-lsl","path":"docs/COMPATIBILITY.md"},{"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-004w-bounded-discovery-selection-suggestion.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004w-begin-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004w-current-standard-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"}
+  ],
+  "artifacts": [{"artifact_id":"lslc-004w-selection-source","kind":"source","path":"../../crates/rusty-lsl/src/typed_udp_discovery_selection.rs","sha256":"2499a7c9222d921c80b779f9bb7b8ba7ab000dbd5c9c52bab0a77afabd038268"}],
+  "criteria": [
+    {"acceptance_id":"bounded-caller-explicit-selection","status":"pass","command":"cargo test -p rusty-lsl lslc_004w","evidence_refs":["lslc-004w-selection-source"]},
+    {"acceptance_id":"standard-closure","status":"fail","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004w-selection-source"]}
+  ],
+  "gates": [
+    {"gate_id":"validation-source-only","status":"pass","command":"cargo test -p rusty-lsl lslc_004w","evidence_refs":["lslc-004w-selection-source"]},
+    {"gate_id":"validation-source-owner","status":"fail","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004w-selection-source"]},
+    {"gate_id":"validation-workflow","status":"fail","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-004w-selection-source"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-004w-selection-source"]}
+  ],
+  "device_validation": null,
+  "blockers": [
+    {"blocker_id":"lslc-004w-standard-loopback-timing","condition":"Standard first failed two unrelated timing-sensitive loopback tests and two subsequent Standard attempts exceeded 120 and 300 second bounds; the focused LSLC-004W test passes.","resume_when":"The existing loopback Standard suite completes reliably without changing LSLC-004W scope."},
+    {"blocker_id":"lslc-004w-workflow-contract-historical-schema-audit","condition":"The required environment workflow-contract command retains 34 legacy accepted-unit findings and no LSLC-004W-specific finding.","resume_when":"The owning workflow authority reconciles the accepted historical descriptors or applies its existing hash-bound adoption route."}
+  ]
+}
