@@ -513,6 +513,93 @@ mod tests {
     }
 
     #[test]
+    fn lslc_006a_accepted_receipts_are_identity_exact_and_canonical_across_selection_order() {
+        let forward = [
+            selection(RuntimeModule::StreamHandshake),
+            selection(RuntimeModule::TimestampedFloat32Sample),
+            selection(RuntimeModule::BoundedSampleQueue),
+            selection(RuntimeModule::FiniteSampleRecovery),
+        ];
+        let reverse = [
+            selection(RuntimeModule::FiniteSampleRecovery),
+            selection(RuntimeModule::BoundedSampleQueue),
+            selection(RuntimeModule::TimestampedFloat32Sample),
+            selection(RuntimeModule::StreamHandshake),
+        ];
+
+        let forward = admit_runtime_activation(
+            ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+            "authority-consumer",
+            &forward,
+        )
+        .unwrap();
+        let reverse = admit_runtime_activation(
+            ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+            "authority-consumer",
+            &reverse,
+        )
+        .unwrap();
+
+        assert_eq!(forward.receipt(), reverse.receipt());
+        assert_eq!(forward.receipt().consumer_id(), "authority-consumer");
+        assert_eq!(
+            forward.receipt().lock_fingerprint(),
+            ACCEPTED_FEATURE_LOCK_FINGERPRINT
+        );
+        assert_eq!(
+            forward.receipt().lock_revision(),
+            ACCEPTED_FEATURE_LOCK_REVISION
+        );
+        assert_eq!(
+            forward.receipt().selected_modules(),
+            &[
+                RuntimeModule::BoundedSampleQueue,
+                RuntimeModule::FiniteSampleRecovery,
+                RuntimeModule::StreamHandshake,
+                RuntimeModule::TimestampedFloat32Sample,
+            ]
+        );
+        for module in forward.receipt().selected_modules() {
+            assert_eq!(forward.capability(*module).unwrap().module(), *module);
+            assert_eq!(
+                forward.receipt().effective_marker(*module),
+                Some(module.effective_marker())
+            );
+        }
+    }
+
+    #[test]
+    fn lslc_006a_malformed_selection_precedence_rejects_without_partial_authority() {
+        let malformed = [
+            selection(RuntimeModule::BoundedSampleQueue),
+            selection(RuntimeModule::BoundedSampleQueue),
+            RuntimeActivationSelection::new("unknown", "damaged"),
+        ];
+
+        assert_eq!(
+            admit_runtime_activation("stale", "", &malformed),
+            Err(RuntimeActivationError::LockFingerprintMismatch)
+        );
+        assert_eq!(
+            admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, "", &malformed),
+            Err(RuntimeActivationError::EmptyConsumerId)
+        );
+        let rejected = admit_runtime_activation(
+            ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+            "authority-consumer",
+            &malformed,
+        );
+        assert_eq!(
+            rejected,
+            Err(RuntimeActivationError::DuplicateModule {
+                module: RuntimeModule::BoundedSampleQueue,
+                selection: 1,
+            })
+        );
+        assert!(rejected.is_err());
+    }
+
+    #[test]
     fn lslc_003c_consumer_identity_is_bounded_before_allocation() {
         assert_eq!(
             admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, "", &[]),

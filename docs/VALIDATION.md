@@ -1,5 +1,17 @@
 # Validation
 
+LSLC-006A focused runtime-activation receipt-authority conformance:
+
+```text
+cargo test -p rusty-lsl runtime_activation::tests -- --test-threads=1
+```
+
+It proves canonical receipt identity across caller selection order, exact lock
+and consumer binding, capability-marker agreement, and typed rejection without
+partial authority. It is host-only test evidence and changes no production
+activation behavior, compatibility claim, device behavior, or Manifold
+authority. Serialized Standard remains the aggregate owner gate.
+
 LSLC-005Z runs the unchanged LSLC-005Y assertion under the permitted
 integration-test target:
 

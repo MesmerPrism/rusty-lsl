@@ -1,5 +1,10 @@
 # Architecture
 
+LSLC-006A changes only tests around the existing runtime-activation owner. The
+accepted lock, consumer identity, canonical receipt, effective markers, and
+capability projections retain their existing production ownership and bytes;
+no activation, compatibility, device, or Manifold authority is added.
+
 LSLC-005Z changes only where the LSLC-005Y external assertion is compiled. The
 runtime acquisition types, ownership, allocation behavior, provider boundary,
 and all production architecture remain byte-unchanged.

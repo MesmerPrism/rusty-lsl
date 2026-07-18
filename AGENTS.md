@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-006A adds only test-only deterministic conformance for the accepted
+runtime activation receipt authority. Identity-exact canonical receipts,
+lock/consumer binding, capability-marker agreement, and rejection without
+partial authority change no production behavior, accepted lock, activation
+breadth, compatibility claim, device behavior, or Manifold authority.
+
 LSLC-005Z corrects only the LSLC-005Y Cargo target shape. Its unchanged runtime
 acquisition-parts assertion now runs under the repository-permitted
 `public_api` integration-test target, and the standalone target is removed. It
