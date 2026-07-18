@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005I adds only the exact one-channel, two-record Float32 chunk runtime
+supported by its sanitized two-direction loopback evidence. It reuses the
+accepted one-record codec and initialization owner and adds bounded damaged,
+cancellation, deadline, cleanup, and port-reuse coverage. It adds no arbitrary
+chunking, other formats or channel counts, retained connection, activation,
+device behavior, broader compatibility, or Manifold authority.
+
 LSLC-005H adds only a distinct public test harness proving independently
 authored Rusty LSL Rust core descriptor/sample binding code can be built for
 `aarch64-linux-android` and executed on Quest. Android Java owns lifecycle only;

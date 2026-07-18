@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005I adds one bounded, capability-gated IPv4-loopback runtime for exactly
+one channel and two Float32 caller records. It reuses the accepted one-record
+codec and initialization owner and preserves typed marker, truncation,
+extra-record, deadline, cancellation, cleanup, and port-reuse behavior. The
+sanitized two-direction evidence does not generalize record counts, formats,
+channels, network scope, devices, activation, or authority.
+
 The LSLC-005H device harness provides the first bounded Rust-on-Quest proof:
 an exact clean Rusty LSL revision is compiled for `aarch64-linux-android`, and
 its core one-channel Float32 descriptor/sample binding executes inside a
