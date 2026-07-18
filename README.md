@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005J strengthens only test coverage for the existing exact two-channel,
+three-record Double64, Int32, Int16, and Int8 loopback runtime. It exercises
+per-width truncation, width-shift damage, cancellation versus deadline,
+repeated teardown, and immediate port reuse without changing production bytes,
+runtime breadth, activation, device behavior, or authority.
+
 LSLC-005I adds one bounded, capability-gated IPv4-loopback runtime for exactly
 one channel and two Float32 caller records. It reuses the accepted one-record
 codec and initialization owner and preserves typed marker, truncation,

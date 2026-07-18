@@ -1,5 +1,10 @@
 # Validation
 
+LSLC-005J focused conformance runs with
+`cargo test -p rusty-lsl lslc_003p_ -- --test-threads=1`; it covers the
+accepted fixed-width sequence owner’s damaged paths and cleanup only and does
+not replace Standard validation or prove broader runtime compatibility.
+
 LSLC-005H device validation is a separate serial-scoped gate. It requires the
 Rust-owned `rusty.lsl.rust_on_quest_core_contract.v1` effective marker from an
 exact-source-locked `aarch64-linux-android` build, zero bounded target/system

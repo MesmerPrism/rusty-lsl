@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005J adds only test-only damaged-path and cleanup conformance for the
+accepted LSLC-003P two-channel, three-record Double64, Int32, Int16, and Int8
+runtime. Per-width truncation, width-shift damage, cancellation, deadline,
+repeated teardown, and immediate port reuse change no production behavior,
+format or count breadth, activation, compatibility claim, device behavior, or
+Manifold authority.
+
 LSLC-005I adds only the exact one-channel, two-record Float32 chunk runtime
 supported by its sanitized two-direction loopback evidence. It reuses the
 accepted one-record codec and initialization owner and adds bounded damaged,
