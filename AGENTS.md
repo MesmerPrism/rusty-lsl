@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-005K adds only test-only deterministic host soak conformance for the
+accepted LSLC-005D through LSLC-005G recovery-to-clock-correction-to-queue
+composition. Twelve cycles cover retry/recovery, queue pressure and
+cancellation, terminal/cancel pre-correction bypass, exact record ownership,
+repeated teardown, and immediate TCP/UDP port reuse. It changes no production
+behavior, policy, activation, compatibility claim, device behavior, or
+Manifold authority.
+
 LSLC-005J adds only test-only damaged-path and cleanup conformance for the
 accepted LSLC-003P two-channel, three-record Double64, Int32, Int16, and Int8
 runtime. Per-width truncation, width-shift damage, cancellation, deadline,

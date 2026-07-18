@@ -634,7 +634,7 @@ mod tests {
     }
 
     #[test]
-    fn host_soak_repeats_recovery_pressure_faults_and_port_reuse() {
+    fn lslc_005k_host_soak_repeats_recovery_pressure_faults_and_port_reuse() {
         const CYCLES: usize = 12;
         for cycle in 0..CYCLES {
             let listener = TcpListener::bind("127.0.0.1:0").unwrap();

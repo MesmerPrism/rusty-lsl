@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005K strengthens only test coverage for the existing finite
+recovery-to-clock-correction-to-bounded-queue composition. Its deterministic
+twelve-cycle host soak exercises retry, queue pressure and cancellation,
+terminal/cancel bypass, exact timestamp/value ownership, repeated teardown,
+and immediate TCP/UDP port reuse without changing production behavior,
+activation, compatibility breadth, devices, or authority.
+
 LSLC-005J strengthens only test coverage for the existing exact two-channel,
 three-record Double64, Int32, Int16, and Int8 loopback runtime. It exercises
 per-width truncation, width-shift damage, cancellation versus deadline,

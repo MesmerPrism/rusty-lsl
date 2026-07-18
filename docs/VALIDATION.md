@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-005K focused conformance runs with
+`cargo test -p rusty-lsl lslc_005k_ -- --test-threads=1`; it repeats twelve
+deterministic recovery/correction/queue cycles with pressure, cancellation,
+terminal bypass, teardown, and immediate TCP/UDP port reuse. It is host-only
+test evidence and does not replace Standard validation or prove new runtime,
+compatibility, device, or authority breadth.
+
 LSLC-005J focused conformance runs with
 `cargo test -p rusty-lsl lslc_003p_ -- --test-threads=1`; it covers the
 accepted fixed-width sequence owner’s damaged paths and cleanup only and does
