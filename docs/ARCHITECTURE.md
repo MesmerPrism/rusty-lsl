@@ -1,5 +1,14 @@
 # Architecture
 
+## LSLC-005A selected discovery Float32 queue composition
+
+LSLC-005A adds one thin data-plane edge after LSLC-004Z. The caller passes an
+already separately activated queue, explicit queue wait bounds, and cancellation
+inputs distinct from inlet cancellation. The existing inlet owns endpoint and TCP
+work; the existing queue owns capacity, backpressure, blocking, and rejected sample
+ownership. Raw timestamp evidence moves unchanged. No worker, queue construction,
+recovery, selection, compatibility evidence, or Manifold authority moves here.
+
 ## LSLC-004Z selected discovery Float32 inlet composition
 
 LSLC-004Z is a thin minimum-runtime-spine edge. The caller-selected typed

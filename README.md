@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005A composes the accepted caller-selected one-record Float32 inlet result
+into an already separately activated caller-owned bounded queue. Inlet and queue
+cancellation remain distinct, queue backpressure retains rejected record ownership,
+and raw timestamps remain unchanged. It adds no queue construction, worker,
+recovery, compatibility breadth, or Manifold authority.
+
 LSLC-004Z adds the first bounded discovery-to-data composition: one
 caller-selected typed discovery response is strictly projected to its concrete
 IPv4 service endpoint and passed to the existing separately capability-gated

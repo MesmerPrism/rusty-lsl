@@ -1,5 +1,13 @@
 # Compatibility
 
+## LSLC-005A selected discovery Float32 queue scope
+
+One synthetic IPv4-loopback record passes from the accepted selected-response
+Float32 inlet into an already activated bounded queue with exact raw timestamp and
+value bits. Queue cancellation returns the unchanged received record. This is local
+composition evidence only, not added format/count, official, device, recovery,
+performance, or ecosystem compatibility.
+
 ## LSLC-004Z
 
 Synthetic loopback composes one independently authored accepted typed discovery

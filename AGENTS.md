@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005A composes only the LSLC-004Z caller-selected one-record Float32 result
+into an already separately capability-gated caller-owned bounded queue. Queue
+activation, capacity, backpressure, wait bounds, cancellation, close/drain policy,
+and rejected sample ownership remain with the queue; inlet cancellation and raw
+timestamps remain separate and unchanged. It adds no worker, recovery, breadth,
+admission, routing, or Manifold authority.
+
 LSLC-004Z composes only one caller-selected accepted typed discovery response
 through the LSLC-004X strict IPv4 service projection into the separately
 capability-gated finite one-record Float32 inlet. The caller still owns

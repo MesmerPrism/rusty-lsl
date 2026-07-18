@@ -1,5 +1,11 @@
 # Validation
 
+LSLC-005A focused validation is `cargo test -p rusty-lsl lslc_005a`. It proves
+only the bounded selected-response Float32 inlet-to-existing-queue composition,
+exact raw timestamp/value preservation, and separate queue cancellation ownership.
+Standard remains the owner gate and proves no official, device, recovery, broader
+compatibility, or Manifold behavior.
+
 LSLC-004Z focused validation is `cargo test -p rusty-lsl lslc_004z`. It proves
 only the bounded selected-response-to-one-Float32-record composition and
 projection-before-I/O rejection. Standard remains the owner gate and proves no

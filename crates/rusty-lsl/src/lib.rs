@@ -110,6 +110,7 @@ mod timestamped_float32_sample_runtime;
 mod typed_short_info_response_observation;
 mod typed_udp_discovery_endpoint;
 mod typed_udp_discovery_float32;
+mod typed_udp_discovery_float32_queue;
 mod typed_udp_discovery_handshake;
 mod typed_udp_discovery_response;
 mod typed_udp_discovery_run;
@@ -305,6 +306,9 @@ pub use typed_udp_discovery_endpoint::{
 };
 pub use typed_udp_discovery_float32::{
     run_selected_typed_udp_discovery_float32_inlet, TypedUdpDiscoveryFloat32Error,
+};
+pub use typed_udp_discovery_float32_queue::{
+    run_selected_typed_udp_discovery_float32_inlet_into_queue, TypedUdpDiscoveryFloat32QueueError,
 };
 pub use typed_udp_discovery_handshake::{
     run_selected_typed_udp_discovery_inlet_handshake, TypedUdpDiscoveryHandshakeError,
