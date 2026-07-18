@@ -2,7 +2,7 @@ import hashlib,json,re
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 lock=json.loads((ROOT/'morphospace/feature.lock.json').read_text(encoding='utf-8'))
-assert lock['revision']==14 and lock['lock_fingerprint']=='2837b31b966e97e888d1412f4a2f6cb620d3403057c920679cbfbe77a505ff90'
+assert lock['revision']==14 and lock['lock_fingerprint']=='787827cfe80bd7ff856a304a4f1389070db264d8726a744cd967bbd0948c2c0c'
 candidate=dict(lock);candidate['lock_fingerprint']='0'*64
 assert hashlib.sha256(json.dumps(candidate,separators=(',',':')).encode()).hexdigest()==lock['lock_fingerprint']
 source=(ROOT/'crates/rusty-lsl/src/runtime_activation.rs').read_text(encoding='utf-8')
