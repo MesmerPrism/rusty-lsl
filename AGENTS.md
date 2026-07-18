@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005H adds only a distinct public test harness proving independently
+authored Rusty LSL Rust core descriptor/sample binding code can be built for
+`aarch64-linux-android` and executed on Quest. Android Java owns lifecycle only;
+the Rust-owned effective marker, exact source locks, bounded fatal evidence,
+and target-only cleanup remain separate. It adds no production behavior, wire
+compatibility, ambient activation, device breadth, or Manifold authority.
+
 LSLC-005G adds only test-only pre-correction terminal-path conformance for the
 byte-unchanged LSLC-005D composition. Terminal, exhausted,
 recovery-cancelled, and recovery-deadline outcomes retain their existing

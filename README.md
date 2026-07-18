@@ -1,5 +1,11 @@
 # Rusty LSL
 
+The LSLC-005H device harness provides the first bounded Rust-on-Quest proof:
+an exact clean Rusty LSL revision is compiled for `aarch64-linux-android`, and
+its core one-channel Float32 descriptor/sample binding executes inside a
+distinct public Quest test package. This is separate from Android Java and
+host-Rust evidence and does not claim wire or ecosystem compatibility.
+
 LSLC-005G adds test-only conformance for the byte-unchanged LSLC-005D
 pre-correction terminal paths. Terminal, exhausted, recovery-cancelled, and
 recovery-deadline outcomes bypass both clock correction and queue admission

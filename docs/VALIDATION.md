@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-005H device validation is a separate serial-scoped gate. It requires the
+Rust-owned `rusty.lsl.rust_on_quest_core_contract.v1` effective marker from an
+exact-source-locked `aarch64-linux-android` build, zero bounded target/system
+fatals, and complete removal of the run-owned package/process without changing
+forwards, reverses, properties, or staging. It proves one local core contract
+execution on Quest, not Java LSL behavior, transport, or broad compatibility.
+
 LSLC-005G adds serialized synthetic terminal-path tests for unchanged
 LSLC-005D. They prove that terminal, exhausted, recovery-cancelled, and
 recovery-deadline outcomes do not read the clock or admit a queue record. They
