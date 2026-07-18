@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005V adds only test-only external conformance for the accepted transport
+provider evidence-limit contract. Nonzero bound retention, Unicode-scalar
+identity counting, exact typed rejection payloads, and identity-mismatch
+precedence change no production behavior, provider policy, serialization,
+transport, activation, compatibility claim, device behavior, or Manifold
+authority.
+
 LSLC-005U corrects only the LSLC-005T Cargo target shape. Its unchanged
 stateful-acquisition assertions now run under the repository-permitted
 `public_api` integration-test target, and the standalone target is removed.

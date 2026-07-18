@@ -1,5 +1,17 @@
 # Validation
 
+LSLC-005V focused external conformance is:
+
+```text
+cargo test -p rusty-lsl --test transport_provider_evidence_limit_contract -- --test-threads=1
+```
+
+It proves only the accepted evidence-limit constructor, Unicode-scalar
+provider-identity bound, exact typed error payloads, and identity-mismatch
+precedence. Standard remains the aggregate owner gate and proves no new
+production behavior, provider policy, compatibility breadth, device behavior,
+or Manifold authority.
+
 LSLC-005U runs the unchanged LSLC-005T stateful-acquisition assertions through
 the repository-permitted public API integration-test target:
 
