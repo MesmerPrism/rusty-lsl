@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-005L adds only device conformance for the accepted one-channel,
+one-record Float32 runtime. An exact clean Rusty LSL revision built for
+`aarch64-linux-android` completed one Rust-owned finite IPv4-loopback
+outlet/inlet exchange on Quest with exact timestamp/value bits, immediate TCP
+port reuse, zero bounded fatals, and complete run-owned cleanup. It changes no
+production behavior, activation, compatibility breadth, Java LSL behavior,
+network scope, or Manifold authority.
+
 LSLC-005K adds only test-only deterministic host soak conformance for the
 accepted LSLC-005D through LSLC-005G recovery-to-clock-correction-to-queue
 composition. Twelve cycles cover retry/recovery, queue pressure and

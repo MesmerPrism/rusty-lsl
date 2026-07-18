@@ -1,5 +1,14 @@
 # Validation
 
+LSLC-005L device validation is a separate serial-scoped gate. The public Quest
+harness builds exact clean Rusty LSL and Rusty Quest revisions for
+`aarch64-linux-android`, then requires the Rust-owned
+`rusty.lsl.rust_on_quest_float32_loopback.v1` effective marker, exact
+timestamp/value-bit retention, immediate TCP port reuse, zero bounded fatals,
+and target-only package/process/forward/reverse/property/staging cleanup.
+Standard remains the source owner gate; neither route replays the official
+oracle or proves non-loopback or broader runtime compatibility.
+
 LSLC-005K focused conformance runs with
 `cargo test -p rusty-lsl lslc_005k_ -- --test-threads=1`; it repeats twelve
 deterministic recovery/correction/queue cycles with pressure, cancellation,

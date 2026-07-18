@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005L provides a second bounded Rust-on-Quest proof: the exact accepted
+one-channel, one-record Float32 handshake/sample runtime executes inside Rust
+on Quest over `127.0.0.1`, preserving exact timestamp/value bits and releasing
+its TCP port for immediate reuse. Android Java owns lifecycle only. This does
+not widen production behavior, activation, non-loopback or official
+compatibility, supported shapes, device breadth, or authority.
+
 LSLC-005K strengthens only test coverage for the existing finite
 recovery-to-clock-correction-to-bounded-queue composition. Its deterministic
 twelve-cycle host soak exercises retry, queue pressure and cancellation,

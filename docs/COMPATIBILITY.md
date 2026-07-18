@@ -1,5 +1,19 @@
 # Compatibility
 
+## LSLC-005L
+
+One serial-scoped Quest 3S run built the exact clean Rusty LSL revision for
+`aarch64-linux-android` and executed the accepted one-channel, one-record
+Float32 outlet/inlet runtime entirely in Rust over IPv4 loopback. Exact `-0.0`
+timestamp bits and the independently selected Float32 NaN payload bits were
+retained, the listener port rebound immediately, the bounded package/system
+fatal count was zero, and run-owned cleanup completed.
+
+This is Rust-on-Quest device conformance for the already accepted bounded
+runtime. It is separate from official-oracle, sanitized derivation, Rust-host,
+and Android-Java evidence and proves no non-loopback behavior, other shapes or
+formats, broad compatibility, production activation, or Manifold authority.
+
 LSLC-005D composes existing candidate runtime contracts but adds no observation
 or interoperability evidence. It does not widen the one selected response,
 one Float32 record, IPv4, or pinned evidence claims.
