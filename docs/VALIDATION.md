@@ -1,5 +1,17 @@
 # Validation
 
+LSLC-005R focused transport-provider conformance:
+
+```text
+cargo test -p rusty-lsl stream_info_transport_provider::tests -- --test-threads=1
+```
+
+It covers one-call acquisition, mismatch precedence, typed value ownership,
+allocation preservation, fixed role order, and repeated determinism. It is
+host-only test evidence and does not change provider policy, runtime behavior,
+compatibility breadth, device behavior, or authority. Standard remains the
+aggregate owner gate.
+
 LSLC-005Q focused three-owner snapshot conformance:
 
 ```text

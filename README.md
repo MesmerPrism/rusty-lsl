@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005R adds test-only deterministic conformance for the existing transport
+provider. It verifies one-call acquisition, mismatch precedence, typed value
+ownership, original allocation preservation, fixed role order, and repeated
+determinism without changing production behavior, provider policy, transport,
+activation, compatibility breadth, devices, or authority.
+
 LSLC-005Q adds test-only deterministic conformance for the existing
 three-owner stream-info snapshot. It verifies caller-selected acquisition
 order, separate provider-error ownership, allocation preservation, delegated

@@ -498,7 +498,7 @@ mod tests {
         }
     }
     #[test]
-    fn witness_mismatch_precedence_is_identity_then_epoch_then_revision_then_value() {
+    fn lslc_005r_witness_mismatch_precedence_is_identity_then_epoch_then_revision_then_value() {
         for (returned, error) in [
             (
                 witness("other", 3, 4),
@@ -590,7 +590,7 @@ mod tests {
         }
     }
     #[test]
-    fn accepted_parts_preserve_witness_and_all_six_original_allocations() {
+    fn lslc_005r_accepted_parts_preserve_witness_and_all_six_original_allocations() {
         let v = values(["v4-a", "v4-d", "v4-s", "v6-a", "v6-d", "v6-s"]);
         let pointers = [
             v.v4address.as_ptr(),
@@ -638,7 +638,7 @@ mod tests {
         assert_eq!(provider.calls, 1);
     }
     #[test]
-    fn repeated_acquisitions_are_deterministic_and_each_call_once() {
+    fn lslc_005r_repeated_acquisitions_are_deterministic_and_each_call_once() {
         for _ in 0..8 {
             let mut provider = Provider {
                 calls: 0,
