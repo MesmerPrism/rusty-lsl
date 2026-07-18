@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005G adds only test-only pre-correction terminal-path conformance for the
+byte-unchanged LSLC-005D composition. Terminal, exhausted,
+recovery-cancelled, and recovery-deadline outcomes retain their existing
+failure/state ownership and bypass clock correction and queue admission. It
+changes no production behavior, policy, activation, cancellation ownership,
+compatibility, device, or Manifold authority.
+
 LSLC-005F adds only test-only damaged-path conformance for the byte-unchanged
 LSLC-005D composition: clock cancellation returns the unchanged recovered
 record and recovery states before queue admission, while queue cancellation

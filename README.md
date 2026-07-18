@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005G adds test-only conformance for the byte-unchanged LSLC-005D
+pre-correction terminal paths. Terminal, exhausted, recovery-cancelled, and
+recovery-deadline outcomes bypass both clock correction and queue admission
+while retaining their existing failures and states. It changes no production
+behavior, policy, ownership, compatibility, device, or Manifold authority.
+
 LSLC-005F adds test-only damaged-path conformance for unchanged LSLC-005D:
 clock cancellation preserves the recovered record and recovery states before
 queue admission, and queue cancellation retains the corrected record and

@@ -1,5 +1,11 @@
 # Validation
 
+LSLC-005G adds serialized synthetic terminal-path tests for unchanged
+LSLC-005D. They prove that terminal, exhausted, recovery-cancelled, and
+recovery-deadline outcomes do not read the clock or admit a queue record. They
+do not prove official interoperability, devices, automatic policy, provider
+selection, merged cancellation/backpressure, or Manifold authority.
+
 LSLC-005F adds two serialized synthetic damaged-path tests for unchanged
 LSLC-005D. They prove record/state ownership across post-recovery clock
 cancellation and post-correction queue cancellation. They do not prove

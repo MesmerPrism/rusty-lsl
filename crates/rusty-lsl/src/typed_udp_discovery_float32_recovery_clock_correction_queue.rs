@@ -556,4 +556,80 @@ mod tests {
         inlet_worker.join().unwrap();
         correction_worker.join().unwrap();
     }
+
+    #[test]
+    fn lslc_005g_terminal_and_exhausted_bypass_clock_and_queue() {
+        for (class, expected_code, expected_states) in [
+            (RecoveryFailureClass::Terminal, 71, 2),
+            (RecoveryFailureClass::Retryable, 72, 3),
+        ] {
+            let unused_inlet = TcpListener::bind("127.0.0.1:0").unwrap();
+            let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+            let mut clock = SequenceClock {
+                values: vec![],
+                index: 0,
+            };
+            let outcome = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+                &typed_run(unused_inlet.local_addr().unwrap().port()), 0, sample_activation(),
+                &identity(), handshake_limits(), sample_limits(), &AtomicBool::new(false),
+                recovery_activation(),
+                FiniteSampleRecoveryPolicy::new(1, 3, Duration::from_millis(1), Duration::from_millis(1), Duration::from_secs(1)).unwrap(),
+                &AtomicBool::new(false),
+                |_, _| RecoveryAttemptFailure::new(class, expected_code),
+                clock_activation(), correction_config("127.0.0.1:9".parse().unwrap()),
+                &mut clock, &AtomicBool::new(false), &queue,
+                BoundedSampleQueueWait::new(Duration::from_millis(1), Duration::from_millis(5)).unwrap(),
+                &AtomicBool::new(false),
+            ).unwrap();
+            match outcome {
+                TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Terminal {
+                    failure,
+                    states,
+                }
+                | TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Exhausted {
+                    failure,
+                    states,
+                } => {
+                    assert_eq!(failure.code(), expected_code);
+                    assert_eq!(states.len(), expected_states);
+                }
+                other => panic!("unexpected outcome: {other:?}"),
+            }
+            assert_eq!(clock.index, 0);
+            assert!(queue.try_pop().is_err());
+        }
+    }
+
+    #[test]
+    fn lslc_005g_recovery_cancel_and_deadline_bypass_clock_and_queue() {
+        for (cancelled, deadline) in [
+            (true, Duration::from_secs(1)),
+            (false, Duration::from_nanos(1)),
+        ] {
+            let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+            let mut clock = SequenceClock {
+                values: vec![],
+                index: 0,
+            };
+            let outcome = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+                &typed_run(9), 0, sample_activation(), &identity(), handshake_limits(), sample_limits(),
+                &AtomicBool::new(false), recovery_activation(),
+                FiniteSampleRecoveryPolicy::new(1, 3, Duration::from_millis(1), Duration::from_millis(1), deadline).unwrap(),
+                &AtomicBool::new(cancelled),
+                |_, _| RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, 73),
+                clock_activation(), correction_config("127.0.0.1:9".parse().unwrap()),
+                &mut clock, &AtomicBool::new(false), &queue,
+                BoundedSampleQueueWait::new(Duration::from_millis(1), Duration::from_millis(5)).unwrap(),
+                &AtomicBool::new(false),
+            ).unwrap();
+            assert!(matches!(
+                outcome,
+                TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Cancelled { ref states }
+                    | TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Deadline { ref states }
+                    if states.len() == 1
+            ));
+            assert_eq!(clock.index, 0);
+            assert!(queue.try_pop().is_err());
+        }
+    }
 }
