@@ -1,5 +1,17 @@
 # Validation
 
+LSLC-006B focused UDP discovery response-ownership conformance:
+
+```text
+cargo test -p rusty-lsl udp_discovery::tests -- --test-threads=1
+```
+
+It proves receive-order preservation, exact source/query identity, consuming
+response allocation ownership, pre-cancellation precedence, and immediate
+reuse of the caller-selected port. It is host-only test evidence and changes
+no production discovery behavior, compatibility claim, device behavior, or
+Manifold authority. Serialized Standard remains the aggregate owner gate.
+
 LSLC-006A focused runtime-activation receipt-authority conformance:
 
 ```text
