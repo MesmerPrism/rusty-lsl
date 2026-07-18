@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005S provides bounded Rust-on-Quest conformance for the accepted
+one-channel, two-record Float32 chunk runtime. The exact clean Rusty LSL source
+executes the ordered exchange inside Rust over `127.0.0.1`, preserves both
+timestamp/value bit pairs, and releases its TCP port immediately. Android Java
+owns lifecycle only. This adds no arbitrary chunking, production behavior,
+activation, official/non-loopback compatibility, device breadth, or authority.
+
 LSLC-005R adds test-only deterministic conformance for the existing transport
 provider. It verifies one-call acquisition, mismatch precedence, typed value
 ownership, original allocation preservation, fixed role order, and repeated

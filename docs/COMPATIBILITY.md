@@ -1,5 +1,18 @@
 # Compatibility
 
+## LSLC-005S
+
+One serial-scoped Quest 3S run built exact clean Rusty LSL for
+`aarch64-linux-android` and executed the accepted one-channel, two-record
+Float32 chunk runtime entirely in Rust over IPv4 loopback. Both ordered
+timestamp/value bit pairs were retained, the listener port rebound immediately,
+the bounded package/system fatal count was zero, and run-owned cleanup completed.
+
+This is device conformance for the existing exact two-record runtime. It is
+separate from official-oracle, sanitized derivation, Rust-host, and Android-Java
+evidence and proves no arbitrary chunks, non-loopback behavior, broad
+compatibility, production activation, or Manifold authority.
+
 ## LSLC-005L
 
 One serial-scoped Quest 3S run built the exact clean Rusty LSL revision for

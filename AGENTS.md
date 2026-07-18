@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-005S adds only device conformance for the accepted one-channel,
+two-record Float32 chunk runtime. An exact clean Rusty LSL revision built for
+`aarch64-linux-android` completed one Rust-owned finite IPv4-loopback chunk
+exchange on Quest with ordered exact timestamp/value bits, immediate TCP port
+reuse, zero bounded fatals, and complete run-owned cleanup. It changes no
+production behavior, chunk breadth, activation, compatibility breadth, Java
+LSL behavior, network scope, or Manifold authority.
+
 LSLC-005R adds only test-only deterministic conformance for the accepted
 transport provider. One-call acquisition, mismatch precedence, typed value
 ownership, original allocation preservation, fixed role order, and repeated
