@@ -3,7 +3,7 @@
 LSLC-005X focused coverage is:
 
 ```text
-cargo test -p rusty-lsl provider_output_accessors_preserve_witness_and_value_allocations -- --exact --test-threads=1
+cargo test -p rusty-lsl stream_info_transport_provider::tests::provider_output_accessors_preserve_witness_and_value_allocations -- --exact --test-threads=1
 ```
 
 It proves borrowed and consuming access preserves the exact provider witness,
