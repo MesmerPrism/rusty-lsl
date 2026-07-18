@@ -903,4 +903,153 @@ mod tests {
         ));
         worker.join().unwrap();
     }
+
+    #[test]
+    fn lslc_003p_truncation_is_addressable_for_every_accepted_width() {
+        for template in [
+            FixedWidthNumericValue::Double64(0.0),
+            FixedWidthNumericValue::Int32(0),
+            FixedWidthNumericValue::Int16(0),
+            FixedWidthNumericValue::Int8(0),
+        ] {
+            let record = sequence(template).records()[0];
+            let encoded = encode(record.timestamp(), &pair_bytes(record.values()));
+            for retained in [0, 1, encoded.len() - 1] {
+                let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+                let address = listener.local_addr().unwrap();
+                let encoded = encoded.clone();
+                let worker = thread::spawn(move || {
+                    let (mut stream, _, _) = accept_handshake_stream_with_format(
+                        listener,
+                        &id(),
+                        hl(),
+                        &AtomicBool::new(false),
+                        template.width(),
+                        template.supports_subnormals(),
+                    )
+                    .unwrap();
+                    write_sequence_initialization(
+                        &mut stream,
+                        template,
+                        sl(),
+                        &AtomicBool::new(false),
+                    )
+                    .unwrap();
+                    transfer(
+                        &mut stream,
+                        None,
+                        &encoded[..retained],
+                        sl(),
+                        &AtomicBool::new(false),
+                    )
+                    .unwrap();
+                });
+                assert_eq!(
+                    run_fixed_width_numeric_sequence_inlet(
+                        activation(),
+                        address,
+                        &id(),
+                        hl(),
+                        sl(),
+                        template,
+                        &AtomicBool::new(false),
+                    ),
+                    Err(FixedWidthNumericSampleError::Truncated { actual: retained })
+                );
+                worker.join().unwrap();
+                assert!(TcpListener::bind(address).is_ok());
+            }
+        }
+    }
+
+    #[test]
+    fn lslc_003p_width_shift_retains_marker_error_ownership_and_cleanup() {
+        for template in [
+            FixedWidthNumericValue::Double64(0.0),
+            FixedWidthNumericValue::Int32(0),
+            FixedWidthNumericValue::Int16(0),
+            FixedWidthNumericValue::Int8(0),
+        ] {
+            let expected = sequence(template);
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let worker = thread::spawn(move || {
+                let (mut stream, _, _) = accept_handshake_stream_with_format(
+                    listener,
+                    &id(),
+                    hl(),
+                    &AtomicBool::new(false),
+                    template.width(),
+                    template.supports_subnormals(),
+                )
+                .unwrap();
+                write_sequence_initialization(&mut stream, template, sl(), &AtomicBool::new(false))
+                    .unwrap();
+                let records = expected.records();
+                write_record(
+                    &mut stream,
+                    records[0].timestamp(),
+                    &pair_bytes(records[0].values()),
+                    sl(),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+                transfer(&mut stream, None, &[0x7f], sl(), &AtomicBool::new(false)).unwrap();
+                write_record(
+                    &mut stream,
+                    records[1].timestamp(),
+                    &pair_bytes(records[1].values()),
+                    sl(),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+            });
+            assert_eq!(
+                run_fixed_width_numeric_sequence_inlet(
+                    activation(),
+                    address,
+                    &id(),
+                    hl(),
+                    sl(),
+                    template,
+                    &AtomicBool::new(false),
+                ),
+                Err(FixedWidthNumericSampleError::InvalidMarker { actual: 0x7f })
+            );
+            worker.join().unwrap();
+            assert!(TcpListener::bind(address).is_ok());
+        }
+    }
+
+    #[test]
+    fn lslc_003p_caller_cancellation_precedes_deadline_and_teardown_repeats() {
+        let limits =
+            FixedWidthNumericSampleLimits::new(Duration::from_millis(2), Duration::from_millis(20))
+                .unwrap();
+        for cancelled_before_read in [true, false, true, false] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let worker = thread::spawn(move || {
+                let (_stream, _) = listener.accept().unwrap();
+                thread::sleep(Duration::from_millis(40));
+            });
+            let mut stream = TcpStream::connect(address).unwrap();
+            let cancelled = AtomicBool::new(cancelled_before_read);
+            let actual = read_pair_record(
+                &mut stream,
+                FixedWidthNumericValue::Int8(0),
+                limits,
+                &cancelled,
+            );
+            let expected = if cancelled_before_read {
+                FixedWidthNumericSampleError::Cancelled
+            } else {
+                FixedWidthNumericSampleError::Deadline
+            };
+            assert_eq!(actual, Err(expected));
+            drop(stream);
+            worker.join().unwrap();
+            assert!(TcpListener::bind(address).is_ok());
+        }
+    }
 }

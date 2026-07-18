@@ -27,6 +27,9 @@ for token in (
     "SequenceFormatMismatch",
     "lslc_003p_four_formats_preserve_two_channels_three_records_and_cleanup",
     "lslc_003p_shape_format_timestamp_and_truncation_fail_closed",
+    "lslc_003p_truncation_is_addressable_for_every_accepted_width",
+    "lslc_003p_width_shift_retains_marker_error_ownership_and_cleanup",
+    "lslc_003p_caller_cancellation_precedes_deadline_and_teardown_repeats",
 ):
     require(token in source, f"missing runtime evidence: {token}")
 
