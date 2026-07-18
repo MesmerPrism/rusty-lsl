@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-005E adds one serialized synthetic loopback test for the unchanged
+LSLC-005D recovery-to-correction-to-queue path. It proves caller-classified
+retry order, exactly-once clock correction after recovery, queue admission,
+and bit-preserving raw/value evidence beside a derived timestamp. It does not
+prove official interoperability, device behavior, automatic policy, provider
+selection, merged cancellation/backpressure ownership, or Manifold authority.
+
 LSLC-005D focused tests use the lslc_005d filter; Standard remains the owner
 gate for the complete bounded recovery, correction, queue, public API, and
 public-boundary closure.

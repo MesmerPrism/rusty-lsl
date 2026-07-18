@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005E adds test-only synthetic conformance for the unchanged LSLC-005D
+minimum runtime spine: one caller-classified retry, one recovered Float32
+record, one separately activated clock correction, and one bounded-queue
+admission. It changes no production behavior or API and does not widen policy,
+provider/domain ownership, cancellation, backpressure, compatibility, device,
+or Manifold authority claims.
+
 LSLC-005D composes caller-classified finite inlet recovery with the separately
 activated integrated clock-correction owner and an already activated bounded
 queue. Correction runs only for a recovered record; recovery policy, clock

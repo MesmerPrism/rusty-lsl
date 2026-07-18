@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-005E adds only test-only synthetic end-to-end conformance for the
+byte-unchanged LSLC-005D recovery-to-correction-to-queue composition. One
+caller-classified retry precedes one recovered Float32 record, exactly one
+separately activated clock correction, and admission to an already activated
+bounded queue. It changes no production API or behavior and adds no policy,
+provider/domain ownership, merged cancellation, backpressure, compatibility,
+device, or Manifold authority claim.
+
 LSLC-005D composes only caller-classified finite recovery around the LSLC-004Z
 selected-response Float32 inlet, then passes a recovered record once through
 the separately activated LSLC-002U integrated clock-correction owner and into
