@@ -220,4 +220,71 @@ mod tests {
             ))
         );
     }
+
+    #[test]
+    fn lslc_005n_projection_preserves_utf8_position_and_exact_envelope_errors() {
+        let source: SocketAddr = "127.0.0.1:42000".parse().unwrap();
+        assert_eq!(
+            project_parts(
+                source,
+                b"19\r\nvalid\xff",
+                ShortInfoResponseEnvelopeLimits::new(6, 10).unwrap(),
+                admission_limits(),
+            ),
+            Err(TypedUdpDiscoveryResponseError::InvalidUtf8 { valid_up_to: 9 })
+        );
+
+        let text = format!("19\r\n{}", document("1"));
+        assert_eq!(
+            project_parts(
+                source,
+                text.as_bytes(),
+                ShortInfoResponseEnvelopeLimits::new(text.len() - 4, text.len() - 1).unwrap(),
+                admission_limits(),
+            ),
+            Err(TypedUdpDiscoveryResponseError::Envelope(
+                ShortInfoResponseEnvelopeParseError::EnvelopeLimitExceeded {
+                    expected: text.len() - 1,
+                    actual: text.len(),
+                }
+            ))
+        );
+
+        let malformed = format!("19\n{}", document("1"));
+        assert_eq!(
+            project_parts(
+                source,
+                malformed.as_bytes(),
+                ShortInfoResponseEnvelopeLimits::new(malformed.len() - 3, malformed.len(),)
+                    .unwrap(),
+                admission_limits(),
+            ),
+            Err(TypedUdpDiscoveryResponseError::Envelope(
+                ShortInfoResponseEnvelopeParseError::InvalidDelimiter { offset: 2 }
+            ))
+        );
+    }
+
+    #[test]
+    fn lslc_005n_projection_repeatedly_accepts_exact_bounds_without_widening_source() {
+        let source: SocketAddr = "[fe80::9%7]:42000".parse().unwrap();
+        let text = format!("19\r\n{}", document("1"));
+        let limits = ShortInfoResponseEnvelopeLimits::new(text.len() - 4, text.len()).unwrap();
+
+        for _ in 0..12 {
+            let projected =
+                project_parts(source, text.as_bytes(), limits, admission_limits()).unwrap();
+            let (recovered_source, observation) = projected.into_parts();
+            assert_eq!(recovered_source, source);
+            assert_eq!(observation.query_id(), 19);
+            assert_eq!(
+                observation
+                    .fields()
+                    .definition()
+                    .descriptor()
+                    .channel_count(),
+                1
+            );
+        }
+    }
 }

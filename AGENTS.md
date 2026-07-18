@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-005N adds only test-only deterministic conformance for the accepted typed
+UDP discovery-response projection. Exact UTF-8 positions, envelope-error
+ownership, exact-boundary repetition, and complete IPv6 source preservation
+change no production behavior, parsing policy, I/O, selection, activation,
+compatibility claim, device behavior, or Manifold authority.
+
 LSLC-005M adds only test-only deterministic damaged-response and lifecycle
 conformance for the accepted integrated clock-correction runtime. Malformed,
 mismatched, duplicate, and foreign-peer responses, active cancellation,

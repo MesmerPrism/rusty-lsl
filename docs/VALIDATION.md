@@ -1,5 +1,15 @@
 # Validation
 
+LSLC-005N focused typed discovery-response conformance:
+
+```text
+cargo test -p rusty-lsl lslc_005n_ -- --test-threads=1
+```
+
+It covers exact UTF-8 position and envelope-error ownership plus repeated
+exact-boundary acceptance with complete IPv6 source preservation. Standard
+remains the aggregate owner gate.
+
 LSLC-005M focused clock-correction damage and soak conformance:
 
 ```text

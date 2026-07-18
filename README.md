@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005N adds test-only deterministic typed UDP discovery-response projection
+conformance for exact UTF-8 positions, envelope-error ownership, repeated
+exact-boundary acceptance, and complete IPv6 source preservation. Production
+behavior, parsing, I/O, selection, activation, and compatibility breadth are
+unchanged.
+
 LSLC-005M adds test-only deterministic damaged-response and lifecycle
 conformance for the existing integrated clock-correction owner; it changes no
 production behavior, policy, activation, or compatibility claim.
