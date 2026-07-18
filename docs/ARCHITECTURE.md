@@ -1,5 +1,14 @@
 # Architecture
 
+## LSLC-004Z selected discovery Float32 inlet composition
+
+LSLC-004Z is a thin minimum-runtime-spine edge. The caller-selected typed
+discovery response is projected by LSLC-004X, then the existing LSLC-002T
+runtime independently owns handshake, initialization, one timestamped Float32
+record, deadlines, cancellation, and socket cleanup. Projection failure occurs
+before TCP I/O. No selection, persistent connection, chunking, recovery,
+format generalization, routing, admission, or Manifold authority moves here.
+
 ## LSLC-004Y selected discovery handshake composition
 
 LSLC-004Y is a thin owner-preserving edge: caller-selected typed discovery

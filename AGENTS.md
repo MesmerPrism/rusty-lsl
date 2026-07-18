@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-004Z composes only one caller-selected accepted typed discovery response
+through the LSLC-004X strict IPv4 service projection into the separately
+capability-gated finite one-record Float32 inlet. The caller still owns
+selection, identity, limits, cancellation, and activation. It adds no
+discovery, fallback, retry, retained connection, chunks, other formats,
+recovery, admission, or authority.
+
 LSLC-004Y composes only one caller-selected accepted typed discovery response
 through the LSLC-004X strict IPv4 service projection into the separately
 capability-gated finite inlet handshake. The caller still owns selection,

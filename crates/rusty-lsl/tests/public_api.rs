@@ -62,3 +62,9 @@ fn lslc_004y_selected_discovery_handshake_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryHandshakeError>() > 0);
     let _composition = rusty_lsl::run_selected_typed_udp_discovery_inlet_handshake;
 }
+
+#[test]
+fn lslc_004z_selected_discovery_float32_types_are_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32Error>() > 0);
+    let _composition = rusty_lsl::run_selected_typed_udp_discovery_float32_inlet;
+}

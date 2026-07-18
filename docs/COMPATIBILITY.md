@@ -1,5 +1,14 @@
 # Compatibility
 
+## LSLC-004Z
+
+Synthetic loopback composes one independently authored accepted typed discovery
+response with the existing capability-gated one-record Float32 inlet. It
+preserves one timestamp and value, rejects an unavailable selection before TCP
+I/O, and closes owned sockets. This is local composition evidence, not a new
+official-oracle, active-interface, cross-platform, chunk, recovery, or broad
+compatibility claim.
+
 LSLC-004Y proves only synthetic finite loopback composition of already accepted
 typed discovery endpoint state with the existing inlet handshake. It is not an
 official endpoint, non-loopback, recovery, arbitrary stream, or ecosystem claim.

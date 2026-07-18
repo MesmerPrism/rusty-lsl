@@ -1,5 +1,10 @@
 # Validation
 
+LSLC-004Z focused validation is `cargo test -p rusty-lsl lslc_004z`. It proves
+only the bounded selected-response-to-one-Float32-record composition and
+projection-before-I/O rejection. Standard remains the owner gate and proves no
+device, non-loopback, broad compatibility, or Manifold behavior.
+
 LSLC-004Y focused coverage checks projection-before-I/O, one finite synthetic
 loopback handshake, delegated typed failures, cancellation, and cleanup. Device
 validation is forbidden.

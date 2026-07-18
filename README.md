@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-004Z adds the first bounded discovery-to-data composition: one
+caller-selected typed discovery response is strictly projected to its concrete
+IPv4 service endpoint and passed to the existing separately capability-gated
+one-record Float32 inlet. It adds no automatic selection, retained connection,
+chunking, other formats, retry/recovery, or authority.
+
 LSLC-004Y adds an explicit bounded composition from one caller-selected typed
 discovery response to the existing separately activated inlet handshake. It
 preserves strict endpoint and handshake errors and adds no automatic selection,
