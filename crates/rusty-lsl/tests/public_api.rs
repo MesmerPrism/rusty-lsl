@@ -74,3 +74,16 @@ fn lslc_005a_selected_discovery_float32_queue_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32QueueError>() > 0);
     let _composition = rusty_lsl::run_selected_typed_udp_discovery_float32_inlet_into_queue;
 }
+
+#[test]
+fn lslc_005b_selected_discovery_float32_recovery_queue_types_are_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32RecoveryQueueError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32RecoveryQueueOutcome>() > 0);
+    let _composition =
+        rusty_lsl::run_recovering_selected_typed_udp_discovery_float32_inlet_into_queue::<
+            fn(
+                usize,
+                &rusty_lsl::TypedUdpDiscoveryFloat32Error,
+            ) -> rusty_lsl::RecoveryAttemptFailure,
+        >;
+}

@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005B composes caller-classified finite recovery around the accepted
+selected-response Float32 inlet, then queues only a recovered record in an already
+activated bounded queue. Recovery policy, failure classification, three cancellation
+lanes, queue backpressure, and raw timestamps remain separately owned. It adds no
+rediscovery, endpoint reselection, automatic recovery policy, or Manifold authority.
+
 LSLC-005A composes the accepted caller-selected one-record Float32 inlet result
 into an already separately activated caller-owned bounded queue. Inlet and queue
 cancellation remain distinct, queue backpressure retains rejected record ownership,

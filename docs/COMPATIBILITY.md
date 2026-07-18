@@ -1,5 +1,12 @@
 # Compatibility
 
+## LSLC-005B finite recovery composition scope
+
+Synthetic loopback proves one caller-classified retry followed by exact-bit queue
+admission, plus queue cancellation retaining the recovered record and state trace.
+This is local candidate behavior, not automatic loss detection, rediscovery,
+official/device recovery, long-running operation, or ecosystem compatibility.
+
 ## LSLC-005A selected discovery Float32 queue scope
 
 One synthetic IPv4-loopback record passes from the accepted selected-response

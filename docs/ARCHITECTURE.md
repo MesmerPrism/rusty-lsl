@@ -1,5 +1,13 @@
 # Architecture
 
+## LSLC-005B selected discovery Float32 recovery queue composition
+
+LSLC-005B invokes the existing finite recovery owner around repeated calls to the
+same caller-selected LSLC-004Z inlet. The caller classifies each typed inlet error,
+and no endpoint reselection or rediscovery occurs. Only a recovered record reaches
+the existing queue. Recovery, inlet, and queue cancellation remain distinct; queue
+rejection retains the sample and recovery states. No policy or authority moves.
+
 ## LSLC-005A selected discovery Float32 queue composition
 
 LSLC-005A adds one thin data-plane edge after LSLC-004Z. The caller passes an

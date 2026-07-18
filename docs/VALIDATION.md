@@ -1,5 +1,10 @@
 # Validation
 
+LSLC-005B focused validation is `cargo test -p rusty-lsl lslc_005b`. It proves
+only caller-classified retry over one fixed selected endpoint, exact recovered
+record queueing, and retained sample/state evidence on queue cancellation. Standard
+proves no automatic, official, device, broad recovery, or Manifold behavior.
+
 LSLC-005A focused validation is `cargo test -p rusty-lsl lslc_005a`. It proves
 only the bounded selected-response Float32 inlet-to-existing-queue composition,
 exact raw timestamp/value preservation, and separate queue cancellation ownership.
