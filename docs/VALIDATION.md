@@ -1,5 +1,15 @@
 # Validation
 
+LSLC-005O focused exact-closure validation reuses the existing LSLC-004V
+checker:
+
+```text
+python ./tools/check_lslc_004v.py
+```
+
+Only the accepted typed projection blob is rebound; the UDP blob, semantics,
+damaged mutations, and Standard policy inventory remain unchanged.
+
 LSLC-005N focused typed discovery-response conformance:
 
 ```text

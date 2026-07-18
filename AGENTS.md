@@ -1,5 +1,10 @@
 # Rusty LSL Agent Notes
 
+LSLC-005O rebinds only the LSLC-004V validation closure to the exact accepted
+LSLC-005N typed response projection blob. The UDP blob, fixture semantics,
+damaged mutations, production behavior, validation inventory, compatibility
+claims, device behavior, and Manifold authority remain unchanged.
+
 LSLC-005N adds only test-only deterministic conformance for the accepted typed
 UDP discovery-response projection. Exact UTF-8 positions, envelope-error
 ownership, exact-boundary repetition, and complete IPv6 source preservation

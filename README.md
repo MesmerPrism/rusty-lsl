@@ -1,5 +1,9 @@
 # Rusty LSL
 
+LSLC-005O updates only the exact LSLC-004V validation hash for the accepted
+LSLC-005N typed response projection. It changes no production behavior, gate
+inventory, fixture meaning, compatibility breadth, or activation.
+
 LSLC-005N adds test-only deterministic typed UDP discovery-response projection
 conformance for exact UTF-8 positions, envelope-error ownership, repeated
 exact-boundary acceptance, and complete IPv6 source preservation. Production
