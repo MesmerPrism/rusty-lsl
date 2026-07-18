@@ -126,3 +126,9 @@ fn lslc_005d_recovery_clock_correction_queue_is_public() {
         fn(usize, &rusty_lsl::TypedUdpDiscoveryFloat32Error) -> rusty_lsl::RecoveryAttemptFailure,
     >;
 }
+
+#[test]
+fn float32_two_record_chunk_candidate_types_are_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkLimits>() > 0);
+}

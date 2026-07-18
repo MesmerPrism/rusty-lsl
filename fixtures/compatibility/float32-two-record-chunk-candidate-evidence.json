@@ -1,0 +1,62 @@
+{
+  "schema": "rusty.lsl.float32_two_record_chunk_candidate_evidence.v1",
+  "classification": "black-box-derived-public-safe-sanitized-observation-and-independent-candidate",
+  "canonical_unit_id": null,
+  "oracle": {
+    "package": "pylsl",
+    "package_version": "1.18.2",
+    "library_version": 117,
+    "protocol_version": 110,
+    "implementation_source_used": false
+  },
+  "case": {
+    "transport_scope": "finite-ipv4-loopback",
+    "channel_format": "float32",
+    "channel_count": 1,
+    "caller_chunk_count": 1,
+    "caller_record_count": 2,
+    "timestamps": [2345.125, 2346.875],
+    "values": [1.25, -2.5],
+    "repeats": 2,
+    "directions": [
+      "official-chunk-outlet-to-independent-observer",
+      "independent-chunk-outlet-to-official-inlet"
+    ]
+  },
+  "observed_semantics": {
+    "initialization_record_count": 2,
+    "caller_records_are_ordered": true,
+    "caller_timestamp_bits_preserved": true,
+    "caller_value_bits_preserved": true,
+    "caller_record_bytes": 13,
+    "record_shape": "existing marker then little-endian finite-f64 raw timestamp then little-endian f32 value",
+    "additional_chunk_envelope_observed": false,
+    "official_receive_observation": "two ordered records returned through two bounded pulls after one independently emitted contiguous chunk"
+  },
+  "private_evidence": {
+    "driver_sha256": "9e269c12017b32e4f33caa7d3b6920d8e5b53a4e1e0bc5e1f4ab570dd3a850b4",
+    "successful_attempt_sha256": [
+      "d00a116942a3fbdb61a877bee14909c31b41cb81c5ce3737d523b1252320851c",
+      "016ff0ddce5882cfcdc837ac831dcbfa8a3199b14e66cdb30bbdafb3939c1f7d"
+    ],
+    "failed_attempts_preserved_privately": true,
+    "raw_artifacts_committed": false
+  },
+  "candidate": {
+    "module": "timestamped_float32_two_record_chunk_runtime",
+    "activation_owner_reused": "timestamped-float32-sample",
+    "handshake_owner_reused": true,
+    "record_transport_owner_reused": true,
+    "exact_record_count": 2,
+    "exact_channel_count": 1
+  },
+  "does_not_prove": [
+    "canonical acceptance or publication",
+    "arbitrary chunk sizes or channel counts",
+    "other channel formats",
+    "buffering, rechunking, recovery, or backpressure",
+    "non-loopback or device behavior",
+    "broad ecosystem compatibility",
+    "Manifold authority"
+  ]
+}

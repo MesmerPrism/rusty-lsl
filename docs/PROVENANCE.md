@@ -698,3 +698,12 @@ The composition is independently authored solely from the accepted public
 Rusty LSL UDP and typed-projection contracts. Its loopback response values are
 independent and public-safe. It performs no official-oracle, Android Java,
 Quest, or external implementation intake, and both accepted owner blobs remain exact.
+# Float32 two-record chunk candidate provenance
+
+The pinned pylsl 1.18.2 / liblsl 1.17 / protocol-110 endpoint was used only
+through public black-box APIs. A lane-private independently authored driver
+performed two bounded repeats in both loopback directions. Raw records,
+headers, endpoints, dynamic identities, diagnostics, paths, and environment
+details remain private; the public fixture retains only sanitized dimensions,
+semantics, outcomes, and SHA-256 bindings. Failed derivation attempts are
+preserved privately. No official implementation source was inspected or used.

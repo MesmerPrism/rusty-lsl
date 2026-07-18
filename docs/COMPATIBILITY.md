@@ -895,3 +895,13 @@ Noncanonical channel count rejects at response index zero, and pre-I/O
 cancellation returns an empty cancelled run. This is local composition
 evidence, not another official observation, active-interface claim, Android
 Java result, Rust-on-Quest result, retry policy, or broad compatibility.
+# Float32 two-record chunk integration candidate
+
+Lane-local sanitized pinned-official evidence covers exactly one one-channel
+Float32 caller chunk containing two explicitly timestamped records in both
+finite IPv4-loopback directions. Both repeats preserved record order and exact
+timestamp/value bits. The official chunk emission used the already accepted
+13-byte record shape consecutively; no additional chunk envelope was observed.
+The accompanying independently authored candidate is not canonically accepted
+or published and does not generalize counts, formats, buffering, network scope,
+devices, compatibility breadth, or authority.

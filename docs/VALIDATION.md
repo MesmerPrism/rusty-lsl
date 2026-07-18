@@ -290,3 +290,11 @@ LSLC-004V is checked with
 It pins the unchanged UDP and typed-projection blobs, runs focused positive,
 indexed-damage, cancellation, cleanup, and public-API cases, rejects ten
 evidence mutations, and checks the public boundary without oracle or device work.
+# Float32 two-record chunk integration candidate
+
+Focused validation is `cargo test -p rusty-lsl candidate_two_record_chunk`.
+It proves only exact two-record ordering, raw timestamp/value preservation,
+pre-I/O count rejection, and loopback cleanup for the independently authored
+candidate. Standard remains the aggregate owner gate. Neither route replays
+the private oracle or proves canonical acceptance, arbitrary chunks, devices,
+broad interoperability, or Manifold authority.

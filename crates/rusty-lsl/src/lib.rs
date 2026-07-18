@@ -107,6 +107,7 @@ mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
 mod timestamped_float32_sample_runtime;
+mod timestamped_float32_two_record_chunk_runtime;
 mod typed_short_info_response_observation;
 mod typed_udp_discovery_endpoint;
 mod typed_udp_discovery_float32;
@@ -300,6 +301,11 @@ pub use timestamped_float32_sample_runtime::{
     TimestampedFloat32SampleError, TimestampedFloat32SampleLimitError,
     TimestampedFloat32SampleLimits, TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER,
     TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID,
+};
+pub use timestamped_float32_two_record_chunk_runtime::{
+    run_timestamped_float32_two_record_chunk_inlet,
+    run_timestamped_float32_two_record_chunk_outlet, TimestampedFloat32TwoRecordChunkError,
+    TimestampedFloat32TwoRecordChunkLimitError, TimestampedFloat32TwoRecordChunkLimits,
 };
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
