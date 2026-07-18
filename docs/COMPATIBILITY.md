@@ -1,5 +1,9 @@
 # Compatibility
 
+LSLC-005D composes existing candidate runtime contracts but adds no observation
+or interoperability evidence. It does not widen the one selected response,
+one Float32 record, IPv4, or pinned evidence claims.
+
 ## LSLC-005C clock-correction composition scope
 
 This is synthetic owner composition only. It adds no observation of official

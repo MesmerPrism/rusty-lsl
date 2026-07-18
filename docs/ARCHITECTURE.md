@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-005D is the bounded combined minimum-runtime composition: finite recovery
+owns only repeated caller-classified inlet attempts; integrated clock correction
+runs once only after recovery; queue admission follows correction. The caller
+retains every policy, activation, cancellation, provider/domain, wait bound,
+raw timestamp, and rejected-record owner.
+
 ## LSLC-005C selected discovery Float32 clock-correction queue composition
 
 LSLC-005C places the existing integrated clock-correction owner after one

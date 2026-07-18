@@ -1,5 +1,9 @@
 # Validation
 
+LSLC-005D focused tests use the lslc_005d filter; Standard remains the owner
+gate for the complete bounded recovery, correction, queue, public API, and
+public-boundary closure.
+
 LSLC-005C focused validation is `cargo test -p rusty-lsl lslc_005c`. It proves
 only unchanged raw/value reconstruction beside the accepted clock owner's
 derived value and public composition shape. Standard remains the owner gate and

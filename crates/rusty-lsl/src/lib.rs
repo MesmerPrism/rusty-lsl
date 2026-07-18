@@ -112,6 +112,7 @@ mod typed_udp_discovery_endpoint;
 mod typed_udp_discovery_float32;
 mod typed_udp_discovery_float32_clock_correction_queue;
 mod typed_udp_discovery_float32_queue;
+mod typed_udp_discovery_float32_recovery_clock_correction_queue;
 mod typed_udp_discovery_float32_recovery_queue;
 mod typed_udp_discovery_handshake;
 mod typed_udp_discovery_response;
@@ -315,6 +316,11 @@ pub use typed_udp_discovery_float32_clock_correction_queue::{
 };
 pub use typed_udp_discovery_float32_queue::{
     run_selected_typed_udp_discovery_float32_inlet_into_queue, TypedUdpDiscoveryFloat32QueueError,
+};
+pub use typed_udp_discovery_float32_recovery_clock_correction_queue::{
+    run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue,
+    TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError,
+    TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome,
 };
 pub use typed_udp_discovery_float32_recovery_queue::{
     run_recovering_selected_typed_udp_discovery_float32_inlet_into_queue,

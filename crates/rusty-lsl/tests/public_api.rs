@@ -104,3 +104,25 @@ fn lslc_005c_selected_discovery_float32_clock_correction_queue_is_public() {
             PublicClock,
         >;
 }
+
+#[test]
+fn lslc_005d_recovery_clock_correction_queue_is_public() {
+    struct PublicClock;
+    impl rusty_lsl::ClockSource for PublicClock {
+        fn now(&mut self) -> f64 {
+            0.0
+        }
+    }
+    assert!(
+        core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError>(
+        ) > 0
+    );
+    assert!(
+        core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome>(
+        ) > 0
+    );
+    let _composition = rusty_lsl::run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue::<
+        PublicClock,
+        fn(usize, &rusty_lsl::TypedUdpDiscoveryFloat32Error) -> rusty_lsl::RecoveryAttemptFailure,
+    >;
+}
