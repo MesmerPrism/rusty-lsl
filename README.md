@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005F adds test-only damaged-path conformance for unchanged LSLC-005D:
+clock cancellation preserves the recovered record and recovery states before
+queue admission, and queue cancellation retains the corrected record and
+states. It changes no production behavior, policy, ownership, compatibility,
+device, or Manifold authority.
+
 LSLC-005E adds test-only synthetic conformance for the unchanged LSLC-005D
 minimum runtime spine: one caller-classified retry, one recovered Float32
 record, one separately activated clock correction, and one bounded-queue

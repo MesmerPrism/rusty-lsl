@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-005F adds only test-only damaged-path conformance for the byte-unchanged
+LSLC-005D composition: clock cancellation returns the unchanged recovered
+record and recovery states before queue admission, while queue cancellation
+retains the corrected record and states. It changes no production behavior,
+policy, ownership, compatibility, device, or Manifold authority.
+
 LSLC-005E adds only test-only synthetic end-to-end conformance for the
 byte-unchanged LSLC-005D recovery-to-correction-to-queue composition. One
 caller-classified retry precedes one recovered Float32 record, exactly one

@@ -444,4 +444,116 @@ mod tests {
         inlet_worker.join().unwrap();
         correction_worker.join().unwrap();
     }
+
+    #[test]
+    fn lslc_005f_clock_cancellation_returns_recovered_record_and_states() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let inlet_worker = thread::spawn(move || {
+            run_timestamped_float32_outlet(
+                sample_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                &sample(-0.0, f32::from_bits(0x7fc0_5f01)),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        });
+        let unused_peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        let mut clock = SequenceClock {
+            values: vec![],
+            index: 0,
+        };
+        let error = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+            &typed_run(address.port()), 0, sample_activation(), &identity(), handshake_limits(),
+            sample_limits(), &AtomicBool::new(false), recovery_activation(),
+            FiniteSampleRecoveryPolicy::new(1, 3, Duration::from_millis(20), Duration::from_millis(1), Duration::from_secs(1)).unwrap(),
+            &AtomicBool::new(false), |_, _| RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, 1),
+            clock_activation(), correction_config(unused_peer.local_addr().unwrap()), &mut clock,
+            &AtomicBool::new(true), &queue,
+            BoundedSampleQueueWait::new(Duration::from_millis(2), Duration::from_millis(100)).unwrap(),
+            &AtomicBool::new(false),
+        ).unwrap_err();
+        match error {
+            TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Clock {
+                error: IntegratedClockCorrectionError::Cancelled,
+                sample,
+                states,
+            } => {
+                assert_eq!(states.len(), 2);
+                assert_eq!(
+                    sample.raw_source_timestamp().value().to_bits(),
+                    (-0.0f64).to_bits()
+                );
+                assert_eq!(sample.sample().values()[0].to_bits(), 0x7fc0_5f01);
+                assert!(sample.derived_timestamp().is_none());
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        assert!(queue.try_pop().is_err());
+        assert_eq!(clock.index, 0);
+        inlet_worker.join().unwrap();
+    }
+
+    #[test]
+    fn lslc_005f_queue_cancellation_retains_corrected_record_and_states() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let inlet_worker = thread::spawn(move || {
+            run_timestamped_float32_outlet(
+                sample_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                &sample(10.0, 5.25),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        });
+        let peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let peer_address = peer.local_addr().unwrap();
+        let correction_worker = thread::spawn(move || {
+            let mut request = [0_u8; 256];
+            let (length, source) = peer.recv_from(&mut request).unwrap();
+            let text = std::str::from_utf8(&request[..length]).unwrap();
+            let mut fields = text.split("\r\n").nth(1).unwrap().split(' ');
+            let id = fields.next().unwrap();
+            let t0 = fields.next().unwrap();
+            peer.send_to(format!(" {id} {t0} 4.0 4.0").as_bytes(), source)
+                .unwrap();
+        });
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        let mut clock = SequenceClock {
+            values: vec![0.0, 2.0],
+            index: 0,
+        };
+        let error = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+            &typed_run(address.port()), 0, sample_activation(), &identity(), handshake_limits(),
+            sample_limits(), &AtomicBool::new(false), recovery_activation(),
+            FiniteSampleRecoveryPolicy::new(1, 3, Duration::from_millis(20), Duration::from_millis(1), Duration::from_secs(1)).unwrap(),
+            &AtomicBool::new(false), |_, _| RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, 1),
+            clock_activation(), correction_config(peer_address), &mut clock, &AtomicBool::new(false),
+            &queue, BoundedSampleQueueWait::new(Duration::from_millis(2), Duration::from_millis(100)).unwrap(),
+            &AtomicBool::new(true),
+        ).unwrap_err();
+        match error {
+            TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Queue {
+                error: BoundedSampleQueuePushError::Cancelled(sample),
+                states,
+            } => {
+                assert_eq!(states.len(), 2);
+                assert_eq!(sample.raw_source_timestamp().value(), 10.0);
+                assert_eq!(sample.sample().values(), &[5.25]);
+                assert_eq!(sample.derived_timestamp().unwrap().value(), 13.0);
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        assert!(queue.try_pop().is_err());
+        inlet_worker.join().unwrap();
+        correction_worker.join().unwrap();
+    }
 }

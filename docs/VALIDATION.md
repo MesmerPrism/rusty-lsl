@@ -1,5 +1,11 @@
 # Validation
 
+LSLC-005F adds two serialized synthetic damaged-path tests for unchanged
+LSLC-005D. They prove record/state ownership across post-recovery clock
+cancellation and post-correction queue cancellation. They do not prove
+official interoperability, devices, automatic policy, provider selection,
+merged cancellation/backpressure, or Manifold authority.
+
 LSLC-005E adds one serialized synthetic loopback test for the unchanged
 LSLC-005D recovery-to-correction-to-queue path. It proves caller-classified
 retry order, exactly-once clock correction after recovery, queue admission,
