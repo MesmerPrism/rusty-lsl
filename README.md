@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005T adds test-only sequential stateful-acquisition conformance for the
+existing transport provider. It verifies isolation across accepted, typed
+provider-error, typed value-error, recovery, and exhaustion outcomes while
+preserving earlier accepted values, without changing production behavior,
+provider policy, transport, activation, compatibility breadth, devices, or
+authority.
+
 LSLC-005S provides bounded Rust-on-Quest conformance for the accepted
 one-channel, two-record Float32 chunk runtime. The exact clean Rusty LSL source
 executes the ordered exchange inside Rust over `127.0.0.1`, preserves both

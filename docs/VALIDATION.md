@@ -1,5 +1,17 @@
 # Validation
 
+LSLC-005T focused stateful-acquisition conformance:
+
+```text
+cargo test -p rusty-lsl --test transport_provider_stateful_acquisition -- --test-threads=1
+```
+
+It covers sequential accepted, provider-error, value-error, recovery, and
+exhaustion outcomes with exact call counts and unchanged prior accepted
+ownership. It is host-only test evidence and changes no provider policy,
+runtime behavior, compatibility breadth, device behavior, or authority.
+Standard remains the aggregate owner gate.
+
 LSLC-005S device validation is a separate serial-scoped gate. The public Quest
 harness builds exact clean Rusty LSL and Rusty Quest revisions for
 `aarch64-linux-android`, then requires the Rust-owned

@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005T adds only test-only sequential stateful-acquisition conformance for
+the accepted transport provider. Accepted, provider-error, value-error,
+recovery, and exhaustion calls remain isolated while prior accepted ownership
+stays unchanged. It changes no production behavior, provider policy,
+serialization, transport, activation, compatibility claim, device behavior,
+or Manifold authority.
+
 LSLC-005S adds only device conformance for the accepted one-channel,
 two-record Float32 chunk runtime. An exact clean Rusty LSL revision built for
 `aarch64-linux-android` completed one Rust-owned finite IPv4-loopback chunk
