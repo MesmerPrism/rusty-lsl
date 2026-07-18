@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-005X adds only symmetric borrowed and consuming accessors to the accepted
+transport provider output. Exact witness/value allocation preservation changes
+no provider authority, acquisition policy, validation order, serialization,
+transport, activation, compatibility claim, device behavior, or Manifold
+authority.
+
 LSLC-005W corrects only the LSLC-005V Cargo target shape. Its unchanged
 transport evidence-limit assertions now run under the repository-permitted
 `public_api` integration-test target, and the standalone target is removed. It

@@ -1,5 +1,16 @@
 # Validation
 
+LSLC-005X focused coverage is:
+
+```text
+cargo test -p rusty-lsl provider_output_accessors_preserve_witness_and_value_allocations -- --exact --test-threads=1
+```
+
+It proves borrowed and consuming access preserves the exact provider witness,
+six value roles, and allocations. Standard remains the aggregate owner gate
+and proves no new provider, acquisition policy, I/O, compatibility, device, or
+Manifold behavior.
+
 LSLC-005W runs the unchanged LSLC-005V external conformance under the
 repository-permitted integration-test target:
 

@@ -1,5 +1,10 @@
 # Architecture
 
+LSLC-005X exposes the accepted transport provider output through borrowed
+`witness` and `values` access plus consuming `into_parts`. These accessors move
+or borrow existing owned state without cloning, reallocating, validating, or
+granting provider, transaction, epoch, runtime, or Manifold authority.
+
 LSLC-005D is the bounded combined minimum-runtime composition: finite recovery
 owns only repeated caller-classified inlet attempts; integrated clock correction
 runs once only after recovery; queue admission follows correction. The caller
