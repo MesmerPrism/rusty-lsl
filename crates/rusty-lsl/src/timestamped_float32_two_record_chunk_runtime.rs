@@ -4,24 +4,22 @@
 //! Exactly two ordered one-channel Float32 records over the accepted sample transport.
 
 use crate::{
-    bounded_fixed_record_transport::{
-        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
-    },
     stream_handshake::{accept_handshake_stream, connect_handshake_stream},
-    ChunkLimits, RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeIdentity,
-    StreamHandshakeLimits, TimestampedChunk, TimestampedFloat32SampleActivation,
-    TimestampedFloat32SampleError, TimestampedSample,
+    timestamped_float32_sample_runtime::{
+        read_initialization, read_record, write_initialization, write_record,
+    },
+    ChunkLimits, StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedChunk,
+    TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
+    TimestampedFloat32SampleLimits,
 };
+use std::io::{ErrorKind, Read};
 use std::net::TcpStream;
 use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
-use std::time::Duration;
+use std::sync::atomic::Ordering;
+use std::time::{Duration, Instant};
 
 const REQUIRED_RECORDS: usize = 2;
-const RECORD_BYTES: usize = 13;
-const RECORD_MARKER: u8 = 2;
-const INITIALIZATION_TIMESTAMP_BITS: u64 = 0x40fe240c9fbe76c9;
-const INITIALIZATION_VALUE_BITS: [u32; 2] = [0x40800000, 0x40000000];
 
 /// Explicit nonzero I/O bounds for the exact two-record chunk stage.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -47,6 +45,10 @@ impl TimestampedFloat32TwoRecordChunkLimits {
             total_deadline,
         })
     }
+
+    fn sample_limits(self) -> TimestampedFloat32SampleLimits {
+        TimestampedFloat32SampleLimits::new(self.io_slice, self.total_deadline).unwrap()
+    }
 }
 
 /// Invalid exact-chunk I/O bounds.
@@ -58,107 +60,47 @@ pub enum TimestampedFloat32TwoRecordChunkLimitError {
     ZeroTotalDeadline,
 }
 
-fn map_transport_error(error: BoundedFixedRecordError) -> TimestampedFloat32SampleError {
-    match error {
-        BoundedFixedRecordError::Cancelled => TimestampedFloat32SampleError::Cancelled,
-        BoundedFixedRecordError::Deadline => TimestampedFloat32SampleError::Deadline,
-        BoundedFixedRecordError::Truncated { actual } => {
-            TimestampedFloat32SampleError::Truncated { actual }
+fn require_peer_close(
+    stream: &mut TcpStream,
+    limits: TimestampedFloat32TwoRecordChunkLimits,
+    cancelled: &AtomicBool,
+) -> Result<(), TimestampedFloat32TwoRecordChunkError> {
+    let start = Instant::now();
+    let mut byte = [0u8; 1];
+    loop {
+        if cancelled.load(Ordering::Acquire) {
+            return Err(TimestampedFloat32TwoRecordChunkError::Sample {
+                index: None,
+                error: TimestampedFloat32SampleError::Cancelled,
+            });
         }
-        BoundedFixedRecordError::Io(kind) => TimestampedFloat32SampleError::Io(kind),
-    }
-}
-
-fn write_record(
-    stream: &mut TcpStream,
-    sample: &TimestampedSample<f32>,
-    limits: TimestampedFloat32TwoRecordChunkLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    if sample.sample().declared_channels() != 1 {
-        return Err(TimestampedFloat32SampleError::ChannelCount {
-            actual: sample.sample().declared_channels(),
-        });
-    }
-    let mut record = [0u8; RECORD_BYTES];
-    record[0] = RECORD_MARKER;
-    record[1..9].copy_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
-    record[9..13].copy_from_slice(&sample.sample().values()[0].to_le_bytes());
-    write_exact_bounded(
-        stream,
-        &record,
-        limits.io_slice,
-        limits.total_deadline,
-        cancelled,
-    )
-    .map_err(map_transport_error)
-}
-
-fn read_record(
-    stream: &mut TcpStream,
-    limits: TimestampedFloat32TwoRecordChunkLimits,
-    cancelled: &AtomicBool,
-) -> Result<TimestampedSample<f32>, TimestampedFloat32SampleError> {
-    let mut record = [0u8; RECORD_BYTES];
-    read_exact_bounded(
-        stream,
-        &mut record,
-        limits.io_slice,
-        limits.total_deadline,
-        cancelled,
-    )
-    .map_err(map_transport_error)?;
-    if record[0] != RECORD_MARKER {
-        return Err(TimestampedFloat32SampleError::InvalidMarker { actual: record[0] });
-    }
-    let timestamp = RawSourceTimestamp::new(f64::from_le_bytes(record[1..9].try_into().unwrap()))
-        .map_err(|_| TimestampedFloat32SampleError::InvalidTimestamp)?;
-    let value = f32::from_le_bytes(record[9..13].try_into().unwrap());
-    Ok(TimestampedSample::new(
-        Sample::new(SampleLimits::new(1).unwrap(), 1, vec![value]).unwrap(),
-        timestamp,
-        None,
-    ))
-}
-
-fn initialization_sample(value_bits: u32) -> TimestampedSample<f32> {
-    TimestampedSample::new(
-        Sample::new(
-            SampleLimits::new(1).unwrap(),
-            1,
-            vec![f32::from_bits(value_bits)],
-        )
-        .unwrap(),
-        RawSourceTimestamp::new(f64::from_bits(INITIALIZATION_TIMESTAMP_BITS)).unwrap(),
-        None,
-    )
-}
-
-fn write_initialization(
-    stream: &mut TcpStream,
-    limits: TimestampedFloat32TwoRecordChunkLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    for bits in INITIALIZATION_VALUE_BITS {
-        write_record(stream, &initialization_sample(bits), limits, cancelled)?;
-    }
-    Ok(())
-}
-
-fn read_initialization(
-    stream: &mut TcpStream,
-    limits: TimestampedFloat32TwoRecordChunkLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    for (index, expected) in INITIALIZATION_VALUE_BITS.into_iter().enumerate() {
-        let record = read_record(stream, limits, cancelled)?;
-        if record.raw_source_timestamp().value().to_bits() != INITIALIZATION_TIMESTAMP_BITS
-            || record.sample().values()[0].to_bits() != expected
-        {
-            return Err(TimestampedFloat32SampleError::InvalidInitialization { index });
+        let remaining = limits.total_deadline.saturating_sub(start.elapsed());
+        if remaining.is_zero() {
+            return Err(TimestampedFloat32TwoRecordChunkError::Sample {
+                index: None,
+                error: TimestampedFloat32SampleError::Deadline,
+            });
+        }
+        stream
+            .set_read_timeout(Some(limits.io_slice.min(remaining)))
+            .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample {
+                index: None,
+                error: TimestampedFloat32SampleError::Io(error.kind()),
+            })?;
+        match stream.read(&mut byte) {
+            Ok(0) => return Ok(()),
+            Ok(_) => {
+                return Err(TimestampedFloat32TwoRecordChunkError::TrailingByte { actual: byte[0] })
+            }
+            Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
+            Err(error) => {
+                return Err(TimestampedFloat32TwoRecordChunkError::Sample {
+                    index: None,
+                    error: TimestampedFloat32SampleError::Io(error.kind()),
+                })
+            }
         }
     }
-    Ok(())
 }
 
 /// Stable failure for the exact two-record Float32 chunk surface.
@@ -168,6 +110,11 @@ pub enum TimestampedFloat32TwoRecordChunkError {
     RecordCount {
         /// Actual record count.
         actual: usize,
+    },
+    /// The peer sent data after the exact second caller record.
+    TrailingByte {
+        /// First byte beyond the accepted two-record envelope.
+        actual: u8,
     },
     /// The accepted sample transport owner rejected setup or a named record.
     Sample {
@@ -201,14 +148,18 @@ pub fn run_timestamped_float32_two_record_chunk_outlet(
             },
         )?;
     let _ = activation;
-    write_initialization(&mut stream, sample_limits, cancelled)
+    write_initialization(&mut stream, sample_limits.sample_limits(), cancelled)
         .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample { index: None, error })?;
     for (index, sample) in chunk.samples().iter().enumerate() {
-        write_record(&mut stream, sample, sample_limits, cancelled).map_err(|error| {
-            TimestampedFloat32TwoRecordChunkError::Sample {
-                index: Some(index),
-                error,
-            }
+        write_record(
+            &mut stream,
+            sample,
+            sample_limits.sample_limits(),
+            cancelled,
+        )
+        .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample {
+            index: Some(index),
+            error,
         })?;
     }
     Ok(local)
@@ -229,19 +180,20 @@ pub fn run_timestamped_float32_two_record_chunk_inlet(
             error: TimestampedFloat32SampleError::Handshake(error),
         })?;
     let _ = activation;
-    read_initialization(&mut stream, sample_limits, cancelled)
+    read_initialization(&mut stream, sample_limits.sample_limits(), cancelled)
         .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample { index: None, error })?;
     let mut samples = Vec::with_capacity(REQUIRED_RECORDS);
     for index in 0..REQUIRED_RECORDS {
         samples.push(
-            read_record(&mut stream, sample_limits, cancelled).map_err(|error| {
-                TimestampedFloat32TwoRecordChunkError::Sample {
+            read_record(&mut stream, sample_limits.sample_limits(), cancelled).map_err(
+                |error| TimestampedFloat32TwoRecordChunkError::Sample {
                     index: Some(index),
                     error,
-                }
-            })?,
+                },
+            )?,
         );
     }
+    require_peer_close(&mut stream, sample_limits, cancelled)?;
     Ok(TimestampedChunk::new(ChunkLimits::new(REQUIRED_RECORDS, 1).unwrap(), samples).unwrap())
 }
 
@@ -252,6 +204,8 @@ mod tests {
         runtime_activation::test_capability, RawSourceTimestamp, RuntimeModule, Sample,
         SampleLimits, StreamHandshakeActivation, TimestampedSample,
     };
+    use std::io::Write;
+    use std::sync::Arc;
     use std::thread;
     use std::time::Duration;
 
@@ -370,6 +324,150 @@ mod tests {
             ),
             Err(TimestampedFloat32TwoRecordChunkError::RecordCount { actual: 1 })
         );
+        TcpListener::bind(address).unwrap();
+    }
+
+    fn spawn_peer(
+        write_tail: impl FnOnce(&mut TcpStream) + Send + 'static,
+        hold_open: Duration,
+    ) -> (SocketAddr, thread::JoinHandle<()>) {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let worker = thread::spawn(move || {
+            let (mut stream, _, _) = accept_handshake_stream(
+                listener,
+                &identity(),
+                handshake_limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            write_initialization(
+                &mut stream,
+                sample_limits().sample_limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            write_tail(&mut stream);
+            if !hold_open.is_zero() {
+                thread::sleep(hold_open);
+            }
+        });
+        (address, worker)
+    }
+
+    fn receive_from_peer(
+        address: SocketAddr,
+        limits: TimestampedFloat32TwoRecordChunkLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedChunk<f32>, TimestampedFloat32TwoRecordChunkError> {
+        run_timestamped_float32_two_record_chunk_inlet(
+            activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            limits,
+            cancelled,
+        )
+    }
+
+    #[test]
+    fn candidate_damaged_marker_and_truncation_keep_record_ownership() {
+        for (tail, expected) in [
+            (
+                vec![9; 13],
+                TimestampedFloat32SampleError::InvalidMarker { actual: 9 },
+            ),
+            (
+                vec![2, 0],
+                TimestampedFloat32SampleError::Truncated { actual: 2 },
+            ),
+        ] {
+            let (address, worker) = spawn_peer(
+                move |stream| stream.write_all(&tail).unwrap(),
+                Duration::ZERO,
+            );
+            assert_eq!(
+                receive_from_peer(address, sample_limits(), &AtomicBool::new(false)),
+                Err(TimestampedFloat32TwoRecordChunkError::Sample {
+                    index: Some(0),
+                    error: expected,
+                })
+            );
+            worker.join().unwrap();
+            TcpListener::bind(address).unwrap();
+        }
+    }
+
+    #[test]
+    fn candidate_extra_record_is_typed_and_releases_port() {
+        let (address, worker) = spawn_peer(
+            |stream| {
+                for record in [sample(1.0, 2.0), sample(3.0, 4.0)] {
+                    write_record(
+                        stream,
+                        &record,
+                        sample_limits().sample_limits(),
+                        &AtomicBool::new(false),
+                    )
+                    .unwrap();
+                }
+                stream.write_all(&[2]).unwrap();
+            },
+            Duration::ZERO,
+        );
+        assert_eq!(
+            receive_from_peer(address, sample_limits(), &AtomicBool::new(false)),
+            Err(TimestampedFloat32TwoRecordChunkError::TrailingByte { actual: 2 })
+        );
+        worker.join().unwrap();
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn candidate_terminal_deadline_and_cancellation_are_typed_and_cleanup() {
+        let short = TimestampedFloat32TwoRecordChunkLimits::new(
+            Duration::from_millis(2),
+            Duration::from_millis(20),
+        )
+        .unwrap();
+        let write_two = |stream: &mut TcpStream| {
+            for record in [sample(1.0, 2.0), sample(3.0, 4.0)] {
+                write_record(
+                    stream,
+                    &record,
+                    sample_limits().sample_limits(),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+            }
+        };
+        let (address, worker) = spawn_peer(write_two, Duration::from_millis(80));
+        assert_eq!(
+            receive_from_peer(address, short, &AtomicBool::new(false)),
+            Err(TimestampedFloat32TwoRecordChunkError::Sample {
+                index: None,
+                error: TimestampedFloat32SampleError::Deadline,
+            })
+        );
+        worker.join().unwrap();
+        TcpListener::bind(address).unwrap();
+
+        let (address, worker) = spawn_peer(write_two, Duration::from_millis(80));
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let trigger = Arc::clone(&cancelled);
+        let canceller = thread::spawn(move || {
+            thread::sleep(Duration::from_millis(10));
+            trigger.store(true, Ordering::Release);
+        });
+        assert_eq!(
+            receive_from_peer(address, sample_limits(), &cancelled),
+            Err(TimestampedFloat32TwoRecordChunkError::Sample {
+                index: None,
+                error: TimestampedFloat32SampleError::Cancelled,
+            })
+        );
+        canceller.join().unwrap();
+        worker.join().unwrap();
         TcpListener::bind(address).unwrap();
     }
 }

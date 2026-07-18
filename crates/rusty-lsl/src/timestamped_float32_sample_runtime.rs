@@ -12,7 +12,7 @@ use crate::{
     StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
     StreamHandshakeLimits, TimestampedSample,
 };
-use std::io::{ErrorKind, Write};
+use std::io::ErrorKind;
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
@@ -22,8 +22,8 @@ pub const TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID: &str = "timestamped-float32-sam
 /// Exact effective marker required at runtime.
 pub const TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER: &str =
     "rusty.lsl.timestamped_float32_sample.effective";
-const RECORD_BYTES: usize = 13;
-const RECORD_MARKER: u8 = 2;
+pub(crate) const RECORD_BYTES: usize = 13;
+pub(crate) const RECORD_MARKER: u8 = 2;
 const INITIALIZATION_TIMESTAMP_BITS: u64 = 0x40fe240c9fbe76c9;
 const INITIALIZATION_VALUE_BITS: [u32; 2] = [0x40800000, 0x40000000];
 
@@ -136,7 +136,7 @@ fn initialization_sample(value_bits: u32) -> TimestampedSample<f32> {
     )
 }
 
-fn write_initialization(
+pub(crate) fn write_initialization(
     stream: &mut TcpStream,
     limits: TimestampedFloat32SampleLimits,
     cancelled: &AtomicBool,
@@ -152,7 +152,7 @@ fn write_initialization(
     Ok(())
 }
 
-fn read_initialization(
+pub(crate) fn read_initialization(
     stream: &mut TcpStream,
     limits: TimestampedFloat32SampleLimits,
     cancelled: &AtomicBool,
@@ -168,7 +168,7 @@ fn read_initialization(
     Ok(())
 }
 
-fn write_record(
+pub(crate) fn write_record(
     stream: &mut TcpStream,
     sample: &TimestampedSample<f32>,
     limits: TimestampedFloat32SampleLimits,
@@ -204,7 +204,7 @@ fn map_transport_error(error: BoundedFixedRecordError) -> TimestampedFloat32Samp
     }
 }
 
-fn read_record(
+pub(crate) fn read_record(
     stream: &mut TcpStream,
     limits: TimestampedFloat32SampleLimits,
     cancelled: &AtomicBool,
@@ -267,6 +267,7 @@ pub fn run_timestamped_float32_inlet(
 mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
+    use std::io::Write;
     use std::thread;
 
     fn handshake() -> StreamHandshakeActivation {
