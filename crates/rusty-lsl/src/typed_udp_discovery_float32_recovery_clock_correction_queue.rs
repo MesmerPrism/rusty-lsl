@@ -632,4 +632,138 @@ mod tests {
             assert!(queue.try_pop().is_err());
         }
     }
+
+    #[test]
+    fn host_soak_repeats_recovery_pressure_faults_and_port_reuse() {
+        const CYCLES: usize = 12;
+        for cycle in 0..CYCLES {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let inlet_address = listener.local_addr().unwrap();
+            let correction_peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+            let correction_address = correction_peer.local_addr().unwrap();
+            let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+            let mut clock = SequenceClock {
+                values: vec![0.0, 2.0],
+                index: 0,
+            };
+
+            match cycle % 3 {
+                0 | 1 => {
+                    let inlet_worker = thread::spawn(move || {
+                        if cycle % 3 == 0 {
+                            let (stream, _) = listener.accept().unwrap();
+                            drop(stream);
+                            drop(listener);
+                            let rebound = TcpListener::bind(inlet_address).unwrap();
+                            run_timestamped_float32_outlet(
+                                sample_activation(),
+                                rebound,
+                                &identity(),
+                                handshake_limits(),
+                                sample_limits(),
+                                &sample(-0.0, f32::from_bits(0x7fc0_5000 + cycle as u32)),
+                                &AtomicBool::new(false),
+                            )
+                            .unwrap();
+                        } else {
+                            run_timestamped_float32_outlet(
+                                sample_activation(),
+                                listener,
+                                &identity(),
+                                handshake_limits(),
+                                sample_limits(),
+                                &sample(cycle as f64, cycle as f32),
+                                &AtomicBool::new(false),
+                            )
+                            .unwrap();
+                        }
+                    });
+                    let correction_worker = thread::spawn(move || {
+                        let mut request = [0_u8; 256];
+                        let (length, source) = correction_peer.recv_from(&mut request).unwrap();
+                        let text = std::str::from_utf8(&request[..length]).unwrap();
+                        let mut fields = text.split("\r\n").nth(1).unwrap().split(' ');
+                        let id = fields.next().unwrap();
+                        let t0 = fields.next().unwrap();
+                        correction_peer
+                            .send_to(format!(" {id} {t0} 4.0 4.0").as_bytes(), source)
+                            .unwrap();
+                    });
+                    if cycle % 3 == 1 {
+                        queue.try_push(sample(99.0, 99.0)).unwrap();
+                    }
+                    let queue_cancelled = AtomicBool::new(cycle % 3 == 1);
+                    let result = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+                        &typed_run(inlet_address.port()), 0, sample_activation(), &identity(),
+                        handshake_limits(), sample_limits(), &AtomicBool::new(false),
+                        recovery_activation(),
+                        FiniteSampleRecoveryPolicy::new(2, 5, Duration::from_millis(20), Duration::from_millis(1), Duration::from_secs(1)).unwrap(),
+                        &AtomicBool::new(false),
+                        |_, _| RecoveryAttemptFailure::new(RecoveryFailureClass::Retryable, 80 + cycle as u32),
+                        clock_activation(), correction_config(correction_address), &mut clock,
+                        &AtomicBool::new(false), &queue,
+                        BoundedSampleQueueWait::new(Duration::from_millis(1), Duration::from_millis(20)).unwrap(),
+                        &queue_cancelled,
+                    );
+                    if cycle % 3 == 0 {
+                        assert!(
+                            matches!(result.unwrap(), TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Queued { ref states } if states.len() == 4)
+                        );
+                        let drained = queue.try_pop().unwrap();
+                        assert_eq!(
+                            drained.raw_source_timestamp().value().to_bits(),
+                            (-0.0f64).to_bits()
+                        );
+                        assert_eq!(
+                            drained.sample().values()[0].to_bits(),
+                            0x7fc0_5000 + cycle as u32
+                        );
+                    } else {
+                        assert!(
+                            matches!(result.unwrap_err(), TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Queue {
+                            error: BoundedSampleQueuePushError::Cancelled(ref rejected), ref states
+                        } if rejected.raw_source_timestamp().value() == cycle as f64
+                            && rejected.derived_timestamp().unwrap().value() == cycle as f64 + 3.0
+                            && states.len() == 2)
+                        );
+                        assert_eq!(queue.try_pop().unwrap().sample().values(), &[99.0]);
+                    }
+                    inlet_worker.join().unwrap();
+                    correction_worker.join().unwrap();
+                    assert_eq!(clock.index, 2);
+                }
+                _ => {
+                    drop(listener);
+                    drop(correction_peer);
+                    let recovery_cancelled = AtomicBool::new(cycle % 2 == 0);
+                    let result = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+                        &typed_run(inlet_address.port()), 0, sample_activation(), &identity(),
+                        handshake_limits(), sample_limits(), &AtomicBool::new(false),
+                        recovery_activation(),
+                        FiniteSampleRecoveryPolicy::new(1, 3, Duration::ZERO, Duration::from_millis(1), Duration::from_secs(1)).unwrap(),
+                        &recovery_cancelled,
+                        |_, _| RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, 90 + cycle as u32),
+                        clock_activation(), correction_config(correction_address), &mut clock,
+                        &AtomicBool::new(false), &queue,
+                        BoundedSampleQueueWait::new(Duration::from_millis(1), Duration::from_millis(20)).unwrap(),
+                        &AtomicBool::new(false),
+                    ).unwrap();
+                    if recovery_cancelled.load(std::sync::atomic::Ordering::Relaxed) {
+                        assert!(
+                            matches!(result, TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Cancelled { ref states } if states.len() == 1)
+                        );
+                    } else {
+                        assert!(
+                            matches!(result, TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Terminal { failure, ref states } if failure.code() == 90 + cycle as u32 && states.len() == 2)
+                        );
+                    }
+                    assert_eq!(clock.index, 0);
+                    assert!(queue.try_pop().is_err());
+                }
+            }
+
+            TcpListener::bind(inlet_address).unwrap();
+            UdpSocket::bind(correction_address).unwrap();
+        }
+    }
 }
