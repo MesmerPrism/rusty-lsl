@@ -1,12 +1,13 @@
 # Validation
 
-LSLC-005V focused external conformance is:
+LSLC-005W runs the unchanged LSLC-005V external conformance under the
+repository-permitted integration-test target:
 
 ```text
-cargo test -p rusty-lsl --test transport_provider_evidence_limit_contract -- --test-threads=1
+cargo test -p rusty-lsl --test public_api lslc_005w_ -- --test-threads=1
 ```
 
-It proves only the accepted evidence-limit constructor, Unicode-scalar
+The four assertions prove only the accepted evidence-limit constructor, Unicode-scalar
 provider-identity bound, exact typed error payloads, and identity-mismatch
 precedence. Standard remains the aggregate owner gate and proves no new
 production behavior, provider policy, compatibility breadth, device behavior,

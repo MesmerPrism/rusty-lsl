@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-005W corrects only the LSLC-005V Cargo target shape by moving its
+unchanged evidence-limit assertions into the permitted `public_api` target and
+removing the standalone target. It changes no production behavior, provider
+policy, compatibility breadth, device behavior, or Manifold authority.
+
 LSLC-005V adds test-only external conformance for the accepted transport
 provider evidence-limit contract: exact nonzero bound retention,
 Unicode-scalar identity counting, typed rejection payloads, and
