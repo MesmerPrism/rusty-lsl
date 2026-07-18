@@ -1,16 +1,18 @@
 # Validation
 
-LSLC-005Y focused external conformance is:
+LSLC-005Z runs the unchanged LSLC-005Y assertion under the permitted
+integration-test target:
 
 ```text
-cargo test -p rusty-lsl --test runtime_acquisition_parts_roundtrip -- --test-threads=1
+cargo test -p rusty-lsl --test public_api lslc_005z_runtime_acquisition_parts_preserve_borrowed_witness_and_all_four_value_allocations -- --exact --test-threads=1
 ```
 
-It proves only that an accepted runtime acquisition exposes its exact witness
-and four values to a borrower and returns the same witness and original value
-allocations when consumed. Standard remains the aggregate owner gate and this
-test proves no production behavior, provider policy, I/O, compatibility,
-device, or Manifold behavior.
+The standalone LSLC-005Y target is removed. The assertion still proves only
+that an accepted runtime acquisition exposes its exact witness and four values
+to a borrower and returns the same witness and original value allocations when
+consumed. Standard remains the aggregate owner gate and this test proves no
+production behavior, provider policy, I/O, compatibility, device, or Manifold
+behavior.
 
 LSLC-005X focused coverage is:
 

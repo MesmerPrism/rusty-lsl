@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-005Z corrects only the LSLC-005Y Cargo target shape. Its unchanged runtime
+acquisition-parts assertion now runs under the repository-permitted
+`public_api` integration-test target, and the standalone target is removed. It
+changes no production behavior, provider policy, serialization, transport,
+activation, compatibility claim, device behavior, or Manifold authority.
+
 LSLC-005Y adds only test-only external conformance for accepted runtime
 acquisition parts. Borrowed witness/value access and consuming exact witness
 plus four-value allocation preservation change no production behavior,

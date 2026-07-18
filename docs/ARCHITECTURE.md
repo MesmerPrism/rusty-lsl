@@ -1,5 +1,9 @@
 # Architecture
 
+LSLC-005Z changes only where the LSLC-005Y external assertion is compiled. The
+runtime acquisition types, ownership, allocation behavior, provider boundary,
+and all production architecture remain byte-unchanged.
+
 LSLC-005Y exercises the accepted runtime acquisition boundary solely as an
 external consumer. Borrowed access observes the already accepted witness and
 values; consuming access moves the same witness and four original `String`

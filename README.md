@@ -1,5 +1,10 @@
 # Rusty LSL
 
+LSLC-005Z corrects only the LSLC-005Y Cargo target shape by moving its
+unchanged assertion into the permitted `public_api` target and removing the
+standalone target. It changes no production behavior, provider policy,
+compatibility breadth, device behavior, or Manifold authority.
+
 LSLC-005Y adds test-only external conformance for accepted runtime acquisition
 parts: borrowed witness/value access and consuming preservation of the exact
 witness and all four original value allocations. It changes no production
