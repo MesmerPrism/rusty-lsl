@@ -401,7 +401,7 @@ mod tests {
     }
 
     #[test]
-    fn caller_selected_acquisition_order_is_observed_once_per_owner() {
+    fn lslc_005q_caller_selected_acquisition_order_is_observed_once_per_owner() {
         struct OrderedImplementationProvider(Rc<RefCell<Vec<&'static str>>>);
         impl StreamInfoImplementationVersionProvider for OrderedImplementationProvider {
             type Error = ();
@@ -526,7 +526,7 @@ mod tests {
     }
 
     #[test]
-    fn provider_errors_remain_typed_by_their_separate_owner() {
+    fn lslc_005q_provider_errors_remain_typed_by_their_separate_owner() {
         let mut implementation = ImplementationProvider(None);
         let mut runtime = RuntimeProvider(None);
         let mut transport = TransportProvider(None);
@@ -575,7 +575,7 @@ mod tests {
     }
 
     #[test]
-    fn evidence_and_snapshot_allocations_survive_both_consuming_layers() {
+    fn lslc_005q_evidence_and_snapshot_allocations_survive_both_consuming_layers() {
         let (implementation, runtime, transport, value_pointers) = acquisitions();
         let evidence_pointers = [
             implementation.witness().provider_identity().as_ptr(),
@@ -604,7 +604,7 @@ mod tests {
     }
 
     #[test]
-    fn repeated_composition_is_deterministic_and_never_cross_matches_owners() {
+    fn lslc_005q_repeated_composition_is_deterministic_and_never_cross_matches_owners() {
         for _ in 0..16 {
             let (implementation, runtime, transport, _) = acquisitions();
             let accepted =

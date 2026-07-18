@@ -1,5 +1,17 @@
 # Validation
 
+LSLC-005Q focused three-owner snapshot conformance:
+
+```text
+cargo test -p rusty-lsl lslc_005q_ -- --test-threads=1
+```
+
+It covers caller-selected acquisition order, separate typed provider errors,
+allocation preservation, delegated limits, and repeated deterministic
+no-cross-owner composition. It is host-only test evidence and does not change
+provider policy, runtime behavior, compatibility breadth, device behavior, or
+authority. Standard remains the aggregate owner gate.
+
 LSLC-005O focused exact-closure validation reuses the existing LSLC-004V
 checker:
 

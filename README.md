@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005Q adds test-only deterministic conformance for the existing
+three-owner stream-info snapshot. It verifies caller-selected acquisition
+order, separate provider-error ownership, allocation preservation, delegated
+limits, and repeated no-cross-owner composition without changing production
+behavior, provider policy, transport, activation, compatibility breadth,
+devices, or authority.
+
 LSLC-005O updates only the exact LSLC-004V validation hash for the accepted
 LSLC-005N typed response projection. It changes no production behavior, gate
 inventory, fixture meaning, compatibility breadth, or activation.

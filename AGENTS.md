@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005Q adds only test-only deterministic conformance for the accepted
+three-owner stream-info snapshot. Caller-selected acquisition order, separate
+typed provider errors, allocation preservation, delegated limits, and repeated
+no-cross-owner composition change no production behavior, provider policy,
+serialization, transport, activation, compatibility claim, device behavior,
+or Manifold authority.
+
 LSLC-005O rebinds only the LSLC-004V validation closure to the exact accepted
 LSLC-005N typed response projection blob. The UDP blob, fixture semantics,
 damaged mutations, production behavior, validation inventory, compatibility
