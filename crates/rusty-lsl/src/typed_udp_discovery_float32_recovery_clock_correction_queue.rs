@@ -499,6 +499,151 @@ mod tests {
     }
 
     #[test]
+    fn architecture_recovery_cancellation_precedes_clock_and_queue_cancellation() {
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        queue.try_push(sample(91.0, 19.0)).unwrap();
+        let mut clock = SequenceClock {
+            values: vec![],
+            index: 0,
+        };
+        let mut classified = Vec::new();
+
+        let outcome = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+            &typed_run(9),
+            0,
+            sample_activation(),
+            &identity(),
+            handshake_limits(),
+            sample_limits(),
+            &AtomicBool::new(true),
+            recovery_activation(),
+            FiniteSampleRecoveryPolicy::new(
+                1,
+                3,
+                Duration::ZERO,
+                Duration::from_millis(1),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            &AtomicBool::new(true),
+            |attempt, _| {
+                classified.push(attempt);
+                RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, 91)
+            },
+            clock_activation(),
+            correction_config("127.0.0.1:9".parse().unwrap()),
+            &mut clock,
+            &AtomicBool::new(true),
+            &queue,
+            BoundedSampleQueueWait::new(
+                Duration::from_millis(1),
+                Duration::from_millis(1),
+            )
+            .unwrap(),
+            &AtomicBool::new(true),
+        )
+        .unwrap();
+
+        assert!(matches!(
+            outcome,
+            TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Cancelled { states }
+                if states == [FiniteSampleRecoveryState::Cancelled { completed_attempts: 0 }]
+        ));
+        assert!(classified.is_empty());
+        assert_eq!(clock.index, 0);
+        let retained = queue.try_pop().unwrap();
+        assert_eq!(retained.raw_source_timestamp().value(), 91.0);
+        assert_eq!(retained.sample().values(), &[19.0]);
+        assert!(retained.derived_timestamp().is_none());
+    }
+
+    #[test]
+    fn architecture_clock_cancellation_precedes_queue_and_owns_exact_recovered_record() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let inlet_worker = thread::spawn(move || {
+            run_timestamped_float32_outlet(
+                sample_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                &sample(-0.0, f32::from_bits(0x7fc0_2601)),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        });
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        queue.try_push(sample(92.0, 29.0)).unwrap();
+        let mut clock = SequenceClock {
+            values: vec![],
+            index: 0,
+        };
+
+        let error = run_recovering_selected_typed_udp_discovery_float32_inlet_with_clock_correction_into_queue(
+            &typed_run(address.port()),
+            0,
+            sample_activation(),
+            &identity(),
+            handshake_limits(),
+            sample_limits(),
+            &AtomicBool::new(false),
+            recovery_activation(),
+            FiniteSampleRecoveryPolicy::new(
+                1,
+                3,
+                Duration::ZERO,
+                Duration::from_millis(1),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            &AtomicBool::new(false),
+            |_, _| RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, 92),
+            clock_activation(),
+            correction_config("127.0.0.1:9".parse().unwrap()),
+            &mut clock,
+            &AtomicBool::new(true),
+            &queue,
+            BoundedSampleQueueWait::new(
+                Duration::from_millis(1),
+                Duration::from_millis(1),
+            )
+            .unwrap(),
+            &AtomicBool::new(true),
+        )
+        .unwrap_err();
+
+        match error {
+            TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Clock {
+                error: IntegratedClockCorrectionError::Cancelled,
+                sample,
+                states,
+            } => {
+                assert_eq!(
+                    states,
+                    [
+                        FiniteSampleRecoveryState::Attempting { attempt: 1 },
+                        FiniteSampleRecoveryState::Recovered { attempt: 1 },
+                    ]
+                );
+                assert_eq!(
+                    sample.raw_source_timestamp().value().to_bits(),
+                    (-0.0f64).to_bits()
+                );
+                assert_eq!(sample.sample().values()[0].to_bits(), 0x7fc0_2601);
+                assert!(sample.derived_timestamp().is_none());
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        assert_eq!(clock.index, 0);
+        let retained = queue.try_pop().unwrap();
+        assert_eq!(retained.raw_source_timestamp().value(), 92.0);
+        assert_eq!(retained.sample().values(), &[29.0]);
+        assert!(retained.derived_timestamp().is_none());
+        inlet_worker.join().unwrap();
+    }
+
+    #[test]
     fn lslc_005f_queue_cancellation_retains_corrected_record_and_states() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
