@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-005C composes only one accepted LSLC-004Z Float32 inlet record through the
+separately activated LSLC-002U integrated clock-correction owner and into an
+already activated bounded queue. The caller retains the clock provider/domain,
+configuration, activation, all three cancellation inputs, queue wait bounds,
+and raw timestamp; correction adds only the separate derived value. It adds no
+automatic correction, recovery, policy, backpressure, compatibility breadth,
+or Manifold authority.
+
 LSLC-005B composes only caller-classified finite recovery around the LSLC-004Z
 selected-response Float32 inlet and queues only a recovered record in an already
 activated bounded queue. Recovery activation/policy, typed failure classification,

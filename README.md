@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005C composes one accepted selected-response Float32 inlet record through
+the separately activated integrated clock-correction owner and into an already
+activated bounded queue. Clock provider/domain, raw timestamp, cancellation,
+backpressure, and activation ownership remain separate. It adds no automatic
+correction, recovery, broader compatibility, or Manifold authority.
+
 LSLC-005B composes caller-classified finite recovery around the accepted
 selected-response Float32 inlet, then queues only a recovered record in an already
 activated bounded queue. Recovery policy, failure classification, three cancellation

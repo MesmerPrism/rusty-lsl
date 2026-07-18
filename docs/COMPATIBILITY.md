@@ -1,5 +1,11 @@
 # Compatibility
 
+## LSLC-005C clock-correction composition scope
+
+This is synthetic owner composition only. It adds no observation of official
+clock behavior, automatic clock policy, new clock domain, device evidence, or
+broad interoperability claim; all earlier evidence lanes retain their labels.
+
 ## LSLC-005B finite recovery composition scope
 
 Synthetic loopback proves one caller-classified retry followed by exact-bit queue

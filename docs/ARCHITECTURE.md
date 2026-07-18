@@ -1,5 +1,13 @@
 # Architecture
 
+## LSLC-005C selected discovery Float32 clock-correction queue composition
+
+LSLC-005C places the existing integrated clock-correction owner after one
+successful selected Float32 inlet and before admission to an existing queue.
+It retains the sample and raw source timestamp and adds only the owner's
+`ClockCorrected` derived timestamp. Inlet, clock, and queue cancellation and
+all activation, clock-domain, and backpressure owners remain distinct.
+
 ## LSLC-005B selected discovery Float32 recovery queue composition
 
 LSLC-005B invokes the existing finite recovery owner around repeated calls to the

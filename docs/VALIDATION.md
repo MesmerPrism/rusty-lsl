@@ -1,5 +1,10 @@
 # Validation
 
+LSLC-005C focused validation is `cargo test -p rusty-lsl lslc_005c`. It proves
+only unchanged raw/value reconstruction beside the accepted clock owner's
+derived value and public composition shape. Standard remains the owner gate and
+proves no automatic, official, device, broad clock, or Manifold behavior.
+
 LSLC-005B focused validation is `cargo test -p rusty-lsl lslc_005b`. It proves
 only caller-classified retry over one fixed selected endpoint, exact recovered
 record queueing, and retained sample/state evidence on queue cancellation. Standard
