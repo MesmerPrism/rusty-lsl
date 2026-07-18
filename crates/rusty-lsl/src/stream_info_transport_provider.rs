@@ -433,6 +433,12 @@ mod tests {
         );
         assert_eq!(
             lane.iter()
+                .map(StreamInfoVolatileProviderValue::value)
+                .collect::<Vec<_>>(),
+            ["a", "b", "c", "d", "e", "f"]
+        );
+        assert_eq!(
+            lane.iter()
                 .zip(pointers)
                 .all(|(value, pointer)| value.value().as_ptr() == pointer),
             true
@@ -452,6 +458,7 @@ mod tests {
             ),
             Err(StreamInfoTransportAcquisitionError::Provider("offline"))
         );
+        assert_eq!(failed.calls, 1);
         for (returned, error) in [
             (
                 witness("other", 1, 2),
@@ -487,6 +494,47 @@ mod tests {
                 ),
                 Err(error)
             );
+            assert_eq!(provider.calls, 1);
+        }
+    }
+    #[test]
+    fn witness_mismatch_precedence_is_identity_then_epoch_then_revision_then_value() {
+        for (returned, error) in [
+            (
+                witness("other", 3, 4),
+                StreamInfoTransportAcquisitionError::ProviderIdentityMismatch,
+            ),
+            (
+                witness("owner", 3, 4),
+                StreamInfoTransportAcquisitionError::EpochMismatch {
+                    expected: 1,
+                    actual: 3,
+                },
+            ),
+            (
+                witness("owner", 1, 4),
+                StreamInfoTransportAcquisitionError::RevisionMismatch {
+                    expected: 2,
+                    actual: 4,
+                },
+            ),
+        ] {
+            let mut provider = Provider {
+                calls: 0,
+                output: Ok(StreamInfoTransportProviderOutput::new(
+                    returned,
+                    values(["oversized", "", "", "", "", ""]),
+                )),
+            };
+            assert_eq!(
+                StreamInfoTransportAcquisition::acquire(
+                    &mut provider,
+                    &witness("owner", 1, 2),
+                    limits(1)
+                ),
+                Err(error)
+            );
+            assert_eq!(provider.calls, 1);
         }
     }
     #[test]
@@ -537,6 +585,88 @@ mod tests {
                         actual: 2
                     }
                 ))
+            );
+            assert_eq!(provider.calls, 1);
+        }
+    }
+    #[test]
+    fn accepted_parts_preserve_witness_and_all_six_original_allocations() {
+        let v = values(["v4-a", "v4-d", "v4-s", "v6-a", "v6-d", "v6-s"]);
+        let pointers = [
+            v.v4address.as_ptr(),
+            v.v4data_port.as_ptr(),
+            v.v4service_port.as_ptr(),
+            v.v6address.as_ptr(),
+            v.v6data_port.as_ptr(),
+            v.v6service_port.as_ptr(),
+        ];
+        let mut provider = Provider {
+            calls: 0,
+            output: Ok(StreamInfoTransportProviderOutput::new(
+                witness("owner", 7, 9),
+                v,
+            )),
+        };
+        let accepted = StreamInfoTransportAcquisition::acquire(
+            &mut provider,
+            &witness("owner", 7, 9),
+            limits(4),
+        )
+        .unwrap();
+        let (accepted_witness, accepted_values) = accepted.into_parts();
+        assert_eq!(accepted_witness.provider_identity(), "owner");
+        assert_eq!(
+            (accepted_witness.epoch(), accepted_witness.revision()),
+            (7, 9)
+        );
+        let parts = accepted_values.into_parts();
+        assert_eq!(
+            [&parts.0, &parts.1, &parts.2, &parts.3, &parts.4, &parts.5],
+            ["v4-a", "v4-d", "v4-s", "v6-a", "v6-d", "v6-s"]
+        );
+        assert_eq!(
+            [
+                parts.0.as_ptr(),
+                parts.1.as_ptr(),
+                parts.2.as_ptr(),
+                parts.3.as_ptr(),
+                parts.4.as_ptr(),
+                parts.5.as_ptr(),
+            ],
+            pointers
+        );
+        assert_eq!(provider.calls, 1);
+    }
+    #[test]
+    fn repeated_acquisitions_are_deterministic_and_each_call_once() {
+        for _ in 0..8 {
+            let mut provider = Provider {
+                calls: 0,
+                output: Ok(StreamInfoTransportProviderOutput::new(
+                    witness("owner", 11, 13),
+                    values(["1", "2", "3", "4", "5", "6"]),
+                )),
+            };
+            let lane = StreamInfoTransportAcquisition::acquire(
+                &mut provider,
+                &witness("owner", 11, 13),
+                limits(1),
+            )
+            .unwrap()
+            .into_provider_values();
+            assert_eq!(provider.calls, 1);
+            assert_eq!(
+                lane.iter()
+                    .map(|value| (value.role(), value.value()))
+                    .collect::<Vec<_>>(),
+                [
+                    (StreamInfoVolatileFieldRole::V4Address, "1"),
+                    (StreamInfoVolatileFieldRole::V4DataPort, "2"),
+                    (StreamInfoVolatileFieldRole::V4ServicePort, "3"),
+                    (StreamInfoVolatileFieldRole::V6Address, "4"),
+                    (StreamInfoVolatileFieldRole::V6DataPort, "5"),
+                    (StreamInfoVolatileFieldRole::V6ServicePort, "6"),
+                ]
             );
         }
     }
