@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-005Y adds test-only external conformance for accepted runtime acquisition
+parts: borrowed witness/value access and consuming preservation of the exact
+witness and all four original value allocations. It changes no production
+behavior, provider policy, compatibility breadth, device behavior, or
+Manifold authority.
+
 LSLC-005X adds `witness`, `values`, and allocation-preserving `into_parts`
 access to the accepted transport provider output. It adds no provider,
 acquisition policy, runtime behavior, compatibility breadth, device behavior,

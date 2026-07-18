@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-005Y exercises the accepted runtime acquisition boundary solely as an
+external consumer. Borrowed access observes the already accepted witness and
+values; consuming access moves the same witness and four original `String`
+allocations without cloning, reallocating, revalidating, or granting shared
+provider, transaction, epoch, runtime, or Manifold authority.
+
 LSLC-005X exposes the accepted transport provider output through borrowed
 `witness` and `values` access plus consuming `into_parts`. These accessors move
 or borrow existing owned state without cloning, reallocating, validating, or

@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005Y adds only test-only external conformance for accepted runtime
+acquisition parts. Borrowed witness/value access and consuming exact witness
+plus four-value allocation preservation change no production behavior,
+provider authority, acquisition policy, validation order, serialization,
+transport, activation, compatibility claim, device behavior, or Manifold
+authority.
+
 LSLC-005X adds only symmetric borrowed and consuming accessors to the accepted
 transport provider output. Exact witness/value allocation preservation changes
 no provider authority, acquisition policy, validation order, serialization,
