@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-005U corrects only the LSLC-005T Cargo target shape. Its unchanged
+stateful-acquisition assertions now run under the repository-permitted
+`public_api` integration-test target, and the standalone target is removed.
+It changes no production behavior, provider policy, serialization, transport,
+activation, compatibility claim, device behavior, or Manifold authority.
+
 LSLC-005T adds only test-only sequential stateful-acquisition conformance for
 the accepted transport provider. Accepted, provider-error, value-error,
 recovery, and exhaustion calls remain isolated while prior accepted ownership

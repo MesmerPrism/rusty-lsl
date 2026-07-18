@@ -1,5 +1,15 @@
 # Validation
 
+LSLC-005U runs the unchanged LSLC-005T stateful-acquisition assertions through
+the repository-permitted public API integration-test target:
+
+```text
+cargo test -p rusty-lsl --test public_api sequential_stateful_acquisitions_are_call_isolated_and_recover_after_typed_failures -- --exact --test-threads=1
+```
+
+The standalone LSLC-005T target is removed. This is test-target-only corrective
+evidence; Standard remains the aggregate owner gate.
+
 LSLC-005T focused stateful-acquisition conformance:
 
 ```text

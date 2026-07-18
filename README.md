@@ -1,5 +1,12 @@
 # Rusty LSL
 
+LSLC-005U corrects only the LSLC-005T Cargo target shape by moving its
+stateful-acquisition assertions under the repository-permitted `public_api`
+integration-test target and removing the standalone target. The assertions and
+test-only claim boundary are unchanged; production behavior, provider policy,
+transport, activation, compatibility breadth, devices, and authority remain
+unchanged.
+
 LSLC-005T adds test-only sequential stateful-acquisition conformance for the
 existing transport provider. It verifies isolation across accepted, typed
 provider-error, typed value-error, recovery, and exhaustion outcomes while
