@@ -342,6 +342,7 @@ mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
     use crate::{DerivedTimestampKind, StreamHandshakeActivation};
+    use std::sync::Arc;
     use std::thread;
 
     struct SequenceClock {
@@ -371,8 +372,15 @@ mod tests {
         .unwrap()
     }
     fn config(peer: SocketAddr, count: usize) -> IntegratedClockCorrectionConfig {
+        config_at("127.0.0.1:0".parse().unwrap(), peer, count)
+    }
+    fn config_at(
+        bind_address: SocketAddr,
+        peer: SocketAddr,
+        count: usize,
+    ) -> IntegratedClockCorrectionConfig {
         IntegratedClockCorrectionConfig::new(
-            "127.0.0.1:0".parse().unwrap(),
+            bind_address,
             peer,
             40,
             count,
@@ -381,6 +389,18 @@ mod tests {
             Duration::from_secs(1),
         )
         .unwrap()
+    }
+    fn request_id_and_t0(bytes: &[u8]) -> (u64, &str) {
+        let text = std::str::from_utf8(bytes).unwrap();
+        let mut fields = text.split("\r\n").nth(1).unwrap().split(' ');
+        (
+            fields.next().unwrap().parse().unwrap(),
+            fields.next().unwrap(),
+        )
+    }
+    fn unused_loopback_address() -> SocketAddr {
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        socket.local_addr().unwrap()
     }
 
     #[test]
@@ -552,5 +572,205 @@ mod tests {
             error,
             IntegratedClockCorrectionError::NonFiniteClock { .. }
         ));
+    }
+
+    #[test]
+    fn lslc_005m_integrated_clock_damage_retains_exact_response_ownership_and_reuses_ports() {
+        for (payload, expected) in [
+            (
+                b"bad".as_slice(),
+                IntegratedClockCorrectionError::InvalidDatagram,
+            ),
+            (
+                b" 99 0 1 2".as_slice(),
+                IntegratedClockCorrectionError::QueryIdMismatch,
+            ),
+        ] {
+            let responder = UdpSocket::bind("127.0.0.1:0").unwrap();
+            let peer = responder.local_addr().unwrap();
+            let local = unused_loopback_address();
+            let body = payload.to_vec();
+            let worker = thread::spawn(move || {
+                let mut bytes = [0u8; 256];
+                let (_, source) = responder.recv_from(&mut bytes).unwrap();
+                responder.send_to(&body, source).unwrap();
+            });
+            let mut clock = SequenceClock {
+                values: vec![0.0, 3.0],
+                index: 0,
+            };
+            assert_eq!(
+                run_integrated_clock_correction(
+                    activation(),
+                    config_at(local, peer, 1),
+                    &mut clock,
+                    RawSourceTimestamp::new(0.0).unwrap(),
+                    &AtomicBool::new(false),
+                ),
+                Err(expected)
+            );
+            worker.join().unwrap();
+            UdpSocket::bind(local).unwrap();
+            UdpSocket::bind(peer).unwrap();
+        }
+
+        let responder = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let peer = responder.local_addr().unwrap();
+        let local = unused_loopback_address();
+        let worker = thread::spawn(move || {
+            let mut bytes = [0u8; 256];
+            let (length, source) = responder.recv_from(&mut bytes).unwrap();
+            let (id, t0) = request_id_and_t0(&bytes[..length]);
+            let response = format!(" {id} {t0} 1 2");
+            responder.send_to(response.as_bytes(), source).unwrap();
+            let _ = responder.recv_from(&mut bytes).unwrap();
+            responder.send_to(response.as_bytes(), source).unwrap();
+        });
+        let mut clock = SequenceClock {
+            values: vec![0.0, 3.0, 10.0, 13.0],
+            index: 0,
+        };
+        assert_eq!(
+            run_integrated_clock_correction(
+                activation(),
+                config_at(local, peer, 2),
+                &mut clock,
+                RawSourceTimestamp::new(0.0).unwrap(),
+                &AtomicBool::new(false),
+            ),
+            Err(IntegratedClockCorrectionError::QueryIdMismatch)
+        );
+        worker.join().unwrap();
+        UdpSocket::bind(local).unwrap();
+        UdpSocket::bind(peer).unwrap();
+
+        let responder = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let peer = responder.local_addr().unwrap();
+        let foreign = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let local = unused_loopback_address();
+        let worker = thread::spawn(move || {
+            let mut bytes = [0u8; 256];
+            let (_, source) = responder.recv_from(&mut bytes).unwrap();
+            foreign.send_to(b" 40 0 1 2", source).unwrap();
+        });
+        let mut clock = SequenceClock {
+            values: vec![0.0, 3.0],
+            index: 0,
+        };
+        assert_eq!(
+            run_integrated_clock_correction(
+                activation(),
+                config_at(local, peer, 1),
+                &mut clock,
+                RawSourceTimestamp::new(0.0).unwrap(),
+                &AtomicBool::new(false),
+            ),
+            Err(IntegratedClockCorrectionError::PeerMismatch)
+        );
+        worker.join().unwrap();
+        UdpSocket::bind(local).unwrap();
+        UdpSocket::bind(peer).unwrap();
+    }
+
+    #[test]
+    fn lslc_005m_integrated_clock_active_cancel_and_deadline_release_the_batch_socket() {
+        let responder = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let peer = responder.local_addr().unwrap();
+        let local = unused_loopback_address();
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let worker_cancelled = Arc::clone(&cancelled);
+        let worker = thread::spawn(move || {
+            let mut bytes = [0u8; 256];
+            responder.recv_from(&mut bytes).unwrap();
+            worker_cancelled.store(true, Ordering::Release);
+        });
+        let mut clock = SequenceClock {
+            values: vec![0.0],
+            index: 0,
+        };
+        assert_eq!(
+            run_integrated_clock_correction(
+                activation(),
+                config_at(local, peer, 1),
+                &mut clock,
+                RawSourceTimestamp::new(0.0).unwrap(),
+                &cancelled,
+            ),
+            Err(IntegratedClockCorrectionError::Cancelled)
+        );
+        worker.join().unwrap();
+        UdpSocket::bind(local).unwrap();
+        UdpSocket::bind(peer).unwrap();
+
+        let sink = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let peer = sink.local_addr().unwrap();
+        let local = unused_loopback_address();
+        let short = IntegratedClockCorrectionConfig::new(
+            local,
+            peer,
+            80,
+            1,
+            256,
+            Duration::from_millis(2),
+            Duration::from_millis(10),
+        )
+        .unwrap();
+        let mut clock = SequenceClock {
+            values: vec![0.0],
+            index: 0,
+        };
+        assert_eq!(
+            run_integrated_clock_correction(
+                activation(),
+                short,
+                &mut clock,
+                RawSourceTimestamp::new(0.0).unwrap(),
+                &AtomicBool::new(false),
+            ),
+            Err(IntegratedClockCorrectionError::Deadline)
+        );
+        UdpSocket::bind(local).unwrap();
+        drop(sink);
+        UdpSocket::bind(peer).unwrap();
+    }
+
+    #[test]
+    fn lslc_005m_integrated_clock_repeated_batches_select_first_minimum_and_reuse_both_ports() {
+        for cycle in 0..12 {
+            let responder = UdpSocket::bind("127.0.0.1:0").unwrap();
+            let peer = responder.local_addr().unwrap();
+            let local = unused_loopback_address();
+            let worker = thread::spawn(move || {
+                let mut bytes = [0u8; 256];
+                for remote in [(5.0, 5.0), (15.0, 15.0)] {
+                    let (length, source) = responder.recv_from(&mut bytes).unwrap();
+                    let (id, t0) = request_id_and_t0(&bytes[..length]);
+                    responder
+                        .send_to(
+                            format!(" {id} {t0} {} {}", remote.0, remote.1).as_bytes(),
+                            source,
+                        )
+                        .unwrap();
+                }
+            });
+            let mut clock = SequenceClock {
+                values: vec![0.0, 2.0, 10.0, 12.0],
+                index: 0,
+            };
+            let result = run_integrated_clock_correction(
+                activation(),
+                config_at(local, peer, 2),
+                &mut clock,
+                RawSourceTimestamp::new(cycle as f64).unwrap(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            worker.join().unwrap();
+            assert_eq!(result.selection().selected_index(), 0);
+            assert_eq!(result.offset().value(), 4.0);
+            assert_eq!(result.application().raw().value(), cycle as f64);
+            UdpSocket::bind(local).unwrap();
+            UdpSocket::bind(peer).unwrap();
+        }
     }
 }

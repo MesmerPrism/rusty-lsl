@@ -1,5 +1,11 @@
 # Validation
 
+LSLC-005M focused clock-correction damage and soak conformance:
+
+```text
+cargo test -p rusty-lsl lslc_005m_ -- --test-threads=1
+```
+
 LSLC-005L device validation is a separate serial-scoped gate. The public Quest
 harness builds exact clean Rusty LSL and Rusty Quest revisions for
 `aarch64-linux-android`, then requires the Rust-owned

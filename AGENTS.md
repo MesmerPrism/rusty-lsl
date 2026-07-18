@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-005M adds only test-only deterministic damaged-response and lifecycle
+conformance for the accepted integrated clock-correction runtime. Malformed,
+mismatched, duplicate, and foreign-peer responses, active cancellation,
+deadline, deterministic selection, repeated teardown, and immediate UDP port
+reuse change no production behavior, clock algorithm, provider/domain,
+activation, compatibility claim, device behavior, or Manifold authority.
+
 LSLC-005L adds only device conformance for the accepted one-channel,
 one-record Float32 runtime. An exact clean Rusty LSL revision built for
 `aarch64-linux-android` completed one Rust-owned finite IPv4-loopback

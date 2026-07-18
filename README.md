@@ -1,5 +1,9 @@
 # Rusty LSL
 
+LSLC-005M adds test-only deterministic damaged-response and lifecycle
+conformance for the existing integrated clock-correction owner; it changes no
+production behavior, policy, activation, or compatibility claim.
+
 LSLC-005L provides a second bounded Rust-on-Quest proof: the exact accepted
 one-channel, one-record Float32 handshake/sample runtime executes inside Rust
 on Quest over `127.0.0.1`, preserving exact timestamp/value bits and releasing
