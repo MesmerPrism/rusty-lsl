@@ -171,6 +171,21 @@ impl StreamInfoTransportProviderOutput {
     ) -> Self {
         Self { witness, values }
     }
+    /// Returns the exact provider-issued shared owner witness.
+    #[must_use]
+    pub const fn witness(&self) -> &StreamInfoTransportWitness {
+        &self.witness
+    }
+    /// Returns all six opaque provider values.
+    #[must_use]
+    pub const fn values(&self) -> &StreamInfoTransportValues {
+        &self.values
+    }
+    /// Moves the provider-issued witness and grouped transport values apart.
+    #[must_use]
+    pub fn into_parts(self) -> (StreamInfoTransportWitness, StreamInfoTransportValues) {
+        (self.witness, self.values)
+    }
 }
 
 /// A caller-selected synchronous provider for all transport-owned values.
@@ -390,6 +405,47 @@ mod tests {
     }
     fn limits(max: usize) -> StreamInfoVolatileFieldLimits {
         StreamInfoVolatileFieldLimits::new(1, 1, max).unwrap()
+    }
+    #[test]
+    fn provider_output_accessors_preserve_witness_and_value_allocations() {
+        let witness = witness("owner", 7, 9);
+        let provider_identity_pointer = witness.provider_identity.as_ptr();
+        let values = values(["v4-a", "v4-d", "v4-s", "v6-a", "v6-d", "v6-s"]);
+        let value_pointers = [
+            values.v4address.as_ptr(),
+            values.v4data_port.as_ptr(),
+            values.v4service_port.as_ptr(),
+            values.v6address.as_ptr(),
+            values.v6data_port.as_ptr(),
+            values.v6service_port.as_ptr(),
+        ];
+        let output = StreamInfoTransportProviderOutput::new(witness, values);
+
+        assert_eq!(output.witness().provider_identity(), "owner");
+        assert_eq!(
+            (output.witness().epoch(), output.witness().revision()),
+            (7, 9)
+        );
+        assert_eq!(output.values().v4address(), "v4-a");
+        assert_eq!(output.values().v6service_port(), "v6-s");
+
+        let (witness, values) = output.into_parts();
+        assert_eq!(
+            witness.provider_identity.as_ptr(),
+            provider_identity_pointer
+        );
+        let parts = values.into_parts();
+        assert_eq!(
+            [
+                parts.0.as_ptr(),
+                parts.1.as_ptr(),
+                parts.2.as_ptr(),
+                parts.3.as_ptr(),
+                parts.4.as_ptr(),
+                parts.5.as_ptr(),
+            ],
+            value_pointers
+        );
     }
     #[test]
     fn one_call_shared_witness_and_allocations_are_preserved() {
