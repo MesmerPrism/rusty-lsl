@@ -280,7 +280,15 @@ LSLC-004W focused coverage checks exact first-match suggestion, no-match, empty-
 rejection, and unchanged typed-discovery behavior. It is source-only and forbids device
 or official-oracle claims.
 
-LSLC-003S focused activation validation runs
+LSLC-003S historical activation validation is immutable and replays only from
+its exact accepted revision-14 commit through the deep-only
+`pinned-lslc-003s-replay` policy gate. Live Standard and CI do not run that
+historical checker against current lock bytes; they run `current-closure`,
+which binds the current descriptor, feature lock, runtime constants, and
+portable registry projection. Policy tests reject omitted, swapped, or mixed
+live/historical routes.
+
+The historical focused command remains
 `powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003s.ps1`.
 It validates the exact descriptor source binding, resolver-owned relative
 paths, canonical lock fingerprint/revision, workspace registry, nominal
