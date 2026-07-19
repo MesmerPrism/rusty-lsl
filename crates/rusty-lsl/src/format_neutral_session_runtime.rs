@@ -64,6 +64,110 @@ pub(crate) trait SealedSessionStrategy: Copy {
     fn trailing_byte(actual: u8) -> Self::SessionError;
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct SessionShape {
+    channels: usize,
+    records: usize,
+}
+
+impl SessionShape {
+    pub(crate) const fn channels(self) -> usize {
+        self.channels
+    }
+
+    pub(crate) const fn records(self) -> usize {
+        self.records
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum SessionShapeError {
+    RecordCount {
+        actual: usize,
+    },
+    ChannelCount {
+        index: usize,
+        actual: usize,
+    },
+    InconsistentChannelCount {
+        index: usize,
+        expected: usize,
+        actual: usize,
+    },
+}
+
+pub(crate) fn preflight_shape(
+    max_channels: usize,
+    max_records: usize,
+    channels: usize,
+    records: usize,
+) -> Result<SessionShape, SessionShapeError> {
+    if records == 0 || records > max_records {
+        return Err(SessionShapeError::RecordCount { actual: records });
+    }
+    if channels == 0 || channels > max_channels {
+        return Err(SessionShapeError::ChannelCount {
+            index: 0,
+            actual: channels,
+        });
+    }
+    Ok(SessionShape { channels, records })
+}
+
+pub(crate) fn preflight_outlet_shape<T>(
+    max_channels: usize,
+    max_records: usize,
+    records: &[T],
+    channels: impl Fn(&T) -> usize,
+) -> Result<SessionShape, SessionShapeError> {
+    let channel_count = records.first().map(&channels).unwrap_or(0);
+    let shape = preflight_shape(max_channels, max_records, channel_count, records.len())?;
+    for (index, record) in records.iter().enumerate().skip(1) {
+        let actual = channels(record);
+        if actual != channel_count {
+            return Err(SessionShapeError::InconsistentChannelCount {
+                index,
+                expected: channel_count,
+                actual,
+            });
+        }
+    }
+    Ok(shape)
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct CompletedOutletSession {
+    local: SocketAddr,
+    peer: SocketAddr,
+    shape: SessionShape,
+}
+
+impl CompletedOutletSession {
+    pub(crate) const fn local(&self) -> SocketAddr {
+        self.local
+    }
+    pub(crate) const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+    pub(crate) const fn shape(&self) -> SessionShape {
+        self.shape
+    }
+}
+
+pub(crate) struct CompletedInletSession<T> {
+    records: Vec<T>,
+    shape: SessionShape,
+}
+
+impl<T> CompletedInletSession<T> {
+    pub(crate) fn into_records(self) -> Vec<T> {
+        self.records
+    }
+    pub(crate) const fn shape(&self) -> SessionShape {
+        self.shape
+    }
+}
+
 struct SessionStream(Option<TcpStream>);
 
 impl Drop for SessionStream {
@@ -80,7 +184,7 @@ pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
     records: &[F::Sample],
     channel_count: usize,
     cancelled: &AtomicBool,
-) -> Result<(SocketAddr, SocketAddr), F::SessionError> {
+) -> Result<CompletedOutletSession, F::SessionError> {
     let (stream, local, peer) = F::accept(
         listener,
         identity,
@@ -98,7 +202,14 @@ pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
             .map_err(|error| F::record_error(Some(index), error))?;
     }
     terminal_close(stream.0.take());
-    Ok((local, peer))
+    Ok(CompletedOutletSession {
+        local,
+        peer,
+        shape: SessionShape {
+            channels: channel_count,
+            records: records.len(),
+        },
+    })
 }
 
 pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
@@ -109,7 +220,7 @@ pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
     record_count: usize,
     channel_count: usize,
     cancelled: &AtomicBool,
-) -> Result<Vec<F::Sample>, F::SessionError> {
+) -> Result<CompletedInletSession<F::Sample>, F::SessionError> {
     let stream = F::connect(peer, identity, handshake_limits, format_limits, cancelled)
         .map_err(F::handshake_error)?;
     let mut stream = SessionStream(Some(stream));
@@ -125,7 +236,13 @@ pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
     }
     require_peer_close::<F>(socket, format_limits, cancelled)?;
     terminal_close(stream.0.take());
-    Ok(records)
+    Ok(CompletedInletSession {
+        records,
+        shape: SessionShape {
+            channels: channel_count,
+            records: record_count,
+        },
+    })
 }
 
 pub(crate) fn terminal_close(stream: Option<TcpStream>) {

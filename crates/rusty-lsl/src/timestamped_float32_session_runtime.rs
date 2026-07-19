@@ -4,7 +4,8 @@
 //! Bounded one- or two-record Float32 outlet/inlet session ownership.
 
 use crate::format_neutral_session_runtime::{
-    finish_inlet, finish_outlet, terminal_close, SealedSessionStrategy,
+    finish_inlet, finish_outlet, preflight_outlet_shape, preflight_shape, terminal_close,
+    SealedSessionStrategy, SessionShapeError,
 };
 use crate::{
     bounded_fixed_record_transport::{
@@ -741,7 +742,7 @@ pub(crate) fn finish_string_outlet_session(
         1,
         cancelled,
     )
-    .map(|(local, _)| local)
+    .map(|completed| completed.local())
     .map_err(map_string_session_error_legacy)
 }
 
@@ -763,7 +764,12 @@ pub(crate) fn finish_string_inlet_session(
         1,
         cancelled,
     )
-    .map(|mut records| records.pop().expect("one preflighted String record"))
+    .map(|completed| {
+        completed
+            .into_records()
+            .pop()
+            .expect("one preflighted String record")
+    })
     .map_err(map_string_session_error_legacy)
 }
 
@@ -1399,7 +1405,7 @@ pub(crate) fn finish_fixed_width_integer_outlet_session(
         channels,
         cancelled,
     )
-    .map(|(local, _)| local)
+    .map(|completed| completed.local())
     .map_err(map_integer_session_error_legacy)
 }
 
@@ -1426,6 +1432,7 @@ pub(crate) fn finish_fixed_width_integer_inlet_session(
         channels,
         cancelled,
     )
+    .map(|completed| completed.into_records())
     .map_err(map_integer_session_error_legacy)
 }
 
@@ -1561,12 +1568,13 @@ macro_rules! fixed_width_integer_session_facade {
             pub fn finish(mut self, cancelled: &AtomicBool) -> Result<$outlet_report, $session_error> {
                 let listener = self.listener.take().expect("preflighted listener is present");
                 let _ = self.activation;
-                let (local, peer) = finish_outlet::<FixedWidthInteger>(
+                let completed = finish_outlet::<FixedWidthInteger>(
                     listener, self.identity, self.handshake_limits,
                     FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
                     &self.records, self.channel_count, cancelled,
                 )?;
-                Ok($outlet_report { local, peer, records: self.records.len(), channels: self.channel_count })
+                let shape = completed.shape();
+                Ok($outlet_report { local: completed.local(), peer: completed.peer(), records: shape.records(), channels: shape.channels() })
             }
         }
 
@@ -1599,12 +1607,13 @@ macro_rules! fixed_width_integer_session_facade {
             /// Consumes the facade through the sole connect/handshake/initialize/records/close lifecycle.
             pub fn finish(self, cancelled: &AtomicBool) -> Result<$inlet_report, $session_error> {
                 let _ = self.activation;
-                let records = finish_inlet::<FixedWidthInteger>(
+                let completed = finish_inlet::<FixedWidthInteger>(
                     self.peer, self.identity, self.handshake_limits,
                     FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
                     self.record_count, self.channel_count, cancelled,
                 )?;
-                let records = records.into_iter().map(|record| {
+                let shape = completed.shape();
+                let records = completed.into_records().into_iter().map(|record| {
                     let values = record.values.into_iter().map(|value| match value {
                         FixedWidthNumericValue::$variant(value) => value,
                         _ => unreachable!("sealed strategy retains the selected integer format"),
@@ -1619,7 +1628,7 @@ macro_rules! fixed_width_integer_session_facade {
                         None,
                     )
                 }).collect();
-                Ok($inlet_report { peer: self.peer, records, channels: self.channel_count })
+                Ok($inlet_report { peer: self.peer, records, channels: shape.channels() })
             }
         }
     };
@@ -1863,7 +1872,7 @@ impl<'a> TimestampedStringOutletSession<'a> {
             .take()
             .expect("preflighted listener is present");
         let _ = self.activation;
-        let (local, peer) = finish_outlet::<session_format::StringSample>(
+        let completed = finish_outlet::<session_format::StringSample>(
             listener,
             self.identity,
             self.handshake_limits,
@@ -1872,7 +1881,10 @@ impl<'a> TimestampedStringOutletSession<'a> {
             1,
             cancelled,
         )?;
-        Ok(TimestampedStringOutletSessionReport { local, peer })
+        Ok(TimestampedStringOutletSessionReport {
+            local: completed.local(),
+            peer: completed.peer(),
+        })
     }
 }
 
@@ -1911,7 +1923,7 @@ impl<'a> TimestampedStringInletSession<'a> {
         cancelled: &AtomicBool,
     ) -> Result<TimestampedStringInletSessionReport, TimestampedStringSessionError> {
         let _ = self.activation;
-        let records = finish_inlet::<session_format::StringSample>(
+        let completed = finish_inlet::<session_format::StringSample>(
             self.peer,
             self.identity,
             self.handshake_limits,
@@ -1922,7 +1934,7 @@ impl<'a> TimestampedStringInletSession<'a> {
         )?;
         Ok(TimestampedStringInletSessionReport {
             peer: self.peer,
-            records,
+            records: completed.into_records(),
         })
     }
 }
@@ -1934,17 +1946,19 @@ fn require_evidenced_string_shape(
 ) -> Result<(), TimestampedStringSessionPreflightError> {
     debug_assert_eq!(limits.channel_count(), 1);
     debug_assert_eq!(limits.record_count(), 1);
-    if record_count != 1 {
-        return Err(TimestampedStringSessionPreflightError::RecordCount {
-            actual: record_count,
-        });
-    }
-    if channel_count != 1 {
-        return Err(TimestampedStringSessionPreflightError::ChannelCount {
-            actual: channel_count,
-        });
-    }
-    Ok(())
+    preflight_shape(1, 1, channel_count, record_count)
+        .map(|_| ())
+        .map_err(|error| match error {
+            SessionShapeError::RecordCount { actual } => {
+                TimestampedStringSessionPreflightError::RecordCount { actual }
+            }
+            SessionShapeError::ChannelCount { actual, .. } => {
+                TimestampedStringSessionPreflightError::ChannelCount { actual }
+            }
+            SessionShapeError::InconsistentChannelCount { .. } => {
+                unreachable!("String inlet preflight has no record slice")
+            }
+        })
 }
 
 /// Bounded homogeneous shape limits shared by the Double64 session facade.
@@ -2062,7 +2076,7 @@ impl<'a> TimestampedDouble64OutletSession<'a> {
             .take()
             .expect("preflighted listener is present");
         let _ = self.activation;
-        let (local, peer) = finish_outlet::<Double64>(
+        let completed = finish_outlet::<Double64>(
             listener,
             self.identity,
             self.handshake_limits,
@@ -2071,11 +2085,12 @@ impl<'a> TimestampedDouble64OutletSession<'a> {
             self.channel_count,
             cancelled,
         )?;
+        let shape = completed.shape();
         Ok(TimestampedDouble64OutletSessionReport {
-            local,
-            peer,
-            records: self.records.len(),
-            channels: self.channel_count,
+            local: completed.local(),
+            peer: completed.peer(),
+            records: shape.records(),
+            channels: shape.channels(),
         })
     }
 }
@@ -2120,7 +2135,7 @@ impl<'a> TimestampedDouble64InletSession<'a> {
         cancelled: &AtomicBool,
     ) -> Result<TimestampedDouble64InletSessionReport, TimestampedDouble64SessionError> {
         let _ = self.activation;
-        let records = finish_inlet::<Double64>(
+        let completed = finish_inlet::<Double64>(
             self.peer,
             self.identity,
             self.handshake_limits,
@@ -2129,10 +2144,11 @@ impl<'a> TimestampedDouble64InletSession<'a> {
             self.channel_count,
             cancelled,
         )?;
+        let shape = completed.shape();
         Ok(TimestampedDouble64InletSessionReport {
             peer: self.peer,
-            records,
-            channels: self.channel_count,
+            records: completed.into_records(),
+            channels: shape.channels(),
         })
     }
 }
@@ -2219,7 +2235,7 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
             .take()
             .expect("preflighted listener is present");
         let _ = self.activation;
-        let (local, peer) = finish_outlet::<session_format::Float32>(
+        let completed = finish_outlet::<session_format::Float32>(
             listener,
             self.identity,
             self.handshake_limits,
@@ -2228,11 +2244,12 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
             self.channel_count,
             cancelled,
         )?;
+        let shape = completed.shape();
         Ok(TimestampedFloat32OutletSessionReport {
-            local,
-            peer,
-            records: self.records.len(),
-            channels: self.channel_count,
+            local: completed.local(),
+            peer: completed.peer(),
+            records: shape.records(),
+            channels: shape.channels(),
             completion: TimestampedFloat32SessionCompletion::Complete,
         })
     }
@@ -2308,7 +2325,7 @@ impl<'a> TimestampedFloat32InletSession<'a> {
         cancelled: &AtomicBool,
     ) -> Result<TimestampedFloat32InletSessionReport, TimestampedFloat32SessionError> {
         let _ = self.activation;
-        let records = finish_inlet::<session_format::Float32>(
+        let completed = finish_inlet::<session_format::Float32>(
             self.peer,
             self.identity,
             self.handshake_limits,
@@ -2317,11 +2334,12 @@ impl<'a> TimestampedFloat32InletSession<'a> {
             self.channel_count,
             cancelled,
         )?;
+        let shape = completed.shape();
         Ok(TimestampedFloat32InletSessionReport {
             peer: self.peer,
-            records,
+            records: completed.into_records(),
             completion: TimestampedFloat32SessionCompletion::Complete,
-            channels: self.channel_count,
+            channels: shape.channels(),
         })
     }
 }
@@ -2337,18 +2355,14 @@ fn require_shape(
     channel_count: usize,
     record_count: usize,
 ) -> Result<(), TimestampedFloat32SessionPreflightError> {
-    if record_count == 0 || record_count > limits.max_records {
-        return Err(TimestampedFloat32SessionPreflightError::RecordCount {
-            actual: record_count,
-        });
-    }
-    if channel_count == 0 || channel_count > limits.max_channels {
-        return Err(TimestampedFloat32SessionPreflightError::ChannelCount {
-            index: 0,
-            actual: channel_count,
-        });
-    }
-    Ok(())
+    preflight_shape(
+        limits.max_channels,
+        limits.max_records,
+        channel_count,
+        record_count,
+    )
+    .map(|_| ())
+    .map_err(map_shape_error)
 }
 
 fn require_outlet_shape(
@@ -2362,24 +2376,31 @@ fn require_outlet_shape_generic<T>(
     limits: TimestampedFloat32SessionLimits,
     records: &[TimestampedSample<T>],
 ) -> Result<usize, TimestampedFloat32SessionPreflightError> {
-    let channel_count = records
-        .first()
-        .map(|record| record.sample().declared_channels())
-        .unwrap_or(0);
-    require_shape(limits, channel_count, records.len())?;
-    for (index, record) in records.iter().enumerate().skip(1) {
-        let actual = record.sample().declared_channels();
-        if actual != channel_count {
-            return Err(
-                TimestampedFloat32SessionPreflightError::InconsistentChannelCount {
-                    index,
-                    expected: channel_count,
-                    actual,
-                },
-            );
+    preflight_outlet_shape(limits.max_channels, limits.max_records, records, |record| {
+        record.sample().declared_channels()
+    })
+    .map(|shape| shape.channels())
+    .map_err(map_shape_error)
+}
+
+fn map_shape_error(error: SessionShapeError) -> TimestampedFloat32SessionPreflightError {
+    match error {
+        SessionShapeError::RecordCount { actual } => {
+            TimestampedFloat32SessionPreflightError::RecordCount { actual }
         }
+        SessionShapeError::ChannelCount { index, actual } => {
+            TimestampedFloat32SessionPreflightError::ChannelCount { index, actual }
+        }
+        SessionShapeError::InconsistentChannelCount {
+            index,
+            expected,
+            actual,
+        } => TimestampedFloat32SessionPreflightError::InconsistentChannelCount {
+            index,
+            expected,
+            actual,
+        },
     }
-    Ok(channel_count)
 }
 
 #[cfg(test)]
@@ -2822,6 +2843,99 @@ mod tests {
         TimestampedInt8SessionLimits,
         [[i8::MIN + 1, i8::MAX], [3, -4], [5, -6]]
     );
+
+    #[test]
+    fn p12_all_concrete_sessions_share_bounded_shape_preflight_without_widening() {
+        let peer: SocketAddr = "127.0.0.1:9".parse().unwrap();
+        let identity = identity();
+        let handshake = handshake_limits();
+        let numeric_io =
+            FixedWidthNumericSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+                .unwrap();
+
+        macro_rules! assert_integer_shape {
+            ($inlet:ident, $limits:ident) => {{
+                assert!($inlet::preflight_bounded(
+                    double64_activation(),
+                    peer,
+                    &identity,
+                    handshake,
+                    numeric_io,
+                    $limits::new(2, 3).unwrap(),
+                    2,
+                    3,
+                )
+                .is_ok());
+                assert!(matches!(
+                    $inlet::preflight_bounded(
+                        double64_activation(),
+                        peer,
+                        &identity,
+                        handshake,
+                        numeric_io,
+                        $limits::new(2, 3).unwrap(),
+                        1,
+                        2,
+                    ),
+                    Err(TimestampedFloat32SessionPreflightError::RecordCount { actual: 2 })
+                ));
+            }};
+        }
+
+        assert_integer_shape!(TimestampedInt32InletSession, TimestampedInt32SessionLimits);
+        assert_integer_shape!(TimestampedInt16InletSession, TimestampedInt16SessionLimits);
+        assert_integer_shape!(TimestampedInt8InletSession, TimestampedInt8SessionLimits);
+        assert!(TimestampedDouble64InletSession::preflight_bounded(
+            double64_activation(),
+            peer,
+            &identity,
+            handshake,
+            TimestampedDouble64SessionIoLimits::new(
+                Duration::from_millis(5),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+            1,
+            1,
+        )
+        .is_ok());
+        assert!(TimestampedFloat32InletSession::preflight_bounded(
+            activation(),
+            peer,
+            &identity,
+            handshake,
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 3).unwrap(),
+            2,
+            3,
+        )
+        .is_ok());
+        assert!(TimestampedStringInletSession::preflight_bounded(
+            string_activation(),
+            peer,
+            &identity,
+            handshake,
+            StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+            TimestampedStringSessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+        )
+        .is_ok());
+        assert!(matches!(
+            TimestampedStringInletSession::preflight_bounded(
+                string_activation(),
+                peer,
+                &identity,
+                handshake,
+                StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                1,
+                2,
+            ),
+            Err(TimestampedStringSessionPreflightError::RecordCount { actual: 2 })
+        ));
+    }
 
     #[test]
     fn p2_double64_uses_shared_bounded_session_lifecycle_and_preserves_bits() {
