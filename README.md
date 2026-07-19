@@ -1,5 +1,10 @@
 # Rusty LSL
 
+The bounded Float32 outlet session now exposes a caller-explicit accepted
+state between preflight and its canonical consuming completion report. The
+same private lifecycle owner retains the connected stream, supports report-free
+close, and remains the path used by legacy one-shot finish.
+
 The bounded Float32 inlet session also exposes a caller-explicit connected
 state between preflight and its canonical consuming completion report. This is
 the same private lifecycle owner used by the legacy one-shot finish path.

@@ -4,8 +4,9 @@
 //! Bounded one- or two-record Float32 outlet/inlet session ownership.
 
 use crate::format_neutral_session_runtime::{
-    connect_inlet, finish_inlet, finish_outlet, preflight_outlet_shape, preflight_shape,
-    terminal_close, ConnectedInletSession, SealedSessionStrategy, SessionShape, SessionShapeError,
+    accept_outlet, connect_inlet, finish_inlet, finish_outlet, preflight_outlet_shape,
+    preflight_shape, terminal_close, AcceptedOutletSession, ConnectedInletSession,
+    SealedSessionStrategy, SessionShape, SessionShapeError,
 };
 
 fn validated_session_shape(channels: usize, records: usize) -> SessionShape {
@@ -2182,6 +2183,55 @@ pub struct TimestampedFloat32OutletSession<'a> {
     channel_count: usize,
 }
 
+/// Accepted Float32 outlet whose sole private lifecycle owner retains the connected stream.
+pub struct TimestampedFloat32AcceptedOutletSession<'a> {
+    session: AcceptedOutletSession<session_format::Float32>,
+    records: &'a [TimestampedSample<f32>],
+}
+
+impl TimestampedFloat32AcceptedOutletSession<'_> {
+    /// Returns the bound local address retained by the accepted stream owner.
+    pub fn local_address(&self) -> SocketAddr {
+        self.session.local()
+    }
+
+    /// Returns the accepted peer address.
+    pub fn peer_address(&self) -> SocketAddr {
+        self.session.peer()
+    }
+
+    /// Returns the preflighted channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.shape().channels()
+    }
+
+    /// Returns the preflighted record count.
+    pub fn record_count(&self) -> usize {
+        self.session.shape().records()
+    }
+
+    /// Completes initialization, record transfer, terminal cleanup, and the canonical report.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedFloat32OutletSessionReport, TimestampedFloat32SessionError> {
+        let completed = self.session.finish(self.records, cancelled)?;
+        let shape = completed.shape();
+        Ok(TimestampedFloat32OutletSessionReport {
+            local: completed.local(),
+            peer: completed.peer(),
+            records: shape.records(),
+            channels: shape.channels(),
+            completion: TimestampedFloat32SessionCompletion::Complete,
+        })
+    }
+
+    /// Closes the accepted stream without producing a completion report.
+    pub fn close(self) {
+        self.session.close();
+    }
+}
+
 impl<'a> TimestampedFloat32OutletSession<'a> {
     /// Validates the exact one/two-record shape before any socket operation.
     pub fn preflight(
@@ -2228,30 +2278,33 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
 
     /// Consumes the owner and executes accept, handshake, initialization once, records, close, and report.
     pub fn finish(
-        mut self,
+        self,
         cancelled: &AtomicBool,
     ) -> Result<TimestampedFloat32OutletSessionReport, TimestampedFloat32SessionError> {
+        self.accept(cancelled)?.finish(cancelled)
+    }
+
+    /// Consumes preflight state and completes only accept plus handshake.
+    pub fn accept(
+        mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedFloat32AcceptedOutletSession<'a>, TimestampedFloat32SessionError> {
         let listener = self
             .listener
             .take()
             .expect("preflighted listener is present");
         let _ = self.activation;
-        let completed = finish_outlet::<session_format::Float32>(
+        let session = accept_outlet::<session_format::Float32>(
             listener,
             self.identity,
             self.handshake_limits,
             self.sample_limits,
-            self.records,
             validated_session_shape(self.channel_count, self.records.len()),
             cancelled,
         )?;
-        let shape = completed.shape();
-        Ok(TimestampedFloat32OutletSessionReport {
-            local: completed.local(),
-            peer: completed.peer(),
-            records: shape.records(),
-            channels: shape.channels(),
-            completion: TimestampedFloat32SessionCompletion::Complete,
+        Ok(TimestampedFloat32AcceptedOutletSession {
+            session,
+            records: self.records,
         })
     }
 }
@@ -3181,6 +3234,89 @@ mod tests {
             0xbf80_0042
         );
         assert_eq!(report.into_records().len(), 1);
+        worker.join().unwrap();
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p15_explicit_accept_finish_preserves_canonical_report_and_releases_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [sample(0x4092_5220_0000_0015, 0x3f80_0015)];
+        let worker = thread::spawn(move || {
+            let session_identity = identity();
+            let accepted = TimestampedFloat32OutletSession::preflight(
+                activation(),
+                listener,
+                &session_identity,
+                handshake_limits(),
+                sample_limits(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap();
+            assert_eq!(accepted.local_address(), address);
+            assert_eq!(accepted.peer_address().ip(), address.ip());
+            assert_eq!(accepted.channel_count(), 1);
+            assert_eq!(accepted.record_count(), 1);
+            accepted.finish(&AtomicBool::new(false)).unwrap()
+        });
+        let session_identity = identity();
+        let report = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            1,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(
+            report.records()[0].sample().values()[0].to_bits(),
+            0x3f80_0015
+        );
+        let outlet = worker.join().unwrap();
+        assert_eq!(outlet.role(), TimestampedFloat32SessionRole::Outlet);
+        assert_eq!(outlet.local_address(), address);
+        assert_eq!(outlet.record_count(), 1);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p15_explicit_accept_close_consumes_owner_without_completion() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [sample(0x4092_5220_0000_0015, 0x3f80_0015)];
+        let worker = thread::spawn(move || {
+            let session_identity = identity();
+            TimestampedFloat32OutletSession::preflight(
+                activation(),
+                listener,
+                &session_identity,
+                handshake_limits(),
+                sample_limits(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap()
+            .close();
+        });
+        let session_identity = identity();
+        let result = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            1,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false));
+        assert!(result.is_err());
         worker.join().unwrap();
         TcpListener::bind(address).unwrap();
     }

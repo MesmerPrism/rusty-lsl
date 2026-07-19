@@ -185,6 +185,59 @@ pub(crate) struct ConnectedInletSession<F: SealedSessionStrategy> {
     strategy: PhantomData<F>,
 }
 
+pub(crate) struct AcceptedOutletSession<F: SealedSessionStrategy> {
+    stream: SessionStream,
+    local: SocketAddr,
+    peer: SocketAddr,
+    limits: F::Limits,
+    shape: SessionShape,
+    strategy: PhantomData<F>,
+}
+
+impl<F: SealedSessionStrategy> AcceptedOutletSession<F> {
+    pub(crate) const fn local(&self) -> SocketAddr {
+        self.local
+    }
+
+    pub(crate) const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+
+    pub(crate) const fn shape(&self) -> SessionShape {
+        self.shape
+    }
+
+    pub(crate) fn finish(
+        mut self,
+        records: &[F::Sample],
+        cancelled: &AtomicBool,
+    ) -> Result<CompletedOutletSession, F::SessionError> {
+        let socket = self.stream.0.as_mut().expect("session stream is present");
+        F::write_initialization(socket, self.shape.channels(), self.limits, cancelled)
+            .map_err(|error| F::record_error(None, error))?;
+        for (index, record) in records.iter().enumerate() {
+            F::write_record(
+                socket,
+                record,
+                self.shape.channels(),
+                self.limits,
+                cancelled,
+            )
+            .map_err(|error| F::record_error(Some(index), error))?;
+        }
+        terminal_close(self.stream.0.take());
+        Ok(CompletedOutletSession {
+            local: self.local,
+            peer: self.peer,
+            shape: self.shape,
+        })
+    }
+
+    pub(crate) fn close(mut self) {
+        terminal_close(self.stream.0.take());
+    }
+}
+
 impl<F: SealedSessionStrategy> ConnectedInletSession<F> {
     pub(crate) const fn peer(&self) -> SocketAddr {
         self.peer
@@ -249,6 +302,25 @@ pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
     shape: SessionShape,
     cancelled: &AtomicBool,
 ) -> Result<CompletedOutletSession, F::SessionError> {
+    accept_outlet::<F>(
+        listener,
+        identity,
+        handshake_limits,
+        format_limits,
+        shape,
+        cancelled,
+    )?
+    .finish(records, cancelled)
+}
+
+pub(crate) fn accept_outlet<F: SealedSessionStrategy>(
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    format_limits: F::Limits,
+    shape: SessionShape,
+    cancelled: &AtomicBool,
+) -> Result<AcceptedOutletSession<F>, F::SessionError> {
     let (stream, local, peer) = F::accept(
         listener,
         identity,
@@ -257,16 +329,14 @@ pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
         cancelled,
     )
     .map_err(F::handshake_error)?;
-    let mut stream = SessionStream(Some(stream));
-    let socket = stream.0.as_mut().expect("session stream is present");
-    F::write_initialization(socket, shape.channels(), format_limits, cancelled)
-        .map_err(|error| F::record_error(None, error))?;
-    for (index, record) in records.iter().enumerate() {
-        F::write_record(socket, record, shape.channels(), format_limits, cancelled)
-            .map_err(|error| F::record_error(Some(index), error))?;
-    }
-    terminal_close(stream.0.take());
-    Ok(CompletedOutletSession { local, peer, shape })
+    Ok(AcceptedOutletSession {
+        stream: SessionStream(Some(stream)),
+        local,
+        peer,
+        limits: format_limits,
+        shape,
+        strategy: PhantomData,
+    })
 }
 
 pub(crate) fn finish_inlet<F: SealedSessionStrategy>(

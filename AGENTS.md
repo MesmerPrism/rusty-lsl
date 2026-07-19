@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+The accepted Float32 outlet lifecycle is phased into caller-explicit preflight,
+accepted stream ownership, and canonical completion beneath the sole private
+format-neutral engine. The accepted owner retains the stream and supports
+canonical finish or report-free close; legacy finish delegates through the
+same path. Reports, errors, cleanup, and default-disabled activation remain
+unchanged, with no discovery, device, oracle, or Manifold authority.
+
 LSLC-007O phases the accepted Float32 inlet lifecycle into caller-explicit
 preflight, connected, and completed-report states beneath the sole private
 format-neutral session owner. The connected owner retains the one stream and

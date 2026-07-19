@@ -298,6 +298,13 @@ fn float32_two_record_chunk_candidate_types_are_public() {
 
 #[test]
 fn lslc_007b_float32_session_owner_and_reports_are_public() {
+    assert!(
+        core::mem::size_of::<rusty_lsl::TimestampedFloat32AcceptedOutletSession<'static>>() > 0
+    );
+    assert!(
+        core::mem::size_of::<rusty_lsl::runtime::TimestampedFloat32AcceptedOutletSession<'static>>(
+        ) > 0
+    );
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32OutletSession<'static>>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32InletSession<'static>>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32OutletSessionReport>() > 0);
@@ -305,6 +312,7 @@ fn lslc_007b_float32_session_owner_and_reports_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32SessionError>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32SessionPreflightError>() > 0);
     let _outlet_preflight = rusty_lsl::TimestampedFloat32OutletSession::preflight;
+    let _outlet_accept = rusty_lsl::TimestampedFloat32OutletSession::accept;
     let _inlet_preflight = rusty_lsl::TimestampedFloat32InletSession::preflight;
 }
 
