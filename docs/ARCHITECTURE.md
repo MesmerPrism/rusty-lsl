@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-007M makes the shared private session lifecycle consume a validated
+`SessionShape` and return crate-private completion facts. Concrete Float32,
+Double64, Int32/16/8, and String facades retain their public reports and errors;
+sealed strategies retain codec ownership. No public neutral engine or new
+shape is introduced.
+
 The concrete String session facade admits only the accepted one-channel,
 one-caller-record shape and already validated 0 through 129 UTF-8-byte values.
 Preflight occurs before socket I/O; consuming reports preserve the received

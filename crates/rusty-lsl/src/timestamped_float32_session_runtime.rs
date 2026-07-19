@@ -5,8 +5,13 @@
 
 use crate::format_neutral_session_runtime::{
     finish_inlet, finish_outlet, preflight_outlet_shape, preflight_shape, terminal_close,
-    SealedSessionStrategy, SessionShapeError,
+    SealedSessionStrategy, SessionShape, SessionShapeError,
 };
+
+fn validated_session_shape(channels: usize, records: usize) -> SessionShape {
+    preflight_shape(usize::MAX, usize::MAX, channels, records)
+        .expect("caller completed session shape preflight")
+}
 use crate::{
     bounded_fixed_record_transport::{
         read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
@@ -739,7 +744,7 @@ pub(crate) fn finish_string_outlet_session(
         handshake_limits,
         limits,
         records,
-        1,
+        validated_session_shape(1, 1),
         cancelled,
     )
     .map(|completed| completed.local())
@@ -760,8 +765,7 @@ pub(crate) fn finish_string_inlet_session(
         identity,
         handshake_limits,
         limits,
-        1,
-        1,
+        validated_session_shape(1, 1),
         cancelled,
     )
     .map(|completed| {
@@ -1402,7 +1406,7 @@ pub(crate) fn finish_fixed_width_integer_outlet_session(
             template,
         },
         records,
-        channels,
+        validated_session_shape(channels, records.len()),
         cancelled,
     )
     .map(|completed| completed.local())
@@ -1428,8 +1432,7 @@ pub(crate) fn finish_fixed_width_integer_inlet_session(
             io: io_limits,
             template,
         },
-        records,
-        channels,
+        validated_session_shape(channels, records),
         cancelled,
     )
     .map(|completed| completed.into_records())
@@ -1571,7 +1574,7 @@ macro_rules! fixed_width_integer_session_facade {
                 let completed = finish_outlet::<FixedWidthInteger>(
                     listener, self.identity, self.handshake_limits,
                     FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
-                    &self.records, self.channel_count, cancelled,
+                    &self.records, validated_session_shape(self.channel_count, self.records.len()), cancelled,
                 )?;
                 let shape = completed.shape();
                 Ok($outlet_report { local: completed.local(), peer: completed.peer(), records: shape.records(), channels: shape.channels() })
@@ -1610,7 +1613,7 @@ macro_rules! fixed_width_integer_session_facade {
                 let completed = finish_inlet::<FixedWidthInteger>(
                     self.peer, self.identity, self.handshake_limits,
                     FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
-                    self.record_count, self.channel_count, cancelled,
+                    validated_session_shape(self.channel_count, self.record_count), cancelled,
                 )?;
                 let shape = completed.shape();
                 let records = completed.into_records().into_iter().map(|record| {
@@ -1878,7 +1881,7 @@ impl<'a> TimestampedStringOutletSession<'a> {
             self.handshake_limits,
             self.io_limits,
             self.records,
-            1,
+            validated_session_shape(1, 1),
             cancelled,
         )?;
         Ok(TimestampedStringOutletSessionReport {
@@ -1928,8 +1931,7 @@ impl<'a> TimestampedStringInletSession<'a> {
             self.identity,
             self.handshake_limits,
             self.io_limits,
-            1,
-            1,
+            validated_session_shape(1, 1),
             cancelled,
         )?;
         Ok(TimestampedStringInletSessionReport {
@@ -2082,7 +2084,7 @@ impl<'a> TimestampedDouble64OutletSession<'a> {
             self.handshake_limits,
             self.io_limits,
             self.records,
-            self.channel_count,
+            validated_session_shape(self.channel_count, self.records.len()),
             cancelled,
         )?;
         let shape = completed.shape();
@@ -2140,8 +2142,7 @@ impl<'a> TimestampedDouble64InletSession<'a> {
             self.identity,
             self.handshake_limits,
             self.io_limits,
-            self.record_count,
-            self.channel_count,
+            validated_session_shape(self.channel_count, self.record_count),
             cancelled,
         )?;
         let shape = completed.shape();
@@ -2241,7 +2242,7 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
             self.handshake_limits,
             self.sample_limits,
             self.records,
-            self.channel_count,
+            validated_session_shape(self.channel_count, self.records.len()),
             cancelled,
         )?;
         let shape = completed.shape();
@@ -2330,8 +2331,7 @@ impl<'a> TimestampedFloat32InletSession<'a> {
             self.identity,
             self.handshake_limits,
             self.sample_limits,
-            self.record_count,
-            self.channel_count,
+            validated_session_shape(self.channel_count, self.record_count),
             cancelled,
         )?;
         let shape = completed.shape();

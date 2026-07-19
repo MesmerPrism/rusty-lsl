@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+LSLC-007M centralizes crate-private validated session shape, socket-free
+preflight, and consuming successful-completion facts for every accepted
+concrete session facade. The sole private lifecycle engine and sealed format
+strategies remain the only lifecycle and codec owners. String stays exactly
+one channel and one record, while numeric formats stay within already evidenced
+shapes. Public facades, reports, errors, and legacy projections are unchanged;
+activation remains explicit and default-disabled, with no capability widening,
+device behavior, or Manifold authority.
+
 LSLC-007L adds concrete bounded one-channel, one-record String inlet/outlet
 session facades and consuming reports over the sole private format-neutral
 lifecycle owner. The sealed String codec retains the exact 0 through 129

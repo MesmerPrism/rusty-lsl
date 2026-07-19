@@ -1,5 +1,9 @@
 # Rusty LSL
 
+Validated format-neutral session shape and successful completion facts remain
+crate-private beneath the existing concrete typed facades. LSLC-007M does not
+widen accepted String or numeric shapes, public APIs, or runtime activation.
+
 The concrete String outlet/inlet session facade admits only one channel and one
 caller record containing 0 through 129 UTF-8 bytes. It preflights before I/O,
 returns consuming completed reports, and uses the same private lifecycle and

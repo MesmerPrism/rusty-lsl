@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-007M qualification covers every accepted concrete shape and rejection
+precedence, exact numeric bits and String UTF-8/allocation ownership,
+indexed/trailing damage, cancellation/deadline/cleanup and port reuse, legacy
+and public API regression, exact activation closure, serialized Standard, and
+workflow/publication gates. Accepted official and device evidence is reused;
+there is no oracle or device rerun.
+
 LSLC-007L focused host qualification covers the closed String session facade's
 exact 0/1/128/129-byte and multibyte UTF-8 boundaries, allocation-preserving
 reports, socket-free shape/value rejection, indexed/trailing error projection,

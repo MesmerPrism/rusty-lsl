@@ -182,7 +182,7 @@ pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
     handshake_limits: StreamHandshakeLimits,
     format_limits: F::Limits,
     records: &[F::Sample],
-    channel_count: usize,
+    shape: SessionShape,
     cancelled: &AtomicBool,
 ) -> Result<CompletedOutletSession, F::SessionError> {
     let (stream, local, peer) = F::accept(
@@ -195,20 +195,17 @@ pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
     .map_err(F::handshake_error)?;
     let mut stream = SessionStream(Some(stream));
     let socket = stream.0.as_mut().expect("session stream is present");
-    F::write_initialization(socket, channel_count, format_limits, cancelled)
+    F::write_initialization(socket, shape.channels(), format_limits, cancelled)
         .map_err(|error| F::record_error(None, error))?;
     for (index, record) in records.iter().enumerate() {
-        F::write_record(socket, record, channel_count, format_limits, cancelled)
+        F::write_record(socket, record, shape.channels(), format_limits, cancelled)
             .map_err(|error| F::record_error(Some(index), error))?;
     }
     terminal_close(stream.0.take());
     Ok(CompletedOutletSession {
         local,
         peer,
-        shape: SessionShape {
-            channels: channel_count,
-            records: records.len(),
-        },
+        shape,
     })
 }
 
@@ -217,20 +214,19 @@ pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
     identity: &StreamHandshakeIdentity,
     handshake_limits: StreamHandshakeLimits,
     format_limits: F::Limits,
-    record_count: usize,
-    channel_count: usize,
+    shape: SessionShape,
     cancelled: &AtomicBool,
 ) -> Result<CompletedInletSession<F::Sample>, F::SessionError> {
     let stream = F::connect(peer, identity, handshake_limits, format_limits, cancelled)
         .map_err(F::handshake_error)?;
     let mut stream = SessionStream(Some(stream));
     let socket = stream.0.as_mut().expect("session stream is present");
-    F::read_initialization(socket, channel_count, format_limits, cancelled)
+    F::read_initialization(socket, shape.channels(), format_limits, cancelled)
         .map_err(|error| F::record_error(None, error))?;
-    let mut records = Vec::with_capacity(record_count);
-    for index in 0..record_count {
+    let mut records = Vec::with_capacity(shape.records());
+    for index in 0..shape.records() {
         records.push(
-            F::read_record(socket, channel_count, format_limits, cancelled)
+            F::read_record(socket, shape.channels(), format_limits, cancelled)
                 .map_err(|error| F::record_error(Some(index), error))?,
         );
     }
@@ -238,10 +234,7 @@ pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
     terminal_close(stream.0.take());
     Ok(CompletedInletSession {
         records,
-        shape: SessionShape {
-            channels: channel_count,
-            records: record_count,
-        },
+        shape,
     })
 }
 
