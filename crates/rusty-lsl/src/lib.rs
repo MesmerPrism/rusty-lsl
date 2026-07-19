@@ -351,7 +351,10 @@ pub use timestamped_float32_session_runtime::{
 pub use timestamped_float32_two_record_chunk_runtime::{
     run_timestamped_float32_two_record_chunk_inlet,
     run_timestamped_float32_two_record_chunk_outlet, TimestampedFloat32TwoRecordChunkError,
-    TimestampedFloat32TwoRecordChunkLimitError, TimestampedFloat32TwoRecordChunkLimits,
+    TimestampedFloat32TwoRecordChunkInletSession,
+    TimestampedFloat32TwoRecordChunkInletSessionReport, TimestampedFloat32TwoRecordChunkLimitError,
+    TimestampedFloat32TwoRecordChunkLimits, TimestampedFloat32TwoRecordChunkOutletSession,
+    TimestampedFloat32TwoRecordChunkOutletSessionReport,
 };
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,

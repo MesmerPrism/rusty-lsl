@@ -11,7 +11,8 @@ use crate::{
 use crate::{
     timestamped_float32_session_runtime::{
         TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
-        TimestampedFloat32SessionError, TimestampedFloat32SessionPreflightError,
+        TimestampedFloat32SessionCompletion, TimestampedFloat32SessionError,
+        TimestampedFloat32SessionPreflightError, TimestampedFloat32SessionRole,
     },
     ChunkLimits, StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedChunk,
     TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
@@ -136,6 +137,183 @@ pub enum TimestampedFloat32TwoRecordChunkError {
     },
 }
 
+/// Preflighted outlet owner for exactly one channel and two ordered Float32 records.
+pub struct TimestampedFloat32TwoRecordChunkOutletSession<'a> {
+    session: TimestampedFloat32OutletSession<'a>,
+}
+
+impl<'a> TimestampedFloat32TwoRecordChunkOutletSession<'a> {
+    /// Validates the exact chunk shape before the shared session performs socket I/O.
+    pub fn preflight(
+        activation: TimestampedFloat32SampleActivation,
+        listener: TcpListener,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        sample_limits: TimestampedFloat32TwoRecordChunkLimits,
+        chunk: &'a TimestampedChunk<f32>,
+    ) -> Result<Self, TimestampedFloat32TwoRecordChunkError> {
+        if chunk.samples().len() != REQUIRED_RECORDS {
+            return Err(TimestampedFloat32TwoRecordChunkError::RecordCount {
+                actual: chunk.samples().len(),
+            });
+        }
+        let session = TimestampedFloat32OutletSession::preflight(
+            activation,
+            listener,
+            identity,
+            handshake_limits,
+            sample_limits.sample_limits(),
+            chunk.samples(),
+        )
+        .map_err(map_preflight_error)?;
+        Ok(Self { session })
+    }
+
+    /// Consumes the owner through the sole shared lifecycle and returns completion facts.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedFloat32TwoRecordChunkOutletSessionReport,
+        TimestampedFloat32TwoRecordChunkError,
+    > {
+        let report = self.session.finish(cancelled).map_err(map_session_error)?;
+        debug_assert_eq!(report.channel_count(), 1);
+        debug_assert_eq!(report.record_count(), REQUIRED_RECORDS);
+        Ok(TimestampedFloat32TwoRecordChunkOutletSessionReport {
+            local: report.local_address(),
+            peer: report.peer(),
+            completion: report.completion(),
+        })
+    }
+}
+
+/// Preflighted inlet owner for exactly one channel and two ordered Float32 records.
+pub struct TimestampedFloat32TwoRecordChunkInletSession<'a> {
+    session: TimestampedFloat32InletSession<'a>,
+}
+
+impl<'a> TimestampedFloat32TwoRecordChunkInletSession<'a> {
+    /// Preflights the fixed one-channel, two-record shape without connecting.
+    pub fn preflight(
+        activation: TimestampedFloat32SampleActivation,
+        peer: SocketAddr,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        sample_limits: TimestampedFloat32TwoRecordChunkLimits,
+    ) -> Self {
+        let session = TimestampedFloat32InletSession::preflight(
+            activation,
+            peer,
+            identity,
+            handshake_limits,
+            sample_limits.sample_limits(),
+            REQUIRED_RECORDS,
+        )
+        .expect("the fixed one-channel, two-record shape is valid");
+        Self { session }
+    }
+
+    /// Consumes the owner through the sole shared lifecycle and retains the exact chunk.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedFloat32TwoRecordChunkInletSessionReport,
+        TimestampedFloat32TwoRecordChunkError,
+    > {
+        let report = self.session.finish(cancelled).map_err(map_session_error)?;
+        debug_assert_eq!(report.channel_count(), 1);
+        debug_assert_eq!(report.record_count(), REQUIRED_RECORDS);
+        let peer = report.peer();
+        let completion = report.completion();
+        let chunk = TimestampedChunk::new(
+            ChunkLimits::new(REQUIRED_RECORDS, 1).unwrap(),
+            report.into_records(),
+        )
+        .expect("the validated session report has the fixed chunk shape");
+        Ok(TimestampedFloat32TwoRecordChunkInletSessionReport {
+            peer,
+            chunk,
+            completion,
+        })
+    }
+}
+
+/// Successful exact-chunk outlet lifecycle facts.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedFloat32TwoRecordChunkOutletSessionReport {
+    local: SocketAddr,
+    peer: SocketAddr,
+    completion: TimestampedFloat32SessionCompletion,
+}
+
+impl TimestampedFloat32TwoRecordChunkOutletSessionReport {
+    /// Explicit completed outlet role.
+    pub const fn role(&self) -> TimestampedFloat32SessionRole {
+        TimestampedFloat32SessionRole::Outlet
+    }
+    /// Caller-bound listener address.
+    pub const fn local_address(&self) -> SocketAddr {
+        self.local
+    }
+    /// Accepted peer address.
+    pub const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+    /// Exact fixed channel count.
+    pub const fn channel_count(&self) -> usize {
+        1
+    }
+    /// Exact fixed caller-record count.
+    pub const fn record_count(&self) -> usize {
+        REQUIRED_RECORDS
+    }
+    /// Terminal completion classification.
+    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+        self.completion
+    }
+}
+
+/// Successful exact-chunk inlet lifecycle facts and ordered record ownership.
+#[derive(Debug)]
+pub struct TimestampedFloat32TwoRecordChunkInletSessionReport {
+    peer: SocketAddr,
+    chunk: TimestampedChunk<f32>,
+    completion: TimestampedFloat32SessionCompletion,
+}
+
+impl TimestampedFloat32TwoRecordChunkInletSessionReport {
+    /// Explicit completed inlet role.
+    pub const fn role(&self) -> TimestampedFloat32SessionRole {
+        TimestampedFloat32SessionRole::Inlet
+    }
+    /// Caller-selected peer address.
+    pub const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+    /// Exact fixed channel count.
+    pub const fn channel_count(&self) -> usize {
+        1
+    }
+    /// Exact fixed caller-record count.
+    pub const fn record_count(&self) -> usize {
+        REQUIRED_RECORDS
+    }
+    /// Terminal completion classification.
+    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+        self.completion
+    }
+    /// Borrowed exact ordered chunk.
+    pub const fn chunk(&self) -> &TimestampedChunk<f32> {
+        &self.chunk
+    }
+    /// Consumes the report without copying or reordering the two records.
+    pub fn into_chunk(self) -> TimestampedChunk<f32> {
+        self.chunk
+    }
+}
+
 /// Opens one accepted outlet connection, sends exactly two ordered records, and closes on return.
 pub fn run_timestamped_float32_two_record_chunk_outlet(
     activation: TimestampedFloat32SampleActivation,
@@ -146,23 +324,16 @@ pub fn run_timestamped_float32_two_record_chunk_outlet(
     chunk: &TimestampedChunk<f32>,
     cancelled: &AtomicBool,
 ) -> Result<SocketAddr, TimestampedFloat32TwoRecordChunkError> {
-    if chunk.samples().len() != REQUIRED_RECORDS {
-        return Err(TimestampedFloat32TwoRecordChunkError::RecordCount {
-            actual: chunk.samples().len(),
-        });
-    }
-    TimestampedFloat32OutletSession::preflight(
+    TimestampedFloat32TwoRecordChunkOutletSession::preflight(
         activation,
         listener,
         identity,
         handshake_limits,
-        sample_limits.sample_limits(),
-        chunk.samples(),
-    )
-    .map_err(map_preflight_error)?
+        sample_limits,
+        chunk,
+    )?
     .finish(cancelled)
     .map(|report| report.local_address())
-    .map_err(map_session_error)
 }
 
 /// Opens one accepted inlet connection, receives exactly two ordered records, and closes on return.
@@ -174,19 +345,15 @@ pub fn run_timestamped_float32_two_record_chunk_inlet(
     sample_limits: TimestampedFloat32TwoRecordChunkLimits,
     cancelled: &AtomicBool,
 ) -> Result<TimestampedChunk<f32>, TimestampedFloat32TwoRecordChunkError> {
-    let samples = TimestampedFloat32InletSession::preflight(
+    Ok(TimestampedFloat32TwoRecordChunkInletSession::preflight(
         activation,
         peer,
         identity,
         handshake_limits,
-        sample_limits.sample_limits(),
-        REQUIRED_RECORDS,
+        sample_limits,
     )
-    .expect("two records always pass session preflight")
-    .finish(cancelled)
-    .map_err(map_session_error)?
-    .into_records();
-    Ok(TimestampedChunk::new(ChunkLimits::new(REQUIRED_RECORDS, 1).unwrap(), samples).unwrap())
+    .finish(cancelled)?
+    .into_chunk())
 }
 
 fn map_preflight_error(
@@ -342,6 +509,73 @@ mod tests {
             second_value.to_bits()
         );
         assert_eq!(worker.join().unwrap().unwrap(), address);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p13_concrete_chunk_sessions_return_consuming_reports_and_exact_bits() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let sent = TimestampedChunk::new(
+            ChunkLimits::new(2, 1).unwrap(),
+            vec![
+                sample(
+                    f64::from_bits(0x4092_5220_0000_0001),
+                    f32::from_bits(0x3fa0_0001),
+                ),
+                sample(
+                    f64::from_bits(0x4092_5b80_0000_0002),
+                    f32::from_bits(0xc020_0001),
+                ),
+            ],
+        )
+        .unwrap();
+        let worker = thread::spawn(move || {
+            TimestampedFloat32TwoRecordChunkOutletSession::preflight(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                &sent,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let report = TimestampedFloat32TwoRecordChunkInletSession::preflight(
+            activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            sample_limits(),
+        )
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(report.role(), TimestampedFloat32SessionRole::Inlet);
+        assert_eq!(report.channel_count(), 1);
+        assert_eq!(report.record_count(), 2);
+        assert_eq!(
+            report.chunk().samples()[0]
+                .raw_source_timestamp()
+                .value()
+                .to_bits(),
+            0x4092_5220_0000_0001
+        );
+        assert_eq!(
+            report.chunk().samples()[1].sample().values()[0].to_bits(),
+            0xc020_0001
+        );
+        let chunk = report.into_chunk();
+        assert_eq!(
+            chunk.samples()[0].sample().values()[0].to_bits(),
+            0x3fa0_0001
+        );
+        let outlet = worker.join().unwrap();
+        assert_eq!(outlet.role(), TimestampedFloat32SessionRole::Outlet);
+        assert_eq!(outlet.local_address(), address);
+        assert_eq!(outlet.channel_count(), 1);
+        assert_eq!(outlet.record_count(), 2);
         TcpListener::bind(address).unwrap();
     }
 
