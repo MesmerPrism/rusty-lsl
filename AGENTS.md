@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-007J composes exactly one completed Float32 inlet-session report into the
+existing recovery-to-clock-to-queue pipeline. Count rejection and every
+pre-acquisition cancellation, deadline, or setup failure retain the unchanged
+report; after acquisition the existing clock and queue errors retain their
+samples and recovery states. It adds no session, discovery, policy, capability,
+other-format, device, or Manifold authority.
+
 The bounded session lifecycle is now a format-neutral crate-private engine.
 It alone owns accept/connect, handshake sequencing, initialization and record
 transfer, terminal-close enforcement, and consuming cleanup. Float32,

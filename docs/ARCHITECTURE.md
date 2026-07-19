@@ -1,5 +1,13 @@
 # Architecture
 
+`float32_session_report_recovery_clock_queue` is a thin boundary between a
+completed typed session report and the existing P4 pipeline. It validates the
+one-record count before downstream work and holds the report until finite
+recovery invokes acquisition. Cancellation, deadline, or recovery setup before
+that point returns the report; later clock and queue failures retain ownership
+through the existing P4 errors. It owns no lifecycle, retry classification,
+clock, queue, or cancellation policy.
+
 The bounded Float32 pipeline coordinates existing owners without absorbing
 them: caller acquisition feeds finite recovery, one recovered record feeds the
 clock owner once, and the corrected record feeds the caller-owned bounded

@@ -174,7 +174,9 @@ pub use fixed_width_numeric_sample_runtime::{
     FIXED_WIDTH_NUMERIC_SAMPLE_FEATURE_ID,
 };
 pub use float32_session_report_recovery_clock_queue::{
-    run_float32_inlet_session_report_recovery_clock_queue, Float32SessionReportPipelineError,
+    run_float32_inlet_session_report_recovery_clock_queue,
+    Float32SessionReportAcquisitionTermination, Float32SessionReportPipelineError,
+    Float32SessionReportPipelineOutcome,
 };
 pub use integrated_clock_correction_runtime::{
     run_integrated_clock_correction, ClockSource, IntegratedClockCorrection,

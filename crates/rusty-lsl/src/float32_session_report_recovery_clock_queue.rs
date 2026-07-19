@@ -6,10 +6,39 @@
 use crate::{
     run_bounded_float32_recovery_clock_queue, BoundedFloat32PipelineCancellation,
     BoundedFloat32PipelineError, BoundedFloat32PipelineOutcome, BoundedSampleQueue,
-    BoundedSampleQueueWait, ClockSource, FiniteSampleRecoveryActivation,
-    FiniteSampleRecoveryPolicy, IntegratedClockCorrectionActivation,
-    IntegratedClockCorrectionConfig, TimestampedFloat32InletSessionReport,
+    BoundedSampleQueueWait, ClockSource, FiniteSampleRecoveryActivation, FiniteSampleRecoveryError,
+    FiniteSampleRecoveryPolicy, FiniteSampleRecoveryState, IntegratedClockCorrectionActivation,
+    IntegratedClockCorrectionConfig, RecoveryAttemptFailure, RecoveryFailureClass,
+    TimestampedFloat32InletSessionReport,
 };
+
+/// Terminal result of the completed-report adapter.
+#[derive(Debug)]
+pub enum Float32SessionReportPipelineOutcome {
+    /// The sole report record was corrected and queued.
+    Queued {
+        /// Ordered recovery states.
+        states: Vec<FiniteSampleRecoveryState>,
+    },
+    /// Recovery stopped before acquiring the report record.
+    NotAcquired {
+        /// Unchanged completed report and all evidence it owns.
+        report: TimestampedFloat32InletSessionReport,
+        /// Exact pre-acquisition termination.
+        termination: Float32SessionReportAcquisitionTermination,
+        /// Ordered recovery states.
+        states: Vec<FiniteSampleRecoveryState>,
+    },
+}
+
+/// Recovery termination observed before the report record was acquired.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Float32SessionReportAcquisitionTermination {
+    /// Recovery cancellation preceded acquisition.
+    Cancelled,
+    /// Recovery deadline preceded acquisition.
+    Deadline,
+}
 
 /// Owner-preserving rejection from the completed-report adapter.
 #[derive(Debug)]
@@ -21,8 +50,22 @@ pub enum Float32SessionReportPipelineError {
         /// Unchanged completed report and all records it owns.
         report: TimestampedFloat32InletSessionReport,
     },
+    /// Recovery setup failed before acquiring the report record.
+    Recovery {
+        /// Existing recovery setup error.
+        error: FiniteSampleRecoveryError,
+        /// Unchanged completed report and all evidence it owns.
+        report: TimestampedFloat32InletSessionReport,
+    },
     /// Existing bounded pipeline failure.
     Pipeline(BoundedFloat32PipelineError),
+    /// The generic pipeline produced a structurally impossible acquisition outcome.
+    Invariant {
+        /// Unchanged generic outcome.
+        outcome: BoundedFloat32PipelineOutcome,
+        /// Report retained when acquisition never occurred.
+        report: Option<TimestampedFloat32InletSessionReport>,
+    },
 }
 
 /// Feeds the sole owned record from a completed inlet report into the bounded pipeline.
@@ -40,7 +83,7 @@ pub fn run_float32_inlet_session_report_recovery_clock_queue<C>(
     queue: &BoundedSampleQueue,
     queue_wait: BoundedSampleQueueWait,
     cancellation: BoundedFloat32PipelineCancellation<'_>,
-) -> Result<BoundedFloat32PipelineOutcome, Float32SessionReportPipelineError>
+) -> Result<Float32SessionReportPipelineOutcome, Float32SessionReportPipelineError>
 where
     C: ClockSource,
 {
@@ -51,14 +94,25 @@ where
         });
     }
 
-    let mut records = report.into_records().into_iter();
-    run_bounded_float32_recovery_clock_queue(
+    let mut retained_report = Some(report);
+    let result = run_bounded_float32_recovery_clock_queue(
         recovery_activation,
         recovery_policy,
         |_| {
-            Ok(records
-                .next()
-                .expect("the exactly-one report is acquired exactly once"))
+            let Some(report) = retained_report.take() else {
+                return Err(RecoveryAttemptFailure::new(
+                    RecoveryFailureClass::Terminal,
+                    u32::MAX,
+                ));
+            };
+            let mut records = report.into_records();
+            match records.pop() {
+                Some(sample) if records.is_empty() => Ok(sample),
+                _ => Err(RecoveryAttemptFailure::new(
+                    RecoveryFailureClass::Terminal,
+                    u32::MAX,
+                )),
+            }
         },
         clock_activation,
         clock_config,
@@ -66,8 +120,45 @@ where
         queue,
         queue_wait,
         cancellation,
-    )
-    .map_err(Float32SessionReportPipelineError::Pipeline)
+    );
+    match result {
+        Ok(BoundedFloat32PipelineOutcome::Queued { states }) => {
+            Ok(Float32SessionReportPipelineOutcome::Queued { states })
+        }
+        Ok(BoundedFloat32PipelineOutcome::Cancelled { states }) => match retained_report {
+            Some(report) => Ok(Float32SessionReportPipelineOutcome::NotAcquired {
+                report,
+                termination: Float32SessionReportAcquisitionTermination::Cancelled,
+                states,
+            }),
+            None => Err(Float32SessionReportPipelineError::Invariant {
+                outcome: BoundedFloat32PipelineOutcome::Cancelled { states },
+                report: None,
+            }),
+        },
+        Ok(BoundedFloat32PipelineOutcome::Deadline { states }) => match retained_report {
+            Some(report) => Ok(Float32SessionReportPipelineOutcome::NotAcquired {
+                report,
+                termination: Float32SessionReportAcquisitionTermination::Deadline,
+                states,
+            }),
+            None => Err(Float32SessionReportPipelineError::Invariant {
+                outcome: BoundedFloat32PipelineOutcome::Deadline { states },
+                report: None,
+            }),
+        },
+        Ok(outcome) => Err(Float32SessionReportPipelineError::Invariant {
+            outcome,
+            report: retained_report,
+        }),
+        Err(BoundedFloat32PipelineError::Recovery(error)) => match retained_report {
+            Some(report) => Err(Float32SessionReportPipelineError::Recovery { error, report }),
+            None => Err(Float32SessionReportPipelineError::Pipeline(
+                BoundedFloat32PipelineError::Recovery(error),
+            )),
+        },
+        Err(error) => Err(Float32SessionReportPipelineError::Pipeline(error)),
+    }
 }
 
 #[cfg(test)]
@@ -259,6 +350,56 @@ mod tests {
                 assert_eq!(records[1].sample().values()[0].to_bits(), 0x4000_0001);
             }
             other => panic!("unexpected error: {other:?}"),
+        }
+        assert_eq!(clock.0.load(Ordering::Relaxed), 0);
+        assert!(matches!(
+            queue.try_pop(),
+            Err(BoundedSampleQueuePopError::Empty)
+        ));
+    }
+
+    #[test]
+    fn p9_recovery_cancellation_retains_completed_report_before_acquisition() {
+        let report = completed_report(vec![record(0x3ff8_0000_0000_0001, 0x3fc0_0001)]);
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        let mut clock = CountingClock(AtomicUsize::new(0));
+        let cancelled = AtomicBool::new(true);
+        let outcome = run_float32_inlet_session_report_recovery_clock_queue(
+            report,
+            recovery_activation(),
+            policy(),
+            clock_activation(),
+            config(),
+            &mut clock,
+            &queue,
+            wait(),
+            BoundedFloat32PipelineCancellation::new(
+                &cancelled,
+                &AtomicBool::new(false),
+                &AtomicBool::new(false),
+            ),
+        )
+        .unwrap();
+        match outcome {
+            Float32SessionReportPipelineOutcome::NotAcquired {
+                report,
+                termination: Float32SessionReportAcquisitionTermination::Cancelled,
+                states,
+            } => {
+                assert_eq!(
+                    states,
+                    vec![FiniteSampleRecoveryState::Cancelled {
+                        completed_attempts: 0,
+                    }]
+                );
+                let records = report.into_records();
+                assert_eq!(
+                    records[0].raw_source_timestamp().value().to_bits(),
+                    0x3ff8_0000_0000_0001
+                );
+                assert_eq!(records[0].sample().values()[0].to_bits(), 0x3fc0_0001);
+            }
+            other => panic!("unexpected outcome: {other:?}"),
         }
         assert_eq!(clock.0.load(Ordering::Relaxed), 0);
         assert!(matches!(

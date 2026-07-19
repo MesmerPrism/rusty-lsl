@@ -5,6 +5,11 @@ recovery → clock-correction → queue pipeline. Callers retain acquisition,
 policy, activation, clock, queue, and distinct cancellation ownership; runtime
 activation remains explicit and default-disabled.
 
+One bounded adapter can consume an exactly-one-record completed Float32 inlet
+report into that pipeline. It retains the whole report until recovery actually
+acquires the record, so pre-acquisition terminal paths return caller evidence
+unchanged; no automatic policy or activation is implied.
+
 The accepted Float32, Double64, integer, and String paths now share one
 format-neutral crate-private bounded session lifecycle engine. Their sealed
 format strategies preserve existing framing, errors, and public adapters;

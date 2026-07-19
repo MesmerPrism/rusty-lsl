@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-007J validates exactly-one completed-report admission, unchanged report
+retention on count/cancellation/deadline/setup paths, inherited clock/queue
+sample ownership, the nine P4 regressions, session/all-format compatibility,
+24 public API tests, revision-22 default-disabled source closure, serialized
+Standard, workflow, instruction, and publication gates. No oracle or device
+rerun is required.
+
 LSLC-007I validation covers the crate-private format-neutral session owner
 through the shared session, fixed-width numeric, String boundary/damage, and
 public API gates. Revision 21 rebinds only the existing Float32, fixed-width

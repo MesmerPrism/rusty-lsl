@@ -62,5 +62,7 @@ pub use crate::{
 };
 
 pub use crate::{
-    run_float32_inlet_session_report_recovery_clock_queue, Float32SessionReportPipelineError,
+    run_float32_inlet_session_report_recovery_clock_queue,
+    Float32SessionReportAcquisitionTermination, Float32SessionReportPipelineError,
+    Float32SessionReportPipelineOutcome,
 };
