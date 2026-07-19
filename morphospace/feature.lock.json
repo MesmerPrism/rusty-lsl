@@ -3,10 +3,10 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 6,
-  "revision": 22,
-  "generated_at": "2026-07-19T18:52:00Z",
+  "revision": 23,
+  "generated_at": "2026-07-19T19:29:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "7427ba8f2a3edc753235b25d6ac3fd7fdc61c518f08bb705dd5b5863182a2237",
+  "lock_fingerprint": "6cd5a7048fdbb135b35b86a5777ead3cbe1628c569dccc9e27ac95fa817e502f",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -141,9 +141,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/fixed-width-numeric-sample.json",
-        "sha256": "0d8c1df937f1cc2a03ad7bdf6605cf4d55b0000613bb6921851fbe3f14a1857c",
+        "sha256": "a09b309c855845979713522ed10457163121dbe136b12e8b4900fc8eeca699c9",
         "source_repo": "rusty-lsl",
-        "source_revision": "dcfddedb645c850ccec3ea833a38b45f10430fa2",
+        "source_revision": "339710c317ed0e5d64793ac9cbc2aeee2235503a",
         "source_path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
         "source_sha256": "2c5247bc9f94dd2ccf12adbd86ba276833ab5ea48c4e7f9b8bcebca53c3b3779"
       },
@@ -366,11 +366,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/string-sample.json",
-        "sha256": "11f7f19553080e5ab0c228e2b45c40ca57da132f5dff31856bdc8412c3c750fe",
+        "sha256": "2a63cc735f3872c19bc1a58a6058e44d9da3e642ebd69bf639d446936d4e09bf",
         "source_repo": "rusty-lsl",
-        "source_revision": "dcfddedb645c850ccec3ea833a38b45f10430fa2",
+        "source_revision": "339710c317ed0e5d64793ac9cbc2aeee2235503a",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-        "source_sha256": "c772359f46aae7ec4300d901a770e9b7bd39723a99592dae5078b43fa0084019"
+        "source_sha256": "1a462a2b33411e5153cfb99d5129ab9152365f5cc64c4268a27daa08dbaab91f"
       },
       "dependencies": [
         "stream-handshake"
@@ -421,11 +421,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "9a41e4e887668252b05b25404131bc578d452cf5ae24c8849749d004abbf2db3",
+        "sha256": "86076e0caf435a3c07244967a80d1b709de4e18343e0bb956659a9ccb94ba7e6",
         "source_repo": "rusty-lsl",
-        "source_revision": "782023d93ea93254175ba4bd085451a7a9c1072f",
+        "source_revision": "339710c317ed0e5d64793ac9cbc2aeee2235503a",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-        "source_sha256": "c772359f46aae7ec4300d901a770e9b7bd39723a99592dae5078b43fa0084019"
+        "source_sha256": "1a462a2b33411e5153cfb99d5129ab9152365f5cc64c4268a27daa08dbaab91f"
       },
       "dependencies": [
         "stream-handshake"
