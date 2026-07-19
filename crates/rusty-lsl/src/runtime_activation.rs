@@ -5,9 +5,9 @@
 
 /// Fingerprint of the complete accepted feature lock.
 pub const ACCEPTED_FEATURE_LOCK_FINGERPRINT: &str =
-    "62a32124d2a9174db60efe92ac1f0263b76a07e7668fa13294cf4454b3fe01bd";
+    "fc31ac756d6887327f3af4c4aa201ec54533f49dd856af2f1d52b25b4af6527c";
 /// Revision of the complete accepted feature lock.
-pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 24;
+pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 25;
 
 const MAX_CONSUMER_ID_BYTES: usize = 128;
 const MODULE_COUNT: usize = 9;
