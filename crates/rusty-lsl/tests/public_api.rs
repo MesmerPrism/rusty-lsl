@@ -266,6 +266,15 @@ fn p2_bounded_float32_shape_seam_is_public() {
     let _inlet_bounded = rusty_lsl::TimestampedFloat32InletSession::preflight_bounded;
 }
 
+#[test]
+fn discovery_to_bounded_float32_session_vertical_is_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32SessionConnection>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32SessionConnectionError>() > 0);
+    let _root = rusty_lsl::run_typed_udp_discovery_float32_session_inlet;
+    let _runtime = runtime::run_typed_udp_discovery_float32_session_inlet;
+    same_type(&_root, &_runtime);
+}
+
 #[derive(Debug, Eq, PartialEq)]
 enum StatefulProviderError {
     TemporarilyUnavailable(u64),
