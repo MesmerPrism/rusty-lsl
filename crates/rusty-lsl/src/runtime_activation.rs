@@ -438,11 +438,11 @@ mod tests {
     }
 
     #[test]
-    fn current_revision_16_admits_and_revision_14_fingerprint_rejects() {
+    fn current_revision_17_admits_and_revision_14_fingerprint_rejects() {
         let current =
             admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, "lslc-004i-current", &[])
                 .unwrap();
-        assert_eq!(current.receipt().lock_revision(), 16);
+        assert_eq!(current.receipt().lock_revision(), 17);
         assert_eq!(current.receipt().selected_modules(), &[]);
         assert_eq!(
             admit_runtime_activation(
