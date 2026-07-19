@@ -253,6 +253,19 @@ fn lslc_007b_float32_session_owner_and_reports_are_public() {
     let _inlet_preflight = rusty_lsl::TimestampedFloat32InletSession::preflight;
 }
 
+#[test]
+fn p2_bounded_float32_shape_seam_is_public() {
+    let limits = rusty_lsl::TimestampedFloat32SessionLimits::new(4, 16).unwrap();
+    assert_eq!(limits.max_channels(), 4);
+    assert_eq!(limits.max_records(), 16);
+    assert_eq!(
+        rusty_lsl::TimestampedFloat32SessionLimits::new(0, 1),
+        Err(rusty_lsl::TimestampedFloat32SessionLimitError::ZeroMaxChannels)
+    );
+    let _outlet_bounded = rusty_lsl::TimestampedFloat32OutletSession::preflight_bounded;
+    let _inlet_bounded = rusty_lsl::TimestampedFloat32InletSession::preflight_bounded;
+}
+
 #[derive(Debug, Eq, PartialEq)]
 enum StatefulProviderError {
     TemporarilyUnavailable(u64),

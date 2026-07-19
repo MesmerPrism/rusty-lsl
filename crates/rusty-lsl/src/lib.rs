@@ -307,6 +307,7 @@ pub use timestamped_float32_session_runtime::{
     TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
     TimestampedFloat32OutletSession, TimestampedFloat32OutletSessionReport,
     TimestampedFloat32SessionCompletion, TimestampedFloat32SessionError,
+    TimestampedFloat32SessionLimitError, TimestampedFloat32SessionLimits,
     TimestampedFloat32SessionPreflightError, TimestampedFloat32SessionRole,
 };
 pub use timestamped_float32_two_record_chunk_runtime::{

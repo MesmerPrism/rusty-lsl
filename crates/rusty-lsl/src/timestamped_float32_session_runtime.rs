@@ -6,7 +6,8 @@
 use crate::{
     stream_handshake::{accept_handshake_stream, connect_handshake_stream},
     timestamped_float32_sample_runtime::{
-        read_initialization, read_record, write_initialization, write_record,
+        read_initialization_for_channels, read_record_for_channels,
+        write_initialization_for_channels, write_record_for_channels,
     },
     StreamHandshakeError, StreamHandshakeIdentity, StreamHandshakeLimits,
     TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
@@ -48,6 +49,58 @@ pub enum TimestampedFloat32SessionPreflightError {
         /// Caller-declared channel count.
         actual: usize,
     },
+    /// A later record did not match the first record's channel count.
+    InconsistentChannelCount {
+        /// Zero-based caller-record index.
+        index: usize,
+        /// Channel count selected by the first record.
+        expected: usize,
+        /// Caller-declared channel count.
+        actual: usize,
+    },
+}
+
+/// Explicit nonzero bounds for a Float32 session shape.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedFloat32SessionLimits {
+    max_channels: usize,
+    max_records: usize,
+}
+
+impl TimestampedFloat32SessionLimits {
+    /// Validates channel capacity before record capacity.
+    pub const fn new(
+        max_channels: usize,
+        max_records: usize,
+    ) -> Result<Self, TimestampedFloat32SessionLimitError> {
+        if max_channels == 0 {
+            return Err(TimestampedFloat32SessionLimitError::ZeroMaxChannels);
+        }
+        if max_records == 0 {
+            return Err(TimestampedFloat32SessionLimitError::ZeroMaxRecords);
+        }
+        Ok(Self {
+            max_channels,
+            max_records,
+        })
+    }
+    /// Maximum admitted homogeneous channel count.
+    pub const fn max_channels(self) -> usize {
+        self.max_channels
+    }
+    /// Maximum admitted caller-record count.
+    pub const fn max_records(self) -> usize {
+        self.max_records
+    }
+}
+
+/// Invalid bounded session construction.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TimestampedFloat32SessionLimitError {
+    /// Maximum channels was zero.
+    ZeroMaxChannels,
+    /// Maximum records was zero.
+    ZeroMaxRecords,
 }
 
 /// Stable failure from a started session.
@@ -75,6 +128,7 @@ pub struct TimestampedFloat32OutletSessionReport {
     local: SocketAddr,
     peer: SocketAddr,
     records: usize,
+    channels: usize,
     completion: TimestampedFloat32SessionCompletion,
 }
 
@@ -95,6 +149,10 @@ impl TimestampedFloat32OutletSessionReport {
     pub const fn record_count(&self) -> usize {
         self.records
     }
+    /// Exact homogeneous channel count written per record.
+    pub const fn channel_count(&self) -> usize {
+        self.channels
+    }
     /// Terminal completion classification.
     pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
         self.completion
@@ -107,6 +165,7 @@ pub struct TimestampedFloat32InletSessionReport {
     peer: SocketAddr,
     records: Vec<TimestampedSample<f32>>,
     completion: TimestampedFloat32SessionCompletion,
+    channels: usize,
 }
 
 impl TimestampedFloat32InletSessionReport {
@@ -125,6 +184,10 @@ impl TimestampedFloat32InletSessionReport {
     /// Exact received caller-record count.
     pub fn record_count(&self) -> usize {
         self.records.len()
+    }
+    /// Exact homogeneous channel count received per record.
+    pub const fn channel_count(&self) -> usize {
+        self.channels
     }
     /// Terminal completion classification.
     pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
@@ -145,6 +208,7 @@ pub struct TimestampedFloat32OutletSession<'a> {
     sample_limits: TimestampedFloat32SampleLimits,
     records: &'a [TimestampedSample<f32>],
     stream: Option<TcpStream>,
+    channel_count: usize,
 }
 
 impl<'a> TimestampedFloat32OutletSession<'a> {
@@ -157,16 +221,28 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
         sample_limits: TimestampedFloat32SampleLimits,
         records: &'a [TimestampedSample<f32>],
     ) -> Result<Self, TimestampedFloat32SessionPreflightError> {
-        require_record_count(records.len())?;
-        for (index, record) in records.iter().enumerate() {
-            let actual = record.sample().declared_channels();
-            if actual != 1 {
-                return Err(TimestampedFloat32SessionPreflightError::ChannelCount {
-                    index,
-                    actual,
-                });
-            }
-        }
+        Self::preflight_bounded(
+            activation,
+            listener,
+            identity,
+            handshake_limits,
+            sample_limits,
+            TimestampedFloat32SessionLimits::new(1, 2).unwrap(),
+            records,
+        )
+    }
+
+    /// Validates a bounded homogeneous shape before any socket operation.
+    pub fn preflight_bounded(
+        activation: TimestampedFloat32SampleActivation,
+        listener: TcpListener,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        sample_limits: TimestampedFloat32SampleLimits,
+        session_limits: TimestampedFloat32SessionLimits,
+        records: &'a [TimestampedSample<f32>],
+    ) -> Result<Self, TimestampedFloat32SessionPreflightError> {
+        let channel_count = require_outlet_shape(session_limits, records)?;
         Ok(Self {
             activation,
             listener: Some(listener),
@@ -175,6 +251,7 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
             sample_limits,
             records,
             stream: None,
+            channel_count,
         })
     }
 
@@ -193,14 +270,24 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
         self.stream = Some(stream);
         let _ = self.activation;
         let stream = self.stream.as_mut().expect("accepted stream is present");
-        write_initialization(stream, self.sample_limits, cancelled)
-            .map_err(|error| TimestampedFloat32SessionError::Record { index: None, error })?;
+        write_initialization_for_channels(
+            stream,
+            self.channel_count,
+            self.sample_limits,
+            cancelled,
+        )
+        .map_err(|error| TimestampedFloat32SessionError::Record { index: None, error })?;
         for (index, record) in self.records.iter().enumerate() {
-            write_record(stream, record, self.sample_limits, cancelled).map_err(|error| {
-                TimestampedFloat32SessionError::Record {
-                    index: Some(index),
-                    error,
-                }
+            write_record_for_channels(
+                stream,
+                record,
+                self.channel_count,
+                self.sample_limits,
+                cancelled,
+            )
+            .map_err(|error| TimestampedFloat32SessionError::Record {
+                index: Some(index),
+                error,
             })?;
         }
         terminal_close(self.stream.take());
@@ -208,6 +295,7 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
             local,
             peer,
             records: self.records.len(),
+            channels: self.channel_count,
             completion: TimestampedFloat32SessionCompletion::Complete,
         })
     }
@@ -228,6 +316,7 @@ pub struct TimestampedFloat32InletSession<'a> {
     sample_limits: TimestampedFloat32SampleLimits,
     record_count: usize,
     stream: Option<TcpStream>,
+    channel_count: usize,
 }
 
 impl<'a> TimestampedFloat32InletSession<'a> {
@@ -240,7 +329,30 @@ impl<'a> TimestampedFloat32InletSession<'a> {
         sample_limits: TimestampedFloat32SampleLimits,
         record_count: usize,
     ) -> Result<Self, TimestampedFloat32SessionPreflightError> {
-        require_record_count(record_count)?;
+        Self::preflight_bounded(
+            activation,
+            peer,
+            identity,
+            handshake_limits,
+            sample_limits,
+            TimestampedFloat32SessionLimits::new(1, 2).unwrap(),
+            1,
+            record_count,
+        )
+    }
+
+    /// Validates an exact bounded inlet shape before connecting.
+    pub fn preflight_bounded(
+        activation: TimestampedFloat32SampleActivation,
+        peer: SocketAddr,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        sample_limits: TimestampedFloat32SampleLimits,
+        session_limits: TimestampedFloat32SessionLimits,
+        channel_count: usize,
+        record_count: usize,
+    ) -> Result<Self, TimestampedFloat32SessionPreflightError> {
+        require_shape(session_limits, channel_count, record_count)?;
         Ok(Self {
             activation,
             peer,
@@ -249,6 +361,7 @@ impl<'a> TimestampedFloat32InletSession<'a> {
             sample_limits,
             record_count,
             stream: None,
+            channel_count,
         })
     }
 
@@ -263,17 +376,16 @@ impl<'a> TimestampedFloat32InletSession<'a> {
         self.stream = Some(stream);
         let _ = self.activation;
         let stream = self.stream.as_mut().expect("connected stream is present");
-        read_initialization(stream, self.sample_limits, cancelled)
+        read_initialization_for_channels(stream, self.channel_count, self.sample_limits, cancelled)
             .map_err(|error| TimestampedFloat32SessionError::Record { index: None, error })?;
         let mut records = Vec::with_capacity(self.record_count);
         for index in 0..self.record_count {
             records.push(
-                read_record(stream, self.sample_limits, cancelled).map_err(|error| {
-                    TimestampedFloat32SessionError::Record {
+                read_record_for_channels(stream, self.channel_count, self.sample_limits, cancelled)
+                    .map_err(|error| TimestampedFloat32SessionError::Record {
                         index: Some(index),
                         error,
-                    }
-                })?,
+                    })?,
             );
         }
         require_peer_close(stream, self.sample_limits, cancelled)?;
@@ -282,6 +394,7 @@ impl<'a> TimestampedFloat32InletSession<'a> {
             peer: self.peer,
             records,
             completion: TimestampedFloat32SessionCompletion::Complete,
+            channels: self.channel_count,
         })
     }
 }
@@ -292,12 +405,47 @@ impl Drop for TimestampedFloat32InletSession<'_> {
     }
 }
 
-fn require_record_count(actual: usize) -> Result<(), TimestampedFloat32SessionPreflightError> {
-    if matches!(actual, 1 | 2) {
-        Ok(())
-    } else {
-        Err(TimestampedFloat32SessionPreflightError::RecordCount { actual })
+fn require_shape(
+    limits: TimestampedFloat32SessionLimits,
+    channel_count: usize,
+    record_count: usize,
+) -> Result<(), TimestampedFloat32SessionPreflightError> {
+    if record_count == 0 || record_count > limits.max_records {
+        return Err(TimestampedFloat32SessionPreflightError::RecordCount {
+            actual: record_count,
+        });
     }
+    if channel_count == 0 || channel_count > limits.max_channels {
+        return Err(TimestampedFloat32SessionPreflightError::ChannelCount {
+            index: 0,
+            actual: channel_count,
+        });
+    }
+    Ok(())
+}
+
+fn require_outlet_shape(
+    limits: TimestampedFloat32SessionLimits,
+    records: &[TimestampedSample<f32>],
+) -> Result<usize, TimestampedFloat32SessionPreflightError> {
+    let channel_count = records
+        .first()
+        .map(|record| record.sample().declared_channels())
+        .unwrap_or(0);
+    require_shape(limits, channel_count, records.len())?;
+    for (index, record) in records.iter().enumerate().skip(1) {
+        let actual = record.sample().declared_channels();
+        if actual != channel_count {
+            return Err(
+                TimestampedFloat32SessionPreflightError::InconsistentChannelCount {
+                    index,
+                    expected: channel_count,
+                    actual,
+                },
+            );
+        }
+    }
+    Ok(channel_count)
 }
 
 fn terminal_close(stream: Option<TcpStream>) {
@@ -399,6 +547,19 @@ mod tests {
         )
     }
 
+    fn shaped_sample(timestamp_bits: u64, value_bits: &[u32]) -> TimestampedSample<f32> {
+        TimestampedSample::new(
+            Sample::new(
+                SampleLimits::new(value_bits.len()).unwrap(),
+                value_bits.len(),
+                value_bits.iter().copied().map(f32::from_bits).collect(),
+            )
+            .unwrap(),
+            RawSourceTimestamp::new(f64::from_bits(timestamp_bits)).unwrap(),
+            None,
+        )
+    }
+
     #[test]
     fn lslc_007b_two_record_session_finishes_reports_and_releases_port() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -465,6 +626,93 @@ mod tests {
         assert!(matches!(
             result,
             Err(TimestampedFloat32SessionPreflightError::RecordCount { actual: 0 })
+        ));
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p2_bounded_shape_session_preserves_channels_records_and_port_reuse() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [
+            shaped_sample(0x4092_5220_0000_0001, &[0x3f80_0001, 0xbf80_0002]),
+            shaped_sample(0x4092_5b80_0000_0002, &[0x4000_0003, 0xc000_0004]),
+            shaped_sample(0x4092_64e0_0000_0003, &[0x4040_0005, 0xc040_0006]),
+        ];
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight_bounded(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 3).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let received = TimestampedFloat32InletSession::preflight_bounded(
+            activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 3).unwrap(),
+            2,
+            3,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(received.channel_count(), 2);
+        assert_eq!(received.record_count(), 3);
+        assert_eq!(
+            received.records()[2].sample().values()[1].to_bits(),
+            0xc040_0006
+        );
+        let sent = worker.join().unwrap();
+        assert_eq!(sent.channel_count(), 2);
+        assert_eq!(sent.record_count(), 3);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p2_shape_preflight_is_bounded_indexed_and_socket_free() {
+        assert_eq!(
+            TimestampedFloat32SessionLimits::new(0, 1),
+            Err(TimestampedFloat32SessionLimitError::ZeroMaxChannels)
+        );
+        assert_eq!(
+            TimestampedFloat32SessionLimits::new(1, 0),
+            Err(TimestampedFloat32SessionLimitError::ZeroMaxRecords)
+        );
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [
+            sample(0x4092_5220_0000_0001, 0x3f80_0001),
+            shaped_sample(0x4092_5b80_0000_0002, &[0x4000_0002, 0x4040_0003]),
+        ];
+        let session_identity = identity();
+        let result = TimestampedFloat32OutletSession::preflight_bounded(
+            activation(),
+            listener,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+            &records,
+        );
+        assert!(matches!(
+            result,
+            Err(
+                TimestampedFloat32SessionPreflightError::InconsistentChannelCount {
+                    index: 1,
+                    expected: 1,
+                    actual: 2
+                }
+            )
         ));
         TcpListener::bind(address).unwrap();
     }

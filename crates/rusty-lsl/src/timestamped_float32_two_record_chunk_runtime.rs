@@ -202,6 +202,12 @@ fn map_preflight_error(
                 error: TimestampedFloat32SampleError::ChannelCount { actual },
             }
         }
+        TimestampedFloat32SessionPreflightError::InconsistentChannelCount {
+            index, actual, ..
+        } => TimestampedFloat32TwoRecordChunkError::Sample {
+            index: Some(index),
+            error: TimestampedFloat32SampleError::ChannelCount { actual },
+        },
     }
 }
 
