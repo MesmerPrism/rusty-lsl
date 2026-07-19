@@ -3,13 +3,13 @@
   "schema": "rusty.morphospace.workflow.feature_descriptor.v1",
   "feature_id": "timestamped-float32-sample",
   "module_id": "timestamped-float32-sample",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "owner_lane": "rusty-lsl",
   "source": {
     "repo_id": "rusty-lsl",
-    "revision": "abe33f77c2ff9b26af36a07e9e240adf457da70b",
+    "revision": "1c1c4370943bbf8ff6808bfd40b013684398a8d0",
     "path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-    "sha256": "0b526b58a31e41593961bcd3d6ded32e813613a38d90334e3c485659cb976563"
+    "sha256": "5faf6464aec083080f2f123e940ca97ab76b095656b8e5b43284e06766449b31"
   },
   "dependencies": [
     "stream-handshake"
@@ -31,7 +31,7 @@
     "routes": [],
     "streams": [],
     "inputs": [
-      "explicit caller bounded one-or-two-record timestamped Float32 session configuration"
+      "explicit caller bounded homogeneous timestamped Float32 session shape"
     ],
     "scenes": [],
     "markers": []
@@ -45,7 +45,7 @@
   "activation": {
     "rule": "selected-lock-and-runtime-input",
     "runtime_inputs": [
-      "explicit caller bounded one-or-two-record timestamped Float32 session configuration"
+      "explicit caller bounded homogeneous timestamped Float32 session shape"
     ],
     "receipt_schema": "rusty.lsl.timestamped_float32_sample.activation_receipt.v1",
     "effective_marker": "rusty.lsl.timestamped_float32_sample.effective"
