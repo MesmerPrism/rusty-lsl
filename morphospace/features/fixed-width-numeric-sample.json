@@ -7,7 +7,7 @@
     "owner_lane": "rusty-lsl",
     "source": {
         "repo_id": "rusty-lsl",
-        "revision": "22000eca8614bbac386f5d4cf87aa5b727d62d9b",
+        "revision": "79ec7df3fb11da2922c54d1533f2c7efecfca5c4",
         "path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
         "sha256": "2c5247bc9f94dd2ccf12adbd86ba276833ab5ea48c4e7f9b8bcebca53c3b3779"
     },
