@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-007O phases the accepted Float32 inlet lifecycle into caller-explicit
+preflight, connected, and completed-report states beneath the sole private
+format-neutral session owner. The connected owner retains the one stream and
+supports either canonical finish or report-free close; legacy finish delegates
+through the same path. No discovery, format, shape, activation, device, or
+Manifold authority is added.
+
 LSLC-007N adds exact one-channel, two-record Float32 chunk inlet/outlet
 facades as thin adapters over the existing concrete sessions and sole private
 lifecycle. Their reports contain and delegate to the canonical session reports;

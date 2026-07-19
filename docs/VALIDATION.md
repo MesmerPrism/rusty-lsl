@@ -1,5 +1,10 @@
 # Validation
 
+LSLC-007O host-synthetic validation covers phased Float32 connect/finish and
+connect/close ownership, cancellation and deadline classification, exact sample
+bits and allocations, legacy finish equivalence, cleanup, and immediate exact
+address reuse. Accepted device and oracle evidence is reused unchanged.
+
 LSLC-007N qualification maps H01-H24 to fresh facade ownership, exact shape,
 bits/order/allocation, indexed and trailing damage, cancellation/deadline,
 cleanup/reuse, legacy/session/all-format/public regressions, and maps A01-A05

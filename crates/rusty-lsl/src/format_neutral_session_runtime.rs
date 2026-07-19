@@ -4,6 +4,7 @@
 //! Crate-private bounded session lifecycle shared by sealed format strategies.
 
 use crate::{StreamHandshakeError, StreamHandshakeIdentity, StreamHandshakeLimits};
+use core::marker::PhantomData;
 use std::io::{ErrorKind, Read};
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -176,6 +177,69 @@ impl Drop for SessionStream {
     }
 }
 
+pub(crate) struct ConnectedInletSession<F: SealedSessionStrategy> {
+    stream: SessionStream,
+    peer: SocketAddr,
+    limits: F::Limits,
+    shape: SessionShape,
+    strategy: PhantomData<F>,
+}
+
+impl<F: SealedSessionStrategy> ConnectedInletSession<F> {
+    pub(crate) const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+
+    pub(crate) const fn shape(&self) -> SessionShape {
+        self.shape
+    }
+
+    pub(crate) fn finish(
+        mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<CompletedInletSession<F::Sample>, F::SessionError> {
+        let socket = self.stream.0.as_mut().expect("session stream is present");
+        F::read_initialization(socket, self.shape.channels(), self.limits, cancelled)
+            .map_err(|error| F::record_error(None, error))?;
+        let mut records = Vec::with_capacity(self.shape.records());
+        for index in 0..self.shape.records() {
+            records.push(
+                F::read_record(socket, self.shape.channels(), self.limits, cancelled)
+                    .map_err(|error| F::record_error(Some(index), error))?,
+            );
+        }
+        require_peer_close::<F>(socket, self.limits, cancelled)?;
+        terminal_close(self.stream.0.take());
+        Ok(CompletedInletSession {
+            records,
+            shape: self.shape,
+        })
+    }
+
+    pub(crate) fn close(mut self) {
+        terminal_close(self.stream.0.take());
+    }
+}
+
+pub(crate) fn connect_inlet<F: SealedSessionStrategy>(
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    format_limits: F::Limits,
+    shape: SessionShape,
+    cancelled: &AtomicBool,
+) -> Result<ConnectedInletSession<F>, F::SessionError> {
+    let stream = F::connect(peer, identity, handshake_limits, format_limits, cancelled)
+        .map_err(F::handshake_error)?;
+    Ok(ConnectedInletSession {
+        stream: SessionStream(Some(stream)),
+        peer,
+        limits: format_limits,
+        shape,
+        strategy: PhantomData,
+    })
+}
+
 pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
     listener: TcpListener,
     identity: &StreamHandshakeIdentity,
@@ -213,22 +277,15 @@ pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
     shape: SessionShape,
     cancelled: &AtomicBool,
 ) -> Result<CompletedInletSession<F::Sample>, F::SessionError> {
-    let stream = F::connect(peer, identity, handshake_limits, format_limits, cancelled)
-        .map_err(F::handshake_error)?;
-    let mut stream = SessionStream(Some(stream));
-    let socket = stream.0.as_mut().expect("session stream is present");
-    F::read_initialization(socket, shape.channels(), format_limits, cancelled)
-        .map_err(|error| F::record_error(None, error))?;
-    let mut records = Vec::with_capacity(shape.records());
-    for index in 0..shape.records() {
-        records.push(
-            F::read_record(socket, shape.channels(), format_limits, cancelled)
-                .map_err(|error| F::record_error(Some(index), error))?,
-        );
-    }
-    require_peer_close::<F>(socket, format_limits, cancelled)?;
-    terminal_close(stream.0.take());
-    Ok(CompletedInletSession { records, shape })
+    connect_inlet::<F>(
+        peer,
+        identity,
+        handshake_limits,
+        format_limits,
+        shape,
+        cancelled,
+    )?
+    .finish(cancelled)
 }
 
 pub(crate) fn terminal_close(stream: Option<TcpStream>) {

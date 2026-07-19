@@ -4,8 +4,8 @@
 //! Bounded one- or two-record Float32 outlet/inlet session ownership.
 
 use crate::format_neutral_session_runtime::{
-    finish_inlet, finish_outlet, preflight_outlet_shape, preflight_shape, terminal_close,
-    SealedSessionStrategy, SessionShape, SessionShapeError,
+    connect_inlet, finish_inlet, finish_outlet, preflight_outlet_shape, preflight_shape,
+    terminal_close, ConnectedInletSession, SealedSessionStrategy, SessionShape, SessionShapeError,
 };
 
 fn validated_session_shape(channels: usize, records: usize) -> SessionShape {
@@ -2274,6 +2274,49 @@ pub struct TimestampedFloat32InletSession<'a> {
     channel_count: usize,
 }
 
+/// Connected Float32 inlet whose sole private lifecycle owner has completed the handshake.
+pub struct TimestampedFloat32ConnectedInletSession {
+    session: ConnectedInletSession<session_format::Float32>,
+}
+
+impl TimestampedFloat32ConnectedInletSession {
+    /// Returns the caller-selected connected peer.
+    pub fn peer(&self) -> SocketAddr {
+        self.session.peer()
+    }
+
+    /// Returns the preflighted channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.shape().channels()
+    }
+
+    /// Returns the preflighted record count.
+    pub fn record_count(&self) -> usize {
+        self.session.shape().records()
+    }
+
+    /// Completes initialization, record receipt, peer close, and terminal cleanup.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedFloat32InletSessionReport, TimestampedFloat32SessionError> {
+        let peer = self.session.peer();
+        let completed = self.session.finish(cancelled)?;
+        let shape = completed.shape();
+        Ok(TimestampedFloat32InletSessionReport {
+            peer,
+            records: completed.into_records(),
+            completion: TimestampedFloat32SessionCompletion::Complete,
+            channels: shape.channels(),
+        })
+    }
+
+    /// Closes the connected stream without producing a completion report.
+    pub fn close(self) {
+        self.session.close();
+    }
+}
+
 impl<'a> TimestampedFloat32InletSession<'a> {
     /// Validates the exact one/two-record count before connecting.
     pub fn preflight(
@@ -2325,8 +2368,16 @@ impl<'a> TimestampedFloat32InletSession<'a> {
         self,
         cancelled: &AtomicBool,
     ) -> Result<TimestampedFloat32InletSessionReport, TimestampedFloat32SessionError> {
+        self.connect(cancelled)?.finish(cancelled)
+    }
+
+    /// Consumes preflight state and completes only connect plus handshake.
+    pub fn connect(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedFloat32ConnectedInletSession, TimestampedFloat32SessionError> {
         let _ = self.activation;
-        let completed = finish_inlet::<session_format::Float32>(
+        let session = connect_inlet::<session_format::Float32>(
             self.peer,
             self.identity,
             self.handshake_limits,
@@ -2334,13 +2385,7 @@ impl<'a> TimestampedFloat32InletSession<'a> {
             validated_session_shape(self.channel_count, self.record_count),
             cancelled,
         )?;
-        let shape = completed.shape();
-        Ok(TimestampedFloat32InletSessionReport {
-            peer: self.peer,
-            records: completed.into_records(),
-            completion: TimestampedFloat32SessionCompletion::Complete,
-            channels: shape.channels(),
-        })
+        Ok(TimestampedFloat32ConnectedInletSession { session })
     }
 }
 

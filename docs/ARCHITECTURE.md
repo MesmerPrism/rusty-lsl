@@ -1,5 +1,10 @@
 # Architecture
 
+LSLC-007O keeps Float32 inlet preflight, connection, and completion as phased
+states over one crate-private format-neutral lifecycle. A connected inlet owns
+exactly one stream; consuming finish yields the existing report, while close or
+drop performs terminal cleanup without manufacturing completion evidence.
+
 LSLC-007N keeps the exact Float32 chunk facade as an adapter only. It contains
 the established Float32 session owner, and its report wrappers contain and
 delegate to the canonical session reports rather than restating lifecycle

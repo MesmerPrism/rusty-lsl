@@ -1,5 +1,9 @@
 # Rusty LSL
 
+The bounded Float32 inlet session also exposes a caller-explicit connected
+state between preflight and its canonical consuming completion report. This is
+the same private lifecycle owner used by the legacy one-shot finish path.
+
 The exact one-channel, two-record Float32 chunk path now has consuming public
 session facades that preserve canonical lifecycle reports and allocation-owned
 records while keeping the established compatibility entrypoints unchanged.
