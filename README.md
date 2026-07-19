@@ -1,5 +1,11 @@
 # Rusty LSL
 
+LSLC-006D adds test-only deterministic conformance for the accepted
+one-channel, two-record Float32 chunk runtime: nontrivial exact timestamp/value
+bits, ordered ownership, terminal/deadline/cancellation separation, cleanup,
+and immediate port reuse. It changes no production behavior, chunk breadth,
+activation, compatibility claim, device behavior, or Manifold authority.
+
 LSLC-006C adds test-only deterministic conformance for the accepted UDP
 discovery runtime and truthfully rebinds the exact LSLC-004U/004V validation
 closure: receive-order preservation, exact source/query identity, consuming

@@ -205,7 +205,6 @@ mod tests {
         SampleLimits, StreamHandshakeActivation, TimestampedSample,
     };
     use std::io::Write;
-    use std::sync::Arc;
     use std::thread;
     use std::time::Duration;
 
@@ -251,12 +250,19 @@ mod tests {
     }
 
     #[test]
-    fn candidate_two_record_chunk_preserves_order_bits_and_releases_port() {
+    fn lslc_006d_two_record_order_bits_cleanup_and_immediate_port_reuse() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
+        let first_timestamp = f64::from_bits(0x4092_5220_0000_0001);
+        let first_value = f32::from_bits(0x3fa0_0001);
+        let second_timestamp = f64::from_bits(0x4092_5b80_0000_0002);
+        let second_value = f32::from_bits(0xc020_0001);
         let sent = TimestampedChunk::new(
             ChunkLimits::new(2, 1).unwrap(),
-            vec![sample(2345.125, 1.25), sample(2346.875, -2.5)],
+            vec![
+                sample(first_timestamp, first_value),
+                sample(second_timestamp, second_value),
+            ],
         )
         .unwrap();
         let worker = thread::spawn(move || {
@@ -285,22 +291,22 @@ mod tests {
                 .raw_source_timestamp()
                 .value()
                 .to_bits(),
-            2345.125f64.to_bits()
+            first_timestamp.to_bits()
         );
         assert_eq!(
             received.samples()[0].sample().values()[0].to_bits(),
-            1.25f32.to_bits()
+            first_value.to_bits()
         );
         assert_eq!(
             received.samples()[1]
                 .raw_source_timestamp()
                 .value()
                 .to_bits(),
-            2346.875f64.to_bits()
+            second_timestamp.to_bits()
         );
         assert_eq!(
             received.samples()[1].sample().values()[0].to_bits(),
-            (-2.5f32).to_bits()
+            second_value.to_bits()
         );
         assert_eq!(worker.join().unwrap().unwrap(), address);
         TcpListener::bind(address).unwrap();
@@ -424,7 +430,7 @@ mod tests {
     }
 
     #[test]
-    fn candidate_terminal_deadline_and_cancellation_are_typed_and_cleanup() {
+    fn lslc_006d_terminal_deadline_and_cancellation_are_separate_and_cleanup() {
         let short = TimestampedFloat32TwoRecordChunkLimits::new(
             Duration::from_millis(2),
             Duration::from_millis(20),
@@ -452,22 +458,20 @@ mod tests {
         worker.join().unwrap();
         TcpListener::bind(address).unwrap();
 
-        let (address, worker) = spawn_peer(write_two, Duration::from_millis(80));
-        let cancelled = Arc::new(AtomicBool::new(false));
-        let trigger = Arc::clone(&cancelled);
-        let canceller = thread::spawn(move || {
-            thread::sleep(Duration::from_millis(10));
-            trigger.store(true, Ordering::Release);
-        });
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let peer = thread::spawn(move || TcpStream::connect(address).unwrap());
+        let (mut stream, _) = listener.accept().unwrap();
+        let peer_stream = peer.join().unwrap();
+        let cancelled = AtomicBool::new(true);
         assert_eq!(
-            receive_from_peer(address, sample_limits(), &cancelled),
+            require_peer_close(&mut stream, sample_limits(), &cancelled),
             Err(TimestampedFloat32TwoRecordChunkError::Sample {
                 index: None,
                 error: TimestampedFloat32SampleError::Cancelled,
             })
         );
-        canceller.join().unwrap();
-        worker.join().unwrap();
-        TcpListener::bind(address).unwrap();
+        drop(peer_stream);
+        drop(stream);
     }
 }

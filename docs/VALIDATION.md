@@ -1,5 +1,17 @@
 # Validation
 
+LSLC-006D focused two-record Float32 chunk ownership conformance:
+
+```text
+cargo test -p rusty-lsl timestamped_float32_two_record_chunk_runtime::tests -- --test-threads=1
+```
+
+It proves ordered nontrivial exact timestamp/value bits, separate terminal,
+deadline, and cancellation outcomes, cleanup, and immediate port reuse. It is
+host-only test evidence and changes no production behavior, chunk breadth,
+compatibility claim, device behavior, or Manifold authority. Serialized
+Standard remains the aggregate owner gate.
+
 LSLC-006C focused UDP discovery response-ownership and exact closure conformance:
 
 ```text

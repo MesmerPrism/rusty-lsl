@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-006D changes only tests around the existing bounded two-record Float32
+chunk runtime. Record order, timestamp/value ownership, cancellation lanes,
+terminal outcomes, and socket cleanup retain their existing production owners
+and bytes; no chunk, activation, compatibility, device, or Manifold authority
+is added.
+
 LSLC-006C changes only tests around the existing UDP discovery owner and exact
 validation-closure hashes. Response order, source address, query identity,
 owned bytes, cancellation ordering, and socket lifetime retain their existing
