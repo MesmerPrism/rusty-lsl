@@ -305,6 +305,11 @@ pub use timestamped_float32_sample_runtime::{
     TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID,
 };
 pub use timestamped_float32_session_runtime::{
+    TimestampedDouble64InletSession, TimestampedDouble64InletSessionReport,
+    TimestampedDouble64OutletSession, TimestampedDouble64OutletSessionReport,
+    TimestampedDouble64SessionError, TimestampedDouble64SessionIoLimitError,
+    TimestampedDouble64SessionIoLimits, TimestampedDouble64SessionLimitError,
+    TimestampedDouble64SessionLimits, TimestampedDouble64SessionPreflightError,
     TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
     TimestampedFloat32OutletSession, TimestampedFloat32OutletSessionReport,
     TimestampedFloat32SessionCompletion, TimestampedFloat32SessionError,

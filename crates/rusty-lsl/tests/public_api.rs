@@ -267,6 +267,23 @@ fn p2_bounded_float32_shape_seam_is_public() {
 }
 
 #[test]
+fn p2_bounded_double64_session_vertical_is_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64OutletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64InletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64SessionError>() > 0);
+    let limits = rusty_lsl::TimestampedDouble64SessionIoLimits::new(
+        std::time::Duration::from_millis(1),
+        std::time::Duration::from_millis(2),
+    )
+    .unwrap();
+    assert_eq!(limits.io_slice(), std::time::Duration::from_millis(1));
+    let _root_outlet = rusty_lsl::TimestampedDouble64OutletSession::preflight_bounded;
+    let _runtime_outlet = runtime::TimestampedDouble64OutletSession::preflight_bounded;
+    let _root_inlet = rusty_lsl::TimestampedDouble64InletSession::preflight_bounded;
+    let _runtime_inlet = runtime::TimestampedDouble64InletSession::preflight_bounded;
+}
+
+#[test]
 fn discovery_to_bounded_float32_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32SessionConnectionError>() > 0);
     let _root = rusty_lsl::run_selected_typed_udp_discovery_float32_session_inlet;

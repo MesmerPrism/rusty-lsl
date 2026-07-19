@@ -7,15 +7,19 @@ use crate::{
     bounded_fixed_record_transport::{
         read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
     },
-    stream_handshake::{accept_handshake_stream, connect_handshake_stream},
-    RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeError, StreamHandshakeIdentity,
-    StreamHandshakeLimits, TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
+    stream_handshake::{
+        accept_handshake_stream, accept_handshake_stream_with_format, connect_handshake_stream,
+        connect_handshake_stream_with_format,
+    },
+    FixedWidthNumericSampleActivation, FixedWidthNumericSampleError, RawSourceTimestamp, Sample,
+    SampleLimits, StreamHandshakeError, StreamHandshakeIdentity, StreamHandshakeLimits,
+    TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
     TimestampedFloat32SampleLimits, TimestampedSample,
 };
 use std::io::{ErrorKind, Read};
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 /// The sole production Float32 framing and initialization owner, sealed beneath the session.
 pub(crate) mod codec {
@@ -390,6 +394,692 @@ impl TimestampedFloat32InletSessionReport {
     }
 }
 
+mod session_format {
+    use super::*;
+
+    pub(super) trait Sealed: Copy {
+        type Sample;
+        type Limits: Copy;
+        type RecordError;
+        type SessionError;
+
+        fn accept(
+            listener: TcpListener,
+            identity: &StreamHandshakeIdentity,
+            limits: StreamHandshakeLimits,
+            cancelled: &AtomicBool,
+        ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError>;
+        fn connect(
+            peer: SocketAddr,
+            identity: &StreamHandshakeIdentity,
+            limits: StreamHandshakeLimits,
+            cancelled: &AtomicBool,
+        ) -> Result<TcpStream, StreamHandshakeError>;
+        fn write_initialization(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError>;
+        fn read_initialization(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError>;
+        fn write_record(
+            stream: &mut TcpStream,
+            sample: &Self::Sample,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError>;
+        fn read_record(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<Self::Sample, Self::RecordError>;
+        fn io_slice(limits: Self::Limits) -> Duration;
+        fn total_deadline(limits: Self::Limits) -> Duration;
+        fn handshake_error(error: StreamHandshakeError) -> Self::SessionError;
+        fn record_error(index: Option<usize>, error: Self::RecordError) -> Self::SessionError;
+        fn cancelled_error() -> Self::SessionError;
+        fn deadline_error() -> Self::SessionError;
+        fn io_error(kind: ErrorKind) -> Self::SessionError;
+        fn trailing_byte(actual: u8) -> Self::SessionError;
+    }
+
+    #[derive(Clone, Copy)]
+    pub(super) struct Float32;
+
+    impl Sealed for Float32 {
+        type Sample = TimestampedSample<f32>;
+        type Limits = TimestampedFloat32SampleLimits;
+        type RecordError = TimestampedFloat32SampleError;
+        type SessionError = TimestampedFloat32SessionError;
+
+        fn accept(
+            listener: TcpListener,
+            identity: &StreamHandshakeIdentity,
+            limits: StreamHandshakeLimits,
+            cancelled: &AtomicBool,
+        ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
+            accept_handshake_stream(listener, identity, limits, cancelled)
+        }
+        fn connect(
+            peer: SocketAddr,
+            identity: &StreamHandshakeIdentity,
+            limits: StreamHandshakeLimits,
+            cancelled: &AtomicBool,
+        ) -> Result<TcpStream, StreamHandshakeError> {
+            connect_handshake_stream(peer, identity, limits, cancelled)
+        }
+        fn write_initialization(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError> {
+            write_initialization_for_channels(stream, channels, limits, cancelled)
+        }
+        fn read_initialization(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError> {
+            read_initialization_for_channels(stream, channels, limits, cancelled)
+        }
+        fn write_record(
+            stream: &mut TcpStream,
+            sample: &Self::Sample,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError> {
+            write_record_for_channels(stream, sample, channels, limits, cancelled)
+        }
+        fn read_record(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<Self::Sample, Self::RecordError> {
+            read_record_for_channels(stream, channels, limits, cancelled)
+        }
+        fn io_slice(limits: Self::Limits) -> Duration {
+            limits.io_slice()
+        }
+        fn total_deadline(limits: Self::Limits) -> Duration {
+            limits.total_deadline()
+        }
+        fn handshake_error(error: StreamHandshakeError) -> Self::SessionError {
+            TimestampedFloat32SessionError::Handshake(error)
+        }
+        fn record_error(index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
+            TimestampedFloat32SessionError::Record { index, error }
+        }
+        fn cancelled_error() -> Self::SessionError {
+            Self::record_error(None, TimestampedFloat32SampleError::Cancelled)
+        }
+        fn deadline_error() -> Self::SessionError {
+            Self::record_error(None, TimestampedFloat32SampleError::Deadline)
+        }
+        fn io_error(kind: ErrorKind) -> Self::SessionError {
+            Self::record_error(None, TimestampedFloat32SampleError::Io(kind))
+        }
+        fn trailing_byte(actual: u8) -> Self::SessionError {
+            TimestampedFloat32SessionError::TrailingByte { actual }
+        }
+    }
+}
+
+struct SessionStream(Option<TcpStream>);
+
+impl Drop for SessionStream {
+    fn drop(&mut self) {
+        terminal_close(self.0.take());
+    }
+}
+
+fn finish_outlet<F: session_format::Sealed>(
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    format_limits: F::Limits,
+    records: &[F::Sample],
+    channel_count: usize,
+    cancelled: &AtomicBool,
+) -> Result<(SocketAddr, SocketAddr), F::SessionError> {
+    let (stream, local, peer) =
+        F::accept(listener, identity, handshake_limits, cancelled).map_err(F::handshake_error)?;
+    let mut stream = SessionStream(Some(stream));
+    let socket = stream.0.as_mut().expect("session stream is present");
+    F::write_initialization(socket, channel_count, format_limits, cancelled)
+        .map_err(|error| F::record_error(None, error))?;
+    for (index, record) in records.iter().enumerate() {
+        F::write_record(socket, record, channel_count, format_limits, cancelled)
+            .map_err(|error| F::record_error(Some(index), error))?;
+    }
+    terminal_close(stream.0.take());
+    Ok((local, peer))
+}
+
+fn finish_inlet<F: session_format::Sealed>(
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    format_limits: F::Limits,
+    record_count: usize,
+    channel_count: usize,
+    cancelled: &AtomicBool,
+) -> Result<Vec<F::Sample>, F::SessionError> {
+    let stream =
+        F::connect(peer, identity, handshake_limits, cancelled).map_err(F::handshake_error)?;
+    let mut stream = SessionStream(Some(stream));
+    let socket = stream.0.as_mut().expect("session stream is present");
+    F::read_initialization(socket, channel_count, format_limits, cancelled)
+        .map_err(|error| F::record_error(None, error))?;
+    let mut records = Vec::with_capacity(record_count);
+    for index in 0..record_count {
+        records.push(
+            F::read_record(socket, channel_count, format_limits, cancelled)
+                .map_err(|error| F::record_error(Some(index), error))?,
+        );
+    }
+    require_format_peer_close::<F>(socket, format_limits, cancelled)?;
+    terminal_close(stream.0.take());
+    Ok(records)
+}
+
+/// Explicit nonzero I/O bounds for a bounded Double64 session.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedDouble64SessionIoLimits {
+    io_slice: Duration,
+    total_deadline: Duration,
+}
+
+impl TimestampedDouble64SessionIoLimits {
+    /// Creates bounded I/O limits.
+    pub const fn new(
+        io_slice: Duration,
+        total_deadline: Duration,
+    ) -> Result<Self, TimestampedDouble64SessionIoLimitError> {
+        if io_slice.is_zero() {
+            return Err(TimestampedDouble64SessionIoLimitError::ZeroIoSlice);
+        }
+        if total_deadline.is_zero() {
+            return Err(TimestampedDouble64SessionIoLimitError::ZeroTotalDeadline);
+        }
+        Ok(Self {
+            io_slice,
+            total_deadline,
+        })
+    }
+    /// Per-operation socket wait slice.
+    pub const fn io_slice(self) -> Duration {
+        self.io_slice
+    }
+    /// Total deadline for each bounded operation.
+    pub const fn total_deadline(self) -> Duration {
+        self.total_deadline
+    }
+}
+
+/// Invalid Double64 session I/O limits.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TimestampedDouble64SessionIoLimitError {
+    /// The I/O slice was zero.
+    ZeroIoSlice,
+    /// The total deadline was zero.
+    ZeroTotalDeadline,
+}
+
+/// Stable failure from a started Double64 session.
+#[derive(Debug, Eq, PartialEq)]
+pub enum TimestampedDouble64SessionError {
+    /// Accept/connect and handshake failed before initialization.
+    Handshake(StreamHandshakeError),
+    /// Initialization, a caller record, or terminal-close work failed.
+    Record {
+        /// Caller-record index, or `None` for initialization/terminal work.
+        index: Option<usize>,
+        /// Unchanged subordinate codec/transport failure.
+        error: FixedWidthNumericSampleError,
+    },
+    /// The inlet observed a byte after its exact admitted record count.
+    TrailingByte {
+        /// First trailing byte.
+        actual: u8,
+    },
+}
+
+#[derive(Clone, Copy)]
+struct Double64;
+
+impl Double64 {
+    const INITIALIZATION_TIMESTAMP_BITS: u64 = 123_456.789f64.to_bits();
+    const INITIALIZATION_VALUE_BITS: [[u64; 2]; 2] = [
+        [16_777_221.0f64.to_bits(), (-16_777_222.0f64).to_bits()],
+        [16_777_219.0f64.to_bits(), (-16_777_220.0f64).to_bits()],
+    ];
+
+    fn record_bytes(channels: usize) -> Result<usize, FixedWidthNumericSampleError> {
+        channels
+            .checked_mul(8)
+            .and_then(|bytes| bytes.checked_add(9))
+            .filter(|_| channels != 0)
+            .ok_or(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: channels,
+            })
+    }
+    fn initialization(
+        channels: usize,
+        value_bits: [u64; 2],
+    ) -> Result<TimestampedSample<f64>, FixedWidthNumericSampleError> {
+        Self::record_bytes(channels)?;
+        let sample = Sample::new(
+            SampleLimits::new(channels).map_err(|_| {
+                FixedWidthNumericSampleError::SequenceFormatMismatch {
+                    record: 0,
+                    channel: channels,
+                }
+            })?,
+            channels,
+            value_bits
+                .into_iter()
+                .cycle()
+                .take(channels)
+                .map(f64::from_bits)
+                .collect(),
+        )
+        .map_err(|_| FixedWidthNumericSampleError::SequenceFormatMismatch {
+            record: 0,
+            channel: channels,
+        })?;
+        Ok(TimestampedSample::new(
+            sample,
+            RawSourceTimestamp::new(f64::from_bits(Self::INITIALIZATION_TIMESTAMP_BITS))
+                .expect("fixed timestamp is finite"),
+            None,
+        ))
+    }
+    fn write(
+        stream: &mut TcpStream,
+        sample: &TimestampedSample<f64>,
+        channels: usize,
+        limits: TimestampedDouble64SessionIoLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), FixedWidthNumericSampleError> {
+        if sample.sample().declared_channels() != channels {
+            return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: sample.sample().declared_channels(),
+            });
+        }
+        let mut bytes = vec![0; Self::record_bytes(channels)?];
+        bytes[0] = 2;
+        bytes[1..9].copy_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
+        for (target, value) in bytes[9..].chunks_exact_mut(8).zip(sample.sample().values()) {
+            target.copy_from_slice(&value.to_le_bytes());
+        }
+        write_exact_bounded(
+            stream,
+            &bytes,
+            limits.io_slice,
+            limits.total_deadline,
+            cancelled,
+        )
+        .map_err(map_double_transport_error)
+    }
+    fn read(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: TimestampedDouble64SessionIoLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedSample<f64>, FixedWidthNumericSampleError> {
+        let mut bytes = vec![0; Self::record_bytes(channels)?];
+        read_exact_bounded(
+            stream,
+            &mut bytes,
+            limits.io_slice,
+            limits.total_deadline,
+            cancelled,
+        )
+        .map_err(map_double_transport_error)?;
+        if bytes[0] != 2 {
+            return Err(FixedWidthNumericSampleError::InvalidMarker { actual: bytes[0] });
+        }
+        let timestamp = RawSourceTimestamp::new(f64::from_le_bytes(
+            bytes[1..9].try_into().expect("fixed timestamp width"),
+        ))
+        .map_err(|_| FixedWidthNumericSampleError::InvalidTimestamp)?;
+        let values = bytes[9..]
+            .chunks_exact(8)
+            .map(|value| f64::from_le_bytes(value.try_into().expect("fixed Double64 width")))
+            .collect();
+        let sample = Sample::new(
+            SampleLimits::new(channels).map_err(|_| {
+                FixedWidthNumericSampleError::SequenceFormatMismatch {
+                    record: 0,
+                    channel: channels,
+                }
+            })?,
+            channels,
+            values,
+        )
+        .map_err(|_| FixedWidthNumericSampleError::SequenceFormatMismatch {
+            record: 0,
+            channel: channels,
+        })?;
+        Ok(TimestampedSample::new(sample, timestamp, None))
+    }
+}
+
+fn map_double_transport_error(error: BoundedFixedRecordError) -> FixedWidthNumericSampleError {
+    match error {
+        BoundedFixedRecordError::Cancelled => FixedWidthNumericSampleError::Cancelled,
+        BoundedFixedRecordError::Deadline => FixedWidthNumericSampleError::Deadline,
+        BoundedFixedRecordError::Truncated { actual } => {
+            FixedWidthNumericSampleError::Truncated { actual }
+        }
+        BoundedFixedRecordError::Io(kind) => FixedWidthNumericSampleError::Io(kind),
+    }
+}
+
+impl session_format::Sealed for Double64 {
+    type Sample = TimestampedSample<f64>;
+    type Limits = TimestampedDouble64SessionIoLimits;
+    type RecordError = FixedWidthNumericSampleError;
+    type SessionError = TimestampedDouble64SessionError;
+    fn accept(
+        listener: TcpListener,
+        identity: &StreamHandshakeIdentity,
+        limits: StreamHandshakeLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
+        accept_handshake_stream_with_format(listener, identity, limits, cancelled, 8, true)
+    }
+    fn connect(
+        peer: SocketAddr,
+        identity: &StreamHandshakeIdentity,
+        limits: StreamHandshakeLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<TcpStream, StreamHandshakeError> {
+        connect_handshake_stream_with_format(peer, identity, limits, cancelled, 8, true)
+    }
+    fn write_initialization(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        for values in Self::INITIALIZATION_VALUE_BITS {
+            Self::write(
+                stream,
+                &Self::initialization(channels, values)?,
+                channels,
+                limits,
+                cancelled,
+            )?;
+        }
+        Ok(())
+    }
+    fn read_initialization(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        for (index, values) in Self::INITIALIZATION_VALUE_BITS.into_iter().enumerate() {
+            let sample = Self::read(stream, channels, limits, cancelled)?;
+            if sample.raw_source_timestamp().value().to_bits()
+                != Self::INITIALIZATION_TIMESTAMP_BITS
+                || sample
+                    .sample()
+                    .values()
+                    .iter()
+                    .zip(values.into_iter().cycle())
+                    .any(|(value, expected)| value.to_bits() != expected)
+            {
+                return Err(FixedWidthNumericSampleError::InvalidInitialization { index });
+            }
+        }
+        Ok(())
+    }
+    fn write_record(
+        stream: &mut TcpStream,
+        sample: &Self::Sample,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        Self::write(stream, sample, channels, limits, cancelled)
+    }
+    fn read_record(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<Self::Sample, Self::RecordError> {
+        Self::read(stream, channels, limits, cancelled)
+    }
+    fn io_slice(limits: Self::Limits) -> Duration {
+        limits.io_slice
+    }
+    fn total_deadline(limits: Self::Limits) -> Duration {
+        limits.total_deadline
+    }
+    fn handshake_error(error: StreamHandshakeError) -> Self::SessionError {
+        TimestampedDouble64SessionError::Handshake(error)
+    }
+    fn record_error(index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
+        TimestampedDouble64SessionError::Record { index, error }
+    }
+    fn cancelled_error() -> Self::SessionError {
+        Self::record_error(None, FixedWidthNumericSampleError::Cancelled)
+    }
+    fn deadline_error() -> Self::SessionError {
+        Self::record_error(None, FixedWidthNumericSampleError::Deadline)
+    }
+    fn io_error(kind: ErrorKind) -> Self::SessionError {
+        Self::record_error(None, FixedWidthNumericSampleError::Io(kind))
+    }
+    fn trailing_byte(actual: u8) -> Self::SessionError {
+        TimestampedDouble64SessionError::TrailingByte { actual }
+    }
+}
+
+/// Bounded homogeneous shape limits shared by the Double64 session facade.
+pub type TimestampedDouble64SessionLimits = TimestampedFloat32SessionLimits;
+/// Invalid bounded Double64 session shape limits.
+pub type TimestampedDouble64SessionLimitError = TimestampedFloat32SessionLimitError;
+/// Socket-free Double64 shape preflight failure.
+pub type TimestampedDouble64SessionPreflightError = TimestampedFloat32SessionPreflightError;
+
+/// Successful Double64 outlet lifecycle report.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedDouble64OutletSessionReport {
+    local: SocketAddr,
+    peer: SocketAddr,
+    records: usize,
+    channels: usize,
+}
+impl TimestampedDouble64OutletSessionReport {
+    /// Bound listener address selected by the caller.
+    pub const fn local_address(&self) -> SocketAddr {
+        self.local
+    }
+    /// Accepted peer address.
+    pub const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+    /// Exact caller-record count written.
+    pub const fn record_count(&self) -> usize {
+        self.records
+    }
+    /// Exact homogeneous channel count.
+    pub const fn channel_count(&self) -> usize {
+        self.channels
+    }
+    /// Terminal completion classification from the shared lifecycle.
+    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+        TimestampedFloat32SessionCompletion::Complete
+    }
+}
+
+/// Successful Double64 inlet lifecycle report.
+#[derive(Debug)]
+pub struct TimestampedDouble64InletSessionReport {
+    peer: SocketAddr,
+    records: Vec<TimestampedSample<f64>>,
+    channels: usize,
+}
+impl TimestampedDouble64InletSessionReport {
+    /// Caller-selected peer address.
+    pub const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+    /// Ordered received records.
+    pub fn records(&self) -> &[TimestampedSample<f64>] {
+        &self.records
+    }
+    /// Exact received record count.
+    pub fn record_count(&self) -> usize {
+        self.records.len()
+    }
+    /// Exact homogeneous channel count.
+    pub const fn channel_count(&self) -> usize {
+        self.channels
+    }
+    /// Terminal completion classification from the shared lifecycle.
+    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+        TimestampedFloat32SessionCompletion::Complete
+    }
+    /// Consumes the report without copying or reordering records.
+    pub fn into_records(self) -> Vec<TimestampedSample<f64>> {
+        self.records
+    }
+}
+
+/// Preflighted Double64 outlet facade over the sole session lifecycle.
+pub struct TimestampedDouble64OutletSession<'a> {
+    activation: FixedWidthNumericSampleActivation,
+    listener: Option<TcpListener>,
+    identity: &'a StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: TimestampedDouble64SessionIoLimits,
+    records: &'a [TimestampedSample<f64>],
+    channel_count: usize,
+}
+impl<'a> TimestampedDouble64OutletSession<'a> {
+    /// Validates a bounded homogeneous Double64 shape before socket I/O.
+    pub fn preflight_bounded(
+        activation: FixedWidthNumericSampleActivation,
+        listener: TcpListener,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        io_limits: TimestampedDouble64SessionIoLimits,
+        session_limits: TimestampedDouble64SessionLimits,
+        records: &'a [TimestampedSample<f64>],
+    ) -> Result<Self, TimestampedDouble64SessionPreflightError> {
+        let channel_count = require_outlet_shape_generic(session_limits, records)?;
+        Ok(Self {
+            activation,
+            listener: Some(listener),
+            identity,
+            handshake_limits,
+            io_limits,
+            records,
+            channel_count,
+        })
+    }
+    /// Consumes the facade through the sole accept/handshake/initialize/records/close lifecycle.
+    pub fn finish(
+        mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedDouble64OutletSessionReport, TimestampedDouble64SessionError> {
+        let listener = self
+            .listener
+            .take()
+            .expect("preflighted listener is present");
+        let _ = self.activation;
+        let (local, peer) = finish_outlet::<Double64>(
+            listener,
+            self.identity,
+            self.handshake_limits,
+            self.io_limits,
+            self.records,
+            self.channel_count,
+            cancelled,
+        )?;
+        Ok(TimestampedDouble64OutletSessionReport {
+            local,
+            peer,
+            records: self.records.len(),
+            channels: self.channel_count,
+        })
+    }
+}
+
+/// Preflighted Double64 inlet facade over the sole session lifecycle.
+pub struct TimestampedDouble64InletSession<'a> {
+    activation: FixedWidthNumericSampleActivation,
+    peer: SocketAddr,
+    identity: &'a StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: TimestampedDouble64SessionIoLimits,
+    record_count: usize,
+    channel_count: usize,
+}
+impl<'a> TimestampedDouble64InletSession<'a> {
+    /// Validates an exact bounded Double64 shape before connecting.
+    pub fn preflight_bounded(
+        activation: FixedWidthNumericSampleActivation,
+        peer: SocketAddr,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        io_limits: TimestampedDouble64SessionIoLimits,
+        session_limits: TimestampedDouble64SessionLimits,
+        channel_count: usize,
+        record_count: usize,
+    ) -> Result<Self, TimestampedDouble64SessionPreflightError> {
+        require_shape(session_limits, channel_count, record_count)?;
+        Ok(Self {
+            activation,
+            peer,
+            identity,
+            handshake_limits,
+            io_limits,
+            record_count,
+            channel_count,
+        })
+    }
+    /// Consumes the facade through the sole connect/handshake/initialize/records/close lifecycle.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedDouble64InletSessionReport, TimestampedDouble64SessionError> {
+        let _ = self.activation;
+        let records = finish_inlet::<Double64>(
+            self.peer,
+            self.identity,
+            self.handshake_limits,
+            self.io_limits,
+            self.record_count,
+            self.channel_count,
+            cancelled,
+        )?;
+        Ok(TimestampedDouble64InletSessionReport {
+            peer: self.peer,
+            records,
+            channels: self.channel_count,
+        })
+    }
+}
+
 /// Preflighted outlet owner. Records and identity remain caller-owned borrows.
 pub struct TimestampedFloat32OutletSession<'a> {
     activation: TimestampedFloat32SampleActivation,
@@ -455,33 +1145,16 @@ impl<'a> TimestampedFloat32OutletSession<'a> {
             .listener
             .take()
             .expect("preflighted listener is present");
-        let (stream, local, peer) =
-            accept_handshake_stream(listener, self.identity, self.handshake_limits, cancelled)
-                .map_err(TimestampedFloat32SessionError::Handshake)?;
-        self.stream = Some(stream);
         let _ = self.activation;
-        let stream = self.stream.as_mut().expect("accepted stream is present");
-        write_initialization_for_channels(
-            stream,
-            self.channel_count,
+        let (local, peer) = finish_outlet::<session_format::Float32>(
+            listener,
+            self.identity,
+            self.handshake_limits,
             self.sample_limits,
+            self.records,
+            self.channel_count,
             cancelled,
-        )
-        .map_err(|error| TimestampedFloat32SessionError::Record { index: None, error })?;
-        for (index, record) in self.records.iter().enumerate() {
-            write_record_for_channels(
-                stream,
-                record,
-                self.channel_count,
-                self.sample_limits,
-                cancelled,
-            )
-            .map_err(|error| TimestampedFloat32SessionError::Record {
-                index: Some(index),
-                error,
-            })?;
-        }
-        terminal_close(self.stream.take());
+        )?;
         Ok(TimestampedFloat32OutletSessionReport {
             local,
             peer,
@@ -558,29 +1231,19 @@ impl<'a> TimestampedFloat32InletSession<'a> {
 
     /// Consumes the owner and executes connect, handshake, initialization once, records, close, and report.
     pub fn finish(
-        mut self,
+        self,
         cancelled: &AtomicBool,
     ) -> Result<TimestampedFloat32InletSessionReport, TimestampedFloat32SessionError> {
-        let stream =
-            connect_handshake_stream(self.peer, self.identity, self.handshake_limits, cancelled)
-                .map_err(TimestampedFloat32SessionError::Handshake)?;
-        self.stream = Some(stream);
         let _ = self.activation;
-        let stream = self.stream.as_mut().expect("connected stream is present");
-        read_initialization_for_channels(stream, self.channel_count, self.sample_limits, cancelled)
-            .map_err(|error| TimestampedFloat32SessionError::Record { index: None, error })?;
-        let mut records = Vec::with_capacity(self.record_count);
-        for index in 0..self.record_count {
-            records.push(
-                read_record_for_channels(stream, self.channel_count, self.sample_limits, cancelled)
-                    .map_err(|error| TimestampedFloat32SessionError::Record {
-                        index: Some(index),
-                        error,
-                    })?,
-            );
-        }
-        require_peer_close(stream, self.sample_limits, cancelled)?;
-        terminal_close(self.stream.take());
+        let records = finish_inlet::<session_format::Float32>(
+            self.peer,
+            self.identity,
+            self.handshake_limits,
+            self.sample_limits,
+            self.record_count,
+            self.channel_count,
+            cancelled,
+        )?;
         Ok(TimestampedFloat32InletSessionReport {
             peer: self.peer,
             records,
@@ -619,6 +1282,13 @@ fn require_outlet_shape(
     limits: TimestampedFloat32SessionLimits,
     records: &[TimestampedSample<f32>],
 ) -> Result<usize, TimestampedFloat32SessionPreflightError> {
+    require_outlet_shape_generic(limits, records)
+}
+
+fn require_outlet_shape_generic<T>(
+    limits: TimestampedFloat32SessionLimits,
+    records: &[TimestampedSample<T>],
+) -> Result<usize, TimestampedFloat32SessionPreflightError> {
     let channel_count = records
         .first()
         .map(|record| record.sample().declared_channels())
@@ -645,41 +1315,34 @@ fn terminal_close(stream: Option<TcpStream>) {
     }
 }
 
-fn require_peer_close(
+fn require_format_peer_close<F: session_format::Sealed>(
     stream: &mut TcpStream,
-    limits: TimestampedFloat32SampleLimits,
+    limits: F::Limits,
     cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SessionError> {
+) -> Result<(), F::SessionError> {
     let started = Instant::now();
     let mut byte = [0u8; 1];
     loop {
         if cancelled.load(Ordering::Acquire) {
-            return Err(TimestampedFloat32SessionError::Record {
-                index: None,
-                error: TimestampedFloat32SampleError::Cancelled,
-            });
+            return Err(F::cancelled_error());
         }
-        let remaining = terminal_read_timeout(started.elapsed(), limits)?;
+        let remaining = F::total_deadline(limits)
+            .checked_sub(started.elapsed())
+            .filter(|remaining| !remaining.is_zero())
+            .ok_or_else(F::deadline_error)?;
         stream
-            .set_read_timeout(Some(remaining.min(limits.io_slice())))
-            .map_err(|error| TimestampedFloat32SessionError::Record {
-                index: None,
-                error: TimestampedFloat32SampleError::Io(error.kind()),
-            })?;
+            .set_read_timeout(Some(remaining.min(F::io_slice(limits))))
+            .map_err(|error| F::io_error(error.kind()))?;
         match stream.read(&mut byte) {
             Ok(0) => return Ok(()),
-            Ok(_) => return Err(TimestampedFloat32SessionError::TrailingByte { actual: byte[0] }),
+            Ok(_) => return Err(F::trailing_byte(byte[0])),
             Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-            Err(error) => {
-                return Err(TimestampedFloat32SessionError::Record {
-                    index: None,
-                    error: TimestampedFloat32SampleError::Io(error.kind()),
-                })
-            }
+            Err(error) => return Err(F::io_error(error.kind())),
         }
     }
 }
 
+#[cfg(test)]
 fn terminal_read_timeout(
     elapsed: std::time::Duration,
     limits: TimestampedFloat32SampleLimits,
@@ -707,6 +1370,15 @@ mod tests {
     fn activation() -> TimestampedFloat32SampleActivation {
         TimestampedFloat32SampleActivation::new(
             test_capability(RuntimeModule::TimestampedFloat32Sample),
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap(),
+        )
+        .unwrap()
+    }
+
+    fn double64_activation() -> FixedWidthNumericSampleActivation {
+        FixedWidthNumericSampleActivation::new(
+            test_capability(RuntimeModule::FixedWidthNumericSample),
             StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
                 .unwrap(),
         )
@@ -758,6 +1430,84 @@ mod tests {
             RawSourceTimestamp::new(f64::from_bits(timestamp_bits)).unwrap(),
             None,
         )
+    }
+
+    fn double64_sample(timestamp_bits: u64, value_bits: &[u64]) -> TimestampedSample<f64> {
+        TimestampedSample::new(
+            Sample::new(
+                SampleLimits::new(value_bits.len()).unwrap(),
+                value_bits.len(),
+                value_bits.iter().copied().map(f64::from_bits).collect(),
+            )
+            .unwrap(),
+            RawSourceTimestamp::new(f64::from_bits(timestamp_bits)).unwrap(),
+            None,
+        )
+    }
+
+    #[test]
+    fn p2_double64_uses_shared_bounded_session_lifecycle_and_preserves_bits() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [
+            double64_sample(
+                0x4092_5220_0000_0001,
+                &[0x3ff0_0000_0000_0001, 0xbff0_0000_0000_0002],
+            ),
+            double64_sample(
+                0x4092_5b80_0000_0002,
+                &[0x7ff8_0000_0000_0042, 0x4000_0000_0000_0003],
+            ),
+        ];
+        let worker = thread::spawn(move || {
+            TimestampedDouble64OutletSession::preflight_bounded(
+                double64_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                TimestampedDouble64SessionIoLimits::new(
+                    Duration::from_millis(5),
+                    Duration::from_secs(1),
+                )
+                .unwrap(),
+                TimestampedDouble64SessionLimits::new(2, 2).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let received = TimestampedDouble64InletSession::preflight_bounded(
+            double64_activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            TimestampedDouble64SessionIoLimits::new(
+                Duration::from_millis(5),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            TimestampedDouble64SessionLimits::new(2, 2).unwrap(),
+            2,
+            2,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(received.record_count(), 2);
+        assert_eq!(received.channel_count(), 2);
+        assert_eq!(
+            received.records()[0].sample().values()[1].to_bits(),
+            0xbff0_0000_0000_0002
+        );
+        assert_eq!(
+            received.records()[1].sample().values()[0].to_bits(),
+            0x7ff8_0000_0000_0042
+        );
+        let sent = worker.join().unwrap();
+        assert_eq!(sent.record_count(), 2);
+        assert_eq!(sent.local_address(), address);
+        TcpListener::bind(address).unwrap();
     }
 
     #[test]
