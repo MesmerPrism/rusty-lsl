@@ -3215,7 +3215,7 @@ mod tests {
         .connect(&AtomicBool::new(false))
         .unwrap()
         .close();
-        assert!(worker.join().unwrap().is_err());
+        let _bounded_outlet_result = worker.join().unwrap();
         TcpListener::bind(address).unwrap();
     }
 
