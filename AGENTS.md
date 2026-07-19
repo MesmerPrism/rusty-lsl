@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-007N adds exact one-channel, two-record Float32 chunk inlet/outlet
+facades as thin adapters over the existing concrete sessions and sole private
+lifecycle. Their reports contain and delegate to the canonical session reports;
+the inlet projection moves the retained record allocation into the accepted
+chunk without copying. Legacy success and error projections remain unchanged.
+Activation remains explicit/default-disabled, with no shape, format, discovery,
+policy, device, compatibility, or Manifold authority widening.
+
 LSLC-007M centralizes crate-private validated session shape, socket-free
 preflight, and consuming successful-completion facts for every accepted
 concrete session facade. The sole private lifecycle engine and sealed format

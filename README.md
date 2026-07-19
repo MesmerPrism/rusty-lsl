@@ -1,5 +1,9 @@
 # Rusty LSL
 
+The exact one-channel, two-record Float32 chunk path now has consuming public
+session facades that preserve canonical lifecycle reports and allocation-owned
+records while keeping the established compatibility entrypoints unchanged.
+
 Validated format-neutral session shape and successful completion facts remain
 crate-private beneath the existing concrete typed facades. LSLC-007M does not
 widen accepted String or numeric shapes, public APIs, or runtime activation.

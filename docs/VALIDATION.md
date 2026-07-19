@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-007N qualification maps H01-H24 to fresh facade ownership, exact shape,
+bits/order/allocation, indexed and trailing damage, cancellation/deadline,
+cleanup/reuse, legacy/session/all-format/public regressions, and maps A01-A05
+to exact revision-26 default-disabled activation and source closure. Serialized
+Standard and workflow/publication gates are mandatory; accepted oracle and
+device evidence is reused without rerun.
+
 LSLC-007M qualification covers every accepted concrete shape and rejection
 precedence, exact numeric bits and String UTF-8/allocation ownership,
 indexed/trailing damage, cancellation/deadline/cleanup and port reuse, legacy

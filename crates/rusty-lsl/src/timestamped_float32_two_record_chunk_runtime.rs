@@ -10,13 +10,14 @@ use crate::{
 };
 use crate::{
     timestamped_float32_session_runtime::{
-        TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
+        TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
+        TimestampedFloat32OutletSession, TimestampedFloat32OutletSessionReport,
         TimestampedFloat32SessionCompletion, TimestampedFloat32SessionError,
         TimestampedFloat32SessionPreflightError, TimestampedFloat32SessionRole,
     },
     ChunkLimits, StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedChunk,
     TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
-    TimestampedFloat32SampleLimits,
+    TimestampedFloat32SampleLimits, TimestampedSample,
 };
 use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
@@ -180,11 +181,7 @@ impl<'a> TimestampedFloat32TwoRecordChunkOutletSession<'a> {
         let report = self.session.finish(cancelled).map_err(map_session_error)?;
         debug_assert_eq!(report.channel_count(), 1);
         debug_assert_eq!(report.record_count(), REQUIRED_RECORDS);
-        Ok(TimestampedFloat32TwoRecordChunkOutletSessionReport {
-            local: report.local_address(),
-            peer: report.peer(),
-            completion: report.completion(),
-        })
+        Ok(TimestampedFloat32TwoRecordChunkOutletSessionReport { report })
     }
 }
 
@@ -225,92 +222,81 @@ impl<'a> TimestampedFloat32TwoRecordChunkInletSession<'a> {
         let report = self.session.finish(cancelled).map_err(map_session_error)?;
         debug_assert_eq!(report.channel_count(), 1);
         debug_assert_eq!(report.record_count(), REQUIRED_RECORDS);
-        let peer = report.peer();
-        let completion = report.completion();
-        let chunk = TimestampedChunk::new(
-            ChunkLimits::new(REQUIRED_RECORDS, 1).unwrap(),
-            report.into_records(),
-        )
-        .expect("the validated session report has the fixed chunk shape");
-        Ok(TimestampedFloat32TwoRecordChunkInletSessionReport {
-            peer,
-            chunk,
-            completion,
-        })
+        Ok(TimestampedFloat32TwoRecordChunkInletSessionReport { report })
     }
 }
 
 /// Successful exact-chunk outlet lifecycle facts.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct TimestampedFloat32TwoRecordChunkOutletSessionReport {
-    local: SocketAddr,
-    peer: SocketAddr,
-    completion: TimestampedFloat32SessionCompletion,
+    report: TimestampedFloat32OutletSessionReport,
 }
 
 impl TimestampedFloat32TwoRecordChunkOutletSessionReport {
     /// Explicit completed outlet role.
     pub const fn role(&self) -> TimestampedFloat32SessionRole {
-        TimestampedFloat32SessionRole::Outlet
+        self.report.role()
     }
     /// Caller-bound listener address.
     pub const fn local_address(&self) -> SocketAddr {
-        self.local
+        self.report.local_address()
     }
     /// Accepted peer address.
     pub const fn peer(&self) -> SocketAddr {
-        self.peer
+        self.report.peer()
     }
     /// Exact fixed channel count.
     pub const fn channel_count(&self) -> usize {
-        1
+        self.report.channel_count()
     }
     /// Exact fixed caller-record count.
     pub const fn record_count(&self) -> usize {
-        REQUIRED_RECORDS
+        self.report.record_count()
     }
     /// Terminal completion classification.
     pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
-        self.completion
+        self.report.completion()
     }
 }
 
 /// Successful exact-chunk inlet lifecycle facts and ordered record ownership.
 #[derive(Debug)]
 pub struct TimestampedFloat32TwoRecordChunkInletSessionReport {
-    peer: SocketAddr,
-    chunk: TimestampedChunk<f32>,
-    completion: TimestampedFloat32SessionCompletion,
+    report: TimestampedFloat32InletSessionReport,
 }
 
 impl TimestampedFloat32TwoRecordChunkInletSessionReport {
     /// Explicit completed inlet role.
     pub const fn role(&self) -> TimestampedFloat32SessionRole {
-        TimestampedFloat32SessionRole::Inlet
+        self.report.role()
     }
     /// Caller-selected peer address.
     pub const fn peer(&self) -> SocketAddr {
-        self.peer
+        self.report.peer()
     }
     /// Exact fixed channel count.
     pub const fn channel_count(&self) -> usize {
-        1
+        self.report.channel_count()
     }
     /// Exact fixed caller-record count.
-    pub const fn record_count(&self) -> usize {
-        REQUIRED_RECORDS
+    pub fn record_count(&self) -> usize {
+        self.report.record_count()
     }
     /// Terminal completion classification.
     pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
-        self.completion
+        self.report.completion()
     }
-    /// Borrowed exact ordered chunk.
-    pub const fn chunk(&self) -> &TimestampedChunk<f32> {
-        &self.chunk
+    /// Borrowed exact ordered records retained by the canonical session report.
+    pub fn records(&self) -> &[TimestampedSample<f32>] {
+        self.report.records()
     }
     /// Consumes the report without copying or reordering the two records.
     pub fn into_chunk(self) -> TimestampedChunk<f32> {
-        self.chunk
+        TimestampedChunk::new(
+            ChunkLimits::new(REQUIRED_RECORDS, 1).expect("fixed chunk limits are valid"),
+            self.report.into_records(),
+        )
+        .expect("the canonical session report retains the validated fixed chunk shape")
     }
 }
 
@@ -556,17 +542,16 @@ mod tests {
         assert_eq!(report.channel_count(), 1);
         assert_eq!(report.record_count(), 2);
         assert_eq!(
-            report.chunk().samples()[0]
-                .raw_source_timestamp()
-                .value()
-                .to_bits(),
+            report.records()[0].raw_source_timestamp().value().to_bits(),
             0x4092_5220_0000_0001
         );
         assert_eq!(
-            report.chunk().samples()[1].sample().values()[0].to_bits(),
+            report.records()[1].sample().values()[0].to_bits(),
             0xc020_0001
         );
+        let records_ptr = report.records().as_ptr();
         let chunk = report.into_chunk();
+        assert_eq!(chunk.samples().as_ptr(), records_ptr);
         assert_eq!(
             chunk.samples()[0].sample().values()[0].to_bits(),
             0x3fa0_0001

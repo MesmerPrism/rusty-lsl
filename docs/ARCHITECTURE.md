@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-007N keeps the exact Float32 chunk facade as an adapter only. It contains
+the established Float32 session owner, and its report wrappers contain and
+delegate to the canonical session reports rather than restating lifecycle
+facts. The private format-neutral lifecycle and sealed Float32 codec remain the
+only lifecycle and framing owners.
+
 LSLC-007M makes the shared private session lifecycle consume a validated
 `SessionShape` and return crate-private completion facts. Concrete Float32,
 Double64, Int32/16/8, and String facades retain their public reports and errors;
