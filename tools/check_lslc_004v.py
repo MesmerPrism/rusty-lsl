@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];F=ROOT/'fixtures/compatibility/lslc-004v-typed-udp-discovery-run.json'
 def validate(d):
  assert d['schema']=='rusty.lsl.typed_udp_discovery_run.v1'
- assert d['source']=={'claimed_head':'5f699d56716fdf1a112f075c81f50596ae46dede','claimed_tree':'c7fc822a348bfdad6ef1b6951726bafacee27f3e','unchanged_udp_blob':'e4df037ff44263207532764040ae07b8e1b65e36','unchanged_projection_blob':'762f4aa3b40b417659d5a817c0e46b1dce4b0125'}
+ assert d['source']=={'claimed_head':'5f699d56716fdf1a112f075c81f50596ae46dede','claimed_tree':'c7fc822a348bfdad6ef1b6951726bafacee27f3e','unchanged_udp_blob':'81fdbbbda57dbe0f25020926dda1cab3b70fed69','unchanged_projection_blob':'762f4aa3b40b417659d5a817c0e46b1dce4b0125'}
  assert d['contract']=={'activation':'existing-udp-capability','configuration':'existing-caller-explicit-udp-config','caller_envelope_limits':True,'caller_admission_limits':True,'output':'owned-typed-discovery-run','local_address_preserved':True,'termination_preserved':True,'receive_order_preserved':True,'source_preserved':True}
  assert d['delegation']=={'udp':'existing-error','typed_response':'existing-error-plus-zero-based-index','allocation':'requested-response-capacity'}
  assert d['positive']=={'response_count':1,'query_id':19,'stream_name':'typed-run','channel_count':1,'termination':'response-limit','cleanup':'socket-rebind-by-existing-owner'}

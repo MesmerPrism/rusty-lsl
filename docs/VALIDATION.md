@@ -1,5 +1,20 @@
 # Validation
 
+LSLC-006C focused UDP discovery response-ownership and exact closure conformance:
+
+```text
+cargo test -p rusty-lsl udp_discovery::tests -- --test-threads=1
+python ./tools/check_lslc_004u.py
+python ./tools/check_lslc_004v.py
+```
+
+It proves receive-order preservation, exact source/query identity, consuming
+response allocation ownership, pre-cancellation precedence, immediate reuse
+of the caller-selected port, and exact LSLC-004U/004V closure over the updated
+test-bearing module. It is host-only test evidence and changes no production
+discovery behavior, compatibility claim, device behavior, or Manifold
+authority. Serialized Standard remains the aggregate owner gate.
+
 LSLC-006A focused runtime-activation receipt-authority conformance:
 
 ```text

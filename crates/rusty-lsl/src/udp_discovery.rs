@@ -1056,4 +1056,109 @@ mod tests {
             ))
         );
     }
+
+    fn lslc_006c_response_for(query_id: u64) -> Vec<u8> {
+        let text = format!("{query_id}\r\n{}", body());
+        ParsedShortInfoResponseEnvelope::parse(
+            &text,
+            ShortInfoResponseEnvelopeLimits::new(body().len(), text.len()).unwrap(),
+        )
+        .unwrap();
+        text.into_bytes()
+    }
+
+    #[test]
+    fn lslc_006c_receive_order_identity_ownership_and_caller_port_cleanup() {
+        let first_peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let first_source = first_peer.local_addr().unwrap();
+        let second_peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let second_source = second_peer.local_addr().unwrap();
+        assert_ne!(first_source, second_source);
+        let first_bytes = lslc_006c_response_for(17);
+        let second_bytes = lslc_006c_response_for(29);
+        let expected_first = first_bytes.clone();
+        let expected_second = second_bytes.clone();
+        let expected_query = query().as_bytes().to_vec();
+        let worker = thread::spawn(move || {
+            let mut bytes = [0_u8; 256];
+            let (length, requester) = first_peer.recv_from(&mut bytes).unwrap();
+            assert_eq!(&bytes[..length], expected_query);
+            first_peer.send_to(&first_bytes, requester).unwrap();
+            thread::sleep(Duration::from_millis(20));
+            second_peer.send_to(&second_bytes, requester).unwrap();
+        });
+        let bind_probe = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let bind_address = bind_probe.local_addr().unwrap();
+        drop(bind_probe);
+        let run = run_udp_discovery(
+            activation(),
+            config(
+                bind_address,
+                first_source,
+                expected_second.len(),
+                2,
+                Duration::from_millis(50),
+                Duration::from_secs(1),
+            ),
+            &query(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        worker.join().unwrap();
+        assert_eq!(run.local_address(), bind_address);
+        assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
+        assert_eq!(
+            run.responses()
+                .iter()
+                .map(|response| (response.source(), response.query_id(), response.as_bytes()))
+                .collect::<Vec<_>>(),
+            vec![
+                (first_source, 17, expected_first.as_slice()),
+                (second_source, 29, expected_second.as_slice()),
+            ]
+        );
+        let response_allocation = run.responses().as_ptr();
+        let byte_allocations = [
+            run.responses()[0].as_bytes().as_ptr(),
+            run.responses()[1].as_bytes().as_ptr(),
+        ];
+        let responses = run.into_responses();
+        assert_eq!(responses.as_ptr(), response_allocation);
+        let mut responses = responses.into_iter();
+        let first = responses.next().unwrap().into_bytes();
+        let second = responses.next().unwrap().into_bytes();
+        assert!(responses.next().is_none());
+        assert_eq!(first.as_ptr(), byte_allocations[0]);
+        assert_eq!(second.as_ptr(), byte_allocations[1]);
+        assert_eq!(first, expected_first);
+        assert_eq!(second, expected_second);
+        assert_eq!(
+            UdpSocket::bind(bind_address).unwrap().local_addr().unwrap(),
+            bind_address
+        );
+    }
+
+    #[test]
+    fn lslc_006c_pre_cancel_precedes_socket_and_response_limit_work() {
+        let occupied = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let bind_address = occupied.local_addr().unwrap();
+        let cancelled = AtomicBool::new(true);
+        let run = run_udp_discovery(
+            activation(),
+            config(
+                bind_address,
+                "127.0.0.1:9".parse().unwrap(),
+                response().len(),
+                1,
+                Duration::from_millis(1),
+                Duration::from_millis(1),
+            ),
+            &query(),
+            &cancelled,
+        )
+        .unwrap();
+        assert_eq!(run.local_address(), bind_address);
+        assert_eq!(run.termination(), UdpDiscoveryTermination::Cancelled);
+        assert!(run.responses().is_empty());
+    }
 }

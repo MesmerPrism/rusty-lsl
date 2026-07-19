@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];F=ROOT/'fixtures/compatibility/lslc-004u-typed-udp-response-projection.json'
 def validate(d):
  assert d['schema']=='rusty.lsl.typed_udp_response_projection.v1'
- assert d['source']=={'claimed_head':'1c2a87e1417f29757283485b4598494a87e2dfea','claimed_tree':'641d2ca14a025571fe430ba4e4d59e81200601a3','unchanged_udp_blob':'e4df037ff44263207532764040ae07b8e1b65e36'}
+ assert d['source']=={'claimed_head':'1c2a87e1417f29757283485b4598494a87e2dfea','claimed_tree':'641d2ca14a025571fe430ba4e4d59e81200601a3','unchanged_udp_blob':'81fdbbbda57dbe0f25020926dda1cab3b70fed69'}
  assert d['contract']=={'input':'borrowed-accepted-udp-response','caller_envelope_limits':True,'caller_admission_limits':True,'output':'owned-typed-observation-plus-source','source_preserved':True,'response_not_consumed':True}
  assert d['delegation']=={'invalid_utf8':'valid-up-to','envelope':'existing-error','typed_admission':'existing-error','noncanonical_channel_count':'invalid-channel-count'}
  assert d['positive']=={'query_id':19,'stream_name':'projected','channel_count':1,'source':'independent-loopback-test-value','into_parts_preserved':True}

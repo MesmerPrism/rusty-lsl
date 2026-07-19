@@ -1,5 +1,13 @@
 # Rusty LSL
 
+LSLC-006C adds test-only deterministic conformance for the accepted UDP
+discovery runtime and truthfully rebinds the exact LSLC-004U/004V validation
+closure: receive-order preservation, exact source/query identity, consuming
+response allocation ownership, pre-cancellation precedence, and caller-selected
+port cleanup. It changes no production behavior, discovery policy, parsing,
+selection, activation, compatibility claim, device behavior, or Manifold
+authority.
+
 LSLC-006A adds test-only deterministic conformance for the accepted runtime
 activation receipt authority: canonical receipt identity across caller order,
 exact lock and consumer binding, capability-marker agreement, and rejection
