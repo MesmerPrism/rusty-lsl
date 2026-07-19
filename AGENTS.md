@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-007E adds a bounded Double64 outlet/inlet session seam beneath the sole
+session lifecycle owner. The sealed codec admits only the evidenced one-channel
+one-record and two-channel three-record shapes; existing Double64 fixed-width
+functions are thin adapters, while Float32 and integer behavior remain
+compatible. Activation stays default-disabled. No discovery, clocks, queues,
+recovery, official compatibility, devices, or Manifold authority is added.
+
 LSLC-007D adds one thin caller-selected typed-discovery response to bounded
 Float32 inlet-session adapter. The caller retains the completed discovery run,
 response selection, identity, cancellation, deadlines, and shape. Strict

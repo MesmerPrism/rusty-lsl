@@ -7,8 +7,11 @@ use crate::{
         read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
     },
     stream_handshake::{accept_handshake_stream_with_format, connect_handshake_stream_with_format},
-    RuntimeModule, RuntimeModuleCapability, StreamHandshakeActivation, StreamHandshakeError,
-    StreamHandshakeIdentity, StreamHandshakeLimits,
+    RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, Sample, SampleLimits,
+    StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
+    StreamHandshakeLimits, TimestampedDouble64InletSession, TimestampedDouble64OutletSession,
+    TimestampedDouble64SessionError, TimestampedDouble64SessionIoLimits,
+    TimestampedDouble64SessionLimits, TimestampedSample,
 };
 use std::io::ErrorKind;
 use std::net::{SocketAddr, TcpListener, TcpStream};
@@ -461,6 +464,22 @@ pub fn run_fixed_width_numeric_sequence_outlet(
     cancelled: &AtomicBool,
 ) -> Result<SocketAddr, FixedWidthNumericSampleError> {
     let template = sequence.records[0].values[0];
+    if matches!(template, FixedWidthNumericValue::Double64(_)) {
+        let records = sequence_double64_records(sequence)?;
+        let report = TimestampedDouble64OutletSession::preflight_bounded(
+            activation,
+            listener,
+            identity,
+            handshake_limits,
+            double64_io_limits(limits),
+            double64_session_limits(2, 3),
+            &records,
+        )
+        .map_err(map_double64_preflight_error)?
+        .finish(cancelled)
+        .map_err(map_double64_session_error)?;
+        return Ok(report.local_address());
+    }
     let (mut stream, local, _) = accept_handshake_stream_with_format(
         listener,
         identity,
@@ -494,6 +513,22 @@ pub fn run_fixed_width_numeric_sequence_inlet(
     template: FixedWidthNumericValue,
     cancelled: &AtomicBool,
 ) -> Result<FixedWidthNumericRecordSequence, FixedWidthNumericSampleError> {
+    if matches!(template, FixedWidthNumericValue::Double64(_)) {
+        let report = TimestampedDouble64InletSession::preflight_bounded(
+            activation,
+            peer,
+            identity,
+            handshake_limits,
+            double64_io_limits(limits),
+            double64_session_limits(2, 3),
+            2,
+            3,
+        )
+        .map_err(map_double64_preflight_error)?
+        .finish(cancelled)
+        .map_err(map_double64_session_error)?;
+        return double64_sequence_from_records(report.into_records());
+    }
     let mut stream = connect_handshake_stream_with_format(
         peer,
         identity,
@@ -521,6 +556,22 @@ pub fn run_fixed_width_numeric_outlet(
     r: FixedWidthNumericRecord,
     c: &AtomicBool,
 ) -> Result<SocketAddr, FixedWidthNumericSampleError> {
+    if let FixedWidthNumericValue::Double64(value) = r.value {
+        let records = [double64_sample(r.timestamp, [value])?];
+        let report = TimestampedDouble64OutletSession::preflight_bounded(
+            a,
+            listener,
+            id,
+            hl,
+            double64_io_limits(l),
+            double64_session_limits(1, 1),
+            &records,
+        )
+        .map_err(map_double64_preflight_error)?
+        .finish(c)
+        .map_err(map_double64_session_error)?;
+        return Ok(report.local_address());
+    }
     let (mut s, local, _) = accept_handshake_stream_with_format(
         listener,
         id,
@@ -545,6 +596,26 @@ pub fn run_fixed_width_numeric_inlet(
     template: FixedWidthNumericValue,
     c: &AtomicBool,
 ) -> Result<FixedWidthNumericRecord, FixedWidthNumericSampleError> {
+    if matches!(template, FixedWidthNumericValue::Double64(_)) {
+        let report = TimestampedDouble64InletSession::preflight_bounded(
+            a,
+            peer,
+            id,
+            hl,
+            double64_io_limits(l),
+            double64_session_limits(1, 1),
+            1,
+            1,
+        )
+        .map_err(map_double64_preflight_error)?
+        .finish(c)
+        .map_err(map_double64_session_error)?;
+        let record = report.into_records().pop().expect("one admitted record");
+        return FixedWidthNumericRecord::new(
+            record.raw_source_timestamp().value(),
+            FixedWidthNumericValue::Double64(record.sample().values()[0]),
+        );
+    }
     let mut s = connect_handshake_stream_with_format(
         peer,
         id,
@@ -557,6 +628,127 @@ pub fn run_fixed_width_numeric_inlet(
     let _ = a.handshake;
     read_initialization(&mut s, template, l, c)?;
     read_record(&mut s, template, l, c)
+}
+
+fn double64_io_limits(limits: FixedWidthNumericSampleLimits) -> TimestampedDouble64SessionIoLimits {
+    TimestampedDouble64SessionIoLimits::new(limits.io_slice, limits.total_deadline)
+        .expect("fixed-width limits are nonzero")
+}
+
+fn double64_session_limits(channels: usize, records: usize) -> TimestampedDouble64SessionLimits {
+    TimestampedDouble64SessionLimits::new(channels, records)
+        .expect("accepted Double64 shapes are nonzero")
+}
+
+fn double64_sample<const N: usize>(
+    timestamp: f64,
+    values: [f64; N],
+) -> Result<TimestampedSample<f64>, FixedWidthNumericSampleError> {
+    let timestamp = RawSourceTimestamp::new(timestamp)
+        .map_err(|_| FixedWidthNumericSampleError::InvalidTimestamp)?;
+    let sample = Sample::new(
+        SampleLimits::new(N).expect("accepted Double64 shapes are nonzero"),
+        N,
+        values.into_iter().collect(),
+    )
+    .expect("array length equals declared channel count");
+    Ok(TimestampedSample::new(sample, timestamp, None))
+}
+
+fn sequence_double64_records(
+    sequence: FixedWidthNumericRecordSequence,
+) -> Result<[TimestampedSample<f64>; 3], FixedWidthNumericSampleError> {
+    sequence
+        .records
+        .map(|record| {
+            let [first, second] = record.values;
+            match (first, second) {
+                (
+                    FixedWidthNumericValue::Double64(first),
+                    FixedWidthNumericValue::Double64(second),
+                ) => double64_sample(record.timestamp, [first, second]),
+                _ => Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                    record: 0,
+                    channel: 0,
+                }),
+            }
+        })
+        .into_iter()
+        .collect::<Result<Vec<_>, _>>()?
+        .try_into()
+        .map_err(|_| FixedWidthNumericSampleError::SequenceFormatMismatch {
+            record: 0,
+            channel: 0,
+        })
+}
+
+fn double64_sequence_from_records(
+    records: Vec<TimestampedSample<f64>>,
+) -> Result<FixedWidthNumericRecordSequence, FixedWidthNumericSampleError> {
+    let records: [TimestampedSample<f64>; 3] =
+        records
+            .try_into()
+            .map_err(|_| FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: 0,
+            })?;
+    let mut converted = Vec::with_capacity(3);
+    for record in records {
+        let values = record.sample().values();
+        if values.len() != 2 {
+            return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: converted.len(),
+                channel: values.len(),
+            });
+        }
+        converted.push(FixedWidthNumericPairRecord::new(
+            record.raw_source_timestamp().value(),
+            [
+                FixedWidthNumericValue::Double64(values[0]),
+                FixedWidthNumericValue::Double64(values[1]),
+            ],
+        )?);
+    }
+    FixedWidthNumericRecordSequence::new(converted.try_into().expect("three records retained"))
+}
+
+fn map_double64_preflight_error(
+    error: crate::TimestampedDouble64SessionPreflightError,
+) -> FixedWidthNumericSampleError {
+    match error {
+        crate::TimestampedDouble64SessionPreflightError::RecordCount { actual } => {
+            FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: actual,
+                channel: 0,
+            }
+        }
+        crate::TimestampedDouble64SessionPreflightError::ChannelCount { index, actual } => {
+            FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: index,
+                channel: actual,
+            }
+        }
+        crate::TimestampedDouble64SessionPreflightError::InconsistentChannelCount {
+            index, ..
+        } => FixedWidthNumericSampleError::SequenceFormatMismatch {
+            record: index,
+            channel: 0,
+        },
+    }
+}
+
+fn map_double64_session_error(
+    error: TimestampedDouble64SessionError,
+) -> FixedWidthNumericSampleError {
+    match error {
+        TimestampedDouble64SessionError::Handshake(error) => {
+            FixedWidthNumericSampleError::Handshake(error)
+        }
+        TimestampedDouble64SessionError::Record { error, .. } => error,
+        TimestampedDouble64SessionError::TrailingByte { actual } => {
+            FixedWidthNumericSampleError::InvalidMarker { actual }
+        }
+    }
 }
 
 #[cfg(test)]

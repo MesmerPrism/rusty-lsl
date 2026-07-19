@@ -19,6 +19,12 @@ shapes. Its codec is sealed beneath that owner. Legacy one-record and
 two-record functions remain thin adapters; broader formats are separate
 roadmap work.
 
+The same sole lifecycle now has a sealed Double64 strategy for exactly the
+evidenced one-channel/one-record and two-channel/three-record shapes. Public
+Double64 sessions own consuming completion reports, and the older fixed-width
+Double64 functions adapt into them. Integer fixed-width paths remain unchanged;
+this does not claim arbitrary Double64 shapes or official interoperability.
+
 A caller may now borrow one completed typed UDP discovery run, explicitly
 select a response, project its strict IPv4 service endpoint, and enter the sole
 bounded Float32 inlet session. Discovery execution and selection policy remain

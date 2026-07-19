@@ -13,6 +13,20 @@ acceptance gap and remain smaller than the production unit it supports.
 Documentation, soak, scalar-boundary, or speculative ecosystem coverage cannot
 substitute for a required production-behavior successor.
 
+LSLC-007E focuses the sole-lifecycle Double64 seam and legacy adapters:
+
+```text
+cargo test -p rusty-lsl p2_double64 -- --test-threads=1
+cargo test -p rusty-lsl fixed_width_numeric_sample_runtime::tests -- --test-threads=1
+cargo test -p rusty-lsl --test public_api -- --test-threads=1
+```
+
+The host evidence covers exact Double64 handshake/initialization/value bits,
+only the one-by-one and two-by-three shapes, typed failures, cleanup, port
+reuse, and adapter parity. It does not establish pinned-official, cross-host,
+Quest, or arbitrary-shape compatibility. Current activation closure and
+serialized Standard remain mandatory.
+
 LSLC-007D focuses the caller-selected discovery-response to session adapter:
 
 ```text

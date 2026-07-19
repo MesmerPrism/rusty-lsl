@@ -23,6 +23,18 @@ adapt to this owner with their exact legacy error mappings; they are not
 parallel lifecycle or codec authorities. A zero remaining terminal deadline is
 classified before invoking platform socket timeout APIs.
 
+## Bounded Double64 session seam
+
+Double64 is a sealed format strategy beneath the same session lifecycle, not a
+second socket owner. It owns its value-size-eight handshake, two exact
+initialization records, record encoding, and bit-preserving decoding. The
+lifecycle retains preflight, accept/connect, terminal deadline, close, reports,
+and cleanup. Admission is deliberately closed to the two observed shapes:
+one channel with one caller record, or two channels with three caller records.
+The legacy fixed-width Double64 functions convert at the facade boundary and
+map errors explicitly; integer fixed-width implementations remain separate
+unchanged compatibility paths until a later production unit.
+
 ## Production convergence
 
 The target architecture is a single coherent public outlet/inlet session

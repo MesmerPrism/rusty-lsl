@@ -986,6 +986,7 @@ impl<'a> TimestampedDouble64OutletSession<'a> {
         records: &'a [TimestampedSample<f64>],
     ) -> Result<Self, TimestampedDouble64SessionPreflightError> {
         let channel_count = require_outlet_shape_generic(session_limits, records)?;
+        require_evidenced_double64_shape(channel_count, records.len())?;
         Ok(Self {
             activation,
             listener: Some(listener),
@@ -1047,6 +1048,7 @@ impl<'a> TimestampedDouble64InletSession<'a> {
         record_count: usize,
     ) -> Result<Self, TimestampedDouble64SessionPreflightError> {
         require_shape(session_limits, channel_count, record_count)?;
+        require_evidenced_double64_shape(channel_count, record_count)?;
         Ok(Self {
             activation,
             peer,
@@ -1077,6 +1079,22 @@ impl<'a> TimestampedDouble64InletSession<'a> {
             records,
             channels: self.channel_count,
         })
+    }
+}
+
+fn require_evidenced_double64_shape(
+    channel_count: usize,
+    record_count: usize,
+) -> Result<(), TimestampedDouble64SessionPreflightError> {
+    match (channel_count, record_count) {
+        (1, 1) | (2, 3) => Ok(()),
+        (_, 1 | 3) => Err(TimestampedDouble64SessionPreflightError::ChannelCount {
+            index: 0,
+            actual: channel_count,
+        }),
+        _ => Err(TimestampedDouble64SessionPreflightError::RecordCount {
+            actual: record_count,
+        }),
     }
 }
 
@@ -1458,6 +1476,10 @@ mod tests {
                 0x4092_5b80_0000_0002,
                 &[0x7ff8_0000_0000_0042, 0x4000_0000_0000_0003],
             ),
+            double64_sample(
+                0x4092_64e0_0000_0003,
+                &[0x8000_0000_0000_0000, 0x4010_0000_0000_0004],
+            ),
         ];
         let worker = thread::spawn(move || {
             TimestampedDouble64OutletSession::preflight_bounded(
@@ -1470,7 +1492,7 @@ mod tests {
                     Duration::from_secs(1),
                 )
                 .unwrap(),
-                TimestampedDouble64SessionLimits::new(2, 2).unwrap(),
+                TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
                 &records,
             )
             .unwrap()
@@ -1487,14 +1509,14 @@ mod tests {
                 Duration::from_secs(1),
             )
             .unwrap(),
-            TimestampedDouble64SessionLimits::new(2, 2).unwrap(),
+            TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
             2,
-            2,
+            3,
         )
         .unwrap()
         .finish(&AtomicBool::new(false))
         .unwrap();
-        assert_eq!(received.record_count(), 2);
+        assert_eq!(received.record_count(), 3);
         assert_eq!(received.channel_count(), 2);
         assert_eq!(
             received.records()[0].sample().values()[1].to_bits(),
@@ -1504,9 +1526,45 @@ mod tests {
             received.records()[1].sample().values()[0].to_bits(),
             0x7ff8_0000_0000_0042
         );
+        assert_eq!(
+            received.records()[2].sample().values()[0].to_bits(),
+            0x8000_0000_0000_0000
+        );
         let sent = worker.join().unwrap();
-        assert_eq!(sent.record_count(), 2);
+        assert_eq!(sent.record_count(), 3);
         assert_eq!(sent.local_address(), address);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p2_double64_rejects_unevidenced_shapes_before_socket_io() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [double64_sample(
+            0x4092_5220_0000_0001,
+            &[1.0f64.to_bits(); 2],
+        )];
+        let identity = identity();
+        let result = TimestampedDouble64OutletSession::preflight_bounded(
+            double64_activation(),
+            listener,
+            &identity,
+            handshake_limits(),
+            TimestampedDouble64SessionIoLimits::new(
+                Duration::from_millis(5),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+            &records,
+        );
+        assert!(matches!(
+            result,
+            Err(TimestampedDouble64SessionPreflightError::ChannelCount {
+                index: 0,
+                actual: 2
+            })
+        ));
         TcpListener::bind(address).unwrap();
     }
 
