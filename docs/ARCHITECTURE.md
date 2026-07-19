@@ -1,5 +1,11 @@
 # Architecture
 
+The bounded Float32 pipeline coordinates existing owners without absorbing
+them: caller acquisition feeds finite recovery, one recovered record feeds the
+clock owner once, and the corrected record feeds the caller-owned bounded
+queue once. It owns no discovery selection, socket/session lifecycle, codec,
+policy, clock domain, queue capacity, or cancellation source.
+
 The sole bounded session lifecycle owns accept/connect, handshake,
 initialization, record transfer, terminal close, and cleanup for the admitted
 String shape. String encoding and validation are a sealed crate-private

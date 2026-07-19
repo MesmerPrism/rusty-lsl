@@ -1,5 +1,10 @@
 # Rusty LSL
 
+The production runtime now exposes a bounded discovery-independent Float32
+recovery → clock-correction → queue pipeline. Callers retain acquisition,
+policy, activation, clock, queue, and distinct cancellation ownership; runtime
+activation remains explicit and default-disabled.
+
 The bounded one-channel one-record String runtime now uses the same sole
 session lifecycle owner as the accepted numeric paths. Its sealed internal
 strategy preserves the existing framing and public adapters; activation

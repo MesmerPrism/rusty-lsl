@@ -1,5 +1,11 @@
 # Validation
 
+LSLC-007H validation covers the discovery-independent P4 pipeline through the
+existing nine recovery/clock/queue lifecycle cases, 23 public API tests,
+session and all-format non-regression, the unchanged revision-20
+default-disabled activation closure, serialized Standard, workflow,
+instruction, and publication gates. No oracle or device rerun is required.
+
 LSLC-007G validation covers the bounded String session path, exact 0–129-byte
 and UTF-8/damage behavior, numeric and public-API non-regression, revision-20
 default-disabled activation closure, serialized Standard, workflow,
