@@ -1,11 +1,5 @@
 # Architecture
 
-LSLC-006B changes only tests around the existing UDP discovery owner. Response
-order, source address, query identity, owned bytes, cancellation ordering, and
-socket lifetime retain their existing production ownership and bytes; no
-discovery, selection, activation, compatibility, device, or Manifold authority
-is added.
-
 LSLC-006A changes only tests around the existing runtime-activation owner. The
 accepted lock, consumer identity, canonical receipt, effective markers, and
 capability projections retain their existing production ownership and bytes;
