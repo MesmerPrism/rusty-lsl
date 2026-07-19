@@ -6,7 +6,7 @@
   "revision": 25,
   "generated_at": "2026-07-19T19:29:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "fc31ac756d6887327f3af4c4aa201ec54533f49dd856af2f1d52b25b4af6527c",
+  "lock_fingerprint": "71450e42b5201bc6ac7388fc2fd0f368a9da688f530262ea26c7b746b5e8c560",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -141,9 +141,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/fixed-width-numeric-sample.json",
-      "sha256": "4811e8c0ad4d2d022bdbcd1c9150d5b9a7ec4fe7794446a40e78ab1564a609c7",
+      "sha256": "f87048fa1bfe0929c0e9f6d9287d7c11b8c80f42a7035d5a76e6aabd55a7fdac",
         "source_repo": "rusty-lsl",
-        "source_revision": "ae2e65d148899d226a5826a50220f8598e5176d2",
+        "source_revision": "fad152a573daad3da508e11c049f5680100596a8",
         "source_path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
         "source_sha256": "2c5247bc9f94dd2ccf12adbd86ba276833ab5ea48c4e7f9b8bcebca53c3b3779"
       },
@@ -366,9 +366,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/string-sample.json",
-      "sha256": "26a637dbc87b172ea5666b1ae7b0863f370b934e74bbce54dd5c8d49cf4046df",
+      "sha256": "22f3ab5f36b47b91c7d43b8a9c0d1e77430603c149ecbe863acd99d36a973312",
         "source_repo": "rusty-lsl",
-        "source_revision": "ae2e65d148899d226a5826a50220f8598e5176d2",
+        "source_revision": "fad152a573daad3da508e11c049f5680100596a8",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
         "source_sha256": "c8bf19774d32d01308d43676bbf9fb3ed6e81823f59713e8ccf38f198264d14a"
       },
@@ -421,9 +421,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-      "sha256": "8b1666cb5287415274aa4733bd453d27038a3ab817e99e67cd13c9a534fbc115",
+      "sha256": "1cb4aaaf360a0bc76c08ee8456419baf7376027c031f07513ce484c13b4f902f",
         "source_repo": "rusty-lsl",
-        "source_revision": "ae2e65d148899d226a5826a50220f8598e5176d2",
+        "source_revision": "fad152a573daad3da508e11c049f5680100596a8",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
         "source_sha256": "c8bf19774d32d01308d43676bbf9fb3ed6e81823f59713e8ccf38f198264d14a"
       },
