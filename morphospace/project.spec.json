@@ -2,9 +2,9 @@
   "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/project-spec-v2.schema.json",
   "schema": "rusty.morphospace.workflow.project_spec.v2",
   "project_id": "rusty-lsl",
-  "revision": 3,
+  "revision": 6,
   "owner": "rusty-lsl-project",
-  "purpose": "Develop an independently authored Rust implementation of Lab Streaming Layer compatibility with explicit typed Rusty Morphospace observation and proposal hooks.",
+  "purpose": "Deliver a production-quality independently authored pure-Rust Lab Streaming Layer implementation with a coherent native outlet/inlet lifecycle, bounded transport, required compatibility evidence, and explicit typed advisory Rusty Morphospace observation and proposal hooks.",
   "activation_model": {
     "default": "disabled",
     "unlisted_modules": "inert",
@@ -114,6 +114,27 @@
   ],
   "repositories": [
     {
+      "repo_id": "workflow-environment",
+      "role": "tool",
+      "path": "<work-environment-root>",
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/PLANNED_PUBLICATION_ACCOUNTING.md",
+        "schemas/publication-ordering-interruption.schema.json",
+        "schemas/planned-publication-accounting-receipt.schema.json",
+        "schemas/push-bundle-plan.schema.json",
+        "scripts/Invoke-WorkUnitAutomation.ps1",
+        "scripts/Test-WorkflowContracts.ps1",
+        "scripts/Test-PlannedPublicationAccounting.ps1",
+        "scripts/Test-WorkUnitAutomation.ps1",
+        "scripts/WorkUnitAutomation.psm1",
+        "scripts/lib/MorphospacePlannedPublication.psm1",
+        "skills/rusty-morphospace-context/SKILL.md",
+        "skills/system-engineering/SKILL.md"
+      ]
+    },
+    {
       "repo_id": "rusty-lsl",
       "role": "core",
       "path": "..",
@@ -137,9 +158,24 @@
       "role": "platform-test-harness",
       "path": "../rusty-quest",
       "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/VALIDATION.md",
         "apps/lsl-multicast-conformance-android/",
+        "apps/lsl-rust-conformance-android/",
+      "apps/lsl-rust-float32-loopback-android/",
+      "apps/lsl-rust-float32-two-record-chunk-android/",
         "tools/Build-LslMulticastConformanceAndroid.ps1",
-        "tools/Test-LslMulticastConformanceAndroid.ps1"
+        "tools/Test-LslMulticastConformanceAndroid.ps1",
+        "tools/Build-LslRustConformanceAndroid.ps1",
+        "tools/Invoke-LslRustConformanceQuest.ps1",
+        "tools/Test-LslRustConformanceAndroid.ps1",
+        "tools/Build-LslRustFloat32LoopbackAndroid.ps1",
+        "tools/Invoke-LslRustFloat32LoopbackQuest.ps1",
+      "tools/Test-LslRustFloat32LoopbackAndroid.ps1"
+      ,"tools/Build-LslRustFloat32TwoRecordChunkAndroid.ps1"
+      ,"tools/Invoke-LslRustFloat32TwoRecordChunkQuest.ps1"
+      ,"tools/Test-LslRustFloat32TwoRecordChunkAndroid.ps1"
       ]
     }
   ],
@@ -257,7 +293,7 @@
     }
   ],
   "non_scope": [
-    "LSL runtime beyond the explicitly bounded caller-configured UDP discovery, TCP connection-setup, one-record timestamped float32, integrated clock-correction, bounded sample-queue, and finite caller-invoked recovery calls, including multicast membership, endpoint selection, other sample shapes/formats, periodic clocks, automatic reconnection, and FFI.",
+    "Ambient activation, unbounded transport or recovery, implicit endpoint or policy ownership, copied or translated liblsl or rLSL implementation source, and production claims without named evidence. The versioned production roadmap may add bounded native lifecycle, stream-shape, discovery, clocking, buffering, recovery, and advisory integration behavior through explicit units.",
     "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
     "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
     "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."
@@ -266,25 +302,43 @@
     {
       "profile_id": "runtime-loopback",
       "commands": [
-        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003b.ps1"
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003b.ps1"
       ]
     },
     {
       "profile_id": "source-owner",
       "commands": [
-        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
       ]
     },
     {
       "profile_id": "source-only",
       "commands": [
-        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
       ]
     },
     {
       "profile_id": "workflow",
       "commands": [
         "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
+      ]
+    },
+    {
+      "profile_id": "workflow-focused",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkUnitAutomation.ps1"
+      ]
+    },
+    {
+      "profile_id": "publication-focused",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-PlannedPublicationAccounting.ps1 -SelfTest"
+      ]
+    },
+    {
+      "profile_id": "workflow-standard",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkEnvironment.ps1 -SelfTest -Tier Standard"
       ]
     },
     {

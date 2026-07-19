@@ -5,9 +5,9 @@
 
 /// Fingerprint of the complete accepted feature lock.
 pub const ACCEPTED_FEATURE_LOCK_FINGERPRINT: &str =
-    "5436abd8975180024f7f0e78eafa6e1e9aba51556b1bcedc27caf6ba10aa3eb5";
+    "6ca3a41d93d11085310fac12c085e7183448c4c7f38037921a95a00aedfcb68c";
 /// Revision of the complete accepted feature lock.
-pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 15;
+pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 16;
 
 const MAX_CONSUMER_ID_BYTES: usize = 128;
 const MODULE_COUNT: usize = 9;
@@ -438,11 +438,11 @@ mod tests {
     }
 
     #[test]
-    fn current_revision_15_admits_and_revision_14_fingerprint_rejects() {
+    fn current_revision_16_admits_and_revision_14_fingerprint_rejects() {
         let current =
             admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, "lslc-004i-current", &[])
                 .unwrap();
-        assert_eq!(current.receipt().lock_revision(), 15);
+        assert_eq!(current.receipt().lock_revision(), 16);
         assert_eq!(current.receipt().selected_modules(), &[]);
         assert_eq!(
             admit_runtime_activation(

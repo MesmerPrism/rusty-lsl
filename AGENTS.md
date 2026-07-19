@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+LSLC-007B introduces the sole bounded Float32 outlet/inlet session owner for
+exactly one or two records. It owns preflight, accept/connect, handshake,
+one-time initialization, terminal close, consuming completion reports, and a
+crate-private codec; the earlier one-record and two-record public functions are
+thin compatibility adapters. Feature-lock revision 16 binds the exact session
+source and remains default-disabled. It adds no discovery, clocks, queues,
+recovery, other formats, arbitrary shapes, device behavior, broader
+compatibility, or Manifold authority.
+
 Current canonical direction is the production roadmap in
 `docs/LSL-PRODUCTION-ROADMAP.md`: build one coherent independently authored
 pure-Rust LSL runtime, prioritize production lifecycle and reusable engines,

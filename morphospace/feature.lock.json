@@ -2,11 +2,11 @@
   "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-lock-v2.schema.json",
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
-  "project_revision": 3,
-  "revision": 14,
-  "generated_at": "2026-07-18T09:51:11.6561873Z",
+  "project_revision": 6,
+  "revision": 16,
+  "generated_at": "2026-07-19T12:14:34Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "787827cfe80bd7ff856a304a4f1389070db264d8726a744cd967bbd0948c2c0c",
+  "lock_fingerprint": "6ca3a41d93d11085310fac12c085e7183448c4c7f38037921a95a00aedfcb68c",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -415,17 +415,17 @@
     {
       "feature_id": "timestamped-float32-sample",
       "module_id": "timestamped-float32-sample",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "owner_lane": "rusty-lsl",
       "selected": true,
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "3d966f69ced819f9069ad372f5473597ab681a491a02337dc911aeb485e0f500",
+        "sha256": "320ca140bf266e2ae8efe6c9c3ae8fc37ca8bdf0936284caf070e62b16b7b34e",
         "source_repo": "rusty-lsl",
-        "source_revision": "8a49a9ce9e1dbf94916df781ed265a18c368f72b",
-        "source_path": "crates/rusty-lsl/src/timestamped_float32_sample_runtime.rs",
-        "source_sha256": "5bff3409bc533fc2d2b5e6e0054be01676d3e85426f5b702905fc1fd4f135f08"
+        "source_revision": "abe33f77c2ff9b26af36a07e9e240adf457da70b",
+        "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
+        "source_sha256": "0b526b58a31e41593961bcd3d6ded32e813613a38d90334e3c485659cb976563"
       },
       "dependencies": [
         "stream-handshake"

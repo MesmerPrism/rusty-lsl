@@ -1,5 +1,15 @@
 # Architecture
 
+## Bounded Float32 session owner
+
+`timestamped_float32_session_runtime` is the sole connection-lifecycle and
+codec authority for the accepted one-channel Float32 vertical. Explicit outlet
+and inlet owners move through preflight, accept/connect, handshake, one-time
+initialization, exactly one or two records, terminal close, and a consuming
+completion report. `Drop` performs only nonblocking best-effort cleanup. The
+older one-record and two-record functions adapt to this owner with their exact
+legacy error mappings; they are not parallel lifecycle or codec authorities.
+
 ## Production convergence
 
 The target architecture is a single coherent public outlet/inlet session
