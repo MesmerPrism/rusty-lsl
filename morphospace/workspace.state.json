@@ -56,8 +56,8 @@
   "last_accepted_receipt": "receipts/rlsl-lslc-004w-resumed-standard-validation.json",
   "last_event_id": "rlsl-lslc-004w-bounded-discovery-selection-suggestion-accepted-0645",
   "module_registry": {
-    "lock_fingerprint": "2134878271a9c750b8e72d59e0ab9c7bc8b5596b6f5fc2f797493bed218e5e9d",
-    "lock_revision": 17,
+    "lock_fingerprint": "e44385ced21afac1b81f308b878653fb237510bcb6d9a262c33d08deda531a20",
+    "lock_revision": 18,
     "modules": [
       {
         "contract": "rusty.lsl.bounded_sample_queue.v1",

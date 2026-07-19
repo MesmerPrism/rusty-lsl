@@ -3,10 +3,10 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 6,
-  "revision": 17,
-  "generated_at": "2026-07-19T15:30:00Z",
+  "revision": 18,
+  "generated_at": "2026-07-19T16:10:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "2134878271a9c750b8e72d59e0ab9c7bc8b5596b6f5fc2f797493bed218e5e9d",
+  "lock_fingerprint": "e44385ced21afac1b81f308b878653fb237510bcb6d9a262c33d08deda531a20",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -141,11 +141,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/fixed-width-numeric-sample.json",
-        "sha256": "749198127c0f5689ebe761f2cb917cf2d481e580caa665da688dede1c990f1d6",
+        "sha256": "2f61f8464dda68c70293acb8ee478e39aa832801a09645ebfa69c81f17a845c9",
         "source_repo": "rusty-lsl",
-        "source_revision": "44e803df633663303a0a00ab0073aeb502c248ce",
+        "source_revision": "8f629fd9f80a1964bf336e1be2086a48aad9c728",
         "source_path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
-        "source_sha256": "75d5f5f32f8fcdea9865a4e00bffd6e33c816ccd082cbbe4db1053ed863a53e5"
+        "source_sha256": "03ea5fd2b7741011c2529bcfaa90279c91da72746050053ce8fc299cfaea7290"
       },
       "dependencies": [
         "stream-handshake"
@@ -421,11 +421,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "479370d630e5f5bf75dfe7cc27d8bbce2579064612b0e34bf3e7017b04ce812a",
+        "sha256": "fc6bad96d2acb3ff0d4388b1d513afd3d8022ade31d398e0b4f08acbcb6e47f0",
         "source_repo": "rusty-lsl",
-        "source_revision": "1c1c4370943bbf8ff6808bfd40b013684398a8d0",
+        "source_revision": "8f629fd9f80a1964bf336e1be2086a48aad9c728",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-        "source_sha256": "5faf6464aec083080f2f123e940ca97ab76b095656b8e5b43284e06766449b31"
+        "source_sha256": "d76794ff85abfe8d509c1432c2d3e732221347d415a3adf21305dc3dc2467bb7"
       },
       "dependencies": [
         "stream-handshake"
