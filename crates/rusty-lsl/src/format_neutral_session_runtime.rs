@@ -202,11 +202,7 @@ pub(crate) fn finish_outlet<F: SealedSessionStrategy>(
             .map_err(|error| F::record_error(Some(index), error))?;
     }
     terminal_close(stream.0.take());
-    Ok(CompletedOutletSession {
-        local,
-        peer,
-        shape,
-    })
+    Ok(CompletedOutletSession { local, peer, shape })
 }
 
 pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
@@ -232,10 +228,7 @@ pub(crate) fn finish_inlet<F: SealedSessionStrategy>(
     }
     require_peer_close::<F>(socket, format_limits, cancelled)?;
     terminal_close(stream.0.take());
-    Ok(CompletedInletSession {
-        records,
-        shape,
-    })
+    Ok(CompletedInletSession { records, shape })
 }
 
 pub(crate) fn terminal_close(stream: Option<TcpStream>) {
