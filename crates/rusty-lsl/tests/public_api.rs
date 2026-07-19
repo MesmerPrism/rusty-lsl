@@ -361,6 +361,19 @@ fn p10_bounded_integer_session_verticals_are_public_on_both_facades() {
 }
 
 #[test]
+fn p11_bounded_string_session_vertical_is_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringOutletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringInletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringOutletSessionReport>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringInletSessionReport>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringSessionError>() > 0);
+    let _root_outlet = rusty_lsl::TimestampedStringOutletSession::preflight_bounded;
+    let _runtime_outlet = runtime::TimestampedStringOutletSession::preflight_bounded;
+    let _root_inlet = rusty_lsl::TimestampedStringInletSession::preflight_bounded;
+    let _runtime_inlet = runtime::TimestampedStringInletSession::preflight_bounded;
+}
+
+#[test]
 fn discovery_to_bounded_float32_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32SessionConnectionError>() > 0);
     let _root = rusty_lsl::run_selected_typed_udp_discovery_float32_session_inlet;

@@ -1,5 +1,12 @@
 # Architecture
 
+The concrete String session facade admits only the accepted one-channel,
+one-caller-record shape and already validated 0 through 129 UTF-8-byte values.
+Preflight occurs before socket I/O; consuming reports preserve the received
+String allocation. The sealed String strategy remains subordinate to the sole
+format-neutral lifecycle, and legacy entrypoints explicitly retain their
+historical error projection.
+
 Typed integer sessions expose three concrete public facade/report families.
 They do not expose the generic engine or sealed width strategy. Preflight owns
 only exact bounded shape and typed-value projection; the private

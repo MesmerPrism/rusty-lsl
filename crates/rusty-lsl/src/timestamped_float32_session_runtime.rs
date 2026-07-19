@@ -17,8 +17,8 @@ use crate::{
     FixedWidthNumericSampleActivation, FixedWidthNumericSampleError,
     FixedWidthNumericSampleLimitError, FixedWidthNumericSampleLimits, FixedWidthNumericValue,
     RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeError, StreamHandshakeIdentity,
-    StreamHandshakeLimits, StringSampleError, StringSampleLimits, StringSampleRecord,
-    TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
+    StreamHandshakeLimits, StringSampleActivation, StringSampleError, StringSampleLimits,
+    StringSampleRecord, TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
     TimestampedFloat32SampleLimits, TimestampedSample,
 };
 use std::io::ErrorKind;
@@ -495,7 +495,7 @@ mod session_format {
         type Sample = StringSampleRecord;
         type Limits = StringSampleLimits;
         type RecordError = StringSampleError;
-        type SessionError = StringSampleError;
+        type SessionError = TimestampedStringSessionError;
 
         fn accept(
             listener: TcpListener,
@@ -563,22 +563,22 @@ mod session_format {
             limits.total_deadline()
         }
         fn handshake_error(error: StreamHandshakeError) -> Self::SessionError {
-            StringSampleError::Handshake(error)
+            TimestampedStringSessionError::Handshake(error)
         }
-        fn record_error(_index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
-            error
+        fn record_error(index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
+            TimestampedStringSessionError::Record { index, error }
         }
         fn cancelled_error() -> Self::SessionError {
-            StringSampleError::Cancelled
+            Self::record_error(None, StringSampleError::Cancelled)
         }
         fn deadline_error() -> Self::SessionError {
-            StringSampleError::Deadline
+            Self::record_error(None, StringSampleError::Deadline)
         }
         fn io_error(kind: ErrorKind) -> Self::SessionError {
-            StringSampleError::Io(kind)
+            Self::record_error(None, StringSampleError::Io(kind))
         }
-        fn trailing_byte(_actual: u8) -> Self::SessionError {
-            StringSampleError::Io(ErrorKind::InvalidData)
+        fn trailing_byte(actual: u8) -> Self::SessionError {
+            TimestampedStringSessionError::TrailingByte { actual }
         }
     }
 }
@@ -742,6 +742,7 @@ pub(crate) fn finish_string_outlet_session(
         cancelled,
     )
     .map(|(local, _)| local)
+    .map_err(map_string_session_error_legacy)
 }
 
 pub(crate) fn finish_string_inlet_session(
@@ -763,6 +764,17 @@ pub(crate) fn finish_string_inlet_session(
         cancelled,
     )
     .map(|mut records| records.pop().expect("one preflighted String record"))
+    .map_err(map_string_session_error_legacy)
+}
+
+fn map_string_session_error_legacy(error: TimestampedStringSessionError) -> StringSampleError {
+    match error {
+        TimestampedStringSessionError::Handshake(error) => StringSampleError::Handshake(error),
+        TimestampedStringSessionError::Record { error, .. } => error,
+        TimestampedStringSessionError::TrailingByte { .. } => {
+            StringSampleError::Io(ErrorKind::InvalidData)
+        }
+    }
 }
 
 /// Explicit nonzero I/O bounds for a bounded Double64 session.
@@ -1656,6 +1668,219 @@ fixed_width_integer_session_facade!(
     TimestampedInt8InletSession
 );
 
+/// Bounded shape limits for the concrete one-channel, one-record String facade.
+pub type TimestampedStringSessionLimits = TimestampedFloat32SessionLimits;
+/// Invalid bounded String session shape limits.
+pub type TimestampedStringSessionLimitError = TimestampedFloat32SessionLimitError;
+/// Socket-free String shape preflight failure.
+pub type TimestampedStringSessionPreflightError = TimestampedFloat32SessionPreflightError;
+
+/// Stable failure from a started String session.
+#[derive(Debug, Eq, PartialEq)]
+pub enum TimestampedStringSessionError {
+    /// Accept/connect and handshake failed before initialization.
+    Handshake(StreamHandshakeError),
+    /// Initialization, the caller record, or terminal-close work failed.
+    Record {
+        /// Caller-record index, or `None` for initialization/terminal work.
+        index: Option<usize>,
+        /// Unchanged subordinate String framing or transport failure.
+        error: StringSampleError,
+    },
+    /// The inlet observed a byte after its exact admitted record count.
+    TrailingByte {
+        /// First trailing byte.
+        actual: u8,
+    },
+}
+
+/// Successful String outlet lifecycle report.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedStringOutletSessionReport {
+    local: SocketAddr,
+    peer: SocketAddr,
+}
+impl TimestampedStringOutletSessionReport {
+    /// Bound listener address selected by the caller.
+    pub const fn local_address(&self) -> SocketAddr {
+        self.local
+    }
+    /// Accepted peer address.
+    pub const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+    /// Exact caller-record count written.
+    pub const fn record_count(&self) -> usize {
+        1
+    }
+    /// Exact homogeneous channel count.
+    pub const fn channel_count(&self) -> usize {
+        1
+    }
+    /// Terminal completion classification from the shared lifecycle.
+    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+        TimestampedFloat32SessionCompletion::Complete
+    }
+}
+
+/// Successful String inlet lifecycle report.
+#[derive(Debug)]
+pub struct TimestampedStringInletSessionReport {
+    peer: SocketAddr,
+    records: Vec<StringSampleRecord>,
+}
+impl TimestampedStringInletSessionReport {
+    /// Caller-selected peer address.
+    pub const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+    /// The exact received caller record.
+    pub fn records(&self) -> &[StringSampleRecord] {
+        &self.records
+    }
+    /// Exact received record count.
+    pub fn record_count(&self) -> usize {
+        self.records.len()
+    }
+    /// Exact homogeneous channel count.
+    pub const fn channel_count(&self) -> usize {
+        1
+    }
+    /// Terminal completion classification from the shared lifecycle.
+    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+        TimestampedFloat32SessionCompletion::Complete
+    }
+    /// Consumes the report without copying, reallocating, or reordering the String record.
+    pub fn into_records(self) -> Vec<StringSampleRecord> {
+        self.records
+    }
+}
+
+/// Preflighted concrete String outlet facade over the sole session lifecycle.
+pub struct TimestampedStringOutletSession<'a> {
+    activation: StringSampleActivation,
+    listener: Option<TcpListener>,
+    identity: &'a StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: StringSampleLimits,
+    records: &'a [StringSampleRecord],
+}
+impl<'a> TimestampedStringOutletSession<'a> {
+    /// Validates the exact one-channel, one-record, 0..=129-byte shape before socket I/O.
+    pub fn preflight_bounded(
+        activation: StringSampleActivation,
+        listener: TcpListener,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        io_limits: StringSampleLimits,
+        session_limits: TimestampedStringSessionLimits,
+        records: &'a [StringSampleRecord],
+    ) -> Result<Self, TimestampedStringSessionPreflightError> {
+        require_shape(session_limits, 1, records.len())?;
+        require_evidenced_string_shape(1, records.len())?;
+        debug_assert!(records.iter().all(|record| record.value().len() <= 129));
+        Ok(Self {
+            activation,
+            listener: Some(listener),
+            identity,
+            handshake_limits,
+            io_limits,
+            records,
+        })
+    }
+    /// Consumes the facade through the sole accept/handshake/initialize/record/close lifecycle.
+    pub fn finish(
+        mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedStringOutletSessionReport, TimestampedStringSessionError> {
+        let listener = self
+            .listener
+            .take()
+            .expect("preflighted listener is present");
+        let _ = self.activation;
+        let (local, peer) = finish_outlet::<session_format::StringSample>(
+            listener,
+            self.identity,
+            self.handshake_limits,
+            self.io_limits,
+            self.records,
+            1,
+            cancelled,
+        )?;
+        Ok(TimestampedStringOutletSessionReport { local, peer })
+    }
+}
+
+/// Preflighted concrete String inlet facade over the sole session lifecycle.
+pub struct TimestampedStringInletSession<'a> {
+    activation: StringSampleActivation,
+    peer: SocketAddr,
+    identity: &'a StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: StringSampleLimits,
+}
+impl<'a> TimestampedStringInletSession<'a> {
+    /// Validates the exact one-channel, one-record shape before connecting.
+    pub fn preflight_bounded(
+        activation: StringSampleActivation,
+        peer: SocketAddr,
+        identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        io_limits: StringSampleLimits,
+        session_limits: TimestampedStringSessionLimits,
+        channel_count: usize,
+        record_count: usize,
+    ) -> Result<Self, TimestampedStringSessionPreflightError> {
+        require_shape(session_limits, channel_count, record_count)?;
+        require_evidenced_string_shape(channel_count, record_count)?;
+        Ok(Self {
+            activation,
+            peer,
+            identity,
+            handshake_limits,
+            io_limits,
+        })
+    }
+    /// Consumes the facade through the sole connect/handshake/initialize/record/close lifecycle.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedStringInletSessionReport, TimestampedStringSessionError> {
+        let _ = self.activation;
+        let records = finish_inlet::<session_format::StringSample>(
+            self.peer,
+            self.identity,
+            self.handshake_limits,
+            self.io_limits,
+            1,
+            1,
+            cancelled,
+        )?;
+        Ok(TimestampedStringInletSessionReport {
+            peer: self.peer,
+            records,
+        })
+    }
+}
+
+fn require_evidenced_string_shape(
+    channel_count: usize,
+    record_count: usize,
+) -> Result<(), TimestampedStringSessionPreflightError> {
+    if record_count != 1 {
+        return Err(TimestampedStringSessionPreflightError::RecordCount {
+            actual: record_count,
+        });
+    }
+    if channel_count != 1 {
+        return Err(TimestampedStringSessionPreflightError::ChannelCount {
+            index: 0,
+            actual: channel_count,
+        });
+    }
+    Ok(())
+}
+
 /// Bounded homogeneous shape limits shared by the Double64 session facade.
 pub type TimestampedDouble64SessionLimits = TimestampedFloat32SessionLimits;
 /// Invalid bounded Double64 session shape limits.
@@ -2147,6 +2372,15 @@ mod tests {
         .unwrap()
     }
 
+    fn string_activation() -> StringSampleActivation {
+        StringSampleActivation::new(
+            test_capability(RuntimeModule::StringSample),
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap(),
+        )
+        .unwrap()
+    }
+
     fn handshake_limits() -> StreamHandshakeLimits {
         StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(1))
             .unwrap()
@@ -2229,6 +2463,82 @@ mod tests {
             RawSourceTimestamp::new(f64::from_bits(timestamp_bits)).unwrap(),
             None,
         )
+    }
+
+    #[test]
+    fn p11_string_facade_preserves_boundary_utf8_bits_reports_and_port_reuse() {
+        for (timestamp, value) in [(1238.25, String::new()), (1239.5, "μ".repeat(64) + "a")] {
+            assert!(value.len() <= 129);
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let expected = value.clone();
+            let worker = thread::spawn(move || {
+                let records = [StringSampleRecord::new(timestamp, value).unwrap()];
+                TimestampedStringOutletSession::preflight_bounded(
+                    string_activation(),
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+                        .unwrap(),
+                    TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                    &records,
+                )
+                .unwrap()
+                .finish(&AtomicBool::new(false))
+                .unwrap()
+            });
+            let received = TimestampedStringInletSession::preflight_bounded(
+                string_activation(),
+                address,
+                &identity(),
+                handshake_limits(),
+                StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap();
+            assert_eq!(
+                received.records()[0].timestamp().to_bits(),
+                timestamp.to_bits()
+            );
+            assert_eq!(received.records()[0].value(), expected);
+            let allocation = received.records()[0].value().as_ptr();
+            let records = received.into_records();
+            assert_eq!(records[0].value().as_ptr(), allocation);
+            let sent = worker.join().unwrap();
+            assert_eq!(sent.local_address(), address);
+            assert_eq!(sent.record_count(), 1);
+            assert_eq!(sent.channel_count(), 1);
+            TcpListener::bind(address).expect("completed facade released listener port");
+        }
+    }
+
+    #[test]
+    fn p11_string_facade_rejects_shape_and_value_before_io() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records: [StringSampleRecord; 0] = [];
+        assert!(matches!(
+            TimestampedStringOutletSession::preflight_bounded(
+                string_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                &records,
+            ),
+            Err(TimestampedStringSessionPreflightError::RecordCount { actual: 0 })
+        ));
+        TcpListener::bind(address).expect("shape preflight performed no accept");
+        assert_eq!(
+            StringSampleRecord::new(1.0, "x".repeat(130)),
+            Err(StringSampleError::ValueTooLong { actual: 130 })
+        );
     }
 
     macro_rules! integer_facade_host_test {

@@ -1,5 +1,11 @@
 # Rusty LSL
 
+The concrete String outlet/inlet session facade admits only one channel and one
+caller record containing 0 through 129 UTF-8 bytes. It preflights before I/O,
+returns consuming completed reports, and uses the same private lifecycle and
+sealed String strategy as the legacy entrypoints; activation remains explicit
+and disabled by default.
+
 Concrete Int32, Int16, and Int8 session facades cover the evidenced one-record
 and two-channel/three-record shapes. They preflight before I/O and complete
 through the same private lifecycle engine as the existing Float32, Double64,
