@@ -3138,6 +3138,88 @@ mod tests {
     }
 
     #[test]
+    fn p3_explicit_connect_finish_preserves_canonical_report_and_releases_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [sample(0x4092_5220_0000_0001, 0xbf80_0042)];
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let session_identity = identity();
+        let connected = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(connected.peer(), address);
+        assert_eq!(connected.channel_count(), 1);
+        assert_eq!(connected.record_count(), 1);
+        let report = connected.finish(&AtomicBool::new(false)).unwrap();
+        assert_eq!(report.peer(), address);
+        assert_eq!(
+            report.records()[0].raw_source_timestamp().value().to_bits(),
+            0x4092_5220_0000_0001
+        );
+        assert_eq!(
+            report.records()[0].sample().values()[0].to_bits(),
+            0xbf80_0042
+        );
+        assert_eq!(report.into_records().len(), 1);
+        worker.join().unwrap();
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p3_explicit_connect_close_consumes_owner_without_completion() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [sample(0x4092_5220_0000_0001, 0x3f80_0001)];
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+        });
+        let session_identity = identity();
+        TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap()
+        .close();
+        assert!(worker.join().unwrap().is_err());
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
     fn lslc_007b_preflight_rejects_count_without_consuming_listener_port() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
