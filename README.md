@@ -22,8 +22,10 @@ roadmap work.
 The same sole lifecycle now has a sealed Double64 strategy for exactly the
 evidenced one-channel/one-record and two-channel/three-record shapes. Public
 Double64 sessions own consuming completion reports, and the older fixed-width
-Double64 functions adapt into them. Integer fixed-width paths remain unchanged;
-this does not claim arbitrary Double64 shapes or official interoperability.
+Double64 functions adapt into them. Int32, Int16, and Int8 now use sealed
+strategies beneath that same lifecycle for only the accepted one-by-one and
+two-by-three shapes; their existing fixed-width functions remain thin facade
+adapters. This does not claim arbitrary shapes or official interoperability.
 
 A caller may now borrow one completed typed UDP discovery run, explicitly
 select a response, project its strict IPv4 service endpoint, and enter the sole

@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-007F moves the accepted Int32, Int16, and Int8 one-record and
+two-channel three-record paths beneath the sole session lifecycle owner. The
+integer strategies remain sealed and crate-private; legacy fixed-width
+functions preserve exact bytes, errors, cancellation, cleanup, and port reuse.
+Float32 and Double64 remain compatible, activation stays default-disabled, and
+no broader shape, compatibility, device, or Manifold authority is added.
+
 LSLC-007E adds a bounded Double64 outlet/inlet session seam beneath the sole
 session lifecycle owner. The sealed codec admits only the evidenced one-channel
 one-record and two-channel three-record shapes; existing Double64 fixed-width

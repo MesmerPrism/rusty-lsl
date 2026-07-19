@@ -32,8 +32,17 @@ lifecycle retains preflight, accept/connect, terminal deadline, close, reports,
 and cleanup. Admission is deliberately closed to the two observed shapes:
 one channel with one caller record, or two channels with three caller records.
 The legacy fixed-width Double64 functions convert at the facade boundary and
-map errors explicitly; integer fixed-width implementations remain separate
-unchanged compatibility paths until a later production unit.
+map errors explicitly.
+
+## Bounded integer session convergence
+
+Int32, Int16, and Int8 are sealed format strategies beneath the same session
+lifecycle. Their width-specific handshake, initialization values, and record
+bytes remain subordinate codec mechanics; preflight, connection, terminal
+deadline, close, and cleanup retain one owner. Only one channel with one record
+and two channels with three records are admitted before I/O. Existing
+fixed-width entrypoints adapt at the facade boundary with their legacy typed
+errors and do not expose a public generic codec or a parallel socket lifecycle.
 
 ## Production convergence
 
