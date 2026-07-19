@@ -4,6 +4,9 @@ root=pathlib.Path(__file__).resolve().parents[1]
 LSLC_003S_PIN="2c5ac93770476078638d2aded4a837b51ca91e23"
 LSLC_003S_CHECKER_SHA="4b64102806aca3a5c804e8e02bdc88eb04ae8c4a278eb35c1f9c5641f084842d"
 LSLC_003S_LAUNCHER_SHA="43f8b7c5ca5a11db555d8fe83b67ac77faa06674e380899fa8224f7489adde58"
+LSLC_004I_PIN="1121efd219e3a0068e9d750127aebaa7c0258a77"
+LSLC_004I_CHECKER_SHA="05ecc967286e0b6c84ccb642e54cd8e664f65d9f7af6933a771813532f1a00f4"
+LSLC_004I_LAUNCHER_SHA="85eb7e64c39e2ae7225ee06dd57c7c29c5514a33820c765f0652cc7896a9cceb"
 
 def git_show(path):
  return subprocess.run(["git","show",f"{LSLC_003S_PIN}:{path}"],cwd=root,check=True,capture_output=True).stdout
@@ -19,8 +22,22 @@ def replay_lslc_003s():
   finally:
    subprocess.run(["git","worktree","remove","--force",str(worktree)],cwd=root,check=True,capture_output=True)
 
+def replay_lslc_004i():
+ for path, expected in (("tools/check_lslc_004i.py",LSLC_004I_CHECKER_SHA),("tools/check_lslc_004i.ps1",LSLC_004I_LAUNCHER_SHA)):
+  data=subprocess.run(["git","show",f"{LSLC_004I_PIN}:{path}"],cwd=root,check=True,capture_output=True).stdout
+  assert hashlib.sha256(data).hexdigest()==expected
+ with tempfile.TemporaryDirectory(prefix="rusty-lsl-lslc-004i-") as parent:
+  worktree=pathlib.Path(parent)/"worktree"
+  subprocess.run(["git","worktree","add","--detach",str(worktree),LSLC_004I_PIN],cwd=root,check=True,capture_output=True)
+  try:
+   subprocess.run([sys.executable,"tools/check_lslc_004i.py"],cwd=worktree,check=True)
+  finally:
+   subprocess.run(["git","worktree","remove","--force",str(worktree)],cwd=root,check=True,capture_output=True)
+
 if sys.argv[1:]==["--replay-lslc-003s"]:
  replay_lslc_003s(); print("Pinned LSLC-003S revision-14 replay passed."); raise SystemExit(0)
+if sys.argv[1:]==["--replay-lslc-004i"]:
+ replay_lslc_004i(); print("Pinned LSLC-004I revision-14 replay passed."); raise SystemExit(0)
 assert not sys.argv[1:]
 policy=json.loads((root/"tools/validation-policy.json").read_text())
 ids=[g["id"] for g in policy["gates"]]
@@ -29,6 +46,7 @@ assert set(policy["profiles"]["standard"]) < set(policy["profiles"]["deep"])
 assert set(policy["profiles"]["ci"]) - set(policy["profiles"]["standard"])=={"pinned-rust-180-clippy"}
 assert "pinned-historical-replay" in policy["profiles"]["deep"]
 assert "pinned-lslc-003s-replay" in policy["profiles"]["deep"]
+assert "pinned-lslc-004i-replay" in policy["profiles"]["deep"]
 assert all("lslc-003s-activation" not in policy["profiles"][name] for name in ("quick","standard","deep","ci"))
 assert all("current-closure" in policy["profiles"][name] for name in ("quick","standard","deep","ci"))
 historical_gate=next(g for g in policy["gates"] if g["id"]=="pinned-lslc-003s-replay")
@@ -36,6 +54,8 @@ assert historical_gate["command"]==["python","tools/test_validation_policy.py","
 assert historical_gate["depends_on"]==[] and "current-closure" not in historical_gate["depends_on"]
 assert hashlib.sha256(git_show("tools/check_lslc_003s.py")).hexdigest()==LSLC_003S_CHECKER_SHA
 assert hashlib.sha256(git_show("tools/check_lslc_003s.ps1")).hexdigest()==LSLC_003S_LAUNCHER_SHA
+historical_004i=next(g for g in policy["gates"] if g["id"]=="pinned-lslc-004i-replay")
+assert historical_004i["command"]==["python","tools/test_validation_policy.py","--replay-lslc-004i"] and historical_004i["depends_on"]==[]
 for gate in policy["gates"]:
  assert gate["owner"] and gate["proves"] and gate["does_not_prove"] and gate["affected_paths"] and gate["change_categories"]
  assert set(gate["depends_on"]) <= set(ids)
@@ -62,5 +82,6 @@ d=copy.deepcopy(policy); d["profiles"]["quick"] += [d["profiles"]["quick"][0]]; 
 d=copy.deepcopy(policy); d["profiles"]["standard"].remove("current-closure"); damaged.append("current-closure" not in d["profiles"]["standard"])
 d=copy.deepcopy(policy); d["profiles"]["standard"].append("pinned-lslc-003s-replay"); damaged.append("pinned-lslc-003s-replay" in d["profiles"]["standard"])
 d=copy.deepcopy(policy); next(g for g in d["gates"] if g["id"]=="pinned-lslc-003s-replay")["command"]=["powershell","-File","tools/check_lslc_003s.ps1"]; damaged.append(next(g for g in d["gates"] if g["id"]=="pinned-lslc-003s-replay")["command"]!=historical_gate["command"])
+d=copy.deepcopy(policy); d["profiles"]["standard"].append("pinned-lslc-004i-replay"); damaged.append("pinned-lslc-004i-replay" in d["profiles"]["standard"])
 assert all(damaged)
 print("Validation policy valid and damaged/drift cases reject.")

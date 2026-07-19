@@ -77,7 +77,8 @@
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay",
-      "pinned-lslc-003s-replay"
+      "pinned-lslc-003s-replay",
+      "pinned-lslc-004i-replay"
     ],
     "ci": [
       "rust-format",
@@ -1098,45 +1099,32 @@
       }
     },
     {
-      "id": "lslc-004i-revision-14-runtime-lock-rebinding",
-      "owner": "rusty-lsl-runtime-activation-authority",
+      "id": "pinned-lslc-004i-replay",
+      "owner": "rusty-lsl-validation-history",
       "state": "current",
       "command": [
-        "powershell",
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "tools/check_lslc_004i.ps1"
+        "python",
+        "tools/test_validation_policy.py",
+        "--replay-lslc-004i"
       ],
-      "depends_on": [
-        "current-closure",
-        "public-boundary"
-      ],
+      "depends_on": [],
       "change_categories": [
-        "implementation",
         "validation",
-        "documentation"
+        "historical-evidence"
       ],
       "affected_paths": [
-        "AGENTS.md",
-        "README.md",
-        "crates/rusty-lsl/src/runtime_activation.rs",
-        "docs/VALIDATION.md",
-        "fixtures/compatibility/lslc-003c-lock-bound-runtime-activation-capability.json",
-        "fixtures/compatibility/lslc-003s-string-sample-activation-descriptor.json",
         "tools/check_lslc_004i.py",
         "tools/check_lslc_004i.ps1"
       ],
       "proves": [
-        "the runtime admission constant and current activation fixtures project the deterministic accepted revision-14 lock, current admission passes, and the superseded fingerprint rejects"
+        "immutable LSLC-004I checker replays at its exact accepted revision-14 commit"
       ],
       "does_not_prove": [
-        "new modules, ambient activation, changed dependencies or runtime behavior, devices, networking, routing, admission, or authority"
+        "current activation closure or current source behavior"
       ],
       "environment": {
         "network": "forbidden",
-        "timeout_seconds": 240
+        "timeout_seconds": 600
       }
     },
     {
@@ -1154,7 +1142,7 @@
       "depends_on": [
         "lslc-004e-runtime",
         "lslc-004h-active-interface-observation",
-        "lslc-004i-revision-14-runtime-lock-rebinding",
+        "current-closure",
         "public-boundary"
       ],
       "change_categories": [

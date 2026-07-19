@@ -383,6 +383,9 @@ LSLC-004I is checked by `tools/check_lslc_004i.ps1`. It independently
 recomputes the revision-14 fingerprint, checks the runtime and current fixtures,
 runs the direct LSLC-003S and LSLC-003J owners, and executes closed activation
 tests proving current admission, stale rejection, and inert empty selection.
+It is now historical-only and replays from exact accepted commit `1121efd2`
+through the deep-only `pinned-lslc-004i-replay` gate; live Standard uses the
+current closure instead of applying its revision-14 assertions to current bytes.
 
 LSLC-004D is checked by `tools/check_lslc_004d.ps1` and policy gate
 `lslc-004d-runtime-conformance`. It byte-compares the production prefix with
