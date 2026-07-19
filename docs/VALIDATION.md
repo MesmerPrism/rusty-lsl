@@ -1,5 +1,18 @@
 # Validation
 
+LSLC-006E focused recovery, clock-correction, and queue error-precedence
+conformance:
+
+```text
+cargo test -p rusty-lsl typed_udp_discovery_float32_recovery_clock_correction_queue::tests -- --test-threads=1
+```
+
+It proves recovery cancellation precedes classification, clock work, and queue
+admission, and that clock cancellation retains the exact recovered record and
+recovery states before queue admission. It is host-only test evidence and
+changes no production behavior, policy, compatibility claim, device behavior,
+or Manifold authority. Serialized Standard remains the aggregate owner gate.
+
 LSLC-006D focused two-record Float32 chunk ownership conformance:
 
 ```text

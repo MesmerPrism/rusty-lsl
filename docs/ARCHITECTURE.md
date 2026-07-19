@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-006E changes only tests around the existing recovery-to-clock-correction-
+to-queue composition. Recovery cancellation, failure classification, recovered
+record/state ownership, clock cancellation, and queue admission retain their
+existing production order, owners, and bytes; no policy, activation,
+compatibility, device, or Manifold authority is added.
+
 LSLC-006D changes only tests around the existing bounded two-record Float32
 chunk runtime. Record order, timestamp/value ownership, cancellation lanes,
 terminal outcomes, and socket cleanup retain their existing production owners

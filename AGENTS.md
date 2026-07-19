@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-006E adds only test-only deterministic conformance for the accepted
+recovery-to-clock-correction-to-queue composition. Recovery cancellation
+precedes classification, clock work, and queue admission; clock cancellation
+retains the exact recovered record and recovery states before queue admission.
+It changes no production behavior, recovery policy, clock provider/domain,
+queue policy, activation, compatibility claim, device behavior, or Manifold
+authority.
+
 LSLC-006D adds only test-only deterministic conformance for the accepted
 one-channel, two-record Float32 chunk runtime. Nontrivial exact timestamp/value
 bits, ordered ownership, terminal/deadline/cancellation separation, cleanup,
