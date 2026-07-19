@@ -1,5 +1,10 @@
 # Rusty LSL
 
+Concrete Int32, Int16, and Int8 session facades cover the evidenced one-record
+and two-channel/three-record shapes. They preflight before I/O and complete
+through the same private lifecycle engine as the existing Float32, Double64,
+and String paths; activation remains explicit and disabled by default.
+
 The production runtime now exposes a bounded discovery-independent Float32
 recovery → clock-correction → queue pipeline. Callers retain acquisition,
 policy, activation, clock, queue, and distinct cancellation ownership; runtime

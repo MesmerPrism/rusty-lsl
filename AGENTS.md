@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-007K adds concrete typed Int32, Int16, and Int8 inlet/outlet session
+facades and consuming reports for only the accepted one-channel/one-record and
+two-channel/three-record shapes. The format-neutral engine remains the sole
+lifecycle owner, integer framing remains sealed, and legacy functions preserve
+their historical error mappings. Activation remains explicit and
+default-disabled; no new capability, format, shape, device, or Manifold
+authority is added.
+
 LSLC-007J composes exactly one completed Float32 inlet-session report into the
 existing recovery-to-clock-to-queue pipeline. Count rejection and every
 pre-acquisition cancellation, deadline, or setup failure retain the unchanged

@@ -1,5 +1,13 @@
 # Architecture
 
+Typed integer sessions expose three concrete public facade/report families.
+They do not expose the generic engine or sealed width strategy. Preflight owns
+only exact bounded shape and typed-value projection; the private
+format-neutral engine owns accept/connect, handshake, initialization, ordered
+records, terminal close, and cleanup. Rich facade errors retain caller-record
+indices and trailing-byte classification, while legacy adapters explicitly
+project them back to their historical errors.
+
 `float32_session_report_recovery_clock_queue` is a thin boundary between a
 completed typed session report and the existing P4 pipeline. It validates the
 one-record count before downstream work and holds the report until finite

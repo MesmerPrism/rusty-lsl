@@ -14,10 +14,11 @@ use crate::{
         accept_handshake_stream, accept_handshake_stream_with_format, connect_handshake_stream,
         connect_handshake_stream_with_format,
     },
-    FixedWidthNumericSampleActivation, FixedWidthNumericSampleError, FixedWidthNumericSampleLimits,
-    FixedWidthNumericValue, RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeError,
-    StreamHandshakeIdentity, StreamHandshakeLimits, StringSampleError, StringSampleLimits,
-    StringSampleRecord, TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
+    FixedWidthNumericSampleActivation, FixedWidthNumericSampleError,
+    FixedWidthNumericSampleLimitError, FixedWidthNumericSampleLimits, FixedWidthNumericValue,
+    RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeError, StreamHandshakeIdentity,
+    StreamHandshakeLimits, StringSampleError, StringSampleLimits, StringSampleRecord,
+    TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
     TimestampedFloat32SampleLimits, TimestampedSample,
 };
 use std::io::ErrorKind;
@@ -1165,7 +1166,7 @@ impl SealedSessionStrategy for FixedWidthInteger {
     type Sample = FixedWidthIntegerSessionRecord;
     type Limits = FixedWidthIntegerLimits;
     type RecordError = FixedWidthNumericSampleError;
-    type SessionError = FixedWidthNumericSampleError;
+    type SessionError = TimestampedFixedWidthIntegerSessionError;
     fn accept(
         listener: TcpListener,
         identity: &StreamHandshakeIdentity,
@@ -1286,22 +1287,64 @@ impl SealedSessionStrategy for FixedWidthInteger {
         limits.io.total_deadline()
     }
     fn handshake_error(error: StreamHandshakeError) -> Self::SessionError {
-        FixedWidthNumericSampleError::Handshake(error)
+        TimestampedFixedWidthIntegerSessionError::Handshake(error)
     }
-    fn record_error(_index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
-        error
+    fn record_error(index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
+        TimestampedFixedWidthIntegerSessionError::Record { index, error }
     }
     fn cancelled_error() -> Self::SessionError {
-        FixedWidthNumericSampleError::Cancelled
+        TimestampedFixedWidthIntegerSessionError::Record {
+            index: None,
+            error: FixedWidthNumericSampleError::Cancelled,
+        }
     }
     fn deadline_error() -> Self::SessionError {
-        FixedWidthNumericSampleError::Deadline
+        TimestampedFixedWidthIntegerSessionError::Record {
+            index: None,
+            error: FixedWidthNumericSampleError::Deadline,
+        }
     }
     fn io_error(kind: ErrorKind) -> Self::SessionError {
-        FixedWidthNumericSampleError::Io(kind)
+        TimestampedFixedWidthIntegerSessionError::Record {
+            index: None,
+            error: FixedWidthNumericSampleError::Io(kind),
+        }
     }
     fn trailing_byte(actual: u8) -> Self::SessionError {
-        FixedWidthNumericSampleError::InvalidMarker { actual }
+        TimestampedFixedWidthIntegerSessionError::TrailingByte { actual }
+    }
+}
+
+/// Stable failure from a started typed fixed-width integer session.
+#[derive(Debug, Eq, PartialEq)]
+pub enum TimestampedFixedWidthIntegerSessionError {
+    /// Accept/connect and handshake failed before initialization.
+    Handshake(StreamHandshakeError),
+    /// Initialization, a caller record, or terminal-close work failed.
+    Record {
+        /// Caller-record index, or `None` for initialization/terminal work.
+        index: Option<usize>,
+        /// Unchanged subordinate codec/transport failure.
+        error: FixedWidthNumericSampleError,
+    },
+    /// The inlet observed a byte after its exact admitted record count.
+    TrailingByte {
+        /// First trailing byte.
+        actual: u8,
+    },
+}
+
+fn map_integer_session_error_legacy(
+    error: TimestampedFixedWidthIntegerSessionError,
+) -> FixedWidthNumericSampleError {
+    match error {
+        TimestampedFixedWidthIntegerSessionError::Handshake(error) => {
+            FixedWidthNumericSampleError::Handshake(error)
+        }
+        TimestampedFixedWidthIntegerSessionError::Record { error, .. } => error,
+        TimestampedFixedWidthIntegerSessionError::TrailingByte { actual } => {
+            FixedWidthNumericSampleError::InvalidMarker { actual }
+        }
     }
 }
 
@@ -1345,6 +1388,7 @@ pub(crate) fn finish_fixed_width_integer_outlet_session(
         cancelled,
     )
     .map(|(local, _)| local)
+    .map_err(map_integer_session_error_legacy)
 }
 
 pub(crate) fn finish_fixed_width_integer_inlet_session(
@@ -1370,6 +1414,7 @@ pub(crate) fn finish_fixed_width_integer_inlet_session(
         channels,
         cancelled,
     )
+    .map_err(map_integer_session_error_legacy)
 }
 
 fn require_evidenced_integer_shape(
@@ -1406,7 +1451,8 @@ fn require_evidenced_integer_facade_shape(
 macro_rules! fixed_width_integer_session_facade {
     (
         $value:ty, $variant:ident,
-        $limits:ident, $limit_error:ident, $preflight_error:ident,
+        $limits:ident, $limit_error:ident, $io_limits:ident, $io_limit_error:ident,
+        $preflight_error:ident, $session_error:ident,
         $outlet_report:ident, $inlet_report:ident,
         $outlet:ident, $inlet:ident
     ) => {
@@ -1414,8 +1460,14 @@ macro_rules! fixed_width_integer_session_facade {
         pub type $limits = TimestampedFloat32SessionLimits;
         #[doc = concat!("Invalid bounded ", stringify!($variant), " session shape limits.")]
         pub type $limit_error = TimestampedFloat32SessionLimitError;
+        #[doc = concat!("Bounded I/O limits for the ", stringify!($variant), " session facade.")]
+        pub type $io_limits = FixedWidthNumericSampleLimits;
+        #[doc = concat!("Invalid bounded I/O limits for the ", stringify!($variant), " session facade.")]
+        pub type $io_limit_error = FixedWidthNumericSampleLimitError;
         #[doc = concat!("Socket-free ", stringify!($variant), " shape preflight failure.")]
         pub type $preflight_error = TimestampedFloat32SessionPreflightError;
+        #[doc = concat!("Started ", stringify!($variant), " session failure.")]
+        pub type $session_error = TimestampedFixedWidthIntegerSessionError;
 
         #[doc = concat!("Successful ", stringify!($variant), " outlet lifecycle report.")]
         #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -1494,7 +1546,7 @@ macro_rules! fixed_width_integer_session_facade {
                 Ok(Self { activation, listener: Some(listener), identity, handshake_limits, io_limits, records, channel_count })
             }
             /// Consumes the facade through the sole accept/handshake/initialize/records/close lifecycle.
-            pub fn finish(mut self, cancelled: &AtomicBool) -> Result<$outlet_report, FixedWidthNumericSampleError> {
+            pub fn finish(mut self, cancelled: &AtomicBool) -> Result<$outlet_report, $session_error> {
                 let listener = self.listener.take().expect("preflighted listener is present");
                 let _ = self.activation;
                 let (local, peer) = finish_outlet::<FixedWidthInteger>(
@@ -1533,7 +1585,7 @@ macro_rules! fixed_width_integer_session_facade {
                 Ok(Self { activation, peer, identity, handshake_limits, io_limits, record_count, channel_count })
             }
             /// Consumes the facade through the sole connect/handshake/initialize/records/close lifecycle.
-            pub fn finish(self, cancelled: &AtomicBool) -> Result<$inlet_report, FixedWidthNumericSampleError> {
+            pub fn finish(self, cancelled: &AtomicBool) -> Result<$inlet_report, $session_error> {
                 let _ = self.activation;
                 let records = finish_inlet::<FixedWidthInteger>(
                     self.peer, self.identity, self.handshake_limits,
@@ -1566,7 +1618,10 @@ fixed_width_integer_session_facade!(
     Int32,
     TimestampedInt32SessionLimits,
     TimestampedInt32SessionLimitError,
+    TimestampedInt32SessionIoLimits,
+    TimestampedInt32SessionIoLimitError,
     TimestampedInt32SessionPreflightError,
+    TimestampedInt32SessionError,
     TimestampedInt32OutletSessionReport,
     TimestampedInt32InletSessionReport,
     TimestampedInt32OutletSession,
@@ -1577,7 +1632,10 @@ fixed_width_integer_session_facade!(
     Int16,
     TimestampedInt16SessionLimits,
     TimestampedInt16SessionLimitError,
+    TimestampedInt16SessionIoLimits,
+    TimestampedInt16SessionIoLimitError,
     TimestampedInt16SessionPreflightError,
+    TimestampedInt16SessionError,
     TimestampedInt16OutletSessionReport,
     TimestampedInt16InletSessionReport,
     TimestampedInt16OutletSession,
@@ -1588,7 +1646,10 @@ fixed_width_integer_session_facade!(
     Int8,
     TimestampedInt8SessionLimits,
     TimestampedInt8SessionLimitError,
+    TimestampedInt8SessionIoLimits,
+    TimestampedInt8SessionIoLimitError,
     TimestampedInt8SessionPreflightError,
+    TimestampedInt8SessionError,
     TimestampedInt8OutletSessionReport,
     TimestampedInt8InletSessionReport,
     TimestampedInt8OutletSession,
@@ -2225,19 +2286,79 @@ mod tests {
                 .unwrap();
                 assert_eq!(received.record_count(), 3);
                 assert_eq!(received.channel_count(), 2);
-                for (record, expected) in received.into_records().into_iter().zip(values) {
+                for (index, (record, expected)) in
+                    received.into_records().into_iter().zip(values).enumerate()
+                {
+                    assert_eq!(
+                        record.raw_source_timestamp().value().to_bits(),
+                        (1000.25 + index as f64).to_bits()
+                    );
                     assert_eq!(record.sample().values(), &expected);
                 }
                 let sent = worker.join().unwrap();
                 assert_eq!(sent.local_address(), address);
                 assert_eq!(sent.record_count(), 3);
                 TcpListener::bind(address).unwrap();
+
+                let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+                let address = listener.local_addr().unwrap();
+                let timestamp = 2000.125f64;
+                let record = TimestampedSample::new(
+                    Sample::new(SampleLimits::new(1).unwrap(), 1, vec![values[0][0]]).unwrap(),
+                    RawSourceTimestamp::new(timestamp).unwrap(),
+                    None,
+                );
+                let worker = thread::spawn(move || {
+                    $outlet::preflight_bounded(
+                        double64_activation(),
+                        listener,
+                        &identity(),
+                        handshake_limits(),
+                        FixedWidthNumericSampleLimits::new(
+                            Duration::from_millis(5),
+                            Duration::from_secs(1),
+                        )
+                        .unwrap(),
+                        $limits::new(1, 1).unwrap(),
+                        &[record],
+                    )
+                    .unwrap()
+                    .finish(&AtomicBool::new(false))
+                    .unwrap()
+                });
+                let received = $inlet::preflight_bounded(
+                    double64_activation(),
+                    address,
+                    &identity(),
+                    handshake_limits(),
+                    FixedWidthNumericSampleLimits::new(
+                        Duration::from_millis(5),
+                        Duration::from_secs(1),
+                    )
+                    .unwrap(),
+                    $limits::new(1, 1).unwrap(),
+                    1,
+                    1,
+                )
+                .unwrap()
+                .finish(&AtomicBool::new(false))
+                .unwrap();
+                assert_eq!(
+                    received.records()[0]
+                        .raw_source_timestamp()
+                        .value()
+                        .to_bits(),
+                    timestamp.to_bits()
+                );
+                assert_eq!(received.records()[0].sample().values(), &[values[0][0]]);
+                worker.join().unwrap();
+                TcpListener::bind(address).unwrap();
             }
         };
     }
 
     integer_facade_host_test!(
-        p10_int32_facade_preserves_typed_records_reports_and_cleanup,
+        p10_integer_session_int32_preserves_typed_records_reports_bits_and_cleanup,
         i32,
         TimestampedInt32OutletSession,
         TimestampedInt32InletSession,
@@ -2245,7 +2366,7 @@ mod tests {
         [[i32::MIN + 1, i32::MAX], [3, -4], [5, -6]]
     );
     integer_facade_host_test!(
-        p10_int16_facade_preserves_typed_records_reports_and_cleanup,
+        p10_integer_session_int16_preserves_typed_records_reports_bits_and_cleanup,
         i16,
         TimestampedInt16OutletSession,
         TimestampedInt16InletSession,
@@ -2253,7 +2374,7 @@ mod tests {
         [[i16::MIN + 1, i16::MAX], [3, -4], [5, -6]]
     );
     integer_facade_host_test!(
-        p10_int8_facade_preserves_typed_records_reports_and_cleanup,
+        p10_integer_session_int8_preserves_typed_records_reports_bits_and_cleanup,
         i8,
         TimestampedInt8OutletSession,
         TimestampedInt8InletSession,

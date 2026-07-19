@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-007K focused qualification covers both accepted integer shapes, exact
+timestamp bits and signed values for Int32/Int16/Int8, consuming reports,
+cleanup/port reuse, legacy fixed-width damage and lifecycle regressions,
+all-format sessions, public exports, activation closure, and serialized
+Standard. Existing sanitized official evidence is reused; no oracle or device
+rerun is required.
+
 LSLC-007J validates exactly-one completed-report admission, unchanged report
 retention on count/cancellation/deadline/setup paths, inherited clock/queue
 sample ownership, the nine P4 regressions, session/all-format compatibility,
