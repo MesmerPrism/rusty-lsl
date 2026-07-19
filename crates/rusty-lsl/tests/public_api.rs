@@ -52,6 +52,10 @@ fn root_names_remain_type_identical_to_role_plane_facades() {
         runtime::ACCEPTED_FEATURE_LOCK_FINGERPRINT
     );
     assert_eq!(
+        rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION,
+        runtime::ACCEPTED_FEATURE_LOCK_REVISION
+    );
+    assert_eq!(
         rusty_lsl::DOCUMENTED_DEFAULT_DISCOVERY_PORT,
         contract::DOCUMENTED_DEFAULT_DISCOVERY_PORT
     );
