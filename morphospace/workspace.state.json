@@ -56,7 +56,7 @@
   "last_accepted_receipt": "receipts/rlsl-lslc-004w-resumed-standard-validation.json",
   "last_event_id": "rlsl-lslc-004w-bounded-discovery-selection-suggestion-accepted-0645",
   "module_registry": {
-    "lock_fingerprint": "b37edb23584425adaaeb427b3b818007ab8d67ce3659274b44e3c4672c84225e",
+    "lock_fingerprint": "87dd468319f47a45982fa87f0dea6f81fcbd2623a6446df501418995a152c4d0",
     "lock_revision": 20,
     "modules": [
       {
