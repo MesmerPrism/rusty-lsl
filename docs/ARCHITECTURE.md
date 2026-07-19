@@ -6,10 +6,12 @@ clock owner once, and the corrected record feeds the caller-owned bounded
 queue once. It owns no discovery selection, socket/session lifecycle, codec,
 policy, clock domain, queue capacity, or cancellation source.
 
-The sole bounded session lifecycle owns accept/connect, handshake,
-initialization, record transfer, terminal close, and cleanup for the admitted
-String shape. String encoding and validation are a sealed crate-private
-strategy; they do not own sockets, reports, cancellation, or activation.
+`format_neutral_session_runtime` is the sole crate-private bounded session
+lifecycle engine. It owns accept/connect, handshake sequencing,
+initialization, record transfer, peer-close enforcement, terminal close, and
+cleanup. Float32, Double64, integer, and String encoding and validation remain
+sealed subordinate strategies; they do not own the lifecycle, cancellation,
+activation, or public policy.
 
 ## Caller-selected discovery to session
 
@@ -21,18 +23,16 @@ finish. It borrows discovery, accepts an explicit response index, and returns
 `TimestampedFloat32InletSessionReport` directly. It performs no discovery,
 automatic selection, framing, handshake, socket cleanup, retry, or fallback.
 
-## Bounded Float32 session owner
+## Bounded Float32 session facade
 
-`timestamped_float32_session_runtime` is the sole connection-lifecycle and
-codec authority for the accepted bounded homogeneous Float32 vertical.
-Explicit outlet and inlet owners move through preflight, accept/connect,
-handshake, one-time initialization, a caller-bounded channel/record shape,
-terminal close, and a consuming completion report. The sealed crate-private
-codec is physically subordinate to this owner. `Drop` performs only
-nonblocking best-effort cleanup. The older one-record and two-record functions
-adapt to this owner with their exact legacy error mappings; they are not
-parallel lifecycle or codec authorities. A zero remaining terminal deadline is
-classified before invoking platform socket timeout APIs.
+`timestamped_float32_session_runtime` retains the public Float32 outlet/inlet
+owners, bounded shape preflight, reports, and sealed format strategies. Finish
+delegates the connection lifecycle to `format_neutral_session_runtime`.
+`Drop` performs only nonblocking best-effort cleanup through that engine. The
+older one-record and two-record functions retain their exact legacy error
+mappings; they are not parallel lifecycle or codec authorities. A zero
+remaining terminal deadline is classified before invoking platform socket
+timeout APIs.
 
 ## Bounded Double64 session seam
 

@@ -73,6 +73,7 @@ mod documented_discovery_destination;
 mod documented_discovery_query_proposal;
 mod finite_sample_recovery_runtime;
 mod fixed_width_numeric_sample_runtime;
+mod format_neutral_session_runtime;
 mod integrated_clock_correction_runtime;
 mod metadata;
 mod metadata_tree;

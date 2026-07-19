@@ -1,12 +1,19 @@
 # Rusty LSL Agent Notes
 
+The bounded session lifecycle is now a format-neutral crate-private engine.
+It alone owns accept/connect, handshake sequencing, initialization and record
+transfer, terminal-close enforcement, and consuming cleanup. Float32,
+Double64, fixed-width integer, and String behavior remains behind sealed
+subordinate strategies and unchanged public adapters. This extraction adds no
+shape, compatibility, activation, discovery, recovery, device, or Manifold
+authority.
+
 LSLC-007H adds one discovery-independent bounded Float32 production pipeline
 that composes caller-owned finite acquisition/recovery, clock correction, and
 queue admission. The existing discovery composition is a thin adapter; each
 activation, policy, provider, queue, and cancellation owner remains separate.
 It adds no socket/session lifecycle, automatic policy, device, or Manifold
-authority. A format-neutral extraction of the existing sole session lifecycle
-remains the next architecture consolidation slice.
+authority.
 
 LSLC-007G moves the accepted one-channel one-record String path beneath the
 sole bounded session lifecycle owner. The String framing strategy remains

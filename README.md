@@ -5,10 +5,10 @@ recovery → clock-correction → queue pipeline. Callers retain acquisition,
 policy, activation, clock, queue, and distinct cancellation ownership; runtime
 activation remains explicit and default-disabled.
 
-The bounded one-channel one-record String runtime now uses the same sole
-session lifecycle owner as the accepted numeric paths. Its sealed internal
-strategy preserves the existing framing and public adapters; activation
-remains explicit and default-disabled.
+The accepted Float32, Double64, integer, and String paths now share one
+format-neutral crate-private bounded session lifecycle engine. Their sealed
+format strategies preserve existing framing, errors, and public adapters;
+activation remains explicit and default-disabled.
 
 Rusty LSL is being developed into a production-quality, independently authored,
 pure-Rust Lab Streaming Layer implementation for Rusty Morphospace. The current
@@ -23,11 +23,10 @@ Manifold retains admission, routing, lease, authorization, revision, and audit
 authority. Compatibility work is scheduled when it validates the production
 runtime; speculative ecosystem breadth is secondary.
 
-The first production vertical is one bounded Float32 session owner with
-explicit outlet/inlet roles and caller-bounded homogeneous channel and record
-shapes. Its codec is sealed beneath that owner. Legacy one-record and
-two-record functions remain thin adapters; broader formats are separate
-roadmap work.
+The first production vertical's explicit Float32 outlet/inlet roles and
+caller-bounded homogeneous channel and record shapes remain public facades
+over the format-neutral lifecycle. Its codec remains sealed and subordinate.
+Legacy one-record and two-record functions remain thin adapters.
 
 The same sole lifecycle now has a sealed Double64 strategy for exactly the
 evidenced one-channel/one-record and two-channel/three-record shapes. Public

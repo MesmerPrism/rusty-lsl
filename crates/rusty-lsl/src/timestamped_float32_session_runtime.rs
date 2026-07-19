@@ -3,6 +3,9 @@
 
 //! Bounded one- or two-record Float32 outlet/inlet session ownership.
 
+use crate::format_neutral_session_runtime::{
+    finish_inlet, finish_outlet, terminal_close, SealedSessionStrategy,
+};
 use crate::{
     bounded_fixed_record_transport::{
         read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
@@ -17,10 +20,10 @@ use crate::{
     StringSampleRecord, TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
     TimestampedFloat32SampleLimits, TimestampedSample,
 };
-use std::io::{ErrorKind, Read};
-use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::{Duration, Instant};
+use std::io::ErrorKind;
+use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::sync::atomic::AtomicBool;
+use std::time::Duration;
 
 /// The sole production Float32 framing and initialization owner, sealed beneath the session.
 pub(crate) mod codec {
@@ -398,65 +401,10 @@ impl TimestampedFloat32InletSessionReport {
 mod session_format {
     use super::*;
 
-    pub(super) trait Sealed: Copy {
-        type Sample;
-        type Limits: Copy;
-        type RecordError;
-        type SessionError;
-
-        fn accept(
-            listener: TcpListener,
-            identity: &StreamHandshakeIdentity,
-            limits: StreamHandshakeLimits,
-            format_limits: Self::Limits,
-            cancelled: &AtomicBool,
-        ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError>;
-        fn connect(
-            peer: SocketAddr,
-            identity: &StreamHandshakeIdentity,
-            limits: StreamHandshakeLimits,
-            format_limits: Self::Limits,
-            cancelled: &AtomicBool,
-        ) -> Result<TcpStream, StreamHandshakeError>;
-        fn write_initialization(
-            stream: &mut TcpStream,
-            channels: usize,
-            limits: Self::Limits,
-            cancelled: &AtomicBool,
-        ) -> Result<(), Self::RecordError>;
-        fn read_initialization(
-            stream: &mut TcpStream,
-            channels: usize,
-            limits: Self::Limits,
-            cancelled: &AtomicBool,
-        ) -> Result<(), Self::RecordError>;
-        fn write_record(
-            stream: &mut TcpStream,
-            sample: &Self::Sample,
-            channels: usize,
-            limits: Self::Limits,
-            cancelled: &AtomicBool,
-        ) -> Result<(), Self::RecordError>;
-        fn read_record(
-            stream: &mut TcpStream,
-            channels: usize,
-            limits: Self::Limits,
-            cancelled: &AtomicBool,
-        ) -> Result<Self::Sample, Self::RecordError>;
-        fn io_slice(limits: Self::Limits) -> Duration;
-        fn total_deadline(limits: Self::Limits) -> Duration;
-        fn handshake_error(error: StreamHandshakeError) -> Self::SessionError;
-        fn record_error(index: Option<usize>, error: Self::RecordError) -> Self::SessionError;
-        fn cancelled_error() -> Self::SessionError;
-        fn deadline_error() -> Self::SessionError;
-        fn io_error(kind: ErrorKind) -> Self::SessionError;
-        fn trailing_byte(actual: u8) -> Self::SessionError;
-    }
-
     #[derive(Clone, Copy)]
     pub(super) struct Float32;
 
-    impl Sealed for Float32 {
+    impl SealedSessionStrategy for Float32 {
         type Sample = TimestampedSample<f32>;
         type Limits = TimestampedFloat32SampleLimits;
         type RecordError = TimestampedFloat32SampleError;
@@ -542,7 +490,7 @@ mod session_format {
     #[derive(Clone, Copy)]
     pub(super) struct StringSample;
 
-    impl Sealed for StringSample {
+    impl SealedSessionStrategy for StringSample {
         type Sample = StringSampleRecord;
         type Limits = StringSampleLimits;
         type RecordError = StringSampleError;
@@ -816,70 +764,6 @@ pub(crate) fn finish_string_inlet_session(
     .map(|mut records| records.pop().expect("one preflighted String record"))
 }
 
-struct SessionStream(Option<TcpStream>);
-
-impl Drop for SessionStream {
-    fn drop(&mut self) {
-        terminal_close(self.0.take());
-    }
-}
-
-fn finish_outlet<F: session_format::Sealed>(
-    listener: TcpListener,
-    identity: &StreamHandshakeIdentity,
-    handshake_limits: StreamHandshakeLimits,
-    format_limits: F::Limits,
-    records: &[F::Sample],
-    channel_count: usize,
-    cancelled: &AtomicBool,
-) -> Result<(SocketAddr, SocketAddr), F::SessionError> {
-    let (stream, local, peer) = F::accept(
-        listener,
-        identity,
-        handshake_limits,
-        format_limits,
-        cancelled,
-    )
-    .map_err(F::handshake_error)?;
-    let mut stream = SessionStream(Some(stream));
-    let socket = stream.0.as_mut().expect("session stream is present");
-    F::write_initialization(socket, channel_count, format_limits, cancelled)
-        .map_err(|error| F::record_error(None, error))?;
-    for (index, record) in records.iter().enumerate() {
-        F::write_record(socket, record, channel_count, format_limits, cancelled)
-            .map_err(|error| F::record_error(Some(index), error))?;
-    }
-    terminal_close(stream.0.take());
-    Ok((local, peer))
-}
-
-fn finish_inlet<F: session_format::Sealed>(
-    peer: SocketAddr,
-    identity: &StreamHandshakeIdentity,
-    handshake_limits: StreamHandshakeLimits,
-    format_limits: F::Limits,
-    record_count: usize,
-    channel_count: usize,
-    cancelled: &AtomicBool,
-) -> Result<Vec<F::Sample>, F::SessionError> {
-    let stream = F::connect(peer, identity, handshake_limits, format_limits, cancelled)
-        .map_err(F::handshake_error)?;
-    let mut stream = SessionStream(Some(stream));
-    let socket = stream.0.as_mut().expect("session stream is present");
-    F::read_initialization(socket, channel_count, format_limits, cancelled)
-        .map_err(|error| F::record_error(None, error))?;
-    let mut records = Vec::with_capacity(record_count);
-    for index in 0..record_count {
-        records.push(
-            F::read_record(socket, channel_count, format_limits, cancelled)
-                .map_err(|error| F::record_error(Some(index), error))?,
-        );
-    }
-    require_format_peer_close::<F>(socket, format_limits, cancelled)?;
-    terminal_close(stream.0.take());
-    Ok(records)
-}
-
 /// Explicit nonzero I/O bounds for a bounded Double64 session.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct TimestampedDouble64SessionIoLimits {
@@ -1076,7 +960,7 @@ fn map_double_transport_error(error: BoundedFixedRecordError) -> FixedWidthNumer
     }
 }
 
-impl session_format::Sealed for Double64 {
+impl SealedSessionStrategy for Double64 {
     type Sample = TimestampedSample<f64>;
     type Limits = TimestampedDouble64SessionIoLimits;
     type RecordError = FixedWidthNumericSampleError;
@@ -1277,7 +1161,7 @@ impl FixedWidthInteger {
     }
 }
 
-impl session_format::Sealed for FixedWidthInteger {
+impl SealedSessionStrategy for FixedWidthInteger {
     type Sample = FixedWidthIntegerSessionRecord;
     type Limits = FixedWidthIntegerLimits;
     type RecordError = FixedWidthNumericSampleError;
@@ -1938,39 +1822,6 @@ fn require_outlet_shape_generic<T>(
         }
     }
     Ok(channel_count)
-}
-
-fn terminal_close(stream: Option<TcpStream>) {
-    if let Some(stream) = stream {
-        let _ = stream.shutdown(Shutdown::Both);
-    }
-}
-
-fn require_format_peer_close<F: session_format::Sealed>(
-    stream: &mut TcpStream,
-    limits: F::Limits,
-    cancelled: &AtomicBool,
-) -> Result<(), F::SessionError> {
-    let started = Instant::now();
-    let mut byte = [0u8; 1];
-    loop {
-        if cancelled.load(Ordering::Acquire) {
-            return Err(F::cancelled_error());
-        }
-        let remaining = F::total_deadline(limits)
-            .checked_sub(started.elapsed())
-            .filter(|remaining| !remaining.is_zero())
-            .ok_or_else(F::deadline_error)?;
-        stream
-            .set_read_timeout(Some(remaining.min(F::io_slice(limits))))
-            .map_err(|error| F::io_error(error.kind()))?;
-        match stream.read(&mut byte) {
-            Ok(0) => return Ok(()),
-            Ok(_) => return Err(F::trailing_byte(byte[0])),
-            Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-            Err(error) => return Err(F::io_error(error.kind())),
-        }
-    }
 }
 
 #[cfg(test)]
