@@ -1,5 +1,13 @@
 # Validation
 
+LSLC-007I validation covers the crate-private format-neutral session owner
+through the shared session, fixed-width numeric, String boundary/damage, and
+public API gates. Revision 21 rebinds only the existing Float32, fixed-width
+numeric, and String owner source identities; activation remains explicit and
+default-disabled with no neutral-session capability. Serialized Standard,
+workflow, instruction, and publication gates remain mandatory. Existing
+official evidence is sufficient and is not rerun.
+
 LSLC-007H validation covers the discovery-independent P4 pipeline through the
 existing nine recovery/clock/queue lifecycle cases, 23 public API tests,
 session and all-format non-regression, the unchanged revision-20
