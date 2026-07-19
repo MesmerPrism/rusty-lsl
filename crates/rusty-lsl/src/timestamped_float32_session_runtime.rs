@@ -1389,6 +1389,212 @@ fn require_evidenced_integer_shape(
     }
 }
 
+fn require_evidenced_integer_facade_shape(
+    channels: usize,
+    records: usize,
+) -> Result<(), TimestampedFloat32SessionPreflightError> {
+    match (channels, records) {
+        (1, 1) | (2, 3) => Ok(()),
+        (_, 1 | 3) => Err(TimestampedFloat32SessionPreflightError::ChannelCount {
+            index: 0,
+            actual: channels,
+        }),
+        _ => Err(TimestampedFloat32SessionPreflightError::RecordCount { actual: records }),
+    }
+}
+
+macro_rules! fixed_width_integer_session_facade {
+    (
+        $value:ty, $variant:ident,
+        $limits:ident, $limit_error:ident, $preflight_error:ident,
+        $outlet_report:ident, $inlet_report:ident,
+        $outlet:ident, $inlet:ident
+    ) => {
+        #[doc = concat!("Bounded homogeneous shape limits shared by the ", stringify!($variant), " session facade.")]
+        pub type $limits = TimestampedFloat32SessionLimits;
+        #[doc = concat!("Invalid bounded ", stringify!($variant), " session shape limits.")]
+        pub type $limit_error = TimestampedFloat32SessionLimitError;
+        #[doc = concat!("Socket-free ", stringify!($variant), " shape preflight failure.")]
+        pub type $preflight_error = TimestampedFloat32SessionPreflightError;
+
+        #[doc = concat!("Successful ", stringify!($variant), " outlet lifecycle report.")]
+        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+        pub struct $outlet_report {
+            local: SocketAddr,
+            peer: SocketAddr,
+            records: usize,
+            channels: usize,
+        }
+        impl $outlet_report {
+            /// Bound listener address selected by the caller.
+            pub const fn local_address(&self) -> SocketAddr { self.local }
+            /// Accepted peer address.
+            pub const fn peer(&self) -> SocketAddr { self.peer }
+            /// Exact caller-record count written.
+            pub const fn record_count(&self) -> usize { self.records }
+            /// Exact homogeneous channel count.
+            pub const fn channel_count(&self) -> usize { self.channels }
+            /// Terminal completion classification from the shared lifecycle.
+            pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+                TimestampedFloat32SessionCompletion::Complete
+            }
+        }
+
+        #[doc = concat!("Successful ", stringify!($variant), " inlet lifecycle report.")]
+        #[derive(Debug)]
+        pub struct $inlet_report {
+            peer: SocketAddr,
+            records: Vec<TimestampedSample<$value>>,
+            channels: usize,
+        }
+        impl $inlet_report {
+            /// Caller-selected peer address.
+            pub const fn peer(&self) -> SocketAddr { self.peer }
+            /// Ordered received records.
+            pub fn records(&self) -> &[TimestampedSample<$value>] { &self.records }
+            /// Exact received record count.
+            pub fn record_count(&self) -> usize { self.records.len() }
+            /// Exact homogeneous channel count.
+            pub const fn channel_count(&self) -> usize { self.channels }
+            /// Terminal completion classification from the shared lifecycle.
+            pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
+                TimestampedFloat32SessionCompletion::Complete
+            }
+            /// Consumes the report without copying or reordering records.
+            pub fn into_records(self) -> Vec<TimestampedSample<$value>> { self.records }
+        }
+
+        #[doc = concat!("Preflighted ", stringify!($variant), " outlet facade over the sole session lifecycle.")]
+        pub struct $outlet<'a> {
+            activation: FixedWidthNumericSampleActivation,
+            listener: Option<TcpListener>,
+            identity: &'a StreamHandshakeIdentity,
+            handshake_limits: StreamHandshakeLimits,
+            io_limits: FixedWidthNumericSampleLimits,
+            records: Vec<FixedWidthIntegerSessionRecord>,
+            channel_count: usize,
+        }
+        impl<'a> $outlet<'a> {
+            /// Validates a bounded homogeneous integer shape before socket I/O.
+            pub fn preflight_bounded(
+                activation: FixedWidthNumericSampleActivation,
+                listener: TcpListener,
+                identity: &'a StreamHandshakeIdentity,
+                handshake_limits: StreamHandshakeLimits,
+                io_limits: FixedWidthNumericSampleLimits,
+                session_limits: $limits,
+                records: &[TimestampedSample<$value>],
+            ) -> Result<Self, $preflight_error> {
+                let channel_count = require_outlet_shape_generic(session_limits, records)?;
+                require_evidenced_integer_facade_shape(channel_count, records.len())?;
+                let records = records.iter().map(|record| FixedWidthIntegerSessionRecord {
+                    timestamp: record.raw_source_timestamp().value(),
+                    values: record.sample().values().iter().copied().map(FixedWidthNumericValue::$variant).collect(),
+                }).collect();
+                Ok(Self { activation, listener: Some(listener), identity, handshake_limits, io_limits, records, channel_count })
+            }
+            /// Consumes the facade through the sole accept/handshake/initialize/records/close lifecycle.
+            pub fn finish(mut self, cancelled: &AtomicBool) -> Result<$outlet_report, FixedWidthNumericSampleError> {
+                let listener = self.listener.take().expect("preflighted listener is present");
+                let _ = self.activation;
+                let (local, peer) = finish_outlet::<FixedWidthInteger>(
+                    listener, self.identity, self.handshake_limits,
+                    FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
+                    &self.records, self.channel_count, cancelled,
+                )?;
+                Ok($outlet_report { local, peer, records: self.records.len(), channels: self.channel_count })
+            }
+        }
+
+        #[doc = concat!("Preflighted ", stringify!($variant), " inlet facade over the sole session lifecycle.")]
+        pub struct $inlet<'a> {
+            activation: FixedWidthNumericSampleActivation,
+            peer: SocketAddr,
+            identity: &'a StreamHandshakeIdentity,
+            handshake_limits: StreamHandshakeLimits,
+            io_limits: FixedWidthNumericSampleLimits,
+            record_count: usize,
+            channel_count: usize,
+        }
+        impl<'a> $inlet<'a> {
+            /// Validates an exact bounded integer shape before connecting.
+            pub fn preflight_bounded(
+                activation: FixedWidthNumericSampleActivation,
+                peer: SocketAddr,
+                identity: &'a StreamHandshakeIdentity,
+                handshake_limits: StreamHandshakeLimits,
+                io_limits: FixedWidthNumericSampleLimits,
+                session_limits: $limits,
+                channel_count: usize,
+                record_count: usize,
+            ) -> Result<Self, $preflight_error> {
+                require_shape(session_limits, channel_count, record_count)?;
+                require_evidenced_integer_facade_shape(channel_count, record_count)?;
+                Ok(Self { activation, peer, identity, handshake_limits, io_limits, record_count, channel_count })
+            }
+            /// Consumes the facade through the sole connect/handshake/initialize/records/close lifecycle.
+            pub fn finish(self, cancelled: &AtomicBool) -> Result<$inlet_report, FixedWidthNumericSampleError> {
+                let _ = self.activation;
+                let records = finish_inlet::<FixedWidthInteger>(
+                    self.peer, self.identity, self.handshake_limits,
+                    FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
+                    self.record_count, self.channel_count, cancelled,
+                )?;
+                let records = records.into_iter().map(|record| {
+                    let values = record.values.into_iter().map(|value| match value {
+                        FixedWidthNumericValue::$variant(value) => value,
+                        _ => unreachable!("sealed strategy retains the selected integer format"),
+                    }).collect();
+                    let sample = Sample::new(
+                        SampleLimits::new(self.channel_count).expect("preflighted nonzero channel count"),
+                        self.channel_count, values,
+                    ).expect("sealed strategy returns the preflighted channel count");
+                    TimestampedSample::new(
+                        sample,
+                        RawSourceTimestamp::new(record.timestamp).expect("sealed strategy validates finite timestamps"),
+                        None,
+                    )
+                }).collect();
+                Ok($inlet_report { peer: self.peer, records, channels: self.channel_count })
+            }
+        }
+    };
+}
+
+fixed_width_integer_session_facade!(
+    i32,
+    Int32,
+    TimestampedInt32SessionLimits,
+    TimestampedInt32SessionLimitError,
+    TimestampedInt32SessionPreflightError,
+    TimestampedInt32OutletSessionReport,
+    TimestampedInt32InletSessionReport,
+    TimestampedInt32OutletSession,
+    TimestampedInt32InletSession
+);
+fixed_width_integer_session_facade!(
+    i16,
+    Int16,
+    TimestampedInt16SessionLimits,
+    TimestampedInt16SessionLimitError,
+    TimestampedInt16SessionPreflightError,
+    TimestampedInt16OutletSessionReport,
+    TimestampedInt16InletSessionReport,
+    TimestampedInt16OutletSession,
+    TimestampedInt16InletSession
+);
+fixed_width_integer_session_facade!(
+    i8,
+    Int8,
+    TimestampedInt8SessionLimits,
+    TimestampedInt8SessionLimitError,
+    TimestampedInt8SessionPreflightError,
+    TimestampedInt8OutletSessionReport,
+    TimestampedInt8InletSessionReport,
+    TimestampedInt8OutletSession,
+    TimestampedInt8InletSession
+);
+
 /// Bounded homogeneous shape limits shared by the Double64 session facade.
 pub type TimestampedDouble64SessionLimits = TimestampedFloat32SessionLimits;
 /// Invalid bounded Double64 session shape limits.
@@ -1963,6 +2169,97 @@ mod tests {
             None,
         )
     }
+
+    macro_rules! integer_facade_host_test {
+        ($name:ident, $value:ty, $outlet:ident, $inlet:ident, $limits:ident, $values:expr) => {
+            #[test]
+            fn $name() {
+                let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+                let address = listener.local_addr().unwrap();
+                let values: [[$value; 2]; 3] = $values;
+                let records: Vec<_> = values
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, values)| {
+                        TimestampedSample::new(
+                            Sample::new(SampleLimits::new(2).unwrap(), 2, values.to_vec()).unwrap(),
+                            RawSourceTimestamp::new(1000.25 + index as f64).unwrap(),
+                            None,
+                        )
+                    })
+                    .collect();
+                let worker = thread::spawn(move || {
+                    $outlet::preflight_bounded(
+                        double64_activation(),
+                        listener,
+                        &identity(),
+                        handshake_limits(),
+                        FixedWidthNumericSampleLimits::new(
+                            Duration::from_millis(5),
+                            Duration::from_secs(1),
+                        )
+                        .unwrap(),
+                        $limits::new(2, 3).unwrap(),
+                        &records,
+                    )
+                    .unwrap()
+                    .finish(&AtomicBool::new(false))
+                    .unwrap()
+                });
+                let received = $inlet::preflight_bounded(
+                    double64_activation(),
+                    address,
+                    &identity(),
+                    handshake_limits(),
+                    FixedWidthNumericSampleLimits::new(
+                        Duration::from_millis(5),
+                        Duration::from_secs(1),
+                    )
+                    .unwrap(),
+                    $limits::new(2, 3).unwrap(),
+                    2,
+                    3,
+                )
+                .unwrap()
+                .finish(&AtomicBool::new(false))
+                .unwrap();
+                assert_eq!(received.record_count(), 3);
+                assert_eq!(received.channel_count(), 2);
+                for (record, expected) in received.into_records().into_iter().zip(values) {
+                    assert_eq!(record.sample().values(), &expected);
+                }
+                let sent = worker.join().unwrap();
+                assert_eq!(sent.local_address(), address);
+                assert_eq!(sent.record_count(), 3);
+                TcpListener::bind(address).unwrap();
+            }
+        };
+    }
+
+    integer_facade_host_test!(
+        p10_int32_facade_preserves_typed_records_reports_and_cleanup,
+        i32,
+        TimestampedInt32OutletSession,
+        TimestampedInt32InletSession,
+        TimestampedInt32SessionLimits,
+        [[i32::MIN + 1, i32::MAX], [3, -4], [5, -6]]
+    );
+    integer_facade_host_test!(
+        p10_int16_facade_preserves_typed_records_reports_and_cleanup,
+        i16,
+        TimestampedInt16OutletSession,
+        TimestampedInt16InletSession,
+        TimestampedInt16SessionLimits,
+        [[i16::MIN + 1, i16::MAX], [3, -4], [5, -6]]
+    );
+    integer_facade_host_test!(
+        p10_int8_facade_preserves_typed_records_reports_and_cleanup,
+        i8,
+        TimestampedInt8OutletSession,
+        TimestampedInt8InletSession,
+        TimestampedInt8SessionLimits,
+        [[i8::MIN + 1, i8::MAX], [3, -4], [5, -6]]
+    );
 
     #[test]
     fn p2_double64_uses_shared_bounded_session_lifecycle_and_preserves_bits() {
