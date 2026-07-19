@@ -1,5 +1,15 @@
 # Architecture
 
+## Caller-selected discovery to session
+
+`typed_udp_discovery_float32_session_connection` is a thin adapter over three
+existing owners: a caller-owned completed typed discovery run, strict IPv4
+service endpoint projection, and the sole bounded Float32 inlet session. Its
+order is endpoint projection, bounded session preflight, then consuming session
+finish. It borrows discovery, accepts an explicit response index, and returns
+`TimestampedFloat32InletSessionReport` directly. It performs no discovery,
+automatic selection, framing, handshake, socket cleanup, retry, or fallback.
+
 ## Bounded Float32 session owner
 
 `timestamped_float32_session_runtime` is the sole connection-lifecycle and

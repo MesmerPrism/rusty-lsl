@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-007D adds one thin caller-selected typed-discovery response to bounded
+Float32 inlet-session adapter. The caller retains the completed discovery run,
+response selection, identity, cancellation, deadlines, and shape. Strict
+endpoint projection precedes the sole session owner's preflight and finish;
+success returns that owner's report directly. It adds no discovery execution,
+automatic selection, parallel report/lifecycle/codec authority, compatibility
+claim, device behavior, or Manifold authority.
+
 LSLC-007C extends the sole bounded Float32 session owner to explicit bounded
 homogeneous channel and record shapes. The session owns the sealed crate-private
 codec, while the earlier one- and two-record public functions remain thin

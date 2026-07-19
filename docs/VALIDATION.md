@@ -13,6 +13,18 @@ acceptance gap and remain smaller than the production unit it supports.
 Documentation, soak, scalar-boundary, or speculative ecosystem coverage cannot
 substitute for a required production-behavior successor.
 
+LSLC-007D focuses the caller-selected discovery-response to session adapter:
+
+```text
+cargo test -p rusty-lsl typed_udp_discovery_float32_session_connection -- --test-threads=1
+cargo test -p rusty-lsl --test public_api discovery_to_bounded_float32_session -- --test-threads=1
+```
+
+The host-only evidence covers endpoint-before-preflight-before-session error
+ownership, exact records, cancellation, identity failure, cleanup, and port
+reuse. It does not add official, cross-host, Quest, or broad compatibility
+evidence. Current closure and serialized Standard remain required.
+
 LSLC-007C focuses the bounded homogeneous Float32 session shape, sole-codec
 ownership, legacy adapters, and deterministic zero-remaining terminal deadline:
 

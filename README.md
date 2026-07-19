@@ -19,6 +19,11 @@ shapes. Its codec is sealed beneath that owner. Legacy one-record and
 two-record functions remain thin adapters; broader formats are separate
 roadmap work.
 
+A caller may now borrow one completed typed UDP discovery run, explicitly
+select a response, project its strict IPv4 service endpoint, and enter the sole
+bounded Float32 inlet session. Discovery execution and selection policy remain
+caller-owned; the adapter returns the existing session report directly.
+
 See [Production Roadmap](docs/LSL-PRODUCTION-ROADMAP.md) for the completion
 definition and next production slice. Detailed accepted unit history remains in
 [LSLC Work-Unit History](docs/history/LSLC-WORK-UNIT-HISTORY.md); the notes below
