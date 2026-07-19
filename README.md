@@ -1,5 +1,23 @@
 # Rusty LSL
 
+Rusty LSL is being developed into a production-quality, independently authored,
+pure-Rust Lab Streaming Layer implementation for Rusty Morphospace. The current
+priority is one coherent native outlet/inlet lifecycle and shared bounded
+record/chunk engine, followed by general stream shapes, discovery and
+connection lifecycle, clocks/buffering/recovery, typed advisory Morphospace
+integration, host/Quest qualification, and stable promotion.
+
+Every runtime remains default-disabled and requires the accepted lock plus an
+explicit caller runtime input. Rusty LSL emits typed observations and proposals;
+Manifold retains admission, routing, lease, authorization, revision, and audit
+authority. Compatibility work is scheduled when it validates the production
+runtime; speculative ecosystem breadth is secondary.
+
+See [Production Roadmap](docs/LSL-PRODUCTION-ROADMAP.md) for the completion
+definition and next production slice. Detailed accepted unit history remains in
+[LSLC Work-Unit History](docs/history/LSLC-WORK-UNIT-HISTORY.md); the notes below
+are preserved historical routing, not the current schedule.
+
 LSLC-006E adds test-only deterministic conformance for the accepted
 recovery-to-clock-correction-to-queue composition: recovery cancellation
 precedes classification, clock work, and queue admission, while clock

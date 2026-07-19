@@ -1,5 +1,24 @@
 # Architecture
 
+## Production convergence
+
+The target architecture is a single coherent public outlet/inlet session
+lifecycle over reusable bounded record and chunk engines. Existing narrow
+facades and accepted activation receipts remain compatibility surfaces while
+the shared engine is introduced vertically; capability-specific orchestration
+must not become the long-term public architecture.
+
+The lifecycle separates descriptor/stream-info ownership, explicit activation,
+discovery or caller-selected endpoints, connection ownership, bounded record or
+chunk exchange, cancellation/deadline classification, and terminal cleanup.
+Later slices compose clock correction, post-processing, queue/backpressure,
+finite recovery, and health without merging their policy owners.
+
+Rusty LSL owns LSL-compatible protocol/runtime behavior and typed advisory
+Morphospace observations or proposals. Manifold continues to own admission,
+routes, leases, authorization, revisions, and audit. No roadmap or lock grants
+ambient activation.
+
 LSLC-006E changes only tests around the existing recovery-to-clock-correction-
 to-queue composition. Recovery cancellation, failure classification, recovered
 record/state ownership, clock cancellation, and queue admission retain their

@@ -1,5 +1,18 @@
 # Compatibility
 
+## Production priority policy
+
+Compatibility evidence is required when it validates the native production
+runtime: canonical discovery and stream-info behavior, session handshake,
+sample/chunk exchange, clocks, recovery, cleanup, and representative host or
+Quest operation. Each claim remains bounded to its named evidence.
+
+Speculative wrappers, unused platforms, broad ecosystem permutations, and
+scalar-boundary expansion are secondary. A compatibility-only micro-unit must
+close a concrete blocker for the active production slice or supply evidence
+that slice explicitly requires; it must not displace coherent production
+behavior.
+
 ## LSLC-005S
 
 One serial-scoped Quest 3S run built exact clean Rusty LSL for

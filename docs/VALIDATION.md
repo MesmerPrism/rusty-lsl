@@ -1,5 +1,19 @@
 # Validation
 
+## Production-roadmap gates
+
+Validation follows the active vertical production slice. Focused checks prove
+the new lifecycle or engine boundary; serialized Standard remains required at
+each accepted/published checkpoint and must run through
+`S:/Rusty-XR-Refactor/tools/Invoke-RustyLslSerializedValidation.ps1`. Deep and
+device evidence are used only when the declared unit requires their broader
+authority.
+
+Compatibility-only work is capped: it must close an explicit active-runtime
+acceptance gap and remain smaller than the production unit it supports.
+Documentation, soak, scalar-boundary, or speculative ecosystem coverage cannot
+substitute for a required production-behavior successor.
+
 LSLC-006E focused recovery, clock-correction, and queue error-precedence
 conformance:
 

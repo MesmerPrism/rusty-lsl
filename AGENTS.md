@@ -1,5 +1,17 @@
 # Rusty LSL Agent Notes
 
+Current canonical direction is the production roadmap in
+`docs/LSL-PRODUCTION-ROADMAP.md`: build one coherent independently authored
+pure-Rust LSL runtime, prioritize production lifecycle and reusable engines,
+and use compatibility work only where it validates that runtime. Runtime
+activation remains default-disabled and receipt-bound. Morphospace integration
+remains typed observation/proposal only; Manifold retains stream authority.
+
+The detailed LSLC notes below are preserved historical routing. Do not use them
+as a source-path scheduler or as a reason to prefer test-only work over the
+current production roadmap. The byte-preserved chronological record is in
+`docs/history/LSLC-WORK-UNIT-HISTORY.md`.
+
 LSLC-006E adds only test-only deterministic conformance for the accepted
 recovery-to-clock-correction-to-queue composition. Recovery cancellation
 precedes classification, clock work, and queue admission; clock cancellation
