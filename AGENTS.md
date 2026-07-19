@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+LSLC-007G moves the accepted one-channel one-record String path beneath the
+sole bounded session lifecycle owner. The String framing strategy remains
+sealed and crate-private; legacy functions preserve exact initialization,
+UTF-8 and 0–129-byte behavior, typed damage, cancellation, cleanup, and port
+reuse. Numeric behavior remains compatible, activation stays default-disabled,
+and no broader shape, official, device, or Manifold authority is added.
+
 LSLC-007F moves the accepted Int32, Int16, and Int8 one-record and
 two-channel three-record paths beneath the sole session lifecycle owner. The
 integer strategies remain sealed and crate-private; legacy fixed-width

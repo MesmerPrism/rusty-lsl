@@ -1,5 +1,10 @@
 # Rusty LSL
 
+The bounded one-channel one-record String runtime now uses the same sole
+session lifecycle owner as the accepted numeric paths. Its sealed internal
+strategy preserves the existing framing and public adapters; activation
+remains explicit and default-disabled.
+
 Rusty LSL is being developed into a production-quality, independently authored,
 pure-Rust Lab Streaming Layer implementation for Rusty Morphospace. The current
 priority is one coherent native outlet/inlet lifecycle and shared bounded

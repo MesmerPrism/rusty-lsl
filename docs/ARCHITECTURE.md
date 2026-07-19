@@ -1,5 +1,10 @@
 # Architecture
 
+The sole bounded session lifecycle owns accept/connect, handshake,
+initialization, record transfer, terminal close, and cleanup for the admitted
+String shape. String encoding and validation are a sealed crate-private
+strategy; they do not own sockets, reports, cancellation, or activation.
+
 ## Caller-selected discovery to session
 
 `typed_udp_discovery_float32_session_connection` is a thin adapter over three

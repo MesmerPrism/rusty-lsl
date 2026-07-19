@@ -1,5 +1,11 @@
 # Validation
 
+LSLC-007G validation covers the bounded String session path, exact 0–129-byte
+and UTF-8/damage behavior, numeric and public-API non-regression, revision-20
+default-disabled activation closure, serialized Standard, workflow,
+instruction, and publication gates. Existing official String evidence is not
+rerun.
+
 ## Production-roadmap gates
 
 Validation follows the active vertical production slice. Focused checks prove
