@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //! Bounded one-record runtime for four observed fixed-width numeric formats.
 
+use crate::timestamped_float32_session_runtime::{
+    finish_fixed_width_integer_inlet_session, finish_fixed_width_integer_outlet_session,
+    FixedWidthIntegerSessionRecord,
+};
+#[cfg(test)]
 use crate::{
-    bounded_fixed_record_transport::{
-        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
-    },
-    stream_handshake::{accept_handshake_stream_with_format, connect_handshake_stream_with_format},
+    bounded_fixed_record_transport::{read_exact_bounded, write_exact_bounded},
+    stream_handshake::accept_handshake_stream_with_format,
+};
+use crate::{
     RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, Sample, SampleLimits,
     StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
     StreamHandshakeLimits, TimestampedDouble64InletSession, TimestampedDouble64OutletSession,
@@ -14,7 +19,9 @@ use crate::{
     TimestampedDouble64SessionLimits, TimestampedSample,
 };
 use std::io::ErrorKind;
-use std::net::{SocketAddr, TcpListener, TcpStream};
+#[cfg(test)]
+use std::net::TcpStream;
+use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
@@ -23,6 +30,7 @@ pub const FIXED_WIDTH_NUMERIC_SAMPLE_FEATURE_ID: &str = "fixed-width-numeric-sam
 /// Explicit runtime marker.
 pub const FIXED_WIDTH_NUMERIC_SAMPLE_EFFECTIVE_MARKER: &str =
     "rusty.lsl.fixed_width_numeric_sample.effective";
+#[cfg(test)]
 const INIT_TIMESTAMP: f64 = 123_456.789;
 
 /// Closed observed numeric value family.
@@ -56,10 +64,11 @@ impl FixedWidthNumericValue {
             Self::Int8(_) => 1,
         }
     }
+    #[cfg(test)]
     const fn supports_subnormals(self) -> bool {
         matches!(self, Self::Double64(_))
     }
-    fn bytes(self) -> Vec<u8> {
+    pub(crate) fn bytes(self) -> Vec<u8> {
         match self {
             Self::Double64(v) => v.to_le_bytes().to_vec(),
             Self::Int32(v) => v.to_le_bytes().to_vec(),
@@ -67,7 +76,7 @@ impl FixedWidthNumericValue {
             Self::Int8(v) => v.to_le_bytes().to_vec(),
         }
     }
-    fn initialization(self) -> [Vec<u8>; 2] {
+    pub(crate) fn initialization(self) -> [Vec<u8>; 2] {
         match self {
             Self::Double64(_) => [
                 hex(&[0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x70, 0x41]),
@@ -78,7 +87,7 @@ impl FixedWidthNumericValue {
             Self::Int8(_) => [hex(&[5]), hex(&[3])],
         }
     }
-    fn sequence_initialization(self) -> [[Self; 2]; 2] {
+    pub(crate) fn sequence_initialization(self) -> [[Self; 2]; 2] {
         match self {
             Self::Double64(_) => [
                 [Self::Double64(16_777_221.0), Self::Double64(-16_777_222.0)],
@@ -98,7 +107,7 @@ impl FixedWidthNumericValue {
             ],
         }
     }
-    fn from_bytes(template: Self, b: &[u8]) -> Self {
+    pub(crate) fn from_bytes(template: Self, b: &[u8]) -> Self {
         match template {
             Self::Double64(_) => Self::Double64(f64::from_le_bytes(b.try_into().unwrap())),
             Self::Int32(_) => Self::Int32(i32::from_le_bytes(b.try_into().unwrap())),
@@ -246,6 +255,12 @@ impl FixedWidthNumericSampleLimits {
             total_deadline,
         })
     }
+    pub(crate) const fn io_slice(self) -> Duration {
+        self.io_slice
+    }
+    pub(crate) const fn total_deadline(self) -> Duration {
+        self.total_deadline
+    }
 }
 /// Invalid limits.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -292,6 +307,7 @@ pub enum FixedWidthNumericSampleError {
     },
 }
 
+#[cfg(test)]
 fn transfer(
     stream: &mut TcpStream,
     mut bytes: Option<&mut [u8]>,
@@ -320,7 +336,11 @@ fn transfer(
     }
 }
 
-fn map_transport_error(error: BoundedFixedRecordError) -> FixedWidthNumericSampleError {
+#[cfg(test)]
+fn map_transport_error(
+    error: crate::bounded_fixed_record_transport::BoundedFixedRecordError,
+) -> FixedWidthNumericSampleError {
+    use crate::bounded_fixed_record_transport::BoundedFixedRecordError;
     match error {
         BoundedFixedRecordError::Cancelled => FixedWidthNumericSampleError::Cancelled,
         BoundedFixedRecordError::Deadline => FixedWidthNumericSampleError::Deadline,
@@ -330,6 +350,7 @@ fn map_transport_error(error: BoundedFixedRecordError) -> FixedWidthNumericSampl
         BoundedFixedRecordError::Io(kind) => FixedWidthNumericSampleError::Io(kind),
     }
 }
+#[cfg(test)]
 fn encode(timestamp: f64, value: &[u8]) -> Vec<u8> {
     let mut b = Vec::with_capacity(9 + value.len());
     b.push(2);
@@ -337,6 +358,7 @@ fn encode(timestamp: f64, value: &[u8]) -> Vec<u8> {
     b.extend_from_slice(value);
     b
 }
+#[cfg(test)]
 fn write_record(
     stream: &mut TcpStream,
     timestamp: f64,
@@ -347,6 +369,7 @@ fn write_record(
     let b = encode(timestamp, value);
     transfer(stream, None, &b, limits, cancelled)
 }
+#[cfg(test)]
 fn read_record(
     stream: &mut TcpStream,
     template: FixedWidthNumericValue,
@@ -363,6 +386,7 @@ fn read_record(
         FixedWidthNumericValue::from_bytes(template, &b[9..]),
     )
 }
+#[cfg(test)]
 fn write_initialization(
     s: &mut TcpStream,
     v: FixedWidthNumericValue,
@@ -374,6 +398,7 @@ fn write_initialization(
     }
     Ok(())
 }
+#[cfg(test)]
 fn read_initialization(
     s: &mut TcpStream,
     v: FixedWidthNumericValue,
@@ -390,6 +415,7 @@ fn read_initialization(
     Ok(())
 }
 
+#[cfg(test)]
 fn pair_bytes(values: [FixedWidthNumericValue; 2]) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(values[0].width() * 2);
     bytes.extend_from_slice(&values[0].bytes());
@@ -397,6 +423,7 @@ fn pair_bytes(values: [FixedWidthNumericValue; 2]) -> Vec<u8> {
     bytes
 }
 
+#[cfg(test)]
 fn write_sequence_initialization(
     stream: &mut TcpStream,
     template: FixedWidthNumericValue,
@@ -415,6 +442,7 @@ fn write_sequence_initialization(
     Ok(())
 }
 
+#[cfg(test)]
 fn read_sequence_initialization(
     stream: &mut TcpStream,
     template: FixedWidthNumericValue,
@@ -432,6 +460,7 @@ fn read_sequence_initialization(
     Ok(())
 }
 
+#[cfg(test)]
 fn read_pair_record(
     stream: &mut TcpStream,
     template: FixedWidthNumericValue,
@@ -480,27 +509,24 @@ pub fn run_fixed_width_numeric_sequence_outlet(
         .map_err(map_double64_session_error)?;
         return Ok(report.local_address());
     }
-    let (mut stream, local, _) = accept_handshake_stream_with_format(
+    let _ = activation.handshake;
+    let records: Vec<_> = sequence
+        .records
+        .into_iter()
+        .map(|record| FixedWidthIntegerSessionRecord {
+            timestamp: record.timestamp,
+            values: record.values.into_iter().collect(),
+        })
+        .collect();
+    finish_fixed_width_integer_outlet_session(
         listener,
         identity,
         handshake_limits,
+        limits,
+        template,
+        &records,
         cancelled,
-        template.width(),
-        template.supports_subnormals(),
     )
-    .map_err(FixedWidthNumericSampleError::Handshake)?;
-    let _ = activation.handshake;
-    write_sequence_initialization(&mut stream, template, limits, cancelled)?;
-    for record in sequence.records {
-        write_record(
-            &mut stream,
-            record.timestamp,
-            &pair_bytes(record.values),
-            limits,
-            cancelled,
-        )?;
-    }
-    Ok(local)
 }
 
 /// Receives observed two-channel initialization and exactly three caller records.
@@ -529,22 +555,28 @@ pub fn run_fixed_width_numeric_sequence_inlet(
         .map_err(map_double64_session_error)?;
         return double64_sequence_from_records(report.into_records());
     }
-    let mut stream = connect_handshake_stream_with_format(
+    let _ = activation.handshake;
+    let received = finish_fixed_width_integer_inlet_session(
         peer,
         identity,
         handshake_limits,
+        limits,
+        template,
+        2,
+        3,
         cancelled,
-        template.width(),
-        template.supports_subnormals(),
-    )
-    .map_err(FixedWidthNumericSampleError::Handshake)?;
-    let _ = activation.handshake;
-    read_sequence_initialization(&mut stream, template, limits, cancelled)?;
-    FixedWidthNumericRecordSequence::new([
-        read_pair_record(&mut stream, template, limits, cancelled)?,
-        read_pair_record(&mut stream, template, limits, cancelled)?,
-        read_pair_record(&mut stream, template, limits, cancelled)?,
-    ])
+    )?;
+    let records: Vec<_> = received
+        .into_iter()
+        .map(|record| {
+            let values: [FixedWidthNumericValue; 2] = record
+                .values
+                .try_into()
+                .expect("admitted two-channel shape");
+            FixedWidthNumericPairRecord::new(record.timestamp, values)
+        })
+        .collect::<Result<_, _>>()?;
+    FixedWidthNumericRecordSequence::new(records.try_into().expect("admitted three-record shape"))
 }
 /// Sends initialization and one caller record.
 pub fn run_fixed_width_numeric_outlet(
@@ -572,19 +604,12 @@ pub fn run_fixed_width_numeric_outlet(
         .map_err(map_double64_session_error)?;
         return Ok(report.local_address());
     }
-    let (mut s, local, _) = accept_handshake_stream_with_format(
-        listener,
-        id,
-        hl,
-        c,
-        r.value.width(),
-        r.value.supports_subnormals(),
-    )
-    .map_err(FixedWidthNumericSampleError::Handshake)?;
     let _ = a.handshake;
-    write_initialization(&mut s, r.value, l, c)?;
-    write_record(&mut s, r.timestamp, &r.value.bytes(), l, c)?;
-    Ok(local)
+    let record = FixedWidthIntegerSessionRecord {
+        timestamp: r.timestamp,
+        values: vec![r.value],
+    };
+    finish_fixed_width_integer_outlet_session(listener, id, hl, l, r.value, &[record], c)
 }
 /// Receives initialization and one caller record of the selected template format.
 pub fn run_fixed_width_numeric_inlet(
@@ -616,18 +641,10 @@ pub fn run_fixed_width_numeric_inlet(
             FixedWidthNumericValue::Double64(record.sample().values()[0]),
         );
     }
-    let mut s = connect_handshake_stream_with_format(
-        peer,
-        id,
-        hl,
-        c,
-        template.width(),
-        template.supports_subnormals(),
-    )
-    .map_err(FixedWidthNumericSampleError::Handshake)?;
     let _ = a.handshake;
-    read_initialization(&mut s, template, l, c)?;
-    read_record(&mut s, template, l, c)
+    let mut records = finish_fixed_width_integer_inlet_session(peer, id, hl, l, template, 1, 1, c)?;
+    let record = records.pop().expect("admitted one-record shape");
+    FixedWidthNumericRecord::new(record.timestamp, record.values[0])
 }
 
 fn double64_io_limits(limits: FixedWidthNumericSampleLimits) -> TimestampedDouble64SessionIoLimits {

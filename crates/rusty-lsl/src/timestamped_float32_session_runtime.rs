@@ -11,10 +11,10 @@ use crate::{
         accept_handshake_stream, accept_handshake_stream_with_format, connect_handshake_stream,
         connect_handshake_stream_with_format,
     },
-    FixedWidthNumericSampleActivation, FixedWidthNumericSampleError, RawSourceTimestamp, Sample,
-    SampleLimits, StreamHandshakeError, StreamHandshakeIdentity, StreamHandshakeLimits,
-    TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
-    TimestampedFloat32SampleLimits, TimestampedSample,
+    FixedWidthNumericSampleActivation, FixedWidthNumericSampleError, FixedWidthNumericSampleLimits,
+    FixedWidthNumericValue, RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeError,
+    StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32SampleActivation,
+    TimestampedFloat32SampleError, TimestampedFloat32SampleLimits, TimestampedSample,
 };
 use std::io::{ErrorKind, Read};
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
@@ -407,12 +407,14 @@ mod session_format {
             listener: TcpListener,
             identity: &StreamHandshakeIdentity,
             limits: StreamHandshakeLimits,
+            format_limits: Self::Limits,
             cancelled: &AtomicBool,
         ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError>;
         fn connect(
             peer: SocketAddr,
             identity: &StreamHandshakeIdentity,
             limits: StreamHandshakeLimits,
+            format_limits: Self::Limits,
             cancelled: &AtomicBool,
         ) -> Result<TcpStream, StreamHandshakeError>;
         fn write_initialization(
@@ -463,6 +465,7 @@ mod session_format {
             listener: TcpListener,
             identity: &StreamHandshakeIdentity,
             limits: StreamHandshakeLimits,
+            _format_limits: Self::Limits,
             cancelled: &AtomicBool,
         ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
             accept_handshake_stream(listener, identity, limits, cancelled)
@@ -471,6 +474,7 @@ mod session_format {
             peer: SocketAddr,
             identity: &StreamHandshakeIdentity,
             limits: StreamHandshakeLimits,
+            _format_limits: Self::Limits,
             cancelled: &AtomicBool,
         ) -> Result<TcpStream, StreamHandshakeError> {
             connect_handshake_stream(peer, identity, limits, cancelled)
@@ -552,8 +556,14 @@ fn finish_outlet<F: session_format::Sealed>(
     channel_count: usize,
     cancelled: &AtomicBool,
 ) -> Result<(SocketAddr, SocketAddr), F::SessionError> {
-    let (stream, local, peer) =
-        F::accept(listener, identity, handshake_limits, cancelled).map_err(F::handshake_error)?;
+    let (stream, local, peer) = F::accept(
+        listener,
+        identity,
+        handshake_limits,
+        format_limits,
+        cancelled,
+    )
+    .map_err(F::handshake_error)?;
     let mut stream = SessionStream(Some(stream));
     let socket = stream.0.as_mut().expect("session stream is present");
     F::write_initialization(socket, channel_count, format_limits, cancelled)
@@ -575,8 +585,8 @@ fn finish_inlet<F: session_format::Sealed>(
     channel_count: usize,
     cancelled: &AtomicBool,
 ) -> Result<Vec<F::Sample>, F::SessionError> {
-    let stream =
-        F::connect(peer, identity, handshake_limits, cancelled).map_err(F::handshake_error)?;
+    let stream = F::connect(peer, identity, handshake_limits, format_limits, cancelled)
+        .map_err(F::handshake_error)?;
     let mut stream = SessionStream(Some(stream));
     let socket = stream.0.as_mut().expect("session stream is present");
     F::read_initialization(socket, channel_count, format_limits, cancelled)
@@ -798,6 +808,7 @@ impl session_format::Sealed for Double64 {
         listener: TcpListener,
         identity: &StreamHandshakeIdentity,
         limits: StreamHandshakeLimits,
+        _format_limits: Self::Limits,
         cancelled: &AtomicBool,
     ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
         accept_handshake_stream_with_format(listener, identity, limits, cancelled, 8, true)
@@ -806,6 +817,7 @@ impl session_format::Sealed for Double64 {
         peer: SocketAddr,
         identity: &StreamHandshakeIdentity,
         limits: StreamHandshakeLimits,
+        _format_limits: Self::Limits,
         cancelled: &AtomicBool,
     ) -> Result<TcpStream, StreamHandshakeError> {
         connect_handshake_stream_with_format(peer, identity, limits, cancelled, 8, true)
@@ -889,6 +901,330 @@ impl session_format::Sealed for Double64 {
     }
     fn trailing_byte(actual: u8) -> Self::SessionError {
         TimestampedDouble64SessionError::TrailingByte { actual }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct FixedWidthIntegerSessionRecord {
+    pub(crate) timestamp: f64,
+    pub(crate) values: Vec<FixedWidthNumericValue>,
+}
+
+#[derive(Clone, Copy)]
+struct FixedWidthIntegerLimits {
+    io: FixedWidthNumericSampleLimits,
+    template: FixedWidthNumericValue,
+}
+
+#[derive(Clone, Copy)]
+struct FixedWidthInteger;
+
+impl FixedWidthInteger {
+    fn record_bytes(
+        limits: FixedWidthIntegerLimits,
+        channels: usize,
+    ) -> Result<usize, FixedWidthNumericSampleError> {
+        channels
+            .checked_mul(limits.template.width())
+            .and_then(|n| n.checked_add(9))
+            .filter(|_| channels != 0)
+            .ok_or(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: channels,
+            })
+    }
+    fn write(
+        stream: &mut TcpStream,
+        record: &FixedWidthIntegerSessionRecord,
+        channels: usize,
+        limits: FixedWidthIntegerLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), FixedWidthNumericSampleError> {
+        if record.values.len() != channels {
+            return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: record.values.len(),
+            });
+        }
+        let mut bytes = Vec::with_capacity(Self::record_bytes(limits, channels)?);
+        bytes.push(2);
+        bytes.extend_from_slice(&record.timestamp.to_le_bytes());
+        for (channel, value) in record.values.iter().copied().enumerate() {
+            if value.format() != limits.template.format() {
+                return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                    record: 0,
+                    channel,
+                });
+            }
+            bytes.extend_from_slice(&value.bytes());
+        }
+        write_exact_bounded(
+            stream,
+            &bytes,
+            limits.io.io_slice(),
+            limits.io.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_double_transport_error)
+    }
+    fn read(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: FixedWidthIntegerLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<FixedWidthIntegerSessionRecord, FixedWidthNumericSampleError> {
+        let width = limits.template.width();
+        let mut bytes = vec![0; Self::record_bytes(limits, channels)?];
+        read_exact_bounded(
+            stream,
+            &mut bytes,
+            limits.io.io_slice(),
+            limits.io.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_double_transport_error)?;
+        if bytes[0] != 2 {
+            return Err(FixedWidthNumericSampleError::InvalidMarker { actual: bytes[0] });
+        }
+        let timestamp = f64::from_le_bytes(bytes[1..9].try_into().expect("fixed timestamp width"));
+        if !timestamp.is_finite() {
+            return Err(FixedWidthNumericSampleError::InvalidTimestamp);
+        }
+        Ok(FixedWidthIntegerSessionRecord {
+            timestamp,
+            values: bytes[9..]
+                .chunks_exact(width)
+                .map(|b| FixedWidthNumericValue::from_bytes(limits.template, b))
+                .collect(),
+        })
+    }
+}
+
+impl session_format::Sealed for FixedWidthInteger {
+    type Sample = FixedWidthIntegerSessionRecord;
+    type Limits = FixedWidthIntegerLimits;
+    type RecordError = FixedWidthNumericSampleError;
+    type SessionError = FixedWidthNumericSampleError;
+    fn accept(
+        listener: TcpListener,
+        identity: &StreamHandshakeIdentity,
+        limits: StreamHandshakeLimits,
+        format_limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
+        accept_handshake_stream_with_format(
+            listener,
+            identity,
+            limits,
+            cancelled,
+            format_limits.template.width(),
+            false,
+        )
+    }
+    fn connect(
+        peer: SocketAddr,
+        identity: &StreamHandshakeIdentity,
+        limits: StreamHandshakeLimits,
+        format_limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<TcpStream, StreamHandshakeError> {
+        connect_handshake_stream_with_format(
+            peer,
+            identity,
+            limits,
+            cancelled,
+            format_limits.template.width(),
+            false,
+        )
+    }
+    fn write_initialization(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        let initializations: Vec<Vec<FixedWidthNumericValue>> = if channels == 1 {
+            limits
+                .template
+                .initialization()
+                .into_iter()
+                .map(|bytes| vec![FixedWidthNumericValue::from_bytes(limits.template, &bytes)])
+                .collect()
+        } else {
+            limits
+                .template
+                .sequence_initialization()
+                .into_iter()
+                .map(Vec::from)
+                .collect()
+        };
+        for values in initializations {
+            Self::write(
+                stream,
+                &FixedWidthIntegerSessionRecord {
+                    timestamp: 123_456.789,
+                    values,
+                },
+                channels,
+                limits,
+                cancelled,
+            )?;
+        }
+        Ok(())
+    }
+    fn read_initialization(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        let expected: Vec<Vec<FixedWidthNumericValue>> = if channels == 1 {
+            limits
+                .template
+                .initialization()
+                .into_iter()
+                .map(|bytes| vec![FixedWidthNumericValue::from_bytes(limits.template, &bytes)])
+                .collect()
+        } else {
+            limits
+                .template
+                .sequence_initialization()
+                .into_iter()
+                .map(Vec::from)
+                .collect()
+        };
+        for (index, values) in expected.into_iter().enumerate() {
+            let actual = Self::read(stream, channels, limits, cancelled)?;
+            if actual.timestamp.to_bits() != 123_456.789f64.to_bits() || actual.values != values {
+                return Err(FixedWidthNumericSampleError::InvalidInitialization { index });
+            }
+        }
+        Ok(())
+    }
+    fn write_record(
+        stream: &mut TcpStream,
+        sample: &Self::Sample,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        Self::write(stream, sample, channels, limits, cancelled)
+    }
+    fn read_record(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<Self::Sample, Self::RecordError> {
+        Self::read(stream, channels, limits, cancelled)
+    }
+    fn io_slice(limits: Self::Limits) -> Duration {
+        limits.io.io_slice()
+    }
+    fn total_deadline(limits: Self::Limits) -> Duration {
+        limits.io.total_deadline()
+    }
+    fn handshake_error(error: StreamHandshakeError) -> Self::SessionError {
+        FixedWidthNumericSampleError::Handshake(error)
+    }
+    fn record_error(_index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
+        error
+    }
+    fn cancelled_error() -> Self::SessionError {
+        FixedWidthNumericSampleError::Cancelled
+    }
+    fn deadline_error() -> Self::SessionError {
+        FixedWidthNumericSampleError::Deadline
+    }
+    fn io_error(kind: ErrorKind) -> Self::SessionError {
+        FixedWidthNumericSampleError::Io(kind)
+    }
+    fn trailing_byte(actual: u8) -> Self::SessionError {
+        FixedWidthNumericSampleError::InvalidMarker { actual }
+    }
+}
+
+pub(crate) fn finish_fixed_width_integer_outlet_session(
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: FixedWidthNumericSampleLimits,
+    template: FixedWidthNumericValue,
+    records: &[FixedWidthIntegerSessionRecord],
+    cancelled: &AtomicBool,
+) -> Result<SocketAddr, FixedWidthNumericSampleError> {
+    let channels = records.first().map(|r| r.values.len()).unwrap_or(0);
+    require_evidenced_integer_shape(channels, records.len())?;
+    for (record, item) in records.iter().enumerate() {
+        if item.values.len() != channels {
+            return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record,
+                channel: item.values.len(),
+            });
+        }
+        for (channel, value) in item.values.iter().enumerate() {
+            if value.format() != template.format() {
+                return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                    record,
+                    channel,
+                });
+            }
+        }
+    }
+    finish_outlet::<FixedWidthInteger>(
+        listener,
+        identity,
+        handshake_limits,
+        FixedWidthIntegerLimits {
+            io: io_limits,
+            template,
+        },
+        records,
+        channels,
+        cancelled,
+    )
+    .map(|(local, _)| local)
+}
+
+pub(crate) fn finish_fixed_width_integer_inlet_session(
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: FixedWidthNumericSampleLimits,
+    template: FixedWidthNumericValue,
+    channels: usize,
+    records: usize,
+    cancelled: &AtomicBool,
+) -> Result<Vec<FixedWidthIntegerSessionRecord>, FixedWidthNumericSampleError> {
+    require_evidenced_integer_shape(channels, records)?;
+    finish_inlet::<FixedWidthInteger>(
+        peer,
+        identity,
+        handshake_limits,
+        FixedWidthIntegerLimits {
+            io: io_limits,
+            template,
+        },
+        records,
+        channels,
+        cancelled,
+    )
+}
+
+fn require_evidenced_integer_shape(
+    channels: usize,
+    records: usize,
+) -> Result<(), FixedWidthNumericSampleError> {
+    match (channels, records) {
+        (1, 1) | (2, 3) => Ok(()),
+        (_, 1 | 3) => Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+            record: 0,
+            channel: channels,
+        }),
+        _ => Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+            record: records,
+            channel: 0,
+        }),
     }
 }
 
@@ -1411,6 +1747,30 @@ mod tests {
     fn sample_limits() -> TimestampedFloat32SampleLimits {
         TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
             .unwrap()
+    }
+
+    #[test]
+    fn p5_integer_session_rejects_unsupported_shape_before_socket_io() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let result = finish_fixed_width_integer_outlet_session(
+            listener,
+            &identity(),
+            handshake_limits(),
+            FixedWidthNumericSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+                .unwrap(),
+            FixedWidthNumericValue::Int32(0),
+            &[],
+            &AtomicBool::new(false),
+        );
+        assert_eq!(
+            result,
+            Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: 0,
+            })
+        );
+        TcpListener::bind(address).expect("preflight released the untouched listener");
     }
 
     fn identity() -> StreamHandshakeIdentity {
