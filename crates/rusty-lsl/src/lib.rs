@@ -73,6 +73,7 @@ mod documented_discovery_destination;
 mod documented_discovery_query_proposal;
 mod finite_sample_recovery_runtime;
 mod fixed_width_numeric_sample_runtime;
+mod float32_session_report_recovery_clock_queue;
 mod format_neutral_session_runtime;
 mod integrated_clock_correction_runtime;
 mod metadata;
@@ -171,6 +172,9 @@ pub use fixed_width_numeric_sample_runtime::{
     FixedWidthNumericSampleError, FixedWidthNumericSampleLimitError, FixedWidthNumericSampleLimits,
     FixedWidthNumericValue, FIXED_WIDTH_NUMERIC_SAMPLE_EFFECTIVE_MARKER,
     FIXED_WIDTH_NUMERIC_SAMPLE_FEATURE_ID,
+};
+pub use float32_session_report_recovery_clock_queue::{
+    run_float32_inlet_session_report_recovery_clock_queue, Float32SessionReportPipelineError,
 };
 pub use integrated_clock_correction_runtime::{
     run_integrated_clock_correction, ClockSource, IntegratedClockCorrection,

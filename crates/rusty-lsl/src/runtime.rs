@@ -60,3 +60,7 @@ pub use crate::{
     TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER, TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID,
     UDP_DISCOVERY_EFFECTIVE_MARKER, UDP_DISCOVERY_FEATURE_ID,
 };
+
+pub use crate::{
+    run_float32_inlet_session_report_recovery_clock_queue, Float32SessionReportPipelineError,
+};
