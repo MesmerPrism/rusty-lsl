@@ -367,6 +367,9 @@ fn p11_bounded_string_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringOutletSessionReport>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringInletSessionReport>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringSessionError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringSessionRole>() > 0);
+    let _completion: rusty_lsl::TimestampedStringSessionCompletion =
+        rusty_lsl::TimestampedStringSessionCompletion::Complete;
     let _root_outlet = rusty_lsl::TimestampedStringOutletSession::preflight_bounded;
     let _runtime_outlet = runtime::TimestampedStringOutletSession::preflight_bounded;
     let _root_inlet = rusty_lsl::TimestampedStringInletSession::preflight_bounded;

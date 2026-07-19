@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-007L adds concrete bounded one-channel, one-record String inlet/outlet
+session facades and consuming reports over the sole private format-neutral
+lifecycle owner. The sealed String codec retains the exact 0 through 129
+UTF-8-byte envelope, initialization, framing, typed indexed/trailing errors,
+allocation ownership, and legacy projection. Activation remains explicit and
+default-disabled; no broader String shape, discovery, policy, device,
+compatibility, or Manifold authority is added.
+
 LSLC-007K adds concrete typed Int32, Int16, and Int8 inlet/outlet session
 facades and consuming reports for only the accepted one-channel/one-record and
 two-channel/three-record shapes. The format-neutral engine remains the sole

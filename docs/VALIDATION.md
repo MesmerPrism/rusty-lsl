@@ -1,5 +1,13 @@
 # Validation
 
+LSLC-007L focused host qualification covers the closed String session facade's
+exact 0/1/128/129-byte and multibyte UTF-8 boundaries, allocation-preserving
+reports, socket-free shape/value rejection, indexed/trailing error projection,
+cleanup, and port reuse. The inherited String runtime suite covers malformed
+initialization/framing, cancellation, deadline, teardown, and legacy behavior.
+Acceptance also runs all-format/public regression, exact default-disabled
+activation closure, serialized Standard, and the workflow-owner gates.
+
 LSLC-007K focused qualification covers both accepted integer shapes, exact
 timestamp bits and signed values for Int32/Int16/Int8, consuming reports,
 cleanup/port reuse, legacy fixed-width damage and lifecycle regressions,

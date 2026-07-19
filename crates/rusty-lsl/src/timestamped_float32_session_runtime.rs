@@ -1668,12 +1668,70 @@ fixed_width_integer_session_facade!(
     TimestampedInt8InletSession
 );
 
-/// Bounded shape limits for the concrete one-channel, one-record String facade.
-pub type TimestampedStringSessionLimits = TimestampedFloat32SessionLimits;
-/// Invalid bounded String session shape limits.
-pub type TimestampedStringSessionLimitError = TimestampedFloat32SessionLimitError;
+/// Closed shape limits for the concrete one-channel, one-record String facade.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedStringSessionLimits;
+impl TimestampedStringSessionLimits {
+    /// Admits only the evidenced one-channel, one-record String shape.
+    pub const fn new(
+        channel_count: usize,
+        record_count: usize,
+    ) -> Result<Self, TimestampedStringSessionLimitError> {
+        if record_count != 1 {
+            return Err(TimestampedStringSessionLimitError::RecordCount {
+                actual: record_count,
+            });
+        }
+        if channel_count != 1 {
+            return Err(TimestampedStringSessionLimitError::ChannelCount {
+                actual: channel_count,
+            });
+        }
+        Ok(Self)
+    }
+    /// Exact admitted channel count.
+    pub const fn channel_count(self) -> usize {
+        1
+    }
+    /// Exact admitted caller-record count.
+    pub const fn record_count(self) -> usize {
+        1
+    }
+}
+
+/// Invalid closed String session shape limits.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TimestampedStringSessionLimitError {
+    /// The caller-record count was not exactly one.
+    RecordCount {
+        /// Supplied caller-record count.
+        actual: usize,
+    },
+    /// The channel count was not exactly one.
+    ChannelCount {
+        /// Supplied channel count.
+        actual: usize,
+    },
+}
+
 /// Socket-free String shape preflight failure.
-pub type TimestampedStringSessionPreflightError = TimestampedFloat32SessionPreflightError;
+pub type TimestampedStringSessionPreflightError = TimestampedStringSessionLimitError;
+
+/// Role completed by a bounded String session.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TimestampedStringSessionRole {
+    /// Accepted and wrote the caller record.
+    Outlet,
+    /// Connected and read the caller record.
+    Inlet,
+}
+
+/// Terminal classification of a successful bounded String session.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TimestampedStringSessionCompletion {
+    /// The exact record count completed and the peer closed cleanly.
+    Complete,
+}
 
 /// Stable failure from a started String session.
 #[derive(Debug, Eq, PartialEq)]
@@ -1709,6 +1767,10 @@ impl TimestampedStringOutletSessionReport {
     pub const fn peer(&self) -> SocketAddr {
         self.peer
     }
+    /// Completed session role.
+    pub const fn role(&self) -> TimestampedStringSessionRole {
+        TimestampedStringSessionRole::Outlet
+    }
     /// Exact caller-record count written.
     pub const fn record_count(&self) -> usize {
         1
@@ -1718,8 +1780,8 @@ impl TimestampedStringOutletSessionReport {
         1
     }
     /// Terminal completion classification from the shared lifecycle.
-    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
-        TimestampedFloat32SessionCompletion::Complete
+    pub const fn completion(&self) -> TimestampedStringSessionCompletion {
+        TimestampedStringSessionCompletion::Complete
     }
 }
 
@@ -1734,6 +1796,10 @@ impl TimestampedStringInletSessionReport {
     pub const fn peer(&self) -> SocketAddr {
         self.peer
     }
+    /// Completed session role.
+    pub const fn role(&self) -> TimestampedStringSessionRole {
+        TimestampedStringSessionRole::Inlet
+    }
     /// The exact received caller record.
     pub fn records(&self) -> &[StringSampleRecord] {
         &self.records
@@ -1747,8 +1813,8 @@ impl TimestampedStringInletSessionReport {
         1
     }
     /// Terminal completion classification from the shared lifecycle.
-    pub const fn completion(&self) -> TimestampedFloat32SessionCompletion {
-        TimestampedFloat32SessionCompletion::Complete
+    pub const fn completion(&self) -> TimestampedStringSessionCompletion {
+        TimestampedStringSessionCompletion::Complete
     }
     /// Consumes the report without copying, reallocating, or reordering the String record.
     pub fn into_records(self) -> Vec<StringSampleRecord> {
@@ -1776,8 +1842,7 @@ impl<'a> TimestampedStringOutletSession<'a> {
         session_limits: TimestampedStringSessionLimits,
         records: &'a [StringSampleRecord],
     ) -> Result<Self, TimestampedStringSessionPreflightError> {
-        require_shape(session_limits, 1, records.len())?;
-        require_evidenced_string_shape(1, records.len())?;
+        require_evidenced_string_shape(session_limits, 1, records.len())?;
         debug_assert!(records.iter().all(|record| record.value().len() <= 129));
         Ok(Self {
             activation,
@@ -1831,8 +1896,7 @@ impl<'a> TimestampedStringInletSession<'a> {
         channel_count: usize,
         record_count: usize,
     ) -> Result<Self, TimestampedStringSessionPreflightError> {
-        require_shape(session_limits, channel_count, record_count)?;
-        require_evidenced_string_shape(channel_count, record_count)?;
+        require_evidenced_string_shape(session_limits, channel_count, record_count)?;
         Ok(Self {
             activation,
             peer,
@@ -1864,9 +1928,12 @@ impl<'a> TimestampedStringInletSession<'a> {
 }
 
 fn require_evidenced_string_shape(
+    limits: TimestampedStringSessionLimits,
     channel_count: usize,
     record_count: usize,
 ) -> Result<(), TimestampedStringSessionPreflightError> {
+    debug_assert_eq!(limits.channel_count(), 1);
+    debug_assert_eq!(limits.record_count(), 1);
     if record_count != 1 {
         return Err(TimestampedStringSessionPreflightError::RecordCount {
             actual: record_count,
@@ -1874,7 +1941,6 @@ fn require_evidenced_string_shape(
     }
     if channel_count != 1 {
         return Err(TimestampedStringSessionPreflightError::ChannelCount {
-            index: 0,
             actual: channel_count,
         });
     }
@@ -2466,8 +2532,18 @@ mod tests {
     }
 
     #[test]
-    fn p11_string_facade_preserves_boundary_utf8_bits_reports_and_port_reuse() {
-        for (timestamp, value) in [(1238.25, String::new()), (1239.5, "μ".repeat(64) + "a")] {
+    fn lslc_007l_string_session_preserves_all_byte_boundaries_utf8_reports_and_port_reuse() {
+        let values = [
+            String::new(),
+            String::from("x"),
+            "x".repeat(128),
+            "x".repeat(129),
+            String::from("μ界🦀"),
+            "μ".repeat(64),
+            "μ".repeat(64) + "a",
+        ];
+        for (case, value) in values.into_iter().enumerate() {
+            let timestamp = f64::from_bits(0x4093_4a00_0000_0001 + case as u64);
             assert!(value.len() <= 129);
             let listener = TcpListener::bind("127.0.0.1:0").unwrap();
             let address = listener.local_addr().unwrap();
@@ -2506,19 +2582,30 @@ mod tests {
                 timestamp.to_bits()
             );
             assert_eq!(received.records()[0].value(), expected);
+            let received_role = received.role();
+            assert_eq!(
+                received.completion(),
+                TimestampedStringSessionCompletion::Complete
+            );
             let allocation = received.records()[0].value().as_ptr();
             let records = received.into_records();
             assert_eq!(records[0].value().as_ptr(), allocation);
             let sent = worker.join().unwrap();
             assert_eq!(sent.local_address(), address);
+            assert_eq!(sent.role(), TimestampedStringSessionRole::Outlet);
+            assert_eq!(received_role, TimestampedStringSessionRole::Inlet);
             assert_eq!(sent.record_count(), 1);
             assert_eq!(sent.channel_count(), 1);
+            assert_eq!(
+                sent.completion(),
+                TimestampedStringSessionCompletion::Complete
+            );
             TcpListener::bind(address).expect("completed facade released listener port");
         }
     }
 
     #[test]
-    fn p11_string_facade_rejects_shape_and_value_before_io() {
+    fn lslc_007l_string_session_rejects_shape_value_and_nonfinite_timestamp_before_io() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
         let records: [StringSampleRecord; 0] = [];
@@ -2538,6 +2625,50 @@ mod tests {
         assert_eq!(
             StringSampleRecord::new(1.0, "x".repeat(130)),
             Err(StringSampleError::ValueTooLong { actual: 130 })
+        );
+        assert_eq!(
+            StringSampleRecord::new(f64::NAN, String::new()),
+            Err(StringSampleError::InvalidTimestamp)
+        );
+        assert_eq!(
+            TimestampedStringSessionLimits::new(0, 0),
+            Err(TimestampedStringSessionLimitError::RecordCount { actual: 0 })
+        );
+        assert_eq!(
+            TimestampedStringSessionLimits::new(0, 1),
+            Err(TimestampedStringSessionLimitError::ChannelCount { actual: 0 })
+        );
+        assert_eq!(
+            TimestampedStringSessionLimits::new(1, 2),
+            Err(TimestampedStringSessionLimitError::RecordCount { actual: 2 })
+        );
+    }
+
+    #[test]
+    fn lslc_007l_string_session_preserves_indexed_trailing_and_legacy_error_projection() {
+        let initialization = StringSampleError::InvalidInitialization { index: 1 };
+        assert_eq!(
+            map_string_session_error_legacy(TimestampedStringSessionError::Record {
+                index: None,
+                error: initialization,
+            }),
+            StringSampleError::InvalidInitialization { index: 1 }
+        );
+        assert_eq!(
+            TimestampedStringSessionError::Record {
+                index: Some(0),
+                error: StringSampleError::InvalidUtf8,
+            },
+            TimestampedStringSessionError::Record {
+                index: Some(0),
+                error: StringSampleError::InvalidUtf8,
+            }
+        );
+        assert_eq!(
+            map_string_session_error_legacy(TimestampedStringSessionError::TrailingByte {
+                actual: 0xa5,
+            }),
+            StringSampleError::Io(ErrorKind::InvalidData)
         );
     }
 
