@@ -3,11 +3,16 @@
 
 //! One bounded protocol-110 timestamped single-channel `float32` record.
 
+#[cfg(test)]
+use crate::stream_handshake::accept_handshake_stream;
 use crate::{
     bounded_fixed_record_transport::{
         read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
     },
-    stream_handshake::{accept_handshake_stream, connect_handshake_stream},
+    timestamped_float32_session_runtime::{
+        TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
+        TimestampedFloat32SessionError, TimestampedFloat32SessionPreflightError,
+    },
     RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, Sample, SampleLimits,
     StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
     StreamHandshakeLimits, TimestampedSample,
@@ -76,6 +81,13 @@ impl TimestampedFloat32SampleLimits {
             io_slice,
             total_deadline,
         })
+    }
+
+    pub(crate) const fn io_slice(self) -> Duration {
+        self.io_slice
+    }
+    pub(crate) const fn total_deadline(self) -> Duration {
+        self.total_deadline
     }
 }
 
@@ -238,13 +250,18 @@ pub fn run_timestamped_float32_outlet(
     sample: &TimestampedSample<f32>,
     cancelled: &AtomicBool,
 ) -> Result<SocketAddr, TimestampedFloat32SampleError> {
-    let (mut stream, local, _) =
-        accept_handshake_stream(listener, identity, handshake_limits, cancelled)
-            .map_err(TimestampedFloat32SampleError::Handshake)?;
-    let _ = activation.handshake;
-    write_initialization(&mut stream, sample_limits, cancelled)?;
-    write_record(&mut stream, sample, sample_limits, cancelled)?;
-    Ok(local)
+    TimestampedFloat32OutletSession::preflight(
+        activation,
+        listener,
+        identity,
+        handshake_limits,
+        sample_limits,
+        std::slice::from_ref(sample),
+    )
+    .map_err(map_session_preflight_error)?
+    .finish(cancelled)
+    .map(|report| report.local_address())
+    .map_err(map_session_error)
 }
 
 /// Opens the accepted inlet handshake, receives exactly one record, and closes on return.
@@ -256,11 +273,46 @@ pub fn run_timestamped_float32_inlet(
     sample_limits: TimestampedFloat32SampleLimits,
     cancelled: &AtomicBool,
 ) -> Result<TimestampedSample<f32>, TimestampedFloat32SampleError> {
-    let mut stream = connect_handshake_stream(peer, identity, handshake_limits, cancelled)
-        .map_err(TimestampedFloat32SampleError::Handshake)?;
-    let _ = activation.handshake;
-    read_initialization(&mut stream, sample_limits, cancelled)?;
-    read_record(&mut stream, sample_limits, cancelled)
+    let mut records = TimestampedFloat32InletSession::preflight(
+        activation,
+        peer,
+        identity,
+        handshake_limits,
+        sample_limits,
+        1,
+    )
+    .expect("one record always passes session preflight")
+    .finish(cancelled)
+    .map_err(map_session_error)?
+    .into_records();
+    Ok(records
+        .pop()
+        .expect("one-record session reports one record"))
+}
+
+fn map_session_preflight_error(
+    error: TimestampedFloat32SessionPreflightError,
+) -> TimestampedFloat32SampleError {
+    match error {
+        TimestampedFloat32SessionPreflightError::ChannelCount { actual, .. } => {
+            TimestampedFloat32SampleError::ChannelCount { actual }
+        }
+        TimestampedFloat32SessionPreflightError::RecordCount { .. } => {
+            unreachable!("the legacy adapter always supplies exactly one record")
+        }
+    }
+}
+
+fn map_session_error(error: TimestampedFloat32SessionError) -> TimestampedFloat32SampleError {
+    match error {
+        TimestampedFloat32SessionError::Handshake(error) => {
+            TimestampedFloat32SampleError::Handshake(error)
+        }
+        TimestampedFloat32SessionError::Record { error, .. } => error,
+        TimestampedFloat32SessionError::TrailingByte { actual } => {
+            TimestampedFloat32SampleError::InvalidMarker { actual }
+        }
+    }
 }
 
 #[cfg(test)]

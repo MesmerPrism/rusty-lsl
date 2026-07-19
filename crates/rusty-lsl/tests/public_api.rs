@@ -237,6 +237,18 @@ fn float32_two_record_chunk_candidate_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkLimits>() > 0);
 }
 
+#[test]
+fn lslc_007b_float32_session_owner_and_reports_are_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32OutletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32InletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32OutletSessionReport>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32InletSessionReport>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32SessionError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32SessionPreflightError>() > 0);
+    let _outlet_preflight = rusty_lsl::TimestampedFloat32OutletSession::preflight;
+    let _inlet_preflight = rusty_lsl::TimestampedFloat32InletSession::preflight;
+}
+
 #[derive(Debug, Eq, PartialEq)]
 enum StatefulProviderError {
     TemporarilyUnavailable(u64),

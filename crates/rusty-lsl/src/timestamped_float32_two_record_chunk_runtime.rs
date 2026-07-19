@@ -3,21 +3,31 @@
 
 //! Exactly two ordered one-channel Float32 records over the accepted sample transport.
 
+#[cfg(test)]
 use crate::{
-    stream_handshake::{accept_handshake_stream, connect_handshake_stream},
-    timestamped_float32_sample_runtime::{
-        read_initialization, read_record, write_initialization, write_record,
+    stream_handshake::accept_handshake_stream,
+    timestamped_float32_sample_runtime::{write_initialization, write_record},
+};
+use crate::{
+    timestamped_float32_session_runtime::{
+        TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
+        TimestampedFloat32SessionError, TimestampedFloat32SessionPreflightError,
     },
     ChunkLimits, StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedChunk,
     TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
     TimestampedFloat32SampleLimits,
 };
-use std::io::{ErrorKind, Read};
-use std::net::TcpStream;
 use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
-use std::time::{Duration, Instant};
+use std::time::Duration;
+
+#[cfg(test)]
+use std::{
+    io::{ErrorKind, Read},
+    net::TcpStream,
+    sync::atomic::Ordering,
+    time::Instant,
+};
 
 const REQUIRED_RECORDS: usize = 2;
 
@@ -60,6 +70,7 @@ pub enum TimestampedFloat32TwoRecordChunkLimitError {
     ZeroTotalDeadline,
 }
 
+#[cfg(test)]
 fn require_peer_close(
     stream: &mut TcpStream,
     limits: TimestampedFloat32TwoRecordChunkLimits,
@@ -140,29 +151,18 @@ pub fn run_timestamped_float32_two_record_chunk_outlet(
             actual: chunk.samples().len(),
         });
     }
-    let (mut stream, local, _) =
-        accept_handshake_stream(listener, identity, handshake_limits, cancelled).map_err(
-            |error| TimestampedFloat32TwoRecordChunkError::Sample {
-                index: None,
-                error: TimestampedFloat32SampleError::Handshake(error),
-            },
-        )?;
-    let _ = activation;
-    write_initialization(&mut stream, sample_limits.sample_limits(), cancelled)
-        .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample { index: None, error })?;
-    for (index, sample) in chunk.samples().iter().enumerate() {
-        write_record(
-            &mut stream,
-            sample,
-            sample_limits.sample_limits(),
-            cancelled,
-        )
-        .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample {
-            index: Some(index),
-            error,
-        })?;
-    }
-    Ok(local)
+    TimestampedFloat32OutletSession::preflight(
+        activation,
+        listener,
+        identity,
+        handshake_limits,
+        sample_limits.sample_limits(),
+        chunk.samples(),
+    )
+    .map_err(map_preflight_error)?
+    .finish(cancelled)
+    .map(|report| report.local_address())
+    .map_err(map_session_error)
 }
 
 /// Opens one accepted inlet connection, receives exactly two ordered records, and closes on return.
@@ -174,27 +174,54 @@ pub fn run_timestamped_float32_two_record_chunk_inlet(
     sample_limits: TimestampedFloat32TwoRecordChunkLimits,
     cancelled: &AtomicBool,
 ) -> Result<TimestampedChunk<f32>, TimestampedFloat32TwoRecordChunkError> {
-    let mut stream = connect_handshake_stream(peer, identity, handshake_limits, cancelled)
-        .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample {
-            index: None,
-            error: TimestampedFloat32SampleError::Handshake(error),
-        })?;
-    let _ = activation;
-    read_initialization(&mut stream, sample_limits.sample_limits(), cancelled)
-        .map_err(|error| TimestampedFloat32TwoRecordChunkError::Sample { index: None, error })?;
-    let mut samples = Vec::with_capacity(REQUIRED_RECORDS);
-    for index in 0..REQUIRED_RECORDS {
-        samples.push(
-            read_record(&mut stream, sample_limits.sample_limits(), cancelled).map_err(
-                |error| TimestampedFloat32TwoRecordChunkError::Sample {
-                    index: Some(index),
-                    error,
-                },
-            )?,
-        );
-    }
-    require_peer_close(&mut stream, sample_limits, cancelled)?;
+    let samples = TimestampedFloat32InletSession::preflight(
+        activation,
+        peer,
+        identity,
+        handshake_limits,
+        sample_limits.sample_limits(),
+        REQUIRED_RECORDS,
+    )
+    .expect("two records always pass session preflight")
+    .finish(cancelled)
+    .map_err(map_session_error)?
+    .into_records();
     Ok(TimestampedChunk::new(ChunkLimits::new(REQUIRED_RECORDS, 1).unwrap(), samples).unwrap())
+}
+
+fn map_preflight_error(
+    error: TimestampedFloat32SessionPreflightError,
+) -> TimestampedFloat32TwoRecordChunkError {
+    match error {
+        TimestampedFloat32SessionPreflightError::RecordCount { actual } => {
+            TimestampedFloat32TwoRecordChunkError::RecordCount { actual }
+        }
+        TimestampedFloat32SessionPreflightError::ChannelCount { index, actual } => {
+            TimestampedFloat32TwoRecordChunkError::Sample {
+                index: Some(index),
+                error: TimestampedFloat32SampleError::ChannelCount { actual },
+            }
+        }
+    }
+}
+
+fn map_session_error(
+    error: TimestampedFloat32SessionError,
+) -> TimestampedFloat32TwoRecordChunkError {
+    match error {
+        TimestampedFloat32SessionError::Handshake(error) => {
+            TimestampedFloat32TwoRecordChunkError::Sample {
+                index: None,
+                error: TimestampedFloat32SampleError::Handshake(error),
+            }
+        }
+        TimestampedFloat32SessionError::Record { index, error } => {
+            TimestampedFloat32TwoRecordChunkError::Sample { index, error }
+        }
+        TimestampedFloat32SessionError::TrailingByte { actual } => {
+            TimestampedFloat32TwoRecordChunkError::TrailingByte { actual }
+        }
+    }
 }
 
 #[cfg(test)]
