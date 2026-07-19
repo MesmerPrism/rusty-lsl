@@ -5,20 +5,25 @@
 
 #[cfg(test)]
 use crate::stream_handshake::accept_handshake_stream;
+#[cfg(test)]
+use crate::timestamped_float32_session_runtime::codec::{
+    initialization_sample, read_initialization, write_record, INITIALIZATION_VALUE_BITS,
+    RECORD_BYTES, RECORD_MARKER,
+};
 use crate::{
-    bounded_fixed_record_transport::{
-        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
-    },
     timestamped_float32_session_runtime::{
         TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
         TimestampedFloat32SessionError, TimestampedFloat32SessionPreflightError,
     },
-    RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, Sample, SampleLimits,
-    StreamHandshakeActivation, StreamHandshakeError, StreamHandshakeIdentity,
-    StreamHandshakeLimits, TimestampedSample,
+    RuntimeModule, RuntimeModuleCapability, StreamHandshakeActivation, StreamHandshakeError,
+    StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedSample,
 };
+#[cfg(test)]
+use crate::{RawSourceTimestamp, Sample, SampleLimits};
 use std::io::ErrorKind;
-use std::net::{SocketAddr, TcpListener, TcpStream};
+#[cfg(test)]
+use std::net::TcpStream;
+use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
@@ -27,10 +32,6 @@ pub const TIMESTAMPED_FLOAT32_SAMPLE_FEATURE_ID: &str = "timestamped-float32-sam
 /// Exact effective marker required at runtime.
 pub const TIMESTAMPED_FLOAT32_SAMPLE_EFFECTIVE_MARKER: &str =
     "rusty.lsl.timestamped_float32_sample.effective";
-pub(crate) const RECORD_BYTES: usize = 13;
-pub(crate) const RECORD_MARKER: u8 = 2;
-const INITIALIZATION_TIMESTAMP_BITS: u64 = 0x40fe240c9fbe76c9;
-const INITIALIZATION_VALUE_BITS: [u32; 2] = [0x40800000, 0x40000000];
 
 /// Closed activation composed with accepted handshake activation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -133,171 +134,6 @@ pub enum TimestampedFloat32SampleError {
         /// Zero-based initialization record index.
         index: usize,
     },
-}
-
-fn initialization_sample(value_bits: u32) -> TimestampedSample<f32> {
-    TimestampedSample::new(
-        Sample::new(
-            SampleLimits::new(1).unwrap(),
-            1,
-            vec![f32::from_bits(value_bits)],
-        )
-        .unwrap(),
-        RawSourceTimestamp::new(f64::from_bits(INITIALIZATION_TIMESTAMP_BITS)).unwrap(),
-        None,
-    )
-}
-
-pub(crate) fn write_initialization(
-    stream: &mut TcpStream,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    write_initialization_for_channels(stream, 1, limits, cancelled)
-}
-
-pub(crate) fn write_initialization_for_channels(
-    stream: &mut TcpStream,
-    channel_count: usize,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    for value_bits in INITIALIZATION_VALUE_BITS {
-        let values = vec![f32::from_bits(value_bits); channel_count];
-        let sample = TimestampedSample::new(
-            Sample::new(
-                SampleLimits::new(channel_count).unwrap(),
-                channel_count,
-                values,
-            )
-            .unwrap(),
-            RawSourceTimestamp::new(f64::from_bits(INITIALIZATION_TIMESTAMP_BITS)).unwrap(),
-            None,
-        );
-        write_record_for_channels(stream, &sample, channel_count, limits, cancelled)?;
-    }
-    Ok(())
-}
-
-pub(crate) fn read_initialization(
-    stream: &mut TcpStream,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    read_initialization_for_channels(stream, 1, limits, cancelled)
-}
-
-pub(crate) fn read_initialization_for_channels(
-    stream: &mut TcpStream,
-    channel_count: usize,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    for (index, expected_value) in INITIALIZATION_VALUE_BITS.into_iter().enumerate() {
-        let record = read_record_for_channels(stream, channel_count, limits, cancelled)?;
-        if record.raw_source_timestamp().value().to_bits() != INITIALIZATION_TIMESTAMP_BITS
-            || record
-                .sample()
-                .values()
-                .iter()
-                .any(|value| value.to_bits() != expected_value)
-        {
-            return Err(TimestampedFloat32SampleError::InvalidInitialization { index });
-        }
-    }
-    Ok(())
-}
-
-pub(crate) fn write_record(
-    stream: &mut TcpStream,
-    sample: &TimestampedSample<f32>,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    write_record_for_channels(stream, sample, 1, limits, cancelled)
-}
-
-pub(crate) fn write_record_for_channels(
-    stream: &mut TcpStream,
-    sample: &TimestampedSample<f32>,
-    channel_count: usize,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), TimestampedFloat32SampleError> {
-    if sample.sample().declared_channels() != channel_count {
-        return Err(TimestampedFloat32SampleError::ChannelCount {
-            actual: sample.sample().declared_channels(),
-        });
-    }
-    let mut record = vec![0u8; 9 + channel_count * core::mem::size_of::<f32>()];
-    record[0] = RECORD_MARKER;
-    record[1..9].copy_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
-    for (bytes, value) in record[9..]
-        .chunks_exact_mut(4)
-        .zip(sample.sample().values())
-    {
-        bytes.copy_from_slice(&value.to_le_bytes());
-    }
-    write_exact_bounded(
-        stream,
-        &record,
-        limits.io_slice,
-        limits.total_deadline,
-        cancelled,
-    )
-    .map_err(map_transport_error)
-}
-
-fn map_transport_error(error: BoundedFixedRecordError) -> TimestampedFloat32SampleError {
-    match error {
-        BoundedFixedRecordError::Cancelled => TimestampedFloat32SampleError::Cancelled,
-        BoundedFixedRecordError::Deadline => TimestampedFloat32SampleError::Deadline,
-        BoundedFixedRecordError::Truncated { actual } => {
-            TimestampedFloat32SampleError::Truncated { actual }
-        }
-        BoundedFixedRecordError::Io(kind) => TimestampedFloat32SampleError::Io(kind),
-    }
-}
-
-pub(crate) fn read_record(
-    stream: &mut TcpStream,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<TimestampedSample<f32>, TimestampedFloat32SampleError> {
-    read_record_for_channels(stream, 1, limits, cancelled)
-}
-
-pub(crate) fn read_record_for_channels(
-    stream: &mut TcpStream,
-    channel_count: usize,
-    limits: TimestampedFloat32SampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<TimestampedSample<f32>, TimestampedFloat32SampleError> {
-    let mut record = vec![0u8; 9 + channel_count * core::mem::size_of::<f32>()];
-    read_exact_bounded(
-        stream,
-        &mut record,
-        limits.io_slice,
-        limits.total_deadline,
-        cancelled,
-    )
-    .map_err(map_transport_error)?;
-    if record[0] != RECORD_MARKER {
-        return Err(TimestampedFloat32SampleError::InvalidMarker { actual: record[0] });
-    }
-    let timestamp = RawSourceTimestamp::new(f64::from_le_bytes(record[1..9].try_into().unwrap()))
-        .map_err(|_| TimestampedFloat32SampleError::InvalidTimestamp)?;
-    let values = record[9..]
-        .chunks_exact(4)
-        .map(|bytes| f32::from_le_bytes(bytes.try_into().unwrap()))
-        .collect();
-    let sample = Sample::new(
-        SampleLimits::new(channel_count).unwrap(),
-        channel_count,
-        values,
-    )
-    .unwrap();
-    Ok(TimestampedSample::new(sample, timestamp, None))
 }
 
 /// Opens the accepted outlet handshake, sends exactly one record, and closes on return.

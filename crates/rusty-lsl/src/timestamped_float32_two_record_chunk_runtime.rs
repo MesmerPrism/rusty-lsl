@@ -6,7 +6,7 @@
 #[cfg(test)]
 use crate::{
     stream_handshake::accept_handshake_stream,
-    timestamped_float32_sample_runtime::{write_initialization, write_record},
+    timestamped_float32_session_runtime::codec::{write_initialization, write_record},
 };
 use crate::{
     timestamped_float32_session_runtime::{

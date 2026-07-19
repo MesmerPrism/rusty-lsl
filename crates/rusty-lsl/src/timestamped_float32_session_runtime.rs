@@ -4,19 +4,210 @@
 //! Bounded one- or two-record Float32 outlet/inlet session ownership.
 
 use crate::{
-    stream_handshake::{accept_handshake_stream, connect_handshake_stream},
-    timestamped_float32_sample_runtime::{
-        read_initialization_for_channels, read_record_for_channels,
-        write_initialization_for_channels, write_record_for_channels,
+    bounded_fixed_record_transport::{
+        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
     },
-    StreamHandshakeError, StreamHandshakeIdentity, StreamHandshakeLimits,
-    TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
+    stream_handshake::{accept_handshake_stream, connect_handshake_stream},
+    RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeError, StreamHandshakeIdentity,
+    StreamHandshakeLimits, TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
     TimestampedFloat32SampleLimits, TimestampedSample,
 };
 use std::io::{ErrorKind, Read};
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
+
+/// The sole production Float32 framing and initialization owner, sealed beneath the session.
+pub(crate) mod codec {
+    use super::*;
+
+    #[cfg(test)]
+    pub(crate) const RECORD_BYTES: usize = 13;
+    pub(crate) const RECORD_MARKER: u8 = 2;
+    const INITIALIZATION_TIMESTAMP_BITS: u64 = 0x40fe240c9fbe76c9;
+    pub(crate) const INITIALIZATION_VALUE_BITS: [u32; 2] = [0x40800000, 0x40000000];
+
+    #[cfg(test)]
+    pub(crate) fn initialization_sample(value_bits: u32) -> TimestampedSample<f32> {
+        initialization_sample_for_channels(value_bits, 1)
+            .expect("one initialization channel has a representable frame")
+    }
+
+    fn initialization_sample_for_channels(
+        value_bits: u32,
+        channel_count: usize,
+    ) -> Result<TimestampedSample<f32>, TimestampedFloat32SampleError> {
+        record_bytes(channel_count)?;
+        let sample = Sample::new(
+            SampleLimits::new(channel_count).map_err(|_| channel_error(channel_count))?,
+            channel_count,
+            vec![f32::from_bits(value_bits); channel_count],
+        )
+        .map_err(|_| channel_error(channel_count))?;
+        Ok(TimestampedSample::new(
+            sample,
+            RawSourceTimestamp::new(f64::from_bits(INITIALIZATION_TIMESTAMP_BITS))
+                .expect("fixed initialization timestamp is finite"),
+            None,
+        ))
+    }
+
+    pub(crate) fn write_initialization_for_channels(
+        stream: &mut TcpStream,
+        channel_count: usize,
+        limits: TimestampedFloat32SampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SampleError> {
+        for value_bits in INITIALIZATION_VALUE_BITS {
+            let sample = initialization_sample_for_channels(value_bits, channel_count)?;
+            write_record_for_channels(stream, &sample, channel_count, limits, cancelled)?;
+        }
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(crate) fn write_initialization(
+        stream: &mut TcpStream,
+        limits: TimestampedFloat32SampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SampleError> {
+        write_initialization_for_channels(stream, 1, limits, cancelled)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn read_initialization(
+        stream: &mut TcpStream,
+        limits: TimestampedFloat32SampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SampleError> {
+        read_initialization_for_channels(stream, 1, limits, cancelled)
+    }
+
+    pub(crate) fn read_initialization_for_channels(
+        stream: &mut TcpStream,
+        channel_count: usize,
+        limits: TimestampedFloat32SampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SampleError> {
+        for (index, expected_value) in INITIALIZATION_VALUE_BITS.into_iter().enumerate() {
+            let record = read_record_for_channels(stream, channel_count, limits, cancelled)?;
+            if record.raw_source_timestamp().value().to_bits() != INITIALIZATION_TIMESTAMP_BITS
+                || record
+                    .sample()
+                    .values()
+                    .iter()
+                    .any(|value| value.to_bits() != expected_value)
+            {
+                return Err(TimestampedFloat32SampleError::InvalidInitialization { index });
+            }
+        }
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(crate) fn write_record(
+        stream: &mut TcpStream,
+        sample: &TimestampedSample<f32>,
+        limits: TimestampedFloat32SampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SampleError> {
+        write_record_for_channels(stream, sample, 1, limits, cancelled)
+    }
+
+    pub(crate) fn write_record_for_channels(
+        stream: &mut TcpStream,
+        sample: &TimestampedSample<f32>,
+        channel_count: usize,
+        limits: TimestampedFloat32SampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SampleError> {
+        if sample.sample().declared_channels() != channel_count {
+            return Err(channel_error(sample.sample().declared_channels()));
+        }
+        let mut record = vec![0u8; record_bytes(channel_count)?];
+        record[0] = RECORD_MARKER;
+        record[1..9].copy_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
+        for (bytes, value) in record[9..]
+            .chunks_exact_mut(core::mem::size_of::<f32>())
+            .zip(sample.sample().values())
+        {
+            bytes.copy_from_slice(&value.to_le_bytes());
+        }
+        write_exact_bounded(
+            stream,
+            &record,
+            limits.io_slice(),
+            limits.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_transport_error)
+    }
+
+    pub(crate) fn read_record_for_channels(
+        stream: &mut TcpStream,
+        channel_count: usize,
+        limits: TimestampedFloat32SampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedSample<f32>, TimestampedFloat32SampleError> {
+        let mut record = vec![0u8; record_bytes(channel_count)?];
+        read_exact_bounded(
+            stream,
+            &mut record,
+            limits.io_slice(),
+            limits.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_transport_error)?;
+        if record[0] != RECORD_MARKER {
+            return Err(TimestampedFloat32SampleError::InvalidMarker { actual: record[0] });
+        }
+        let timestamp = RawSourceTimestamp::new(f64::from_le_bytes(
+            record[1..9].try_into().expect("fixed timestamp width"),
+        ))
+        .map_err(|_| TimestampedFloat32SampleError::InvalidTimestamp)?;
+        let values = record[9..]
+            .chunks_exact(core::mem::size_of::<f32>())
+            .map(|bytes| f32::from_le_bytes(bytes.try_into().expect("fixed Float32 width")))
+            .collect();
+        let sample = Sample::new(
+            SampleLimits::new(channel_count).map_err(|_| channel_error(channel_count))?,
+            channel_count,
+            values,
+        )
+        .map_err(|_| channel_error(channel_count))?;
+        Ok(TimestampedSample::new(sample, timestamp, None))
+    }
+
+    fn record_bytes(channel_count: usize) -> Result<usize, TimestampedFloat32SampleError> {
+        if channel_count == 0 {
+            return Err(channel_error(channel_count));
+        }
+        channel_count
+            .checked_mul(core::mem::size_of::<f32>())
+            .and_then(|values| 9usize.checked_add(values))
+            .ok_or_else(|| channel_error(channel_count))
+    }
+
+    fn channel_error(actual: usize) -> TimestampedFloat32SampleError {
+        TimestampedFloat32SampleError::ChannelCount { actual }
+    }
+
+    fn map_transport_error(error: BoundedFixedRecordError) -> TimestampedFloat32SampleError {
+        match error {
+            BoundedFixedRecordError::Cancelled => TimestampedFloat32SampleError::Cancelled,
+            BoundedFixedRecordError::Deadline => TimestampedFloat32SampleError::Deadline,
+            BoundedFixedRecordError::Truncated { actual } => {
+                TimestampedFloat32SampleError::Truncated { actual }
+            }
+            BoundedFixedRecordError::Io(kind) => TimestampedFloat32SampleError::Io(kind),
+        }
+    }
+}
+
+use codec::{
+    read_initialization_for_channels, read_record_for_channels, write_initialization_for_channels,
+    write_record_for_channels,
+};
 
 /// Explicit role owned by a completed Float32 session.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -468,13 +659,7 @@ fn require_peer_close(
                 error: TimestampedFloat32SampleError::Cancelled,
             });
         }
-        let remaining = limits
-            .total_deadline()
-            .checked_sub(started.elapsed())
-            .ok_or(TimestampedFloat32SessionError::Record {
-                index: None,
-                error: TimestampedFloat32SampleError::Deadline,
-            })?;
+        let remaining = terminal_read_timeout(started.elapsed(), limits)?;
         stream
             .set_read_timeout(Some(remaining.min(limits.io_slice())))
             .map_err(|error| TimestampedFloat32SessionError::Record {
@@ -493,6 +678,21 @@ fn require_peer_close(
             }
         }
     }
+}
+
+fn terminal_read_timeout(
+    elapsed: std::time::Duration,
+    limits: TimestampedFloat32SampleLimits,
+) -> Result<std::time::Duration, TimestampedFloat32SessionError> {
+    let remaining = limits
+        .total_deadline()
+        .checked_sub(elapsed)
+        .filter(|remaining| !remaining.is_zero())
+        .ok_or(TimestampedFloat32SessionError::Record {
+            index: None,
+            error: TimestampedFloat32SampleError::Deadline,
+        })?;
+    Ok(remaining.min(limits.io_slice()))
 }
 
 #[cfg(test)]
@@ -715,5 +915,24 @@ mod tests {
             )
         ));
         TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p2_zero_remaining_terminal_deadline_is_typed_before_io() {
+        let limits = sample_limits();
+        assert_eq!(
+            terminal_read_timeout(limits.total_deadline(), limits),
+            Err(TimestampedFloat32SessionError::Record {
+                index: None,
+                error: TimestampedFloat32SampleError::Deadline,
+            })
+        );
+        assert_eq!(
+            terminal_read_timeout(limits.total_deadline() + Duration::from_nanos(1), limits),
+            Err(TimestampedFloat32SessionError::Record {
+                index: None,
+                error: TimestampedFloat32SampleError::Deadline,
+            })
+        );
     }
 }

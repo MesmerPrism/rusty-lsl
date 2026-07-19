@@ -13,6 +13,18 @@ acceptance gap and remain smaller than the production unit it supports.
 Documentation, soak, scalar-boundary, or speculative ecosystem coverage cannot
 substitute for a required production-behavior successor.
 
+LSLC-007C focuses the bounded homogeneous Float32 session shape, sole-codec
+ownership, legacy adapters, and deterministic zero-remaining terminal deadline:
+
+```text
+cargo test -p rusty-lsl timestamped_float32 -- --test-threads=1
+cargo test -p rusty-lsl p2_ -- --test-threads=1
+cargo test -p rusty-lsl --test public_api p2_ -- --test-threads=1
+```
+
+These host-only gates add no compatibility breadth. Current activation closure
+and serialized Standard remain required before acceptance.
+
 LSLC-006E focused recovery, clock-correction, and queue error-precedence
 conformance:
 

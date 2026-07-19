@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-007C extends the sole bounded Float32 session owner to explicit bounded
+homogeneous channel and record shapes. The session owns the sealed crate-private
+codec, while the earlier one- and two-record public functions remain thin
+adapters. Zero remaining terminal-close time is classified as a typed deadline
+before platform socket timeout APIs are called. It adds no discovery, clocks,
+queues, recovery, other formats, device behavior, compatibility claim, or
+Manifold authority.
+
 LSLC-007B introduces the sole bounded Float32 outlet/inlet session owner for
 exactly one or two records. It owns preflight, accept/connect, handshake,
 one-time initialization, terminal close, consuming completion reports, and a

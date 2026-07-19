@@ -3,12 +3,15 @@
 ## Bounded Float32 session owner
 
 `timestamped_float32_session_runtime` is the sole connection-lifecycle and
-codec authority for the accepted one-channel Float32 vertical. Explicit outlet
-and inlet owners move through preflight, accept/connect, handshake, one-time
-initialization, exactly one or two records, terminal close, and a consuming
-completion report. `Drop` performs only nonblocking best-effort cleanup. The
-older one-record and two-record functions adapt to this owner with their exact
-legacy error mappings; they are not parallel lifecycle or codec authorities.
+codec authority for the accepted bounded homogeneous Float32 vertical.
+Explicit outlet and inlet owners move through preflight, accept/connect,
+handshake, one-time initialization, a caller-bounded channel/record shape,
+terminal close, and a consuming completion report. The sealed crate-private
+codec is physically subordinate to this owner. `Drop` performs only
+nonblocking best-effort cleanup. The older one-record and two-record functions
+adapt to this owner with their exact legacy error mappings; they are not
+parallel lifecycle or codec authorities. A zero remaining terminal deadline is
+classified before invoking platform socket timeout APIs.
 
 ## Production convergence
 

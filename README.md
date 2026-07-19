@@ -14,9 +14,10 @@ authority. Compatibility work is scheduled when it validates the production
 runtime; speculative ecosystem breadth is secondary.
 
 The first production vertical is one bounded Float32 session owner with
-explicit outlet/inlet roles and exactly one or two records. Legacy one-record
-and two-record functions remain thin adapters; broader shapes and formats are
-separate roadmap work.
+explicit outlet/inlet roles and caller-bounded homogeneous channel and record
+shapes. Its codec is sealed beneath that owner. Legacy one-record and
+two-record functions remain thin adapters; broader formats are separate
+roadmap work.
 
 See [Production Roadmap](docs/LSL-PRODUCTION-ROADMAP.md) for the completion
 definition and next production slice. Detailed accepted unit history remains in
