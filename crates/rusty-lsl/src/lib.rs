@@ -63,6 +63,7 @@ pub(crate) fn lock_multicast_loopback_tests() -> std::sync::MutexGuard<'static, 
 }
 
 mod bounded_fixed_record_transport;
+mod bounded_float32_recovery_clock_queue_runtime;
 mod bounded_sample_queue_runtime;
 mod clock_filter_selection;
 mod clock_offset_application;
@@ -128,6 +129,10 @@ mod xml_element_tree;
 mod xml_leaf_element;
 mod xml_value;
 
+pub use bounded_float32_recovery_clock_queue_runtime::{
+    run_bounded_float32_recovery_clock_queue, BoundedFloat32PipelineCancellation,
+    BoundedFloat32PipelineError, BoundedFloat32PipelineOutcome,
+};
 pub use bounded_sample_queue_runtime::{
     BoundedSampleQueue, BoundedSampleQueueActivation, BoundedSampleQueueActivationError,
     BoundedSampleQueueCloseError, BoundedSampleQueueCreateError, BoundedSampleQueuePopError,

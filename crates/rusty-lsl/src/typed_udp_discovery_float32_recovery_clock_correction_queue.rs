@@ -4,11 +4,11 @@
 //! Finite inlet recovery followed by explicit clock correction and queue admission.
 
 use crate::{
-    run_finite_sample_recovery, run_integrated_clock_correction,
-    run_selected_typed_udp_discovery_float32_inlet, BoundedSampleQueue,
-    BoundedSampleQueuePushError, BoundedSampleQueueWait, ClockSource,
-    FiniteSampleRecoveryActivation, FiniteSampleRecoveryError, FiniteSampleRecoveryOutcome,
-    FiniteSampleRecoveryPolicy, FiniteSampleRecoveryState, IntegratedClockCorrectionActivation,
+    run_bounded_float32_recovery_clock_queue, run_selected_typed_udp_discovery_float32_inlet,
+    BoundedFloat32PipelineCancellation, BoundedFloat32PipelineError, BoundedFloat32PipelineOutcome,
+    BoundedSampleQueue, BoundedSampleQueuePushError, BoundedSampleQueueWait, ClockSource,
+    FiniteSampleRecoveryActivation, FiniteSampleRecoveryError, FiniteSampleRecoveryPolicy,
+    FiniteSampleRecoveryState, IntegratedClockCorrectionActivation,
     IntegratedClockCorrectionConfig, IntegratedClockCorrectionError, RecoveryAttemptFailure,
     StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32SampleActivation,
     TimestampedFloat32SampleLimits, TimestampedSample, TypedUdpDiscoveryFloat32Error,
@@ -105,10 +105,9 @@ where
     C: ClockSource,
     K: FnMut(usize, &TypedUdpDiscoveryFloat32Error) -> RecoveryAttemptFailure,
 {
-    let recovery = run_finite_sample_recovery(
+    let outcome = run_bounded_float32_recovery_clock_queue(
         recovery_activation,
         recovery_policy,
-        recovery_cancelled,
         |attempt| {
             run_selected_typed_udp_discovery_float32_inlet(
                 run,
@@ -121,62 +120,54 @@ where
             )
             .map_err(|error| classify(attempt, &error))
         },
-    )
-    .map_err(TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Recovery)?;
-    let (sample, states) = match recovery {
-        FiniteSampleRecoveryOutcome::Recovered { sample, states } => (sample, states),
-        FiniteSampleRecoveryOutcome::Terminal { failure, states } => {
-            return Ok(
-                TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Terminal {
-                    failure,
-                    states,
-                },
-            )
-        }
-        FiniteSampleRecoveryOutcome::Exhausted { failure, states } => {
-            return Ok(
-                TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Exhausted {
-                    failure,
-                    states,
-                },
-            )
-        }
-        FiniteSampleRecoveryOutcome::Cancelled { states } => {
-            return Ok(
-                TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Cancelled { states },
-            )
-        }
-        FiniteSampleRecoveryOutcome::Deadline { states } => {
-            return Ok(
-                TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Deadline { states },
-            )
-        }
-    };
-    let correction = match run_integrated_clock_correction(
         clock_activation,
         clock_config,
         clock,
-        sample.raw_source_timestamp(),
-        clock_cancelled,
-    ) {
-        Ok(value) => value,
-        Err(error) => {
-            return Err(
-                TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Clock {
-                    error,
-                    sample,
-                    states,
-                },
-            )
-        }
-    };
-    let (values, raw, _) = sample.into_parts();
-    let corrected = TimestampedSample::new(values, raw, Some(correction.application().derived()));
-    match queue.push(corrected, queue_wait, queue_cancelled) {
-        Ok(()) => {
+        queue,
+        queue_wait,
+        BoundedFloat32PipelineCancellation::new(
+            recovery_cancelled,
+            clock_cancelled,
+            queue_cancelled,
+        ),
+    );
+    match outcome {
+        Ok(BoundedFloat32PipelineOutcome::Queued { states }) => {
             Ok(TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Queued { states })
         }
-        Err(error) => {
+        Ok(BoundedFloat32PipelineOutcome::Terminal { failure, states }) => Ok(
+            TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Terminal {
+                failure,
+                states,
+            },
+        ),
+        Ok(BoundedFloat32PipelineOutcome::Exhausted { failure, states }) => Ok(
+            TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Exhausted {
+                failure,
+                states,
+            },
+        ),
+        Ok(BoundedFloat32PipelineOutcome::Cancelled { states }) => {
+            Ok(TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Cancelled { states })
+        }
+        Ok(BoundedFloat32PipelineOutcome::Deadline { states }) => {
+            Ok(TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueOutcome::Deadline { states })
+        }
+        Err(BoundedFloat32PipelineError::Recovery(error)) => {
+            Err(TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Recovery(error))
+        }
+        Err(BoundedFloat32PipelineError::Clock {
+            error,
+            sample,
+            states,
+        }) => Err(
+            TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Clock {
+                error,
+                sample,
+                states,
+            },
+        ),
+        Err(BoundedFloat32PipelineError::Queue { error, states }) => {
             Err(TypedUdpDiscoveryFloat32RecoveryClockCorrectionQueueError::Queue { error, states })
         }
     }

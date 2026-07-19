@@ -236,6 +236,27 @@ fn lslc_005d_recovery_clock_correction_queue_is_public() {
 }
 
 #[test]
+fn p4_bounded_recovery_clock_queue_pipeline_is_public() {
+    struct PublicClock;
+    impl rusty_lsl::ClockSource for PublicClock {
+        fn now(&mut self) -> f64 {
+            0.0
+        }
+    }
+    assert!(core::mem::size_of::<rusty_lsl::BoundedFloat32PipelineCancellation<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::BoundedFloat32PipelineOutcome>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::BoundedFloat32PipelineError>() > 0);
+    let _run = rusty_lsl::run_bounded_float32_recovery_clock_queue::<
+        PublicClock,
+        fn(usize) -> Result<rusty_lsl::TimestampedSample<f32>, rusty_lsl::RecoveryAttemptFailure>,
+    >;
+    let _runtime_run = rusty_lsl::runtime::run_bounded_float32_recovery_clock_queue::<
+        PublicClock,
+        fn(usize) -> Result<rusty_lsl::TimestampedSample<f32>, rusty_lsl::RecoveryAttemptFailure>,
+    >;
+}
+
+#[test]
 fn float32_two_record_chunk_candidate_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkError>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkLimits>() > 0);

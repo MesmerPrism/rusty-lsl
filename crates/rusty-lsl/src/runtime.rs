@@ -7,15 +7,16 @@
 //! It defines no types, defaults, effects, or authority.
 
 pub use crate::{
-    admit_runtime_activation, run_finite_sample_recovery, run_fixed_width_numeric_inlet,
-    run_fixed_width_numeric_outlet, run_integrated_clock_correction,
+    admit_runtime_activation, run_bounded_float32_recovery_clock_queue, run_finite_sample_recovery,
+    run_fixed_width_numeric_inlet, run_fixed_width_numeric_outlet, run_integrated_clock_correction,
     run_selected_typed_udp_discovery_float32_session_inlet, run_short_info_responder,
     run_stream_inlet_handshake, run_stream_outlet_handshake, run_timestamped_float32_inlet,
     run_timestamped_float32_outlet, run_timestamped_float32_two_record_chunk_inlet,
-    run_timestamped_float32_two_record_chunk_outlet, run_udp_discovery, BoundedSampleQueue,
-    BoundedSampleQueueActivation, BoundedSampleQueueActivationError, BoundedSampleQueueCloseError,
-    BoundedSampleQueueCreateError, BoundedSampleQueuePopError, BoundedSampleQueuePushError,
-    BoundedSampleQueueWait, BoundedSampleQueueWaitError, ClockSource,
+    run_timestamped_float32_two_record_chunk_outlet, run_udp_discovery,
+    BoundedFloat32PipelineCancellation, BoundedFloat32PipelineError, BoundedFloat32PipelineOutcome,
+    BoundedSampleQueue, BoundedSampleQueueActivation, BoundedSampleQueueActivationError,
+    BoundedSampleQueueCloseError, BoundedSampleQueueCreateError, BoundedSampleQueuePopError,
+    BoundedSampleQueuePushError, BoundedSampleQueueWait, BoundedSampleQueueWaitError, ClockSource,
     FiniteSampleRecoveryActivation, FiniteSampleRecoveryActivationError, FiniteSampleRecoveryError,
     FiniteSampleRecoveryOutcome, FiniteSampleRecoveryPolicy, FiniteSampleRecoveryPolicyError,
     FiniteSampleRecoveryState, FixedWidthNumericRecord, FixedWidthNumericSampleActivation,
