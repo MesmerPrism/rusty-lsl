@@ -3,10 +3,10 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 6,
-  "revision": 21,
-  "generated_at": "2026-07-19T18:24:00Z",
+  "revision": 22,
+  "generated_at": "2026-07-19T18:52:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "5d51290cb28ed634b46396e5ff3421e98eec50d87d02d8c225b8cebc14e7b6dd",
+  "lock_fingerprint": "7427ba8f2a3edc753235b25d6ac3fd7fdc61c518f08bb705dd5b5863182a2237",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -421,9 +421,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "9f7afb13bfcc28447bb80d757b177f3c416a0fc9c22223588ca22883de360b4e",
+        "sha256": "9a41e4e887668252b05b25404131bc578d452cf5ae24c8849749d004abbf2db3",
         "source_repo": "rusty-lsl",
-        "source_revision": "dcfddedb645c850ccec3ea833a38b45f10430fa2",
+        "source_revision": "782023d93ea93254175ba4bd085451a7a9c1072f",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
         "source_sha256": "c772359f46aae7ec4300d901a770e9b7bd39723a99592dae5078b43fa0084019"
       },
