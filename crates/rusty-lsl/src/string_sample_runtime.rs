@@ -3,15 +3,14 @@
 //! One-channel, one-record String runtime bound to LSLC-003Q.
 
 use crate::{
-    bounded_fixed_record_transport::{
-        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
+    timestamped_float32_session_runtime::{
+        finish_string_inlet_session, finish_string_outlet_session,
     },
-    stream_handshake::{accept_handshake_stream_with_format, connect_handshake_stream_with_format},
     RuntimeModule, RuntimeModuleCapability, StreamHandshakeActivation, StreamHandshakeError,
     StreamHandshakeIdentity, StreamHandshakeLimits,
 };
 use std::io::ErrorKind;
-use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
@@ -19,7 +18,6 @@ use std::time::Duration;
 pub const STRING_SAMPLE_FEATURE_ID: &str = "string-sample";
 /// Explicit runtime marker.
 pub const STRING_SAMPLE_EFFECTIVE_MARKER: &str = "rusty.lsl.string_sample.effective";
-const INITIALIZATION_TIMESTAMP: f64 = 123_456.789;
 const MAX_STRING_BYTES: usize = 129;
 
 /// One finite raw timestamp beside one bounded UTF-8 String.
@@ -102,6 +100,12 @@ impl StringSampleLimits {
             total_deadline,
         })
     }
+    pub(crate) const fn io_slice(self) -> Duration {
+        self.io_slice
+    }
+    pub(crate) const fn total_deadline(self) -> Duration {
+        self.total_deadline
+    }
 }
 /// Invalid limit.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -156,107 +160,6 @@ pub enum StringSampleError {
     InvalidUtf8,
 }
 
-fn map_transport(error: BoundedFixedRecordError) -> StringSampleError {
-    match error {
-        BoundedFixedRecordError::Cancelled => StringSampleError::Cancelled,
-        BoundedFixedRecordError::Deadline => StringSampleError::Deadline,
-        BoundedFixedRecordError::Truncated { actual } => StringSampleError::Truncated { actual },
-        BoundedFixedRecordError::Io(kind) => StringSampleError::Io(kind),
-    }
-}
-fn write(
-    stream: &mut TcpStream,
-    bytes: &[u8],
-    limits: StringSampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), StringSampleError> {
-    write_exact_bounded(
-        stream,
-        bytes,
-        limits.io_slice,
-        limits.total_deadline,
-        cancelled,
-    )
-    .map_err(map_transport)
-}
-fn read(
-    stream: &mut TcpStream,
-    bytes: &mut [u8],
-    limits: StringSampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), StringSampleError> {
-    read_exact_bounded(
-        stream,
-        bytes,
-        limits.io_slice,
-        limits.total_deadline,
-        cancelled,
-    )
-    .map_err(map_transport)
-}
-fn encode(timestamp: f64, value: &[u8]) -> Vec<u8> {
-    let mut bytes = Vec::with_capacity(11 + value.len());
-    bytes.push(2);
-    bytes.extend_from_slice(&timestamp.to_le_bytes());
-    bytes.push(1);
-    bytes.push(value.len() as u8);
-    bytes.extend_from_slice(value);
-    bytes
-}
-fn write_initialization(
-    stream: &mut TcpStream,
-    limits: StringSampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), StringSampleError> {
-    let record = encode(INITIALIZATION_TIMESTAMP, b"10");
-    write(stream, &record, limits, cancelled)?;
-    write(stream, &record, limits, cancelled)
-}
-fn read_header(
-    stream: &mut TcpStream,
-    limits: StringSampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(f64, usize), StringSampleError> {
-    let mut header = [0; 11];
-    read(stream, &mut header, limits, cancelled)?;
-    if header[0] != 2 {
-        return Err(StringSampleError::InvalidMarker { actual: header[0] });
-    }
-    if header[9] != 1 {
-        return Err(StringSampleError::InvalidLengthForm { actual: header[9] });
-    }
-    let length = header[10] as usize;
-    if length > MAX_STRING_BYTES {
-        return Err(StringSampleError::ValueTooLong { actual: length });
-    }
-    Ok((f64::from_le_bytes(header[1..9].try_into().unwrap()), length))
-}
-fn read_value(
-    stream: &mut TcpStream,
-    limits: StringSampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<StringSampleRecord, StringSampleError> {
-    let (timestamp, length) = read_header(stream, limits, cancelled)?;
-    let mut value = vec![0; length];
-    read(stream, &mut value, limits, cancelled)?;
-    let value = String::from_utf8(value).map_err(|_| StringSampleError::InvalidUtf8)?;
-    StringSampleRecord::new(timestamp, value)
-}
-fn read_initialization(
-    stream: &mut TcpStream,
-    limits: StringSampleLimits,
-    cancelled: &AtomicBool,
-) -> Result<(), StringSampleError> {
-    for index in 0..2 {
-        let record = read_value(stream, limits, cancelled)?;
-        if record.timestamp.to_bits() != INITIALIZATION_TIMESTAMP.to_bits() || record.value != "10"
-        {
-            return Err(StringSampleError::InvalidInitialization { index });
-        }
-    }
-    Ok(())
-}
-
 /// Sends two observed initialization records and exactly one caller record.
 pub fn run_string_sample_outlet(
     activation: StringSampleActivation,
@@ -267,24 +170,15 @@ pub fn run_string_sample_outlet(
     record: StringSampleRecord,
     cancelled: &AtomicBool,
 ) -> Result<SocketAddr, StringSampleError> {
-    let (mut stream, local, _) = accept_handshake_stream_with_format(
+    let _ = activation.handshake;
+    finish_string_outlet_session(
         listener,
         identity,
         handshake_limits,
-        cancelled,
-        0,
-        false,
-    )
-    .map_err(StringSampleError::Handshake)?;
-    let _ = activation.handshake;
-    write_initialization(&mut stream, limits, cancelled)?;
-    write(
-        &mut stream,
-        &encode(record.timestamp, record.value.as_bytes()),
         limits,
+        &record,
         cancelled,
-    )?;
-    Ok(local)
+    )
 }
 /// Receives two observed initialization records and exactly one caller record.
 pub fn run_string_sample_inlet(
@@ -295,19 +189,19 @@ pub fn run_string_sample_inlet(
     limits: StringSampleLimits,
     cancelled: &AtomicBool,
 ) -> Result<StringSampleRecord, StringSampleError> {
-    let mut stream =
-        connect_handshake_stream_with_format(peer, identity, handshake_limits, cancelled, 0, false)
-            .map_err(StringSampleError::Handshake)?;
     let _ = activation.handshake;
-    read_initialization(&mut stream, limits, cancelled)?;
-    read_value(&mut stream, limits, cancelled)
+    finish_string_inlet_session(peer, identity, handshake_limits, limits, cancelled)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
+    use crate::timestamped_float32_session_runtime::string_codec::{
+        read as codec_read, read_record, write as codec_write,
+    };
     use std::io::Write;
+    use std::net::TcpStream;
     use std::sync::atomic::AtomicBool;
     use std::thread;
     fn handshake_limits() -> StreamHandshakeLimits {
@@ -402,13 +296,15 @@ mod tests {
         let address = listener.local_addr().unwrap();
         let peer = thread::spawn(move || {
             let mut stream = TcpStream::connect(address).unwrap();
-            let mut damaged = encode(1.0, b"x");
+            let mut damaged = vec![2];
+            damaged.extend_from_slice(&1.0f64.to_le_bytes());
+            damaged.extend_from_slice(&[1, 1, b'x']);
             damaged[9] = 2;
             stream.write_all(&damaged).unwrap();
         });
         let (mut stream, _) = listener.accept().unwrap();
         assert_eq!(
-            read_value(&mut stream, limits(), &AtomicBool::new(false)),
+            read_record(&mut stream, limits(), &AtomicBool::new(false)),
             Err(StringSampleError::InvalidLengthForm { actual: 2 })
         );
         peer.join().unwrap();
@@ -418,12 +314,12 @@ mod tests {
         let peer = thread::spawn(move || TcpStream::connect(address).unwrap());
         let (mut stream, _) = listener.accept().unwrap();
         assert_eq!(
-            write(&mut stream, b"x", limits(), &AtomicBool::new(true)),
+            codec_write(&mut stream, b"x", limits(), &AtomicBool::new(true)),
             Err(StringSampleError::Cancelled)
         );
         let mut byte = [0];
         assert_eq!(
-            read(
+            codec_read(
                 &mut stream,
                 &mut byte,
                 StringSampleLimits::new(Duration::from_millis(1), Duration::from_millis(2))

@@ -13,8 +13,9 @@ use crate::{
     },
     FixedWidthNumericSampleActivation, FixedWidthNumericSampleError, FixedWidthNumericSampleLimits,
     FixedWidthNumericValue, RawSourceTimestamp, Sample, SampleLimits, StreamHandshakeError,
-    StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32SampleActivation,
-    TimestampedFloat32SampleError, TimestampedFloat32SampleLimits, TimestampedSample,
+    StreamHandshakeIdentity, StreamHandshakeLimits, StringSampleError, StringSampleLimits,
+    StringSampleRecord, TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
+    TimestampedFloat32SampleLimits, TimestampedSample,
 };
 use std::io::{ErrorKind, Read};
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
@@ -537,6 +538,282 @@ mod session_format {
             TimestampedFloat32SessionError::TrailingByte { actual }
         }
     }
+
+    #[derive(Clone, Copy)]
+    pub(super) struct StringSample;
+
+    impl Sealed for StringSample {
+        type Sample = StringSampleRecord;
+        type Limits = StringSampleLimits;
+        type RecordError = StringSampleError;
+        type SessionError = StringSampleError;
+
+        fn accept(
+            listener: TcpListener,
+            identity: &StreamHandshakeIdentity,
+            limits: StreamHandshakeLimits,
+            _format_limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
+            accept_handshake_stream_with_format(listener, identity, limits, cancelled, 0, false)
+        }
+        fn connect(
+            peer: SocketAddr,
+            identity: &StreamHandshakeIdentity,
+            limits: StreamHandshakeLimits,
+            _format_limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<TcpStream, StreamHandshakeError> {
+            connect_handshake_stream_with_format(peer, identity, limits, cancelled, 0, false)
+        }
+        fn write_initialization(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError> {
+            string_codec::require_shape(channels, 1)
+                .map_err(|()| StringSampleError::Io(ErrorKind::InvalidInput))?;
+            string_codec::write_initialization(stream, limits, cancelled)
+        }
+        fn read_initialization(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError> {
+            string_codec::require_shape(channels, 1)
+                .map_err(|()| StringSampleError::Io(ErrorKind::InvalidInput))?;
+            string_codec::read_initialization(stream, limits, cancelled)
+        }
+        fn write_record(
+            stream: &mut TcpStream,
+            sample: &Self::Sample,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), Self::RecordError> {
+            string_codec::require_shape(channels, 1)
+                .map_err(|()| StringSampleError::Io(ErrorKind::InvalidInput))?;
+            string_codec::write_record(stream, sample, limits, cancelled)
+        }
+        fn read_record(
+            stream: &mut TcpStream,
+            channels: usize,
+            limits: Self::Limits,
+            cancelled: &AtomicBool,
+        ) -> Result<Self::Sample, Self::RecordError> {
+            string_codec::require_shape(channels, 1)
+                .map_err(|()| StringSampleError::Io(ErrorKind::InvalidInput))?;
+            string_codec::read_record(stream, limits, cancelled)
+        }
+        fn io_slice(limits: Self::Limits) -> Duration {
+            limits.io_slice()
+        }
+        fn total_deadline(limits: Self::Limits) -> Duration {
+            limits.total_deadline()
+        }
+        fn handshake_error(error: StreamHandshakeError) -> Self::SessionError {
+            StringSampleError::Handshake(error)
+        }
+        fn record_error(_index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
+            error
+        }
+        fn cancelled_error() -> Self::SessionError {
+            StringSampleError::Cancelled
+        }
+        fn deadline_error() -> Self::SessionError {
+            StringSampleError::Deadline
+        }
+        fn io_error(kind: ErrorKind) -> Self::SessionError {
+            StringSampleError::Io(kind)
+        }
+        fn trailing_byte(_actual: u8) -> Self::SessionError {
+            StringSampleError::Io(ErrorKind::InvalidData)
+        }
+    }
+}
+
+pub(crate) mod string_codec {
+    use super::*;
+
+    const INITIALIZATION_TIMESTAMP: f64 = 123_456.789;
+    const MAX_STRING_BYTES: usize = 129;
+
+    pub(crate) fn require_shape(channels: usize, records: usize) -> Result<(), ()> {
+        if channels != 1 || records != 1 {
+            return Err(());
+        }
+        Ok(())
+    }
+
+    fn map_transport(error: BoundedFixedRecordError) -> StringSampleError {
+        match error {
+            BoundedFixedRecordError::Cancelled => StringSampleError::Cancelled,
+            BoundedFixedRecordError::Deadline => StringSampleError::Deadline,
+            BoundedFixedRecordError::Truncated { actual } => {
+                StringSampleError::Truncated { actual }
+            }
+            BoundedFixedRecordError::Io(kind) => StringSampleError::Io(kind),
+        }
+    }
+
+    pub(crate) fn write(
+        stream: &mut TcpStream,
+        bytes: &[u8],
+        limits: StringSampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), StringSampleError> {
+        write_exact_bounded(
+            stream,
+            bytes,
+            limits.io_slice(),
+            limits.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_transport)
+    }
+
+    pub(crate) fn read(
+        stream: &mut TcpStream,
+        bytes: &mut [u8],
+        limits: StringSampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), StringSampleError> {
+        read_exact_bounded(
+            stream,
+            bytes,
+            limits.io_slice(),
+            limits.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_transport)
+    }
+
+    fn encode(record: &StringSampleRecord) -> Vec<u8> {
+        let value = record.value().as_bytes();
+        let mut bytes = Vec::with_capacity(11 + value.len());
+        bytes.push(2);
+        bytes.extend_from_slice(&record.timestamp().to_le_bytes());
+        bytes.push(1);
+        bytes.push(value.len() as u8);
+        bytes.extend_from_slice(value);
+        bytes
+    }
+
+    pub(crate) fn write_initialization(
+        stream: &mut TcpStream,
+        limits: StringSampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), StringSampleError> {
+        let record = StringSampleRecord::new(INITIALIZATION_TIMESTAMP, String::from("10"))?;
+        write_record(stream, &record, limits, cancelled)?;
+        write_record(stream, &record, limits, cancelled)
+    }
+
+    fn read_header(
+        stream: &mut TcpStream,
+        limits: StringSampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(f64, usize), StringSampleError> {
+        let mut header = [0; 11];
+        read(stream, &mut header, limits, cancelled)?;
+        if header[0] != 2 {
+            return Err(StringSampleError::InvalidMarker { actual: header[0] });
+        }
+        if header[9] != 1 {
+            return Err(StringSampleError::InvalidLengthForm { actual: header[9] });
+        }
+        let length = header[10] as usize;
+        if length > MAX_STRING_BYTES {
+            return Err(StringSampleError::ValueTooLong { actual: length });
+        }
+        Ok((
+            f64::from_le_bytes(header[1..9].try_into().expect("fixed timestamp width")),
+            length,
+        ))
+    }
+
+    pub(crate) fn write_record(
+        stream: &mut TcpStream,
+        record: &StringSampleRecord,
+        limits: StringSampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), StringSampleError> {
+        write(stream, &encode(record), limits, cancelled)
+    }
+
+    pub(crate) fn read_record(
+        stream: &mut TcpStream,
+        limits: StringSampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<StringSampleRecord, StringSampleError> {
+        let (timestamp, length) = read_header(stream, limits, cancelled)?;
+        let mut value = vec![0; length];
+        read(stream, &mut value, limits, cancelled)?;
+        let value = String::from_utf8(value).map_err(|_| StringSampleError::InvalidUtf8)?;
+        StringSampleRecord::new(timestamp, value)
+    }
+
+    pub(crate) fn read_initialization(
+        stream: &mut TcpStream,
+        limits: StringSampleLimits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), StringSampleError> {
+        for index in 0..2 {
+            let record = read_record(stream, limits, cancelled)?;
+            if record.timestamp().to_bits() != INITIALIZATION_TIMESTAMP.to_bits()
+                || record.value() != "10"
+            {
+                return Err(StringSampleError::InvalidInitialization { index });
+            }
+        }
+        Ok(())
+    }
+}
+
+pub(crate) fn finish_string_outlet_session(
+    listener: TcpListener,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    limits: StringSampleLimits,
+    record: &StringSampleRecord,
+    cancelled: &AtomicBool,
+) -> Result<SocketAddr, StringSampleError> {
+    string_codec::require_shape(1, 1)
+        .map_err(|()| StringSampleError::Io(ErrorKind::InvalidInput))?;
+    let records = core::slice::from_ref(record);
+    finish_outlet::<session_format::StringSample>(
+        listener,
+        identity,
+        handshake_limits,
+        limits,
+        records,
+        1,
+        cancelled,
+    )
+    .map(|(local, _)| local)
+}
+
+pub(crate) fn finish_string_inlet_session(
+    peer: SocketAddr,
+    identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    limits: StringSampleLimits,
+    cancelled: &AtomicBool,
+) -> Result<StringSampleRecord, StringSampleError> {
+    string_codec::require_shape(1, 1)
+        .map_err(|()| StringSampleError::Io(ErrorKind::InvalidInput))?;
+    finish_inlet::<session_format::StringSample>(
+        peer,
+        identity,
+        handshake_limits,
+        limits,
+        1,
+        1,
+        cancelled,
+    )
+    .map(|mut records| records.pop().expect("one preflighted String record"))
 }
 
 struct SessionStream(Option<TcpStream>);
@@ -1720,6 +1997,19 @@ mod tests {
         SampleLimits, StreamHandshakeActivation,
     };
     use std::{thread, time::Duration};
+
+    #[test]
+    fn candidate_string_session_shape_is_closed_before_io() {
+        assert_eq!(string_codec::require_shape(1, 1), Ok(()));
+        assert_eq!(string_codec::require_shape(0, 1), Err(()));
+        assert_eq!(string_codec::require_shape(2, 1), Err(()));
+        assert_eq!(string_codec::require_shape(1, 0), Err(()));
+        assert_eq!(string_codec::require_shape(1, 2), Err(()));
+        assert_eq!(
+            StringSampleRecord::new(1.0, "x".repeat(130)),
+            Err(StringSampleError::ValueTooLong { actual: 130 })
+        );
+    }
 
     fn activation() -> TimestampedFloat32SampleActivation {
         TimestampedFloat32SampleActivation::new(
