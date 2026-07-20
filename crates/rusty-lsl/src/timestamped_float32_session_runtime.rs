@@ -3,9 +3,6 @@
 
 //! Bounded Float32 facades over the sole phased format-neutral transfer owner.
 
-#[path = "all_format_bounded_chunk_session.rs"]
-pub(crate) mod all_format_bounded_chunk_session;
-
 use crate::format_neutral_session_runtime::{
     accept_outlet, connect_inlet, finish_inlet, finish_outlet, preflight_outlet_shape,
     preflight_shape, terminal_close, AcceptedOutletSession, ConnectedInletSession,

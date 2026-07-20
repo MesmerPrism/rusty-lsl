@@ -3,14 +3,9 @@
 
 //! Exactly two ordered one-channel Float32 records over the accepted sample transport.
 
-#[cfg(test)]
 use crate::{
-    stream_handshake::accept_handshake_stream,
-    timestamped_float32_session_runtime::codec::{write_initialization, write_record},
-};
-use crate::{
+    all_format_bounded_chunk_session::project_float32_chunk,
     timestamped_float32_session_runtime::{
-        all_format_bounded_chunk_session::project_float32_chunk,
         TimestampedFloat32AcceptedOutletSession, TimestampedFloat32ConnectedInletSession,
         TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
         TimestampedFloat32OutletSession, TimestampedFloat32OutletSessionReport,
@@ -20,6 +15,11 @@ use crate::{
     ChunkLimits, StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedChunk,
     TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
     TimestampedFloat32SampleLimits, TimestampedSample,
+};
+#[cfg(test)]
+use crate::{
+    stream_handshake::accept_handshake_stream,
+    timestamped_float32_session_runtime::codec::{write_initialization, write_record},
 };
 use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
