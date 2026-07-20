@@ -62,6 +62,7 @@ pub(crate) fn lock_multicast_loopback_tests() -> std::sync::MutexGuard<'static, 
     MULTICAST_LOOPBACK_TEST_LOCK.lock().unwrap()
 }
 
+mod all_format_bounded_chunk_session;
 mod bounded_fixed_record_transport;
 mod bounded_float32_recovery_clock_queue_runtime;
 mod bounded_sample_queue_runtime;
@@ -136,6 +137,28 @@ mod xml_element_tree;
 mod xml_leaf_element;
 mod xml_value;
 
+pub use all_format_bounded_chunk_session::{
+    run_timestamped_double64_bounded_chunk_inlet, run_timestamped_double64_bounded_chunk_outlet,
+    run_timestamped_float32_bounded_chunk_inlet, run_timestamped_float32_bounded_chunk_outlet,
+    run_timestamped_int16_bounded_chunk_inlet, run_timestamped_int16_bounded_chunk_outlet,
+    run_timestamped_int32_bounded_chunk_inlet, run_timestamped_int32_bounded_chunk_outlet,
+    run_timestamped_int64_bounded_chunk_inlet, run_timestamped_int64_bounded_chunk_outlet,
+    run_timestamped_int8_bounded_chunk_inlet, run_timestamped_int8_bounded_chunk_outlet,
+    run_timestamped_string_bounded_chunk_inlet, run_timestamped_string_bounded_chunk_outlet,
+    TimestampedDouble64BoundedChunkError, TimestampedDouble64BoundedChunkInletSessionReport,
+    TimestampedDouble64BoundedChunkOutletSessionReport, TimestampedFloat32BoundedChunkError,
+    TimestampedFloat32BoundedChunkInletSessionReport,
+    TimestampedFloat32BoundedChunkOutletSessionReport, TimestampedInt16BoundedChunkError,
+    TimestampedInt16BoundedChunkInletSessionReport,
+    TimestampedInt16BoundedChunkOutletSessionReport, TimestampedInt32BoundedChunkError,
+    TimestampedInt32BoundedChunkInletSessionReport,
+    TimestampedInt32BoundedChunkOutletSessionReport, TimestampedInt64BoundedChunkError,
+    TimestampedInt64BoundedChunkInletSessionReport,
+    TimestampedInt64BoundedChunkOutletSessionReport, TimestampedInt8BoundedChunkError,
+    TimestampedInt8BoundedChunkInletSessionReport, TimestampedInt8BoundedChunkOutletSessionReport,
+    TimestampedStringBoundedChunkError, TimestampedStringBoundedChunkInletSessionReport,
+    TimestampedStringBoundedChunkOutletSessionReport,
+};
 pub use bounded_float32_recovery_clock_queue_runtime::{
     run_bounded_float32_recovery_clock_queue, BoundedFloat32PipelineCancellation,
     BoundedFloat32PipelineError, BoundedFloat32PipelineOutcome,

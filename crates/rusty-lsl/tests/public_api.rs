@@ -340,6 +340,79 @@ fn float32_two_record_chunk_candidate_types_are_public() {
 }
 
 #[test]
+fn p31_all_format_bounded_chunk_sessions_are_concrete_on_both_facades() {
+    macro_rules! qualify {
+        ($error:ident, $outlet_report:ident, $inlet_report:ident, $outlet:ident, $inlet:ident) => {{
+            assert!(core::mem::size_of::<rusty_lsl::$error>() > 0);
+            assert!(core::mem::size_of::<rusty_lsl::$outlet_report>() > 0);
+            assert!(core::mem::size_of::<rusty_lsl::$inlet_report>() > 0);
+            assert!(core::mem::size_of::<runtime::$error>() > 0);
+            assert!(core::mem::size_of::<runtime::$outlet_report>() > 0);
+            assert!(core::mem::size_of::<runtime::$inlet_report>() > 0);
+            let root_outlet = rusty_lsl::$outlet;
+            let runtime_outlet = runtime::$outlet;
+            same_type(&root_outlet, &runtime_outlet);
+            let root_inlet = rusty_lsl::$inlet;
+            let runtime_inlet = runtime::$inlet;
+            same_type(&root_inlet, &runtime_inlet);
+        }};
+    }
+
+    qualify!(
+        TimestampedFloat32BoundedChunkError,
+        TimestampedFloat32BoundedChunkOutletSessionReport,
+        TimestampedFloat32BoundedChunkInletSessionReport,
+        run_timestamped_float32_bounded_chunk_outlet,
+        run_timestamped_float32_bounded_chunk_inlet
+    );
+    qualify!(
+        TimestampedDouble64BoundedChunkError,
+        TimestampedDouble64BoundedChunkOutletSessionReport,
+        TimestampedDouble64BoundedChunkInletSessionReport,
+        run_timestamped_double64_bounded_chunk_outlet,
+        run_timestamped_double64_bounded_chunk_inlet
+    );
+    qualify!(
+        TimestampedInt64BoundedChunkError,
+        TimestampedInt64BoundedChunkOutletSessionReport,
+        TimestampedInt64BoundedChunkInletSessionReport,
+        run_timestamped_int64_bounded_chunk_outlet,
+        run_timestamped_int64_bounded_chunk_inlet
+    );
+    qualify!(
+        TimestampedInt32BoundedChunkError,
+        TimestampedInt32BoundedChunkOutletSessionReport,
+        TimestampedInt32BoundedChunkInletSessionReport,
+        run_timestamped_int32_bounded_chunk_outlet,
+        run_timestamped_int32_bounded_chunk_inlet
+    );
+    qualify!(
+        TimestampedInt16BoundedChunkError,
+        TimestampedInt16BoundedChunkOutletSessionReport,
+        TimestampedInt16BoundedChunkInletSessionReport,
+        run_timestamped_int16_bounded_chunk_outlet,
+        run_timestamped_int16_bounded_chunk_inlet
+    );
+    qualify!(
+        TimestampedInt8BoundedChunkError,
+        TimestampedInt8BoundedChunkOutletSessionReport,
+        TimestampedInt8BoundedChunkInletSessionReport,
+        run_timestamped_int8_bounded_chunk_outlet,
+        run_timestamped_int8_bounded_chunk_inlet
+    );
+    qualify!(
+        TimestampedStringBoundedChunkError,
+        TimestampedStringBoundedChunkOutletSessionReport,
+        TimestampedStringBoundedChunkInletSessionReport,
+        run_timestamped_string_bounded_chunk_outlet,
+        run_timestamped_string_bounded_chunk_inlet
+    );
+
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+    assert_eq!(runtime::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+}
+
+#[test]
 fn lslc_007b_float32_session_owner_and_reports_are_public() {
     assert!(
         core::mem::size_of::<rusty_lsl::TimestampedFloat32AcceptedOutletSession<'static>>() > 0

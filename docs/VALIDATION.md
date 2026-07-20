@@ -1,5 +1,21 @@
 # Validation
 
+The P31 facade qualification in `tests/public_api.rs` names only the seven
+concrete bounded-chunk function, error, and consuming report families. It checks
+that every family is reachable with identical types at the crate root and
+through `runtime`, and that accepted activation revision 34 remains visible.
+The focused command is:
+
+```text
+cargo test -p rusty-lsl --test public_api p31_all_format_bounded_chunk_sessions_are_concrete_on_both_facades
+```
+
+In the isolated facade lane this command is expected to stop at missing frozen
+core symbols until the disjoint core lane is composed. That failure qualifies
+neither runtime behavior nor integration; formatting, diff checks, and any
+independently runnable public qualification remain required. Canonical Standard
+validation and publication occur only after composition.
+
 The frozen Int64 selected-discovery facade is qualified by focused P30r host
 tests for both accepted shapes, endpoint and selected-response precedence, the
 canonical run report, and type-identical concrete root/`runtime` exports:

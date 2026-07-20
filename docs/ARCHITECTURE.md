@@ -1,5 +1,18 @@
 # Architecture
 
+## Concrete all-format bounded chunks
+
+P31 projects caller-owned timestamped chunks through one concrete facade per
+declared format. Root and `runtime` exports delegate to the sole crate-private
+chunk-to-session projection; they do not expose the format-neutral lifecycle or
+sealed codecs. Each projection inherits its concrete session's shape and count
+bounds: Float32 keeps its accepted bounded shapes and legacy exact two-record
+adapter; Double64, Int64, Int32, Int16, and Int8 keep only 1x1 and 2x3; String
+keeps only 1x1 and the exact 0..=129 UTF-8-byte envelope. Consuming reports
+retain caller order and original allocations, and existing indexed failure,
+cancellation, deadline, terminal close, cleanup, and immediate-reuse semantics
+remain owned below the facade.
+
 ## Caller-selected discovery to Int64 session
 
 The concrete Int64 selected-discovery facade projects one caller-selected

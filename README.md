@@ -1,5 +1,15 @@
 # Rusty LSL
 
+The bounded chunk surface has concrete root and `runtime` entry points for all
+seven declared formats. These thin facades consume caller-owned timestamped
+chunks only within each format's already accepted session shape and record
+bounds, returning concrete ordered outlet or inlet reports. Float32 preserves
+its existing exact two-record adapter; Double64 and the signed integer formats
+remain limited to 1x1 and 2x3, while String remains 1x1 with values of 0 through
+129 UTF-8 bytes. The private lifecycle and sealed codecs retain all transfer,
+allocation, cancellation, deadline, terminal-close, and cleanup ownership.
+Runtime activation remains revision 34, explicit, and default-disabled.
+
 The frozen Int64 selected-discovery surface exposes concrete root and
 `runtime` facade entrypoints for caller-selected connect and complete-run
 operations, plus their typed error. It preserves the existing endpoint,

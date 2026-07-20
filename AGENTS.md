@@ -1,5 +1,16 @@
 # Rusty LSL Agent Notes
 
+The frozen all-format bounded-chunk facade adds only concrete root/runtime
+exports and public qualification for Float32, Double64, Int64, Int32, Int16,
+Int8, and String. Each adapter remains restricted to shapes and record bounds
+already accepted by its concrete session; String remains exact 1x1 with the
+0 through 129 UTF-8-byte envelope. The sole crate-private projection and
+format-neutral lifecycle retain transfer, allocation, cancellation, deadline,
+terminal-close, and cleanup ownership. No generic public strategy or private
+engine is exposed. Activation revision 34 remains explicit and
+default-disabled, with no discovery, recovery, clock, queue, device, oracle,
+automatic policy, or Manifold authority.
+
 The frozen Int64 selected-discovery facade adds only concrete root/runtime
 exports and public qualification for the caller-selected connect, run, and
 typed error surface. Endpoint projection and the existing selected-response
