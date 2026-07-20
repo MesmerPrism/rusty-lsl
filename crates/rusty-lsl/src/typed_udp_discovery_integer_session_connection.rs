@@ -383,16 +383,64 @@ mod tests {
         }};
     }
 
+    macro_rules! assert_integer_run_shapes {
+        ($value:ty, $format:literal, $outlet:ident, $run:ident, $io:ident, $limits:ident) => {{
+            for (channels, count) in [(1, 1), (2, 3)] {
+                let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+                let endpoint = listener.local_addr().unwrap();
+                let sent: Vec<TimestampedSample<$value>> = (0..count)
+                    .map(|record| {
+                        let values = (0..channels)
+                            .map(|channel| (record * 17 + channel + 1) as $value)
+                            .collect();
+                        TimestampedSample::new(
+                            Sample::new(SampleLimits::new(channels).unwrap(), channels, values)
+                                .unwrap(),
+                            RawSourceTimestamp::new(20.0 + record as f64).unwrap(),
+                            None,
+                        )
+                    })
+                    .collect();
+                let expected = sent.clone();
+                let outlet = thread::spawn(move || {
+                    crate::$outlet::preflight_bounded(
+                        session_activation(),
+                        listener,
+                        &identity(),
+                        handshake_limits(),
+                        crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                        crate::$limits::new(channels, count).unwrap(),
+                        &sent,
+                    )
+                    .unwrap()
+                    .finish(&AtomicBool::new(false))
+                    .unwrap()
+                });
+                let discovery =
+                    completed_discovery(document("127.0.0.1", endpoint.port(), channels, $format));
+                let report = $run(
+                    &discovery,
+                    0,
+                    session_activation(),
+                    &identity(),
+                    handshake_limits(),
+                    crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                    crate::$limits::new(channels, count).unwrap(),
+                    channels,
+                    count,
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+                assert_eq!(report.record_count(), count);
+                assert_eq!(report.records(), expected.as_slice());
+                assert_eq!(outlet.join().unwrap().record_count(), count);
+                TcpListener::bind(endpoint).unwrap();
+            }
+        }};
+    }
+
     #[test]
     fn p23_selected_response_enters_each_concrete_integer_owner_for_accepted_shapes() {
-        assert_integer_shapes!(
-            i64,
-            "int64",
-            TimestampedInt64OutletSession,
-            connect_selected_typed_udp_discovery_int64_session_inlet,
-            TimestampedInt64SessionIoLimits,
-            TimestampedInt64SessionLimits
-        );
         assert_integer_shapes!(
             i32,
             "int32",
@@ -416,6 +464,30 @@ mod tests {
             connect_selected_typed_udp_discovery_int8_session_inlet,
             TimestampedInt8SessionIoLimits,
             TimestampedInt8SessionLimits
+        );
+    }
+
+    #[test]
+    fn p30r_selected_response_connects_int64_owner_for_both_accepted_shapes() {
+        assert_integer_shapes!(
+            i64,
+            "int64",
+            TimestampedInt64OutletSession,
+            connect_selected_typed_udp_discovery_int64_session_inlet,
+            TimestampedInt64SessionIoLimits,
+            TimestampedInt64SessionLimits
+        );
+    }
+
+    #[test]
+    fn p30r_selected_response_run_returns_canonical_int64_report_for_both_accepted_shapes() {
+        assert_integer_run_shapes!(
+            i64,
+            "int64",
+            TimestampedInt64OutletSession,
+            run_selected_typed_udp_discovery_int64_session_inlet,
+            TimestampedInt64SessionIoLimits,
+            TimestampedInt64SessionLimits
         );
     }
 
@@ -521,14 +593,6 @@ mod tests {
     #[test]
     fn selected_resolution_p23_each_integer_rejects_contract_mismatch_before_tcp() {
         assert_integer_contract_rejections!(
-            connect_selected_typed_udp_discovery_int64_session_inlet,
-            TypedUdpDiscoveryInt64SessionConnectionError,
-            Int64,
-            "int64",
-            TimestampedInt64SessionIoLimits,
-            TimestampedInt64SessionLimits
-        );
-        assert_integer_contract_rejections!(
             connect_selected_typed_udp_discovery_int32_session_inlet,
             TypedUdpDiscoveryInt32SessionConnectionError,
             Int32,
@@ -552,6 +616,57 @@ mod tests {
             TimestampedInt8SessionIoLimits,
             TimestampedInt8SessionLimits
         );
+    }
+
+    #[test]
+    fn p30r_int64_rejects_contract_mismatch_before_tcp() {
+        assert_integer_contract_rejections!(
+            connect_selected_typed_udp_discovery_int64_session_inlet,
+            TypedUdpDiscoveryInt64SessionConnectionError,
+            Int64,
+            "int64",
+            TimestampedInt64SessionIoLimits,
+            TimestampedInt64SessionLimits
+        );
+    }
+
+    #[test]
+    fn p30r_int64_response_index_and_endpoint_rejections_precede_contract_and_preflight() {
+        let wrong_contract = completed_discovery(document("not-an-address", 9, 3, "double64"));
+        let invoke = |response_index| {
+            connect_selected_typed_udp_discovery_int64_session_inlet(
+                &wrong_contract,
+                response_index,
+                session_activation(),
+                &identity(),
+                handshake_limits(),
+                crate::TimestampedInt64SessionIoLimits::new(
+                    Duration::from_millis(5),
+                    Duration::from_secs(1),
+                )
+                .unwrap(),
+                crate::TimestampedInt64SessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+                &AtomicBool::new(false),
+            )
+        };
+
+        assert!(matches!(
+            invoke(1),
+            Err(TypedUdpDiscoveryInt64SessionConnectionError::Endpoint(
+                TypedUdpDiscoveryEndpointError::ResponseUnavailable {
+                    index: 1,
+                    response_count: 1,
+                }
+            ))
+        ));
+        assert!(matches!(
+            invoke(0),
+            Err(TypedUdpDiscoveryInt64SessionConnectionError::Endpoint(
+                TypedUdpDiscoveryEndpointError::InvalidAddress
+            ))
+        ));
     }
 
     #[test]

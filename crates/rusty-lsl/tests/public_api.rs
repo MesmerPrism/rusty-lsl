@@ -548,8 +548,10 @@ fn p30r_selected_discovery_int64_surface_is_public_on_both_facades() {
 
     let _root_connect = rusty_lsl::connect_selected_typed_udp_discovery_int64_session_inlet;
     let _runtime_connect = runtime::connect_selected_typed_udp_discovery_int64_session_inlet;
+    same_type(&_root_connect, &_runtime_connect);
     let _root_run = rusty_lsl::run_selected_typed_udp_discovery_int64_session_inlet;
     let _runtime_run = runtime::run_selected_typed_udp_discovery_int64_session_inlet;
+    same_type(&_root_run, &_runtime_run);
 }
 
 #[test]

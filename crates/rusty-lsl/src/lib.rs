@@ -123,7 +123,6 @@ mod typed_udp_discovery_float32_recovery_clock_correction_queue;
 mod typed_udp_discovery_float32_recovery_queue;
 mod typed_udp_discovery_float32_session_connection;
 mod typed_udp_discovery_handshake;
-mod typed_udp_discovery_int64_session_connection;
 mod typed_udp_discovery_integer_session_connection;
 mod typed_udp_discovery_response;
 mod typed_udp_discovery_run;
@@ -427,20 +426,17 @@ pub use typed_udp_discovery_float32_session_connection::{
 pub use typed_udp_discovery_handshake::{
     run_selected_typed_udp_discovery_inlet_handshake, TypedUdpDiscoveryHandshakeError,
 };
-pub use typed_udp_discovery_int64_session_connection::{
-    connect_selected_typed_udp_discovery_int64_session_inlet,
-    run_selected_typed_udp_discovery_int64_session_inlet,
-    TypedUdpDiscoveryInt64SessionConnectionError,
-};
 pub use typed_udp_discovery_integer_session_connection::{
     connect_selected_typed_udp_discovery_int16_session_inlet,
     connect_selected_typed_udp_discovery_int32_session_inlet,
+    connect_selected_typed_udp_discovery_int64_session_inlet,
     connect_selected_typed_udp_discovery_int8_session_inlet,
     run_selected_typed_udp_discovery_int16_session_inlet,
     run_selected_typed_udp_discovery_int32_session_inlet,
+    run_selected_typed_udp_discovery_int64_session_inlet,
     run_selected_typed_udp_discovery_int8_session_inlet,
     TypedUdpDiscoveryInt16SessionConnectionError, TypedUdpDiscoveryInt32SessionConnectionError,
-    TypedUdpDiscoveryInt8SessionConnectionError,
+    TypedUdpDiscoveryInt64SessionConnectionError, TypedUdpDiscoveryInt8SessionConnectionError,
 };
 pub use typed_udp_discovery_response::{TypedUdpDiscoveryResponse, TypedUdpDiscoveryResponseError};
 pub use typed_udp_discovery_run::{

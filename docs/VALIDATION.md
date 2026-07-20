@@ -1,17 +1,21 @@
 # Validation
 
-The frozen Int64 selected-discovery facade is qualified through the public API
-target, which requires its concrete connect, run, and typed-error surface on
-both the crate root and `runtime` facade:
+The frozen Int64 selected-discovery facade is qualified by focused P30r host
+tests for both accepted shapes, endpoint and selected-response precedence, the
+canonical run report, and type-identical concrete root/`runtime` exports:
 
 ```text
+cargo test -p rusty-lsl p30r_ -- --test-threads=1
 cargo test -p rusty-lsl --test public_api p30r_selected_discovery_int64_surface_is_public_on_both_facades
 ```
 
-Candidate-local compilation may fail at the module boundary when the disjoint
-Int64 selected-discovery core adapter has not yet been integrated. That is an
-expected composition dependency, not passing runtime evidence; formatting,
-diff checks, and other source-independent gates remain required.
+P29 codec, damage, cancellation, deadline, cleanup, and immediate-reuse tests
+remain the format owner's regression evidence. Acceptance also runs the
+all-format session tests, the complete public API target, current revision-34
+activation closure, formatting and diff hygiene, the bounded Quick profile,
+and exactly one serialized Standard profile. Focused tests and Quick are
+supporting evidence; the serialized Standard profile is the aggregate owner
+gate.
 
 The frozen native Int64 bounded-session milestone requires host-synthetic
 qualification of signed 64-bit little-endian transfer for only the 1x1 and 2x3
