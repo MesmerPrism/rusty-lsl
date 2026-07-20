@@ -4,7 +4,7 @@
 //! Borrowed exact-health projection for Float32 session-report batches.
 
 use crate::{
-    Float32SessionReportBatchError, Float32SessionReportBatchOutcome,
+    BoundedFloat32PipelineError, Float32SessionReportBatchError, Float32SessionReportBatchOutcome,
     Float32SessionReportBatchTermination,
 };
 
@@ -102,13 +102,14 @@ impl Float32SessionBatchHealth {
             ),
             Float32SessionReportBatchError::Pipeline {
                 index,
+                error,
                 completed,
                 remaining,
                 ..
             } => Self::indexed(
                 *index,
                 completed.len(),
-                remaining.len() + 1,
+                remaining.len() + usize::from(pipeline_error_retains_current(error)),
                 Float32SessionBatchHealthClassification::PipelineError,
             ),
             Float32SessionReportBatchError::Invariant {
@@ -119,7 +120,7 @@ impl Float32SessionBatchHealth {
             } => Self::indexed(
                 *index,
                 completed.len(),
-                remaining.len() + 1,
+                remaining.len(),
                 Float32SessionBatchHealthClassification::Invariant,
             ),
         }
@@ -182,14 +183,29 @@ impl Float32SessionBatchHealth {
     }
 }
 
+const fn pipeline_error_retains_current(error: &BoundedFloat32PipelineError) -> bool {
+    matches!(
+        error,
+        BoundedFloat32PipelineError::Clock { .. } | BoundedFloat32PipelineError::Queue { .. }
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{
-        BoundedFloat32PipelineOutcome, FiniteSampleRecoveryState,
+        runtime_activation::test_capability, BoundedFloat32PipelineOutcome,
+        BoundedSampleQueuePushError, FiniteSampleRecoveryError, FiniteSampleRecoveryState,
         Float32SessionReportRecordOutcome, RawSourceTimestamp, RecoveryAttemptFailure,
-        RecoveryFailureClass, Sample, SampleLimits, TimestampedSample,
+        RecoveryFailureClass, RuntimeModule, Sample, SampleLimits, StreamHandshakeActivation,
+        StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32InletSession,
+        TimestampedFloat32OutletSession, TimestampedFloat32SampleActivation,
+        TimestampedFloat32SampleLimits, TimestampedFloat32SessionLimits, TimestampedSample,
     };
+    use std::net::TcpListener;
+    use std::sync::atomic::AtomicBool;
+    use std::thread;
+    use std::time::Duration;
 
     fn assert_health(
         health: Float32SessionBatchHealth,
@@ -223,6 +239,72 @@ mod tests {
             RawSourceTimestamp::new(index as f64).unwrap(),
             None,
         )
+    }
+
+    fn sample_activation() -> TimestampedFloat32SampleActivation {
+        TimestampedFloat32SampleActivation::new(
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap(),
+        )
+        .unwrap()
+    }
+
+    fn handshake_limits() -> StreamHandshakeLimits {
+        StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(2))
+            .unwrap()
+    }
+
+    fn identity() -> StreamHandshakeIdentity {
+        StreamHandshakeIdentity::new(
+            "11111111-2222-4333-8444-555555555555".into(),
+            "host".into(),
+            "source".into(),
+            "session".into(),
+            handshake_limits(),
+        )
+        .unwrap()
+    }
+
+    fn completed_report(
+        record: TimestampedSample<f32>,
+    ) -> crate::TimestampedFloat32InletSessionReport {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight_bounded(
+                sample_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                TimestampedFloat32SampleLimits::new(
+                    Duration::from_millis(5),
+                    Duration::from_secs(2),
+                )
+                .unwrap(),
+                TimestampedFloat32SessionLimits::new(1, 1).unwrap(),
+                &[record],
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let report = TimestampedFloat32InletSession::preflight_bounded(
+            sample_activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(2))
+                .unwrap(),
+            TimestampedFloat32SessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        worker.join().unwrap();
+        report
     }
 
     #[test]
@@ -303,38 +385,80 @@ mod tests {
     }
 
     #[test]
-    fn error_classes_use_only_exact_variant_local_extents() {
-        for (classification, expected_remaining) in [
-            (Float32SessionBatchHealthClassification::EmptyReport, 0),
-            (Float32SessionBatchHealthClassification::RecoveryError, 2),
-            (Float32SessionBatchHealthClassification::PipelineError, 3),
-            (Float32SessionBatchHealthClassification::Invariant, 3),
-        ] {
-            let health = if classification == Float32SessionBatchHealthClassification::EmptyReport {
-                Float32SessionBatchHealth::new(0, 0, 0, None, classification)
-            } else {
-                Float32SessionBatchHealth::indexed(1, 1, expected_remaining, classification)
-            };
-            assert_health(
-                health,
-                if classification == Float32SessionBatchHealthClassification::EmptyReport {
-                    0
-                } else {
-                    1 + expected_remaining
-                },
-                if classification == Float32SessionBatchHealthClassification::EmptyReport {
-                    0
-                } else {
-                    1
-                },
-                expected_remaining,
-                if classification == Float32SessionBatchHealthClassification::EmptyReport {
-                    None
-                } else {
-                    Some(1)
-                },
-                classification,
-            );
+    fn error_classes_use_only_evidence_retained_by_real_variants() {
+        let empty = Float32SessionReportBatchError::EmptyReport {
+            report: completed_report(record(0)),
+        };
+        assert_health(
+            Float32SessionBatchHealth::from_error(&empty),
+            1,
+            0,
+            1,
+            None,
+            Float32SessionBatchHealthClassification::EmptyReport,
+        );
+
+        let recovery = Float32SessionReportBatchError::Recovery {
+            index: 1,
+            error: FiniteSampleRecoveryError::Allocation { requested: 3 },
+            completed: completed(&[0]),
+            remaining: vec![record(1), record(2)],
+        };
+        assert_health(
+            Float32SessionBatchHealth::from_error(&recovery),
+            3,
+            1,
+            2,
+            Some(1),
+            Float32SessionBatchHealthClassification::RecoveryError,
+        );
+
+        let pipeline_recovery = Float32SessionReportBatchError::Pipeline {
+            index: 1,
+            error: BoundedFloat32PipelineError::Recovery(FiniteSampleRecoveryError::Allocation {
+                requested: 3,
+            }),
+            completed: completed(&[0]),
+            remaining: vec![record(2)],
+        };
+        assert_health(
+            Float32SessionBatchHealth::from_error(&pipeline_recovery),
+            2,
+            1,
+            1,
+            Some(1),
+            Float32SessionBatchHealthClassification::PipelineError,
+        );
+
+        let retained = record(1);
+        let retained_pointer = retained.sample().values().as_ptr();
+        let pipeline_queue = Float32SessionReportBatchError::Pipeline {
+            index: 1,
+            error: BoundedFloat32PipelineError::Queue {
+                error: BoundedSampleQueuePushError::Full(retained),
+                states: Vec::new(),
+            },
+            completed: completed(&[0]),
+            remaining: vec![record(2)],
+        };
+        assert_health(
+            Float32SessionBatchHealth::from_error(&pipeline_queue),
+            3,
+            1,
+            2,
+            Some(1),
+            Float32SessionBatchHealthClassification::PipelineError,
+        );
+        match pipeline_queue {
+            Float32SessionReportBatchError::Pipeline {
+                error:
+                    BoundedFloat32PipelineError::Queue {
+                        error: BoundedSampleQueuePushError::Full(sample),
+                        ..
+                    },
+                ..
+            } => assert_eq!(sample.sample().values().as_ptr(), retained_pointer),
+            _ => unreachable!(),
         }
     }
 
@@ -352,9 +476,9 @@ mod tests {
         };
         assert_health(
             Float32SessionBatchHealth::from_error(&error),
-            2,
             1,
             1,
+            0,
             Some(1),
             Float32SessionBatchHealthClassification::Invariant,
         );
