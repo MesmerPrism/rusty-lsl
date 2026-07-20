@@ -6,7 +6,7 @@
   "revision": 29,
   "generated_at": "2026-07-20T00:00:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "ff7a4ab88202b55d84fe1de14f57b950d41ec3e843794957fd2ffe5afb5a8507",
+  "lock_fingerprint": "02e9d02bffb36096797914d0ea94aaa641fe55f95d3a85a6aec175bd5fc1a47c",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -366,9 +366,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/string-sample.json",
-        "sha256": "75809d97d03b63fc52a23714366c33e93a5f9fce88cdf5a3efb1d819e31e0922",
+        "sha256": "307af381cbb6de3726be831954bc6175097615be52ee74af1cea1f8548d97ee7",
         "source_repo": "rusty-lsl",
-        "source_revision": "86ed6778cbd05548b3ada48b45e630ced4071608",
+        "source_revision": "86ed677c4dbd545e1cf4025c6c9acfd00edada40",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
         "source_sha256": "2d31825025d8489db03f6e14889a2870ae3cced8d9cf2d7b794ee86f3fb14480"
       },
@@ -421,9 +421,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "48bea21ca5ab49c2b2b8a733cfeb069fb0a165986b1ceaa39a064f5e888b32fe",
+        "sha256": "6439cb3beb5eb0a7ad328c08a6cf7f2231549c14dc4ff11c6772678a584bb3a0",
         "source_repo": "rusty-lsl",
-        "source_revision": "86ed6778cbd05548b3ada48b45e630ced4071608",
+        "source_revision": "86ed677c4dbd545e1cf4025c6c9acfd00edada40",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
         "source_sha256": "2d31825025d8489db03f6e14889a2870ae3cced8d9cf2d7b794ee86f3fb14480"
       },
