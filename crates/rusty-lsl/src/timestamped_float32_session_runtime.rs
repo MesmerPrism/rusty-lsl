@@ -1746,10 +1746,6 @@ macro_rules! fixed_width_integer_session_facade {
         $outlet_report:ident, $inlet_report:ident,
         $outlet:ident, $accepted:ident, $inlet:ident, $connected:ident
     ) => {
-        #[doc = concat!("Bounded homogeneous shape limits shared by the ", stringify!($variant), " session facade.")]
-        pub type $limits = TimestampedFloat32SessionLimits;
-        #[doc = concat!("Invalid bounded ", stringify!($variant), " session shape limits.")]
-        pub type $limit_error = TimestampedFloat32SessionLimitError;
         #[doc = concat!("Bounded I/O limits for the ", stringify!($variant), " session facade.")]
         pub type $io_limits = FixedWidthNumericSampleLimits;
         #[doc = concat!("Invalid bounded I/O limits for the ", stringify!($variant), " session facade.")]
@@ -1886,7 +1882,7 @@ macro_rules! fixed_width_integer_session_facade {
                 session_limits: $limits,
                 records: &'a [TimestampedSample<$value>],
             ) -> Result<Self, $preflight_error> {
-                let channel_count = require_outlet_shape_generic(session_limits, records)?;
+                let channel_count = require_outlet_shape_generic(session_limits.into(), records)?;
                 require_evidenced_integer_facade_shape(channel_count, records.len())?;
                 Ok(Self { activation, listener: Some(listener), identity, handshake_limits, io_limits, records, channel_count })
             }
@@ -1964,7 +1960,7 @@ macro_rules! fixed_width_integer_session_facade {
                 channel_count: usize,
                 record_count: usize,
             ) -> Result<Self, $preflight_error> {
-                require_shape(session_limits, channel_count, record_count)?;
+                require_shape(session_limits.into(), channel_count, record_count)?;
                 require_evidenced_integer_facade_shape(channel_count, record_count)?;
                 Ok(Self { activation, peer, identity, handshake_limits, io_limits, record_count, channel_count })
             }
@@ -1983,6 +1979,57 @@ macro_rules! fixed_width_integer_session_facade {
             }
         }
     };
+}
+
+/// Bounded homogeneous shape limits shared by the Int32 session facade.
+pub type TimestampedInt32SessionLimits = TimestampedFloat32SessionLimits;
+/// Invalid bounded Int32 session shape limits.
+pub type TimestampedInt32SessionLimitError = TimestampedFloat32SessionLimitError;
+/// Bounded homogeneous shape limits shared by the Int16 session facade.
+pub type TimestampedInt16SessionLimits = TimestampedFloat32SessionLimits;
+/// Invalid bounded Int16 session shape limits.
+pub type TimestampedInt16SessionLimitError = TimestampedFloat32SessionLimitError;
+/// Bounded homogeneous shape limits shared by the Int8 session facade.
+pub type TimestampedInt8SessionLimits = TimestampedFloat32SessionLimits;
+/// Invalid bounded Int8 session shape limits.
+pub type TimestampedInt8SessionLimitError = TimestampedFloat32SessionLimitError;
+
+/// Exact bounded shape limits for the concrete Int64 session facade.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedInt64SessionLimits {
+    shared: TimestampedFloat32SessionLimits,
+}
+
+impl TimestampedInt64SessionLimits {
+    /// Validates the exact channel and caller-record counts through the shared shape owner.
+    pub const fn new(
+        channel_count: usize,
+        record_count: usize,
+    ) -> Result<Self, TimestampedInt64SessionLimitError> {
+        match TimestampedFloat32SessionLimits::new(channel_count, record_count) {
+            Ok(shared) => Ok(Self { shared }),
+            Err(error) => Err(error),
+        }
+    }
+
+    /// Exact admitted homogeneous channel count.
+    pub const fn channel_count(self) -> usize {
+        self.shared.max_channels()
+    }
+
+    /// Exact admitted caller-record count.
+    pub const fn record_count(self) -> usize {
+        self.shared.max_records()
+    }
+}
+
+/// Invalid bounded Int64 session shape limits.
+pub type TimestampedInt64SessionLimitError = TimestampedFloat32SessionLimitError;
+
+impl From<TimestampedInt64SessionLimits> for TimestampedFloat32SessionLimits {
+    fn from(limits: TimestampedInt64SessionLimits) -> Self {
+        limits.shared
+    }
 }
 
 fixed_width_integer_session_facade!(
@@ -4033,6 +4080,293 @@ mod tests {
             [7, -9]
         ]
     );
+
+    #[test]
+    fn p29_int64_damage_is_indexed_and_trailing_bytes_are_typed() {
+        let io =
+            FixedWidthNumericSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+                .unwrap();
+        for damaged_index in 0..2 {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let peer = thread::spawn(move || {
+                let (mut stream, _, _) = accept_handshake_stream_with_format(
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    &AtomicBool::new(false),
+                    8,
+                    false,
+                )
+                .unwrap();
+                <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_initialization(
+                    &mut stream,
+                    2,
+                    io,
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+                if damaged_index == 1 {
+                    let record = TimestampedSample::new(
+                        Sample::new(
+                            SampleLimits::new(2).unwrap(),
+                            2,
+                            vec![i64::MIN + 29, i64::MAX - 29],
+                        )
+                        .unwrap(),
+                        RawSourceTimestamp::new(2900.25).unwrap(),
+                        None,
+                    );
+                    <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_record(
+                        &mut stream,
+                        &record,
+                        2,
+                        io,
+                        &AtomicBool::new(false),
+                    )
+                    .unwrap();
+                }
+                stream.write_all(&[9; 25]).unwrap();
+            });
+            let session_identity = identity();
+            let mut connected = TimestampedInt64InletSession::preflight_bounded(
+                double64_activation(),
+                address,
+                &session_identity,
+                handshake_limits(),
+                io,
+                TimestampedInt64SessionLimits::new(2, 3).unwrap(),
+                2,
+                3,
+            )
+            .unwrap()
+            .connect(&AtomicBool::new(false))
+            .unwrap();
+            if damaged_index == 1 {
+                connected.transfer_next(&AtomicBool::new(false)).unwrap();
+            }
+            assert_eq!(
+                connected.transfer_next(&AtomicBool::new(false)),
+                Err(TimestampedInt64SessionTransferError::Session(
+                    TimestampedInt64SessionError::Record {
+                        index: Some(damaged_index),
+                        error: FixedWidthNumericSampleError::InvalidMarker { actual: 9 },
+                    }
+                ))
+            );
+            peer.join().unwrap();
+            TcpListener::bind(address).unwrap();
+        }
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let peer = thread::spawn(move || {
+            let (mut stream, _, _) = accept_handshake_stream_with_format(
+                listener,
+                &identity(),
+                handshake_limits(),
+                &AtomicBool::new(false),
+                8,
+                false,
+            )
+            .unwrap();
+            <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_initialization(
+                &mut stream,
+                1,
+                io,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            let record = TimestampedSample::new(
+                Sample::new(SampleLimits::new(1).unwrap(), 1, vec![i64::MAX - 29]).unwrap(),
+                RawSourceTimestamp::new(2901.5).unwrap(),
+                None,
+            );
+            <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_record(
+                &mut stream,
+                &record,
+                1,
+                io,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            stream.write_all(&[0xa5]).unwrap();
+        });
+        let session_identity = identity();
+        let mut connected = TimestampedInt64InletSession::preflight_bounded(
+            double64_activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            io,
+            TimestampedInt64SessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        connected.transfer_next(&AtomicBool::new(false)).unwrap();
+        assert!(matches!(
+            connected.complete(&AtomicBool::new(false)).unwrap(),
+            Err(TimestampedInt64SessionError::TrailingByte { actual: 0xa5 })
+        ));
+        peer.join().unwrap();
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p29_int64_pre_and_active_cancellation_and_deadline_remain_distinct() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let session_identity = identity();
+        let pre_cancelled = TimestampedInt64InletSession::preflight_bounded(
+            double64_activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            FixedWidthNumericSampleLimits::new(Duration::from_millis(2), Duration::from_millis(40))
+                .unwrap(),
+            TimestampedInt64SessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(true));
+        assert!(matches!(
+            pre_cancelled,
+            Err(TimestampedInt64SessionError::Handshake(
+                StreamHandshakeError::Cancelled
+            ))
+        ));
+        drop(listener);
+        TcpListener::bind(address).unwrap();
+
+        for active_cancel in [true, false] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let peer = thread::spawn(move || {
+                let (stream, _, _) = accept_handshake_stream_with_format(
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    &AtomicBool::new(false),
+                    8,
+                    false,
+                )
+                .unwrap();
+                thread::sleep(Duration::from_millis(100));
+                drop(stream);
+            });
+            let io = FixedWidthNumericSampleLimits::new(
+                Duration::from_millis(2),
+                Duration::from_millis(25),
+            )
+            .unwrap();
+            let session_identity = identity();
+            let mut connected = TimestampedInt64InletSession::preflight_bounded(
+                double64_activation(),
+                address,
+                &session_identity,
+                handshake_limits(),
+                io,
+                TimestampedInt64SessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+            )
+            .unwrap()
+            .connect(&AtomicBool::new(false))
+            .unwrap();
+            let cancelled = std::sync::Arc::new(AtomicBool::new(false));
+            if active_cancel {
+                let signal = std::sync::Arc::clone(&cancelled);
+                thread::spawn(move || {
+                    thread::sleep(Duration::from_millis(5));
+                    signal.store(true, std::sync::atomic::Ordering::Release);
+                });
+            }
+            let expected = if active_cancel {
+                FixedWidthNumericSampleError::Cancelled
+            } else {
+                FixedWidthNumericSampleError::Deadline
+            };
+            assert_eq!(
+                connected.transfer_next(&cancelled),
+                Err(TimestampedInt64SessionTransferError::Session(
+                    TimestampedInt64SessionError::Record {
+                        index: None,
+                        error: expected,
+                    }
+                ))
+            );
+            peer.join().unwrap();
+            TcpListener::bind(address).unwrap();
+        }
+    }
+
+    #[test]
+    fn p29_int64_report_free_close_and_drop_release_for_immediate_reuse() {
+        for close_explicitly in [true, false] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let record = TimestampedSample::new(
+                Sample::new(SampleLimits::new(1).unwrap(), 1, vec![29_i64]).unwrap(),
+                RawSourceTimestamp::new(2929.0).unwrap(),
+                None,
+            );
+            let worker = thread::spawn(move || {
+                let session_identity = identity();
+                let records = [record];
+                let accepted = TimestampedInt64OutletSession::preflight_bounded(
+                    double64_activation(),
+                    listener,
+                    &session_identity,
+                    handshake_limits(),
+                    FixedWidthNumericSampleLimits::new(
+                        Duration::from_millis(5),
+                        Duration::from_secs(1),
+                    )
+                    .unwrap(),
+                    TimestampedInt64SessionLimits::new(1, 1).unwrap(),
+                    &records,
+                )
+                .unwrap()
+                .accept(&AtomicBool::new(false))
+                .unwrap();
+                if close_explicitly {
+                    accepted.close();
+                } else {
+                    drop(accepted);
+                }
+            });
+            let session_identity = identity();
+            let connected = TimestampedInt64InletSession::preflight_bounded(
+                double64_activation(),
+                address,
+                &session_identity,
+                handshake_limits(),
+                FixedWidthNumericSampleLimits::new(
+                    Duration::from_millis(5),
+                    Duration::from_secs(1),
+                )
+                .unwrap(),
+                TimestampedInt64SessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+            )
+            .unwrap()
+            .connect(&AtomicBool::new(false))
+            .unwrap();
+            if close_explicitly {
+                connected.close();
+            } else {
+                drop(connected);
+            }
+            worker.join().unwrap();
+            TcpListener::bind(address).unwrap();
+        }
+    }
+
     phased_integer_facade_host_test!(
         p22_phased_int32_preserves_owner_bits_order_and_reuse,
         i32,

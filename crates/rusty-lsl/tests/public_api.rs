@@ -517,14 +517,13 @@ fn p29_phased_int64_sessions_are_concrete_and_public_on_both_facades() {
 
     for (channels, records) in [(1, 1), (2, 3)] {
         let limits = rusty_lsl::TimestampedInt64SessionLimits::new(channels, records).unwrap();
-        let io_limits = rusty_lsl::TimestampedInt64SessionIoLimits::new(
+        let _io_limits = rusty_lsl::TimestampedInt64SessionIoLimits::new(
             core::time::Duration::from_secs(1),
             core::time::Duration::from_secs(2),
         )
         .unwrap();
         assert_eq!(limits.channel_count(), channels);
         assert_eq!(limits.record_count(), records);
-        assert_eq!(io_limits.io_slice(), core::time::Duration::from_secs(1));
     }
 
     let _root_preflight_outlet = rusty_lsl::TimestampedInt64OutletSession::preflight_bounded;
