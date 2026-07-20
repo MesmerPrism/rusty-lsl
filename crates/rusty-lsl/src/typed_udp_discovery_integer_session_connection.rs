@@ -3,10 +3,14 @@
 
 //! Caller-selected typed-discovery response adapters for bounded integer inlet sessions.
 
+use crate::typed_udp_discovery_session_contract::{
+    validate_selected_typed_udp_discovery_session_contract,
+    TypedUdpDiscoverySessionContractMismatch,
+};
 use crate::{
-    propose_typed_udp_discovery_ipv4_service_endpoint, FixedWidthNumericSampleActivation,
-    StreamHandshakeIdentity, StreamHandshakeLimits, TypedUdpDiscoveryEndpointError,
-    TypedUdpDiscoveryRun,
+    propose_typed_udp_discovery_ipv4_service_endpoint, ChannelFormat,
+    FixedWidthNumericSampleActivation, StreamHandshakeIdentity, StreamHandshakeIdentityRole,
+    StreamHandshakeLimits, TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
 };
 use std::sync::atomic::AtomicBool;
 
@@ -14,13 +18,36 @@ macro_rules! integer_discovery_session_adapter {
     (
         $error:ident, $connect:ident, $run:ident, $inlet:ident, $connected:ident,
         $report:ident, $session_error:ident, $io_limits:ident, $limits:ident,
-        $preflight_error:ident, $label:literal
+        $preflight_error:ident, $format:ident, $label:literal
     ) => {
         #[doc = concat!("Failure from the caller-selected discovery-to-", $label, " session composition.")]
         #[derive(Debug, Eq, PartialEq)]
         pub enum $error {
             /// Strict projection of the caller-selected response failed.
             Endpoint(TypedUdpDiscoveryEndpointError),
+            /// The selected response advertises a different sample format.
+            FormatMismatch {
+                /// Format required by the concrete adapter.
+                expected: ChannelFormat,
+                /// Format advertised by the selected response.
+                actual: ChannelFormat,
+            },
+            /// The selected response advertises a different channel count.
+            ChannelCountMismatch {
+                /// Channel count requested by the caller.
+                expected: usize,
+                /// Channel count advertised by the selected response.
+                actual: usize,
+            },
+            /// The selected response advertises a different handshake identity field.
+            IdentityMismatch {
+                /// Identity role whose value differs.
+                role: StreamHandshakeIdentityRole,
+                /// Caller-owned expected identity value.
+                expected: String,
+                /// Selected-response identity value.
+                actual: String,
+            },
             /// The selected endpoint or requested shape failed bounded session preflight.
             Preflight(crate::$preflight_error),
             /// Connect, transfer, terminal close, or cleanup failed.
@@ -30,8 +57,9 @@ macro_rules! integer_discovery_session_adapter {
         #[doc = concat!("Projects one caller-selected completed discovery response and connects one bounded ", $label, " inlet.")]
         ///
         /// The caller retains discovery execution, receive-order selection, expected identity,
-        /// limits, cancellation, and activation. Endpoint projection precedes the existing
-        /// concrete session preflight and connect owners. Only their accepted one-channel,
+        /// limits, cancellation, and activation. Endpoint projection precedes selected-response
+        /// contract validation, which precedes the existing concrete session preflight and connect
+        /// owners. Only their accepted one-channel,
         /// one-record and two-channel, three-record shapes are admitted.
         #[allow(clippy::too_many_arguments)]
         pub fn $connect(
@@ -49,6 +77,24 @@ macro_rules! integer_discovery_session_adapter {
             let endpoint =
                 propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
                     .map_err($error::Endpoint)?;
+            validate_selected_typed_udp_discovery_session_contract(
+                &discovery.responses()[response_index],
+                ChannelFormat::$format,
+                channel_count,
+                expected_identity,
+            )
+            .map_err(|mismatch| match mismatch {
+                TypedUdpDiscoverySessionContractMismatch::Format { expected, actual } =>
+                    $error::FormatMismatch { expected, actual },
+                TypedUdpDiscoverySessionContractMismatch::ChannelCount { expected, actual } =>
+                    $error::ChannelCountMismatch { expected, actual },
+                TypedUdpDiscoverySessionContractMismatch::Identity { role, expected, actual } =>
+                    $error::IdentityMismatch {
+                        role,
+                        expected: expected.to_owned(),
+                        actual: actual.to_owned(),
+                    },
+            })?;
             let session = crate::$inlet::preflight_bounded(
                 session_activation,
                 endpoint.into(),
@@ -99,6 +145,7 @@ integer_discovery_session_adapter!(
     TimestampedInt32SessionIoLimits,
     TimestampedInt32SessionLimits,
     TimestampedInt32SessionPreflightError,
+    Int32,
     "Int32"
 );
 integer_discovery_session_adapter!(
@@ -112,6 +159,7 @@ integer_discovery_session_adapter!(
     TimestampedInt16SessionIoLimits,
     TimestampedInt16SessionLimits,
     TimestampedInt16SessionPreflightError,
+    Int16,
     "Int16"
 );
 integer_discovery_session_adapter!(
@@ -125,6 +173,7 @@ integer_discovery_session_adapter!(
     TimestampedInt8SessionIoLimits,
     TimestampedInt8SessionLimits,
     TimestampedInt8SessionPreflightError,
+    Int8,
     "Int8"
 );
 
@@ -351,6 +400,7 @@ mod tests {
     #[test]
     fn p23_selection_and_shape_rejections_precede_tcp_io() {
         let discovery = completed_discovery(document("127.0.0.1", 9, 2, "int32"));
+        let invalid_shape_discovery = completed_discovery(document("127.0.0.1", 9, 3, "int32"));
         assert!(matches!(
             connect_selected_typed_udp_discovery_int32_session_inlet(
                 &discovery,
@@ -377,7 +427,7 @@ mod tests {
         ));
         assert!(matches!(
             connect_selected_typed_udp_discovery_int32_session_inlet(
-                &discovery,
+                &invalid_shape_discovery,
                 0,
                 session_activation(),
                 &identity(),
@@ -400,5 +450,77 @@ mod tests {
             ))
         ));
         assert_eq!(discovery.responses().len(), 1);
+    }
+
+    macro_rules! assert_integer_contract_rejections {
+        ($connect:ident, $error:ident, $format:ident, $wire:literal, $io:ident, $limits:ident) => {{
+            let wrong_format = completed_discovery(document("127.0.0.1", 9, 1, "double64"));
+            assert!(matches!(
+                $connect(
+                    &wrong_format, 0, session_activation(), &identity(), handshake_limits(),
+                    crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                    crate::$limits::new(1, 1).unwrap(), 1, 1, &AtomicBool::new(false),
+                ),
+                Err($error::FormatMismatch {
+                    expected: ChannelFormat::$format,
+                    actual: ChannelFormat::Double64,
+                })
+            ));
+
+            let wrong_channels = completed_discovery(document("127.0.0.1", 9, 2, $wire));
+            assert!(matches!(
+                $connect(
+                    &wrong_channels, 0, session_activation(), &identity(), handshake_limits(),
+                    crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                    crate::$limits::new(1, 1).unwrap(), 1, 1, &AtomicBool::new(false),
+                ),
+                Err($error::ChannelCountMismatch { expected: 1, actual: 2 })
+            ));
+
+            let wrong_uid = completed_discovery(
+                document("127.0.0.1", 9, 1, $wire)
+                    .replace("23232323-2222-4333-8444-555555555555", "uid-x"),
+            );
+            assert!(matches!(
+                $connect(
+                    &wrong_uid, 0, session_activation(), &identity(), handshake_limits(),
+                    crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                    crate::$limits::new(1, 1).unwrap(), 1, 1, &AtomicBool::new(false),
+                ),
+                Err($error::IdentityMismatch {
+                    role: StreamHandshakeIdentityRole::Uid,
+                    expected,
+                    actual,
+                }) if expected == "23232323-2222-4333-8444-555555555555" && actual == "uid-x"
+            ));
+        }};
+    }
+
+    #[test]
+    fn p23_each_integer_adapter_rejects_selected_contract_mismatch_before_tcp() {
+        assert_integer_contract_rejections!(
+            connect_selected_typed_udp_discovery_int32_session_inlet,
+            TypedUdpDiscoveryInt32SessionConnectionError,
+            Int32,
+            "int32",
+            TimestampedInt32SessionIoLimits,
+            TimestampedInt32SessionLimits
+        );
+        assert_integer_contract_rejections!(
+            connect_selected_typed_udp_discovery_int16_session_inlet,
+            TypedUdpDiscoveryInt16SessionConnectionError,
+            Int16,
+            "int16",
+            TimestampedInt16SessionIoLimits,
+            TimestampedInt16SessionLimits
+        );
+        assert_integer_contract_rejections!(
+            connect_selected_typed_udp_discovery_int8_session_inlet,
+            TypedUdpDiscoveryInt8SessionConnectionError,
+            Int8,
+            "int8",
+            TimestampedInt8SessionIoLimits,
+            TimestampedInt8SessionLimits
+        );
     }
 }

@@ -3,9 +3,14 @@
 
 //! Caller-selected typed-discovery response to bounded Double64 inlet-session composition.
 
+use crate::typed_udp_discovery_session_contract::{
+    validate_selected_typed_udp_discovery_session_contract,
+    TypedUdpDiscoverySessionContractMismatch,
+};
 use crate::{
-    propose_typed_udp_discovery_ipv4_service_endpoint, FixedWidthNumericSampleActivation,
-    StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedDouble64ConnectedInletSession,
+    propose_typed_udp_discovery_ipv4_service_endpoint, ChannelFormat,
+    FixedWidthNumericSampleActivation, StreamHandshakeIdentity, StreamHandshakeIdentityRole,
+    StreamHandshakeLimits, TimestampedDouble64ConnectedInletSession,
     TimestampedDouble64InletSession, TimestampedDouble64InletSessionReport,
     TimestampedDouble64SessionError, TimestampedDouble64SessionIoLimits,
     TimestampedDouble64SessionLimits, TimestampedDouble64SessionPreflightError,
@@ -18,17 +23,66 @@ use std::sync::atomic::AtomicBool;
 pub enum TypedUdpDiscoveryDouble64SessionConnectionError {
     /// Strict projection of the caller-selected response failed.
     Endpoint(TypedUdpDiscoveryEndpointError),
+    /// The selected response advertises a different sample format.
+    FormatMismatch {
+        /// Format required by the concrete adapter.
+        expected: ChannelFormat,
+        /// Format advertised by the selected response.
+        actual: ChannelFormat,
+    },
+    /// The selected response advertises a different channel count.
+    ChannelCountMismatch {
+        /// Channel count requested by the caller.
+        expected: usize,
+        /// Channel count advertised by the selected response.
+        actual: usize,
+    },
+    /// The selected response advertises a different handshake identity field.
+    IdentityMismatch {
+        /// Identity role whose value differs.
+        role: StreamHandshakeIdentityRole,
+        /// Caller-owned expected identity value.
+        expected: String,
+        /// Selected-response identity value.
+        actual: String,
+    },
     /// The selected endpoint or requested shape failed bounded session preflight.
     Preflight(TimestampedDouble64SessionPreflightError),
     /// Connect, transfer, terminal close, or cleanup failed.
     Session(TimestampedDouble64SessionError),
 }
 
+fn contract_error(
+    mismatch: TypedUdpDiscoverySessionContractMismatch<'_>,
+) -> TypedUdpDiscoveryDouble64SessionConnectionError {
+    match mismatch {
+        TypedUdpDiscoverySessionContractMismatch::Format { expected, actual } => {
+            TypedUdpDiscoveryDouble64SessionConnectionError::FormatMismatch { expected, actual }
+        }
+        TypedUdpDiscoverySessionContractMismatch::ChannelCount { expected, actual } => {
+            TypedUdpDiscoveryDouble64SessionConnectionError::ChannelCountMismatch {
+                expected,
+                actual,
+            }
+        }
+        TypedUdpDiscoverySessionContractMismatch::Identity {
+            role,
+            expected,
+            actual,
+        } => TypedUdpDiscoveryDouble64SessionConnectionError::IdentityMismatch {
+            role,
+            expected: expected.to_owned(),
+            actual: actual.to_owned(),
+        },
+    }
+}
+
 /// Projects one caller-selected completed discovery response and connects one bounded inlet.
 ///
 /// The caller retains the completed discovery run, receive-order selection, expected identity,
 /// limits, cancellation, and activation. The strict endpoint projector runs before the existing
-/// Double64 preflight and connect owners. The returned concrete connected owner retains phased
+/// selected-response contract validation, Double64 preflight, and connect owners in that order.
+/// The returned concrete connected owner retains phased
 /// transfer, canonical completion, allocation ownership, and report-free close. This adapter owns
 /// no discovery, ranking, retry, identity derivation, codec, cursor, lifecycle, socket, or report.
 #[allow(clippy::too_many_arguments)]
@@ -47,6 +101,13 @@ pub fn connect_selected_typed_udp_discovery_double64_session_inlet(
 {
     let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
         .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Endpoint)?;
+    validate_selected_typed_udp_discovery_session_contract(
+        &discovery.responses()[response_index],
+        ChannelFormat::Double64,
+        channel_count,
+        expected_identity,
+    )
+    .map_err(contract_error)?;
     let session = TimestampedDouble64InletSession::preflight_bounded(
         session_activation,
         endpoint.into(),
@@ -241,6 +302,30 @@ mod tests {
             .collect()
     }
 
+    fn contract_failure(
+        document: String,
+        expected_identity: &StreamHandshakeIdentity,
+        channels: usize,
+    ) -> TypedUdpDiscoveryDouble64SessionConnectionError {
+        let discovery = completed_discovery(document);
+        match connect_selected_typed_udp_discovery_double64_session_inlet(
+            &discovery,
+            0,
+            session_activation(),
+            expected_identity,
+            handshake_limits(),
+            io_limits(),
+            TimestampedDouble64SessionLimits::new(channels, if channels == 1 { 1 } else { 3 })
+                .unwrap(),
+            channels,
+            if channels == 1 { 1 } else { 3 },
+            &AtomicBool::new(false),
+        ) {
+            Err(error) => error,
+            Ok(_) => panic!("selected contract unexpectedly connected"),
+        }
+    }
+
     fn assert_phased_shape(channels: usize, count: usize) {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let endpoint = listener.local_addr().unwrap();
@@ -320,6 +405,7 @@ mod tests {
     #[test]
     fn p20_selection_and_shape_rejections_precede_tcp_io() {
         let discovery = completed_discovery(document("127.0.0.1", 9, 2));
+        let invalid_shape_discovery = completed_discovery(document("127.0.0.1", 9, 3));
         assert!(matches!(
             connect_selected_typed_udp_discovery_double64_session_inlet(
                 &discovery,
@@ -342,7 +428,7 @@ mod tests {
         ));
         assert!(matches!(
             connect_selected_typed_udp_discovery_double64_session_inlet(
-                &discovery,
+                &invalid_shape_discovery,
                 0,
                 session_activation(),
                 &identity(),
@@ -361,5 +447,72 @@ mod tests {
             ))
         ));
         assert_eq!(discovery.responses().len(), 1);
+    }
+
+    #[test]
+    fn p20_selected_contract_mismatches_are_owned_and_follow_frozen_precedence() {
+        let expected_identity = identity();
+        assert_eq!(
+            contract_failure(
+                document("127.0.0.1", 9, 2).replace("double64", "int32"),
+                &expected_identity,
+                1,
+            ),
+            TypedUdpDiscoveryDouble64SessionConnectionError::FormatMismatch {
+                expected: ChannelFormat::Double64,
+                actual: ChannelFormat::Int32,
+            }
+        );
+        assert_eq!(
+            contract_failure(document("127.0.0.1", 9, 2), &expected_identity, 1),
+            TypedUdpDiscoveryDouble64SessionConnectionError::ChannelCountMismatch {
+                expected: 1,
+                actual: 2,
+            }
+        );
+
+        for (from, to, role, expected, actual) in [
+            (
+                "77777777-2222-4333-8444-555555555555",
+                "uid-x",
+                StreamHandshakeIdentityRole::Uid,
+                "77777777-2222-4333-8444-555555555555",
+                "uid-x",
+            ),
+            (
+                "<hostname>host</hostname>",
+                "<hostname>host-x</hostname>",
+                StreamHandshakeIdentityRole::Hostname,
+                "host",
+                "host-x",
+            ),
+            (
+                "<source_id>source</source_id>",
+                "<source_id>source-x</source_id>",
+                StreamHandshakeIdentityRole::SourceId,
+                "source",
+                "source-x",
+            ),
+            (
+                "<session_id>session</session_id>",
+                "<session_id>session-x</session_id>",
+                StreamHandshakeIdentityRole::SessionId,
+                "session",
+                "session-x",
+            ),
+        ] {
+            assert_eq!(
+                contract_failure(
+                    document("127.0.0.1", 9, 1).replace(from, to),
+                    &expected_identity,
+                    1
+                ),
+                TypedUdpDiscoveryDouble64SessionConnectionError::IdentityMismatch {
+                    role,
+                    expected: expected.to_owned(),
+                    actual: actual.to_owned(),
+                }
+            );
+        }
     }
 }

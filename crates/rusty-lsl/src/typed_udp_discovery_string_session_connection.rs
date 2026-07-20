@@ -3,9 +3,13 @@
 
 //! Caller-selected typed-discovery response to the bounded String inlet session.
 
+use crate::typed_udp_discovery_session_contract::{
+    validate_selected_typed_udp_discovery_session_contract,
+    TypedUdpDiscoverySessionContractMismatch,
+};
 use crate::{
-    propose_typed_udp_discovery_ipv4_service_endpoint, StreamHandshakeIdentity,
-    StreamHandshakeLimits, StringSampleActivation, StringSampleLimits,
+    propose_typed_udp_discovery_ipv4_service_endpoint, ChannelFormat, StreamHandshakeIdentity,
+    StreamHandshakeIdentityRole, StreamHandshakeLimits, StringSampleActivation, StringSampleLimits,
     TimestampedStringConnectedInletSession, TimestampedStringInletSession,
     TimestampedStringInletSessionReport, TimestampedStringSessionError,
     TimestampedStringSessionLimits, TimestampedStringSessionPreflightError,
@@ -18,17 +22,63 @@ use std::sync::atomic::AtomicBool;
 pub enum TypedUdpDiscoveryStringSessionConnectionError {
     /// Strict projection of the caller-selected response failed.
     Endpoint(TypedUdpDiscoveryEndpointError),
+    /// The selected response advertises a different sample format.
+    FormatMismatch {
+        /// Format required by the concrete adapter.
+        expected: ChannelFormat,
+        /// Format advertised by the selected response.
+        actual: ChannelFormat,
+    },
+    /// The selected response advertises a different channel count.
+    ChannelCountMismatch {
+        /// Channel count requested by the caller.
+        expected: usize,
+        /// Channel count advertised by the selected response.
+        actual: usize,
+    },
+    /// The selected response advertises a different handshake identity field.
+    IdentityMismatch {
+        /// Identity role whose value differs.
+        role: StreamHandshakeIdentityRole,
+        /// Caller-owned expected identity value.
+        expected: String,
+        /// Selected-response identity value.
+        actual: String,
+    },
     /// The selected endpoint or exact 1x1 shape failed socket-free preflight.
     Preflight(TimestampedStringSessionPreflightError),
     /// Connect, transfer, terminal close, or cleanup failed.
     Session(TimestampedStringSessionError),
 }
 
+fn contract_error(
+    mismatch: TypedUdpDiscoverySessionContractMismatch<'_>,
+) -> TypedUdpDiscoveryStringSessionConnectionError {
+    match mismatch {
+        TypedUdpDiscoverySessionContractMismatch::Format { expected, actual } => {
+            TypedUdpDiscoveryStringSessionConnectionError::FormatMismatch { expected, actual }
+        }
+        TypedUdpDiscoverySessionContractMismatch::ChannelCount { expected, actual } => {
+            TypedUdpDiscoveryStringSessionConnectionError::ChannelCountMismatch { expected, actual }
+        }
+        TypedUdpDiscoverySessionContractMismatch::Identity {
+            role,
+            expected,
+            actual,
+        } => TypedUdpDiscoveryStringSessionConnectionError::IdentityMismatch {
+            role,
+            expected: expected.to_owned(),
+            actual: actual.to_owned(),
+        },
+    }
+}
+
 /// Projects one caller-selected completed discovery response and connects the 1x1 String inlet.
 ///
 /// The caller retains discovery execution, receive-order selection, expected identity, limits,
-/// cancellation, and activation. Strict endpoint projection precedes the existing socket-free
-/// String preflight and connect owners. The returned concrete owner retains phased transfer,
+/// cancellation, and activation. Strict endpoint projection precedes selected-response contract
+/// validation, which precedes the existing socket-free String preflight and connect owners. The
+/// returned concrete owner retains phased transfer,
 /// the exact 0..=129 UTF-8-byte codec, allocation ownership, damage and trailing classification,
 /// canonical completion, and report-free close.
 #[allow(clippy::too_many_arguments)]
@@ -46,6 +96,13 @@ pub fn connect_selected_typed_udp_discovery_string_session_inlet(
 ) -> Result<TimestampedStringConnectedInletSession, TypedUdpDiscoveryStringSessionConnectionError> {
     let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
         .map_err(TypedUdpDiscoveryStringSessionConnectionError::Endpoint)?;
+    validate_selected_typed_udp_discovery_session_contract(
+        &discovery.responses()[response_index],
+        ChannelFormat::String,
+        channel_count,
+        expected_identity,
+    )
+    .map_err(contract_error)?;
     let session = TimestampedStringInletSession::preflight_bounded(
         session_activation,
         endpoint.into(),
@@ -273,6 +330,10 @@ mod tests {
     #[test]
     fn p24_endpoint_then_shape_preflight_precede_session_io() {
         let discovery = completed_discovery(document(9));
+        let invalid_shape_discovery = completed_discovery(document(9).replace(
+            "<channel_count>1</channel_count>",
+            "<channel_count>2</channel_count>",
+        ));
         assert!(matches!(
             connect_selected_typed_udp_discovery_string_session_inlet(
                 &discovery,
@@ -290,7 +351,7 @@ mod tests {
         ));
         assert!(matches!(
             connect_selected_typed_udp_discovery_string_session_inlet(
-                &discovery,
+                &invalid_shape_discovery,
                 0,
                 session_activation(),
                 &identity(),
@@ -333,5 +394,55 @@ mod tests {
                 TimestampedStringSessionError::TrailingByte { actual: 0xa5 }
             )
         ));
+    }
+
+    fn contract_failure(document: String) -> TypedUdpDiscoveryStringSessionConnectionError {
+        let discovery = completed_discovery(document);
+        match connect_selected_typed_udp_discovery_string_session_inlet(
+            &discovery,
+            0,
+            session_activation(),
+            &identity(),
+            handshake_limits(),
+            io_limits(),
+            TimestampedStringSessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+            &AtomicBool::new(false),
+        ) {
+            Err(error) => error,
+            Ok(_) => panic!("selected contract unexpectedly connected"),
+        }
+    }
+
+    #[test]
+    fn p24_string_adapter_rejects_owned_contract_mismatch_before_preflight_and_tcp() {
+        assert_eq!(
+            contract_failure(document(9).replace("string", "float32")),
+            TypedUdpDiscoveryStringSessionConnectionError::FormatMismatch {
+                expected: ChannelFormat::String,
+                actual: ChannelFormat::Float32,
+            }
+        );
+        assert_eq!(
+            contract_failure(document(9).replace(
+                "<channel_count>1</channel_count>",
+                "<channel_count>2</channel_count>",
+            )),
+            TypedUdpDiscoveryStringSessionConnectionError::ChannelCountMismatch {
+                expected: 1,
+                actual: 2,
+            }
+        );
+        assert_eq!(
+            contract_failure(
+                document(9).replace("<hostname>host</hostname>", "<hostname>host-x</hostname>",)
+            ),
+            TypedUdpDiscoveryStringSessionConnectionError::IdentityMismatch {
+                role: StreamHandshakeIdentityRole::Hostname,
+                expected: "host".to_owned(),
+                actual: "host-x".to_owned(),
+            }
+        );
     }
 }
