@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+The caller-selected typed-discovery response adapter may now enter the existing
+one-channel/one-record phased String connected inlet. Strict endpoint projection
+precedes socket-free String preflight and the sole existing session lifecycle;
+the caller retains discovery, selection, identity, cancellation, deadlines, and
+activation. The exact 0 through 129 UTF-8-byte envelope, typed damage/trailing
+errors, allocation and completion owners, legacy APIs, and default-disabled
+explicit activation remain unchanged.
+
 LSLC-007Y adds only concrete caller-selected typed-discovery response/run-index
 adapters into the existing phased Int32, Int16, and Int8 connected inlet
 owners. Endpoint projection precedes socket-free preflight, which precedes the

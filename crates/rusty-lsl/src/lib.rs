@@ -126,6 +126,7 @@ mod typed_udp_discovery_integer_session_connection;
 mod typed_udp_discovery_response;
 mod typed_udp_discovery_run;
 mod typed_udp_discovery_selection;
+mod typed_udp_discovery_string_session_connection;
 mod udp_discovery;
 mod xml_character_data;
 mod xml_element_serialization;
@@ -425,6 +426,11 @@ pub use typed_udp_discovery_run::{
 };
 pub use typed_udp_discovery_selection::{
     suggest_typed_udp_discovery_response, TypedUdpDiscoverySelectionError,
+};
+pub use typed_udp_discovery_string_session_connection::{
+    connect_selected_typed_udp_discovery_string_session_inlet,
+    run_selected_typed_udp_discovery_string_session_inlet,
+    TypedUdpDiscoveryStringSessionConnectionError,
 };
 pub use udp_discovery::{
     run_udp_discovery, UdpDiscoveryActivation, UdpDiscoveryActivationError, UdpDiscoveryConfig,

@@ -1,5 +1,12 @@
 # Architecture
 
+The concrete String discovery adapter borrows a caller-owned completed typed
+discovery run and receive-order index, strictly projects its endpoint, performs
+the existing exact 1x1 socket-free String preflight, and returns the existing
+connected String inlet owner. The private lifecycle and sealed String codec
+remain the sole socket, cursor, allocation, damage/trailing classification,
+completion, and cleanup owners; the 0..=129 UTF-8-byte envelope is unchanged.
+
 The integer discovery-to-session seam is a thin concrete adapter family. It
 borrows the caller-owned completed discovery run and selected receive-order
 index, strictly projects the endpoint, performs the existing format-specific

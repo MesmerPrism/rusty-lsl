@@ -533,6 +533,19 @@ fn p20_discovery_to_phased_double64_connection_is_public_on_both_facades() {
 }
 
 #[test]
+fn p24_discovery_to_phased_string_connection_is_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryStringSessionConnectionError>() > 0);
+    same_type(
+        &rusty_lsl::connect_selected_typed_udp_discovery_string_session_inlet,
+        &runtime::connect_selected_typed_udp_discovery_string_session_inlet,
+    );
+    same_type(
+        &rusty_lsl::run_selected_typed_udp_discovery_string_session_inlet,
+        &runtime::run_selected_typed_udp_discovery_string_session_inlet,
+    );
+}
+
+#[test]
 fn p23_discovery_to_phased_integer_connections_are_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryInt32SessionConnectionError>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryInt16SessionConnectionError>() > 0);

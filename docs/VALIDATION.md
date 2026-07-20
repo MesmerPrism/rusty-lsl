@@ -1,5 +1,17 @@
 # Validation
 
+Focused caller-selected discovery-to-phased-String qualification is:
+
+```text
+cargo test -p rusty-lsl p24_ -- --test-threads=1
+```
+
+Host-synthetic cases cover exact 1x1 boundary values, retained caller discovery
+and received allocation ownership, endpoint-to-preflight-to-session precedence,
+typed damage/trailing propagation, canonical completion, cleanup, and concrete
+root/runtime exports. String/all-format, activation/current closure, formatting,
+diff hygiene, and sufficiently bounded serialized Standard remain required.
+
 Focused phased integer qualification is:
 
 ```text
