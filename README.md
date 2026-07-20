@@ -109,10 +109,13 @@ recovery → clock-correction → queue pipeline. Callers retain acquisition,
 policy, activation, clock, queue, and distinct cancellation ownership; runtime
 activation remains explicit and default-disabled.
 
-One bounded adapter can consume an exactly-one-record completed Float32 inlet
-report into that pipeline. It retains the whole report until recovery actually
-acquires the record, so pre-acquisition terminal paths return caller evidence
-unchanged; no automatic policy or activation is implied.
+One concrete batch adapter consumes every record retained by a completed
+Float32 inlet report, using `record_count()` as the exact batch extent. It
+delegates records sequentially to the sole recovery/clock/queue owner. Each
+successful record allocation transfers to the caller-owned queue; completion
+and failure results retain indexed completed-prefix, current-record, and
+untouched-suffix evidence without introducing automatic policy, another
+format, or activation authority. The legacy one-record adapter remains public.
 
 The accepted Float32, Double64, integer, and String paths now share one
 format-neutral crate-private bounded session lifecycle engine. Their sealed

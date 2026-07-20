@@ -93,13 +93,16 @@ records, terminal close, and cleanup. Rich facade errors retain caller-record
 indices and trailing-byte classification, while legacy adapters explicitly
 project them back to their historical errors.
 
-`float32_session_report_recovery_clock_queue` is a thin boundary between a
-completed typed session report and the existing P4 pipeline. It validates the
-one-record count before downstream work and holds the report until finite
-recovery invokes acquisition. Cancellation, deadline, or recovery setup before
-that point returns the report; later clock and queue failures retain ownership
-through the existing P4 errors. It owns no lifecycle, retry classification,
-clock, queue, or cancellation policy.
+`float32_session_report_recovery_clock_queue` exposes a concrete batch boundary
+between a completed typed session report and the existing P4 pipeline. The
+report's actual `record_count()` is the exact retained batch extent; there is no
+separate universal three-record maximum. The adapter delegates each record
+sequentially to the sole recovery/clock/queue owner. Successful allocations
+move into the caller queue, while an indexed failure retains completed-prefix,
+current-record, and untouched-suffix evidence through the concrete batch
+outcome and errors. It owns no lifecycle, retry classification, automatic
+policy, clock, queue, other-format, or cancellation authority. The legacy
+exactly-one-record boundary remains a separate facade over the same owners.
 
 The bounded Float32 pipeline coordinates existing owners without absorbing
 them: caller acquisition feeds finite recovery, one recovered record feeds the

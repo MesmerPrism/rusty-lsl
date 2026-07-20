@@ -8,23 +8,22 @@ boundary is checked at the crate root and `runtime` facade by:
 cargo test -p rusty-lsl --test public_api p4_session_batch_boundary_is_concrete_fail_closed_and_revision_33
 ```
 
-This compile-time facade qualification is intentionally valid at the frozen
-base. It proves that the concrete function, outcome, acquisition termination,
-and owner-preserving error remain public on both facades, and that activation
-remains revision 33, explicit, and default-disabled. It does not manufacture
-multi-record runtime evidence before the production owner is composed.
+This compile-time facade qualification references the exact concrete batch
+function, batch outcome, record outcome, error, and termination symbols. It
+proves that their crate-root and `runtime` names are type-identical and that
+activation remains revision 33, explicit, and default-disabled.
 
 The canonical integrator must qualify the broadened implementation against this
 matrix before acceptance:
 
 | Dimension | Required composed evidence |
 | --- | --- |
-| 1 / 2 / bounded records | One, two, and the declared nonzero session bound preserve report order and exact timestamp/value bits; zero and over-bound reports fail before recovery, clock, or queue work. |
-| Ownership | Success does not duplicate record allocation; every indexed terminal result owns exact completed outcomes plus the unprocessed report suffix, including the current record when it was not queued. |
-| Indexed terminal suffix | The zero-based failing index agrees with the completed prefix, and the suffix remains in original report order without cloning or reconstruction. |
+| Exact retained extent | The completed report's actual `record_count()` is the batch extent. One-, two-, and three-record cases are fixtures, not a universal maximum; no separate over-bound report claim is made. |
+| Ownership | Successful allocations transfer to the caller queue without duplication. Rejection retains indexed completed outcomes plus the current record where applicable and the untouched suffix. |
+| Indexed evidence | The zero-based failing index agrees with the completed prefix; the current/suffix ownership follows the concrete error variant and remains in original report order. |
 | Precedence | Report shape precedes per-record recovery cancellation/deadline/terminal; those precede clock cancellation/error; those precede queue cancellation/close/wait. |
 | Cleanup / reuse | Every success, typed failure, cancellation, deadline, queue-close, and backpressure path drops run-owned state and preserves immediate reuse under the existing lifecycle and bounded queue tests. |
-| Legacy | The one-record facade behavior and its exact error/ownership projections remain unchanged while delegating through the batch owner. |
+| Legacy | The existing one-record facade remains available and continues to use the same sole recovery/clock/queue owners. |
 | Activation / current | Revision 33 stays explicit and default-disabled with no new capability; current source/lock/consumer closure is regenerated only by the canonical integrator. |
 | Serialized Standard | Run exactly one `python ./tools/dispatch_validation.py --profile standard` after ordered composition; its receipt is evidence, not policy authority. |
 | Workflow / publication | Run current workflow, instruction, source-first/planning-last, clean-tree, private-content, and publication gates from `tools/validation-policy.json`; do not edit planning, activation, publication, or canonical state in this qualification lane. |

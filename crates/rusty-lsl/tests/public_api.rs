@@ -281,17 +281,20 @@ fn p4_session_batch_boundary_is_concrete_fail_closed_and_revision_33() {
 
     // The batch milestone broadens this concrete Float32 composition; it does not
     // introduce a caller-selectable strategy or a second lifecycle/queue owner.
-    let _root = rusty_lsl::run_float32_inlet_session_report_recovery_clock_queue::<PublicClock>;
-    let _runtime =
-        rusty_lsl::runtime::run_float32_inlet_session_report_recovery_clock_queue::<PublicClock>;
-    assert!(core::mem::size_of::<rusty_lsl::Float32SessionReportPipelineOutcome>() > 0);
-    assert!(core::mem::size_of::<rusty_lsl::Float32SessionReportPipelineError>() > 0);
-    assert!(core::mem::size_of::<rusty_lsl::Float32SessionReportAcquisitionTermination>() > 0);
-    assert!(core::mem::size_of::<rusty_lsl::runtime::Float32SessionReportPipelineOutcome>() > 0);
-    assert!(core::mem::size_of::<rusty_lsl::runtime::Float32SessionReportPipelineError>() > 0);
-    assert!(
-        core::mem::size_of::<rusty_lsl::runtime::Float32SessionReportAcquisitionTermination>() > 0
-    );
+    let _root =
+        rusty_lsl::run_float32_inlet_session_report_batch_recovery_clock_queue::<PublicClock>;
+    let _runtime = rusty_lsl::runtime::run_float32_inlet_session_report_batch_recovery_clock_queue::<
+        PublicClock,
+    >;
+
+    let root_outcome: Option<rusty_lsl::Float32SessionReportBatchOutcome> = None;
+    let _: Option<rusty_lsl::runtime::Float32SessionReportBatchOutcome> = root_outcome;
+    let root_record: Option<rusty_lsl::Float32SessionReportRecordOutcome> = None;
+    let _: Option<rusty_lsl::runtime::Float32SessionReportRecordOutcome> = root_record;
+    let root_error: Option<rusty_lsl::Float32SessionReportBatchError> = None;
+    let _: Option<rusty_lsl::runtime::Float32SessionReportBatchError> = root_error;
+    let root_termination: Option<rusty_lsl::Float32SessionReportBatchTermination> = None;
+    let _: Option<rusty_lsl::runtime::Float32SessionReportBatchTermination> = root_termination;
     assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 33);
     assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 33);
 }

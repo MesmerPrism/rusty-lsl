@@ -1,5 +1,15 @@
 # Rusty LSL Agent Notes
 
+The completed Float32 inlet-report batch facade uses the report's actual
+`record_count()` as its exact retained extent and delegates records
+sequentially through the sole recovery/clock/queue owner. Successful record
+allocations transfer to the caller queue; concrete outcomes and errors retain
+indexed completed-prefix, current-record, and untouched-suffix evidence. Three
+records is only a representative fixture, not a universal maximum. The facade
+adds no automatic policy, other-format, lifecycle, queue, activation, device,
+oracle, or Manifold authority; activation remains explicit and
+default-disabled.
+
 The selected-discovery resolution milestone adds one crate-private,
 allocation-free contract owner for concrete format, channel count, UID,
 hostname, source ID, and session ID. Endpoint projection precedes that contract,
