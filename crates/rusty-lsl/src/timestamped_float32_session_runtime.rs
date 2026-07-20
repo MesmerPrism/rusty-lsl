@@ -3322,6 +3322,58 @@ mod tests {
     }
 
     #[test]
+    fn p15_h14_repeats_finish_and_report_free_close_with_exact_reuse() {
+        for cycle in 0..12 {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let records = [sample(
+                0x4092_5220_0000_0100 + cycle,
+                0x3f80_0100 + cycle as u32,
+            )];
+            let worker = thread::spawn(move || {
+                let session_identity = identity();
+                let accepted = TimestampedFloat32OutletSession::preflight(
+                    activation(),
+                    listener,
+                    &session_identity,
+                    handshake_limits(),
+                    sample_limits(),
+                    &records,
+                )
+                .unwrap()
+                .accept(&AtomicBool::new(false))
+                .unwrap();
+                if cycle % 2 == 0 {
+                    accepted.finish(&AtomicBool::new(false)).map(Some)
+                } else {
+                    accepted.close();
+                    Ok(None)
+                }
+            });
+            let session_identity = identity();
+            let inlet = TimestampedFloat32InletSession::preflight(
+                activation(),
+                address,
+                &session_identity,
+                handshake_limits(),
+                sample_limits(),
+                1,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false));
+            let outlet = worker.join().unwrap().unwrap();
+            if cycle % 2 == 0 {
+                assert_eq!(inlet.unwrap().record_count(), 1);
+                assert_eq!(outlet.unwrap().record_count(), 1);
+            } else {
+                assert!(inlet.is_err());
+                assert!(outlet.is_none());
+            }
+            TcpListener::bind(address).unwrap();
+        }
+    }
+
+    #[test]
     fn p3_explicit_connect_close_consumes_owner_without_completion() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();

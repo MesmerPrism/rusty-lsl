@@ -1,5 +1,11 @@
 # Architecture
 
+LSLC-007P phases the bounded Float32 outlet into preflight, accepted-stream,
+and completed-report states over one crate-private format-neutral lifecycle.
+The accepted state exclusively retains the guarded socket and may be consumed
+by canonical finish or report-free close; the legacy finish delegates through
+the same owner. No socket or generic strategy crosses the public boundary.
+
 LSLC-007O keeps Float32 inlet preflight, connection, and completion as phased
 states over one crate-private format-neutral lifecycle. A connected inlet owns
 exactly one stream; consuming finish yields the existing report, while close or

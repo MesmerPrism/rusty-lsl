@@ -1,5 +1,12 @@
 # Validation
 
+LSLC-007P host-synthetic H01-H16 qualification covers public/private ownership,
+socket-free preflight, explicit accept facts, exact one- and multi-record bits,
+legacy delegation, report-free close, cancellation/deadline/damage inheritance,
+drop cleanup, twelve-cycle deterministic reuse, activation non-widening, and
+the complete serialized Standard regression. Official and device evidence is
+reused only for its unchanged prior claims and is not rerun.
+
 LSLC-007O host-synthetic validation covers phased Float32 connect/finish and
 connect/close ownership, cancellation and deadline classification, exact sample
 bits and allocations, legacy finish equivalence, cleanup, and immediate exact
