@@ -3,10 +3,10 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 6,
-  "revision": 29,
+  "revision": 30,
   "generated_at": "2026-07-20T00:00:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "4346b56361ec87fab41eeeb0255fa54c79aeaaacd02f9245581a24d704155362",
+  "lock_fingerprint": "7f1e8127a9d85698c2a61eb2f1a84526e9e5c2cc295d2474aed9c4d3e35af75e",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -366,11 +366,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/string-sample.json",
-        "sha256": "66005ac22354e4a66bbd2d5a58b2187acb93511d93da8e305c0c0a6715c90773",
+        "sha256": "ab084cf10b92b8004365a0beeeeb8574a2ef491d285c5801bfc3ec44806df757",
         "source_repo": "rusty-lsl",
-        "source_revision": "5caae833ff5af445ae53c1cf6b7ab6eb6f518468",
+        "source_revision": "2b675233ccfa0bec2521022ca9b0f0fda3463f8a",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-        "source_sha256": "2d31825025d8489db03f6e14889a2870ae3cced8d9cf2d7b794ee86f3fb14480"
+        "source_sha256": "7b7f44b24a9a125cf1b4aa94eada2d11de768a496ff9bc54f7cbc24aeec3b1ed"
       },
       "dependencies": [
         "stream-handshake"
@@ -421,11 +421,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "168ea9e04651518d4cc0b381909a42f9759c8153190184145bb79c4421c8d3fa",
+        "sha256": "06f272cd583225599db51a09f66f11ea8dff64c6a6e8c4b1b2d5683360c5c718",
         "source_repo": "rusty-lsl",
-        "source_revision": "5caae833ff5af445ae53c1cf6b7ab6eb6f518468",
+        "source_revision": "2b675233ccfa0bec2521022ca9b0f0fda3463f8a",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-        "source_sha256": "2d31825025d8489db03f6e14889a2870ae3cced8d9cf2d7b794ee86f3fb14480"
+        "source_sha256": "7b7f44b24a9a125cf1b4aa94eada2d11de768a496ff9bc54f7cbc24aeec3b1ed"
       },
       "dependencies": [
         "stream-handshake"
