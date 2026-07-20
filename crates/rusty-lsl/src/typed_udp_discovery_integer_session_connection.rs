@@ -135,6 +135,20 @@ macro_rules! integer_discovery_session_adapter {
 }
 
 integer_discovery_session_adapter!(
+    TypedUdpDiscoveryInt64SessionConnectionError,
+    connect_selected_typed_udp_discovery_int64_session_inlet,
+    run_selected_typed_udp_discovery_int64_session_inlet,
+    TimestampedInt64InletSession,
+    TimestampedInt64ConnectedInletSession,
+    TimestampedInt64InletSessionReport,
+    TimestampedInt64SessionError,
+    TimestampedInt64SessionIoLimits,
+    TimestampedInt64SessionLimits,
+    TimestampedInt64SessionPreflightError,
+    Int64,
+    "Int64"
+);
+integer_discovery_session_adapter!(
     TypedUdpDiscoveryInt32SessionConnectionError,
     connect_selected_typed_udp_discovery_int32_session_inlet,
     run_selected_typed_udp_discovery_int32_session_inlet,
@@ -372,6 +386,14 @@ mod tests {
     #[test]
     fn p23_selected_response_enters_each_concrete_integer_owner_for_accepted_shapes() {
         assert_integer_shapes!(
+            i64,
+            "int64",
+            TimestampedInt64OutletSession,
+            connect_selected_typed_udp_discovery_int64_session_inlet,
+            TimestampedInt64SessionIoLimits,
+            TimestampedInt64SessionLimits
+        );
+        assert_integer_shapes!(
             i32,
             "int32",
             TimestampedInt32OutletSession,
@@ -499,6 +521,14 @@ mod tests {
     #[test]
     fn selected_resolution_p23_each_integer_rejects_contract_mismatch_before_tcp() {
         assert_integer_contract_rejections!(
+            connect_selected_typed_udp_discovery_int64_session_inlet,
+            TypedUdpDiscoveryInt64SessionConnectionError,
+            Int64,
+            "int64",
+            TimestampedInt64SessionIoLimits,
+            TimestampedInt64SessionLimits
+        );
+        assert_integer_contract_rejections!(
             connect_selected_typed_udp_discovery_int32_session_inlet,
             TypedUdpDiscoveryInt32SessionConnectionError,
             Int32,
@@ -522,5 +552,114 @@ mod tests {
             TimestampedInt8SessionIoLimits,
             TimestampedInt8SessionLimits
         );
+    }
+
+    #[test]
+    fn p30r_int64_resolution_preserves_identity_field_and_preflight_precedence() {
+        let expected = identity();
+        let io_limits = || {
+            crate::TimestampedInt64SessionIoLimits::new(
+                Duration::from_millis(5),
+                Duration::from_secs(1),
+            )
+            .unwrap()
+        };
+        let session_limits = || crate::TimestampedInt64SessionLimits::new(1, 1).unwrap();
+        let assert_identity = |document: String, expected_role| {
+            let discovery = completed_discovery(document);
+            assert!(matches!(
+                connect_selected_typed_udp_discovery_int64_session_inlet(
+                    &discovery,
+                    0,
+                    session_activation(),
+                    &expected,
+                    handshake_limits(),
+                    io_limits(),
+                    session_limits(),
+                    1,
+                    1,
+                    &AtomicBool::new(false),
+                ),
+                Err(TypedUdpDiscoveryInt64SessionConnectionError::IdentityMismatch {
+                    role,
+                    ..
+                }) if role == expected_role
+            ));
+        };
+
+        assert_identity(
+            document("127.0.0.1", 9, 1, "int64")
+                .replace("23232323-2222-4333-8444-555555555555", "wrong-uid")
+                .replace(
+                    "<hostname>host</hostname>",
+                    "<hostname>wrong-host</hostname>",
+                )
+                .replace(
+                    "<source_id>source</source_id>",
+                    "<source_id>wrong-source</source_id>",
+                )
+                .replace(
+                    "<session_id>session</session_id>",
+                    "<session_id>wrong-session</session_id>",
+                ),
+            StreamHandshakeIdentityRole::Uid,
+        );
+        assert_identity(
+            document("127.0.0.1", 9, 1, "int64")
+                .replace(
+                    "<hostname>host</hostname>",
+                    "<hostname>wrong-host</hostname>",
+                )
+                .replace(
+                    "<source_id>source</source_id>",
+                    "<source_id>wrong-source</source_id>",
+                )
+                .replace(
+                    "<session_id>session</session_id>",
+                    "<session_id>wrong-session</session_id>",
+                ),
+            StreamHandshakeIdentityRole::Hostname,
+        );
+        assert_identity(
+            document("127.0.0.1", 9, 1, "int64")
+                .replace(
+                    "<source_id>source</source_id>",
+                    "<source_id>wrong-source</source_id>",
+                )
+                .replace(
+                    "<session_id>session</session_id>",
+                    "<session_id>wrong-session</session_id>",
+                ),
+            StreamHandshakeIdentityRole::SourceId,
+        );
+        assert_identity(
+            document("127.0.0.1", 9, 1, "int64").replace(
+                "<session_id>session</session_id>",
+                "<session_id>wrong-session</session_id>",
+            ),
+            StreamHandshakeIdentityRole::SessionId,
+        );
+
+        let invalid_shape = completed_discovery(document("127.0.0.1", 9, 3, "int64"));
+        assert!(matches!(
+            connect_selected_typed_udp_discovery_int64_session_inlet(
+                &invalid_shape,
+                0,
+                session_activation(),
+                &expected,
+                handshake_limits(),
+                io_limits(),
+                crate::TimestampedInt64SessionLimits::new(3, 3).unwrap(),
+                3,
+                3,
+                &AtomicBool::new(false),
+            ),
+            Err(TypedUdpDiscoveryInt64SessionConnectionError::Preflight(
+                crate::TimestampedInt64SessionPreflightError::ChannelCount {
+                    index: 0,
+                    actual: 3,
+                }
+            ))
+        ));
     }
 }
