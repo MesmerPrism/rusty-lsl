@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+LSLC-007R corrects only the LSLC-004L immutable-receipt checker to the
+byte-exact LSLC-003M Git blob that has existed unchanged since its introduction.
+The historical receipt remains untouched; the former expected hash identified
+only a CRLF-transformed checkout. No validation result, runtime, activation,
+compatibility, device, or authority claim is changed.
+
 The sole crate-private format-neutral lifecycle owns phased bounded transfer:
 one-time initialization, the canonical exact-count cursor, successful-only
 record advancement, overrun rejection before extra I/O, and consuming

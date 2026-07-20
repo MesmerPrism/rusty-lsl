@@ -1,5 +1,15 @@
 # Validation
 
+LSLC-007R preserves
+`morphospace/receipts/rlsl-lslc-003m-standard-validation.json` byte-for-byte at
+SHA-256 `d979a92da01cf3b7c46844335c8612cb4d0aeacf64201b9f9e9a40997ac15d5b`.
+Git history proves the same canonical Git blob before, at, and after LSLC-004L commit
+`6766af28c45b078cb4af97a0104b4d5eb01b0278`; the displaced checker value names
+only a CRLF-transformed checkout, not a repository blob. The public-boundary
+policy test reads HEAD bytes directly, so checkout line-ending policy cannot
+change evidence identity. Serialized Standard guards this correction without
+rerunning or rewriting historical evidence.
+
 The phased Float32 transfer candidate maps H01-H20 through the focused chunk
 and session tests, `public_api`, activation-closure checks, and the serialized
 Standard owner profile. Host-synthetic coverage includes exact bits/order,
