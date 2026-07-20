@@ -300,6 +300,50 @@ fn p4_session_batch_boundary_is_concrete_fail_closed_and_current_revision() {
 }
 
 #[test]
+fn p32_selected_discovery_session_batch_pipeline_is_concrete_on_both_facades() {
+    struct PublicClock;
+    impl rusty_lsl::ClockSource for PublicClock {
+        fn now(&mut self) -> f64 {
+            0.0
+        }
+    }
+
+    let _root = rusty_lsl::run_selected_typed_udp_discovery_float32_inlet_session_batch_recovery_clock_queue::<PublicClock>;
+    let _runtime = rusty_lsl::runtime::run_selected_typed_udp_discovery_float32_inlet_session_batch_recovery_clock_queue::<PublicClock>;
+
+    let root_outcome: Option<
+        rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome<'static>,
+    > = None;
+    let _: Option<
+        rusty_lsl::runtime::SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome<'static>,
+    > = root_outcome;
+    let root_error: Option<rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError<'static>> =
+        None;
+    let _: Option<rusty_lsl::runtime::SelectedTypedUdpDiscoveryFloat32SessionBatchError<'static>> =
+        root_error;
+    let root_kind: Option<rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchErrorKind> = None;
+    let _: Option<rusty_lsl::runtime::SelectedTypedUdpDiscoveryFloat32SessionBatchErrorKind> =
+        root_kind;
+
+    let _outcome_discovery =
+        rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome::discovery;
+    let _outcome_index =
+        rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome::response_index;
+    let _outcome_batch = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome::batch;
+    let _outcome_health = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome::health;
+    let _outcome_into_batch =
+        rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome::into_batch;
+    let _error_discovery = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::discovery;
+    let _error_index = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::response_index;
+    let _error_kind = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::kind;
+    let _error_health = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::health;
+    let _error_into_kind = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::into_kind;
+
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+}
+
+#[test]
 fn float32_two_record_chunk_candidate_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkError>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkLimits>() > 0);

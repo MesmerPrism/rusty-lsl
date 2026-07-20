@@ -1,5 +1,15 @@
 # Architecture
 
+## Selected discovery to Float32 session batch
+
+`typed_udp_discovery_float32_session_batch_pipeline` is a concrete composition:
+caller-selected response/index -> strict endpoint -> sole phased Float32
+session -> canonical actual-extent report batch -> existing recovery/clock/queue
+owner -> borrowed exact health. Its outcome and error wrappers preserve the
+discovery reference, selected index, and existing batch/session evidence; they
+do not become lifecycle, policy, allocation, activation, device, oracle,
+Makepad, or Manifold owners.
+
 ## Concrete all-format bounded chunks
 
 P31 projects caller-owned timestamped chunks through one concrete facade per

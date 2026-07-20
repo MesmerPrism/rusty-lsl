@@ -122,6 +122,7 @@ mod typed_udp_discovery_float32_clock_correction_queue;
 mod typed_udp_discovery_float32_queue;
 mod typed_udp_discovery_float32_recovery_clock_correction_queue;
 mod typed_udp_discovery_float32_recovery_queue;
+mod typed_udp_discovery_float32_session_batch_pipeline;
 mod typed_udp_discovery_float32_session_connection;
 mod typed_udp_discovery_handshake;
 mod typed_udp_discovery_integer_session_connection;
@@ -439,6 +440,12 @@ pub use typed_udp_discovery_float32_recovery_clock_correction_queue::{
 pub use typed_udp_discovery_float32_recovery_queue::{
     run_recovering_selected_typed_udp_discovery_float32_inlet_into_queue,
     TypedUdpDiscoveryFloat32RecoveryQueueError, TypedUdpDiscoveryFloat32RecoveryQueueOutcome,
+};
+pub use typed_udp_discovery_float32_session_batch_pipeline::{
+    run_selected_typed_udp_discovery_float32_inlet_session_batch_recovery_clock_queue,
+    SelectedTypedUdpDiscoveryFloat32SessionBatchError,
+    SelectedTypedUdpDiscoveryFloat32SessionBatchErrorKind,
+    SelectedTypedUdpDiscoveryFloat32SessionBatchOutcome,
 };
 pub use typed_udp_discovery_float32_session_connection::{
     connect_selected_typed_udp_discovery_float32_session_inlet,

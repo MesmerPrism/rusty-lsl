@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+The frozen selected-discovery Float32 session-batch facade adds only concrete
+root/runtime exports and public qualification for one caller-selected response
+and index. Strict endpoint projection precedes the sole phased Float32 session;
+its canonical completed report enters the existing actual-extent recovery,
+clock, and queue batch owner, after which health is borrowed exactly. Existing
+types retain lifecycle, policy, allocation, activation, device, oracle, and
+Manifold authority; no Makepad authority is added.
+
 The frozen all-format bounded-chunk facade adds only concrete root/runtime
 exports and public qualification for Float32, Double64, Int64, Int32, Int16,
 Int8, and String. Each adapter remains restricted to shapes and record bounds

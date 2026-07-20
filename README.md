@@ -1,5 +1,13 @@
 # Rusty LSL
 
+The concrete selected-discovery Float32 session-batch facade preserves one
+caller-selected response and receive-order index through strict endpoint
+projection, the sole phased Float32 session, and its canonical completed
+report. The report's actual extent then enters the existing recovery, clock,
+and queue batch owner; success or owner-preserving failure exposes only borrowed
+exact health. This adds no lifecycle, policy, allocation, activation, device,
+oracle, Makepad, or Manifold authority.
+
 The bounded chunk surface has concrete root and `runtime` entry points for all
 seven declared formats. These thin facades consume caller-owned timestamped
 chunks only within each format's already accepted session shape and record

@@ -1,5 +1,21 @@
 # Validation
 
+The P32 public qualification names the concrete selected-discovery Float32
+session-batch function, outcome, error, and stage-kind types at both facades,
+including their borrowed discovery/index, batch/error, and exact-health access:
+
+```text
+cargo test -p rusty-lsl --test public_api p32_selected_discovery_session_batch_pipeline_is_concrete_on_both_facades
+```
+
+The path-disjoint facade candidate cannot compile until the production module
+is composed. After composition, focused production tests must establish frozen
+selection/endpoint/session/batch precedence, exact bits/order and actual report
+extent, owner-preserving cancellation/error paths, single queue allocation
+transfer, borrowed exact health, cleanup/reuse, legacy regression, and unchanged
+explicit default-disabled revision 34. This qualifies no new lifecycle, policy,
+allocation, activation, device, oracle, Makepad, or Manifold authority.
+
 The P31 facade qualification in `tests/public_api.rs` names only the seven
 concrete bounded-chunk function, error, and consuming report families. It checks
 that every family is reachable with identical types at the crate root and
