@@ -1,5 +1,11 @@
 # Rusty LSL
 
+The bounded String discovery composition connects one caller-selected completed
+typed discovery response to the existing phased String inlet owner. It keeps
+strict endpoint, exact 1x1 preflight, and session error precedence; the
+accepted 0..=129 UTF-8-byte envelope, lifecycle, allocation, cleanup, and
+explicit default-disabled activation retain their existing owners.
+
 The bounded integer discovery composition exposes concrete Int32, Int16, and
 Int8 entrypoints from one caller-selected completed typed discovery response
 to the existing phased connected inlet owners. It preserves endpoint,
