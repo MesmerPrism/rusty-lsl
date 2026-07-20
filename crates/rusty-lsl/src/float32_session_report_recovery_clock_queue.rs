@@ -9,10 +9,211 @@ use crate::{
     BoundedSampleQueueWait, ClockSource, FiniteSampleRecoveryActivation, FiniteSampleRecoveryError,
     FiniteSampleRecoveryPolicy, FiniteSampleRecoveryState, IntegratedClockCorrectionActivation,
     IntegratedClockCorrectionConfig, RecoveryAttemptFailure, RecoveryFailureClass,
-    TimestampedFloat32InletSessionReport,
+    TimestampedFloat32InletSessionReport, TimestampedSample,
 };
+use std::collections::VecDeque;
 
-/// Terminal result of the completed-report adapter.
+/// Exact completion evidence for one report record.
+#[allow(dead_code)]
+#[derive(Debug, Eq, PartialEq)]
+pub struct Float32SessionReportRecordOutcome {
+    /// Zero-based report record index.
+    pub index: usize,
+    /// Ordered recovery states produced for this record.
+    pub states: Vec<FiniteSampleRecoveryState>,
+}
+
+/// Successful bounded batch result.
+#[allow(dead_code)]
+#[derive(Debug, Eq, PartialEq)]
+pub struct Float32SessionReportBatchOutcome {
+    /// Exact ordered per-record completion evidence.
+    pub completed: Vec<Float32SessionReportRecordOutcome>,
+}
+
+/// A per-record termination observed before clock or queue work.
+#[allow(dead_code)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Float32SessionReportBatchTermination {
+    /// Recovery cancellation preceded acquisition.
+    Cancelled,
+    /// The recovery deadline preceded acquisition.
+    Deadline,
+    /// The acquisition owner classified a failure as terminal.
+    Terminal,
+    /// The acquisition owner exhausted its bounded attempts.
+    Exhausted,
+}
+
+/// Owner-preserving indexed rejection from the batch adapter.
+#[allow(dead_code)]
+#[derive(Debug)]
+pub enum Float32SessionReportBatchError {
+    /// A completed report unexpectedly contained no records.
+    EmptyReport {
+        /// Unchanged completed report and all evidence it owns.
+        report: TimestampedFloat32InletSessionReport,
+    },
+    /// Recovery stopped before the indexed record was acquired.
+    NotAcquired {
+        /// Zero-based report record index.
+        index: usize,
+        /// Exact pre-acquisition termination.
+        termination: Float32SessionReportBatchTermination,
+        /// Ordered recovery states for the current record.
+        states: Vec<FiniteSampleRecoveryState>,
+        /// Exact ordered completed prefix.
+        completed: Vec<Float32SessionReportRecordOutcome>,
+        /// Untouched current record followed by the untouched report suffix.
+        remaining: Vec<TimestampedSample<f32>>,
+    },
+    /// Recovery setup failed before the indexed record was acquired.
+    Recovery {
+        /// Zero-based report record index.
+        index: usize,
+        /// Existing recovery setup error.
+        error: FiniteSampleRecoveryError,
+        /// Exact ordered completed prefix.
+        completed: Vec<Float32SessionReportRecordOutcome>,
+        /// Untouched current record followed by the untouched report suffix.
+        remaining: Vec<TimestampedSample<f32>>,
+    },
+    /// Clock or queue work failed for the indexed record.
+    Pipeline {
+        /// Zero-based report record index.
+        index: usize,
+        /// Existing pipeline error retaining the current record when acquired.
+        error: BoundedFloat32PipelineError,
+        /// Exact ordered completed prefix.
+        completed: Vec<Float32SessionReportRecordOutcome>,
+        /// Untouched report suffix after the current record retained by `error`.
+        remaining: Vec<TimestampedSample<f32>>,
+    },
+    /// The generic pipeline violated the adapter's infallible acquisition contract.
+    Invariant {
+        /// Zero-based report record index.
+        index: usize,
+        /// Unchanged impossible generic outcome.
+        outcome: BoundedFloat32PipelineOutcome,
+        /// Exact ordered completed prefix.
+        completed: Vec<Float32SessionReportRecordOutcome>,
+        /// Any record ownership still retained by the adapter.
+        remaining: Vec<TimestampedSample<f32>>,
+    },
+}
+
+#[allow(dead_code)]
+fn restore_current(
+    current: Option<TimestampedSample<f32>>,
+    suffix: VecDeque<TimestampedSample<f32>>,
+) -> Vec<TimestampedSample<f32>> {
+    current.into_iter().chain(suffix).collect()
+}
+
+/// Sequentially feeds every already-bounded ordered report record through the sole pipeline owner.
+#[allow(clippy::too_many_arguments)]
+#[allow(dead_code)]
+pub fn run_float32_inlet_session_report_batch_recovery_clock_queue<C>(
+    report: TimestampedFloat32InletSessionReport,
+    recovery_activation: FiniteSampleRecoveryActivation,
+    recovery_policy: FiniteSampleRecoveryPolicy,
+    clock_activation: IntegratedClockCorrectionActivation,
+    clock_config: IntegratedClockCorrectionConfig,
+    clock: &mut C,
+    queue: &BoundedSampleQueue,
+    queue_wait: BoundedSampleQueueWait,
+    cancellation: BoundedFloat32PipelineCancellation<'_>,
+) -> Result<Float32SessionReportBatchOutcome, Float32SessionReportBatchError>
+where
+    C: ClockSource,
+{
+    if report.record_count() == 0 {
+        return Err(Float32SessionReportBatchError::EmptyReport { report });
+    }
+    let mut remaining: VecDeque<_> = report.into_records().into();
+    let mut completed = Vec::with_capacity(remaining.len());
+    let record_count = remaining.len();
+    for index in 0..record_count {
+        let mut current = remaining.pop_front();
+        let result = run_bounded_float32_recovery_clock_queue(
+            recovery_activation,
+            recovery_policy,
+            |_| {
+                current.take().ok_or_else(|| {
+                    RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, u32::MAX)
+                })
+            },
+            clock_activation,
+            clock_config,
+            clock,
+            queue,
+            queue_wait,
+            cancellation,
+        );
+        match result {
+            Ok(BoundedFloat32PipelineOutcome::Queued { states }) => {
+                completed.push(Float32SessionReportRecordOutcome { index, states });
+            }
+            Ok(BoundedFloat32PipelineOutcome::Cancelled { states }) => {
+                return Err(Float32SessionReportBatchError::NotAcquired {
+                    index,
+                    termination: Float32SessionReportBatchTermination::Cancelled,
+                    states,
+                    completed,
+                    remaining: restore_current(current, remaining),
+                });
+            }
+            Ok(BoundedFloat32PipelineOutcome::Deadline { states }) => {
+                return Err(Float32SessionReportBatchError::NotAcquired {
+                    index,
+                    termination: Float32SessionReportBatchTermination::Deadline,
+                    states,
+                    completed,
+                    remaining: restore_current(current, remaining),
+                });
+            }
+            Ok(BoundedFloat32PipelineOutcome::Terminal { failure, states }) => {
+                let _ = failure;
+                return Err(Float32SessionReportBatchError::NotAcquired {
+                    index,
+                    termination: Float32SessionReportBatchTermination::Terminal,
+                    states,
+                    completed,
+                    remaining: restore_current(current, remaining),
+                });
+            }
+            Ok(BoundedFloat32PipelineOutcome::Exhausted { failure, states }) => {
+                let _ = failure;
+                return Err(Float32SessionReportBatchError::NotAcquired {
+                    index,
+                    termination: Float32SessionReportBatchTermination::Exhausted,
+                    states,
+                    completed,
+                    remaining: restore_current(current, remaining),
+                });
+            }
+            Err(BoundedFloat32PipelineError::Recovery(error)) if current.is_some() => {
+                return Err(Float32SessionReportBatchError::Recovery {
+                    index,
+                    error,
+                    completed,
+                    remaining: restore_current(current, remaining),
+                });
+            }
+            Err(error) => {
+                return Err(Float32SessionReportBatchError::Pipeline {
+                    index,
+                    error,
+                    completed,
+                    remaining: restore_current(current, remaining),
+                });
+            }
+        }
+    }
+    Ok(Float32SessionReportBatchOutcome { completed })
+}
+
+/// Terminal result of the legacy exactly-one-record adapter.
 #[derive(Debug)]
 pub enum Float32SessionReportPipelineOutcome {
     /// The sole report record was corrected and queued.
@@ -40,7 +241,7 @@ pub enum Float32SessionReportAcquisitionTermination {
     Deadline,
 }
 
-/// Owner-preserving rejection from the completed-report adapter.
+/// Owner-preserving rejection from the legacy completed-report adapter.
 #[derive(Debug)]
 pub enum Float32SessionReportPipelineError {
     /// The completed report did not contain exactly one record.
@@ -68,10 +269,7 @@ pub enum Float32SessionReportPipelineError {
     },
 }
 
-/// Feeds the sole owned record from a completed inlet report into the bounded pipeline.
-///
-/// Count validation precedes recovery, clock, and queue work. Session execution and errors
-/// remain outside this adapter; it performs no connection, retry, retention, or discovery.
+/// Preserves the historical exactly-one-record behavior.
 #[allow(clippy::too_many_arguments)]
 pub fn run_float32_inlet_session_report_recovery_clock_queue<C>(
     report: TimestampedFloat32InletSessionReport,
@@ -93,7 +291,6 @@ where
             report,
         });
     }
-
     let mut retained_report = Some(report);
     let result = run_bounded_float32_recovery_clock_queue(
         recovery_activation,
@@ -166,26 +363,28 @@ mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
     use crate::{
-        BoundedSampleQueueActivation, BoundedSampleQueuePopError, FiniteSampleRecoveryState,
-        IntegratedClockCorrectionError, RawSourceTimestamp, RuntimeModule, Sample, SampleLimits,
-        StreamHandshakeActivation, StreamHandshakeIdentity, StreamHandshakeLimits,
-        TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
-        TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits, TimestampedSample,
+        BoundedSampleQueueActivation, BoundedSampleQueuePopError, BoundedSampleQueuePushError,
+        RawSourceTimestamp, RuntimeModule, Sample, SampleLimits, StreamHandshakeActivation,
+        StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32InletSession,
+        TimestampedFloat32OutletSession, TimestampedFloat32SampleActivation,
+        TimestampedFloat32SampleLimits, TimestampedFloat32SessionLimits,
     };
     use std::net::{TcpListener, UdpSocket};
-    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+    use std::sync::atomic::{AtomicBool, Ordering};
     use std::thread;
     use std::time::Duration;
 
-    struct CountingClock(AtomicUsize);
-
-    impl ClockSource for CountingClock {
+    struct SequenceClock {
+        values: Vec<f64>,
+        index: usize,
+    }
+    impl ClockSource for SequenceClock {
         fn now(&mut self) -> f64 {
-            self.0.fetch_add(1, Ordering::Relaxed);
-            0.0
+            let value = self.values[self.index];
+            self.index += 1;
+            value
         }
     }
-
     fn sample_activation() -> TimestampedFloat32SampleActivation {
         TimestampedFloat32SampleActivation::new(
             test_capability(RuntimeModule::TimestampedFloat32Sample),
@@ -194,7 +393,6 @@ mod tests {
         )
         .unwrap()
     }
-
     fn queue_activation() -> BoundedSampleQueueActivation {
         BoundedSampleQueueActivation::new(
             test_capability(RuntimeModule::BoundedSampleQueue),
@@ -202,7 +400,6 @@ mod tests {
         )
         .unwrap()
     }
-
     fn recovery_activation() -> FiniteSampleRecoveryActivation {
         FiniteSampleRecoveryActivation::new(
             test_capability(RuntimeModule::FiniteSampleRecovery),
@@ -210,7 +407,6 @@ mod tests {
         )
         .unwrap()
     }
-
     fn clock_activation() -> IntegratedClockCorrectionActivation {
         IntegratedClockCorrectionActivation::new(
             test_capability(RuntimeModule::IntegratedClockCorrection),
@@ -218,61 +414,19 @@ mod tests {
         )
         .unwrap()
     }
-
     fn policy() -> FiniteSampleRecoveryPolicy {
         FiniteSampleRecoveryPolicy::new(
             1,
             3,
             Duration::ZERO,
-            Duration::from_millis(1),
-            Duration::from_secs(1),
+            Duration::from_millis(2),
+            Duration::from_secs(2),
         )
         .unwrap()
     }
-
     fn wait() -> BoundedSampleQueueWait {
-        BoundedSampleQueueWait::new(Duration::from_millis(1), Duration::from_secs(1)).unwrap()
+        BoundedSampleQueueWait::new(Duration::from_millis(2), Duration::from_millis(30)).unwrap()
     }
-
-    fn config() -> IntegratedClockCorrectionConfig {
-        let peer = UdpSocket::bind("127.0.0.1:0").unwrap();
-        let address = peer.local_addr().unwrap();
-        drop(peer);
-        IntegratedClockCorrectionConfig::new(
-            "127.0.0.1:0".parse().unwrap(),
-            address,
-            71,
-            1,
-            256,
-            Duration::from_millis(1),
-            Duration::from_millis(5),
-        )
-        .unwrap()
-    }
-
-    fn record(timestamp_bits: u64, value_bits: u32) -> TimestampedSample<f32> {
-        TimestampedSample::new(
-            Sample::new(
-                SampleLimits::new(1).unwrap(),
-                1,
-                vec![f32::from_bits(value_bits)],
-            )
-            .unwrap(),
-            RawSourceTimestamp::new(f64::from_bits(timestamp_bits)).unwrap(),
-            None,
-        )
-    }
-
-    fn handshake_limits() -> StreamHandshakeLimits {
-        StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(1))
-            .unwrap()
-    }
-
-    fn sample_limits() -> TimestampedFloat32SampleLimits {
-        TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
-            .unwrap()
-    }
-
     fn identity() -> StreamHandshakeIdentity {
         StreamHandshakeIdentity::new(
             "11111111-2222-4333-8444-555555555555".into(),
@@ -283,32 +437,54 @@ mod tests {
         )
         .unwrap()
     }
-
+    fn handshake_limits() -> StreamHandshakeLimits {
+        StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(2))
+            .unwrap()
+    }
+    fn sample_limits() -> TimestampedFloat32SampleLimits {
+        TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(2))
+            .unwrap()
+    }
+    fn record(index: usize) -> TimestampedSample<f32> {
+        TimestampedSample::new(
+            Sample::new(
+                SampleLimits::new(1).unwrap(),
+                1,
+                vec![f32::from_bits(0x3f80_0100 + index as u32)],
+            )
+            .unwrap(),
+            RawSourceTimestamp::new(f64::from_bits(0x4008_0000_0000_0100 + index as u64)).unwrap(),
+            None,
+        )
+    }
     fn completed_report(
         records: Vec<TimestampedSample<f32>>,
     ) -> TimestampedFloat32InletSessionReport {
+        let count = records.len();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
-        let count = records.len();
         let worker = thread::spawn(move || {
-            TimestampedFloat32OutletSession::preflight(
+            TimestampedFloat32OutletSession::preflight_bounded(
                 sample_activation(),
                 listener,
                 &identity(),
                 handshake_limits(),
                 sample_limits(),
+                TimestampedFloat32SessionLimits::new(1, count).unwrap(),
                 &records,
             )
             .unwrap()
             .finish(&AtomicBool::new(false))
             .unwrap()
         });
-        let report = TimestampedFloat32InletSession::preflight(
+        let report = TimestampedFloat32InletSession::preflight_bounded(
             sample_activation(),
             address,
             &identity(),
             handshake_limits(),
             sample_limits(),
+            TimestampedFloat32SessionLimits::new(1, count).unwrap(),
+            1,
             count,
         )
         .unwrap()
@@ -317,41 +493,152 @@ mod tests {
         worker.join().unwrap();
         report
     }
+    fn correction(count: usize) -> (IntegratedClockCorrectionConfig, thread::JoinHandle<()>) {
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let peer = socket.local_addr().unwrap();
+        let worker = thread::spawn(move || {
+            for _ in 0..count {
+                let mut bytes = [0u8; 256];
+                let (length, source) = socket.recv_from(&mut bytes).unwrap();
+                let text = std::str::from_utf8(&bytes[..length]).unwrap();
+                let mut fields = text.split("\r\n").nth(1).unwrap().split(' ');
+                let id = fields.next().unwrap();
+                let t0 = fields.next().unwrap();
+                socket
+                    .send_to(format!(" {id} {t0} 4.0 4.0").as_bytes(), source)
+                    .unwrap();
+            }
+        });
+        (
+            IntegratedClockCorrectionConfig::new(
+                "127.0.0.1:0".parse().unwrap(),
+                peer,
+                91,
+                1,
+                256,
+                Duration::from_millis(5),
+                Duration::from_secs(2),
+            )
+            .unwrap(),
+            worker,
+        )
+    }
+    fn cancellation<'a>(
+        r: &'a AtomicBool,
+        c: &'a AtomicBool,
+        q: &'a AtomicBool,
+    ) -> BoundedFloat32PipelineCancellation<'a> {
+        BoundedFloat32PipelineCancellation::new(r, c, q)
+    }
 
     #[test]
-    fn p9_non_single_report_is_rejected_with_ownership_before_clock_or_queue() {
-        let report = completed_report(vec![
-            record(0x3ff0_0000_0000_0001, 0x3f80_0001),
-            record(0x4000_0000_0000_0001, 0x4000_0001),
-        ]);
-        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
-        let mut clock = CountingClock(AtomicUsize::new(0));
-        let error = run_float32_inlet_session_report_recovery_clock_queue(
+    fn p4_batch_one_two_and_max_three_preserve_order_bits_and_allocations() {
+        for count in 1..=3 {
+            let report = completed_report((0..count).map(record).collect());
+            let pointers: Vec<_> = report
+                .records()
+                .iter()
+                .map(|r| r.sample().values().as_ptr())
+                .collect();
+            let queue = BoundedSampleQueue::new(queue_activation(), count).unwrap();
+            let (config, responder) = correction(count);
+            let mut clock = SequenceClock {
+                values: (0..count)
+                    .flat_map(|i| [i as f64 * 2.0, i as f64 * 2.0 + 1.0])
+                    .collect(),
+                index: 0,
+            };
+            let off = AtomicBool::new(false);
+            let outcome = run_float32_inlet_session_report_batch_recovery_clock_queue(
+                report,
+                recovery_activation(),
+                policy(),
+                clock_activation(),
+                config,
+                &mut clock,
+                &queue,
+                wait(),
+                cancellation(&off, &off, &off),
+            )
+            .unwrap();
+            assert_eq!(
+                outcome
+                    .completed
+                    .iter()
+                    .map(|o| o.index)
+                    .collect::<Vec<_>>(),
+                (0..count).collect::<Vec<_>>()
+            );
+            for index in 0..count {
+                let queued = queue.try_pop().unwrap();
+                assert_eq!(queued.sample().values().as_ptr(), pointers[index]);
+                assert_eq!(
+                    queued.raw_source_timestamp().value().to_bits(),
+                    0x4008_0000_0000_0100 + index as u64
+                );
+                assert_eq!(
+                    queued.sample().values()[0].to_bits(),
+                    0x3f80_0100 + index as u32
+                );
+            }
+            responder.join().unwrap();
+        }
+    }
+
+    #[test]
+    fn p4_recovery_cancellation_retains_untouched_full_suffix_before_clock_queue() {
+        let report = completed_report((0..3).map(record).collect());
+        let pointers: Vec<_> = report
+            .records()
+            .iter()
+            .map(|r| r.sample().values().as_ptr())
+            .collect();
+        let queue = BoundedSampleQueue::new(queue_activation(), 3).unwrap();
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let config = IntegratedClockCorrectionConfig::new(
+            "127.0.0.1:0".parse().unwrap(),
+            socket.local_addr().unwrap(),
+            91,
+            1,
+            256,
+            Duration::from_millis(1),
+            Duration::from_millis(5),
+        )
+        .unwrap();
+        let mut clock = SequenceClock {
+            values: vec![],
+            index: 0,
+        };
+        let yes = AtomicBool::new(true);
+        let no = AtomicBool::new(false);
+        let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
             report,
             recovery_activation(),
             policy(),
             clock_activation(),
-            config(),
+            config,
             &mut clock,
             &queue,
             wait(),
-            BoundedFloat32PipelineCancellation::new(
-                &AtomicBool::new(false),
-                &AtomicBool::new(false),
-                &AtomicBool::new(false),
-            ),
+            cancellation(&yes, &no, &no),
         )
         .unwrap_err();
         match error {
-            Float32SessionReportPipelineError::RecordCount { actual, report } => {
-                assert_eq!(actual, 2);
-                let records = report.into_records();
-                assert_eq!(records[0].sample().values()[0].to_bits(), 0x3f80_0001);
-                assert_eq!(records[1].sample().values()[0].to_bits(), 0x4000_0001);
+            Float32SessionReportBatchError::NotAcquired {
+                index: 0,
+                termination: Float32SessionReportBatchTermination::Cancelled,
+                completed,
+                remaining,
+                ..
+            } => {
+                assert!(completed.is_empty());
+                assert_eq!(remaining.len(), 3);
+                for i in 0..3 {
+                    assert_eq!(remaining[i].sample().values().as_ptr(), pointers[i]);
+                }
             }
             other => panic!("unexpected error: {other:?}"),
         }
-        assert_eq!(clock.0.load(Ordering::Relaxed), 0);
         assert!(matches!(
             queue.try_pop(),
             Err(BoundedSampleQueuePopError::Empty)
@@ -359,101 +646,226 @@ mod tests {
     }
 
     #[test]
-    fn p9_recovery_cancellation_retains_completed_report_before_acquisition() {
-        let report = completed_report(vec![record(0x3ff8_0000_0000_0001, 0x3fc0_0001)]);
+    fn p4_queue_close_is_indexed_after_completed_prefix_and_retains_current_plus_suffix() {
+        let report = completed_report((0..3).map(record).collect());
+        let suffix_pointer = report.records()[2].sample().values().as_ptr();
         let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
-        let mut clock = CountingClock(AtomicUsize::new(0));
-        let cancelled = AtomicBool::new(true);
+        let (config, responder) = correction(2);
+        let mut clock = SequenceClock {
+            values: vec![0.0, 1.0, 2.0, 3.0],
+            index: 0,
+        };
+        let no = AtomicBool::new(false);
+        let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
+            report,
+            recovery_activation(),
+            policy(),
+            clock_activation(),
+            config,
+            &mut clock,
+            &queue,
+            wait(),
+            cancellation(&no, &no, &no),
+        )
+        .unwrap_err();
+        match error {
+            Float32SessionReportBatchError::Pipeline {
+                index: 1,
+                error:
+                    BoundedFloat32PipelineError::Queue {
+                        error: BoundedSampleQueuePushError::Deadline(sample),
+                        ..
+                    },
+                completed,
+                remaining,
+            } => {
+                assert_eq!(completed.len(), 1);
+                assert_eq!(completed[0].index, 0);
+                assert_eq!(sample.sample().values()[0].to_bits(), 0x3f80_0101);
+                assert_eq!(remaining.len(), 1);
+                assert_eq!(remaining[0].sample().values().as_ptr(), suffix_pointer);
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        responder.join().unwrap();
+        drop(queue.try_pop().unwrap());
+        assert!(matches!(
+            queue.try_pop(),
+            Err(BoundedSampleQueuePopError::Empty)
+        ));
+    }
+
+    #[test]
+    fn p4_clock_cancellation_precedes_queue_and_legacy_one_record_is_unchanged() {
+        let report = completed_report(vec![record(0)]);
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let config = IntegratedClockCorrectionConfig::new(
+            "127.0.0.1:0".parse().unwrap(),
+            socket.local_addr().unwrap(),
+            91,
+            1,
+            256,
+            Duration::from_millis(1),
+            Duration::from_millis(5),
+        )
+        .unwrap();
+        let mut clock = SequenceClock {
+            values: vec![],
+            index: 0,
+        };
+        let no = AtomicBool::new(false);
+        let yes = AtomicBool::new(true);
+        let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
+            report,
+            recovery_activation(),
+            policy(),
+            clock_activation(),
+            config,
+            &mut clock,
+            &queue,
+            wait(),
+            cancellation(&no, &yes, &no),
+        )
+        .unwrap_err();
+        assert!(matches!(
+            error,
+            Float32SessionReportBatchError::Pipeline {
+                index: 0,
+                error: BoundedFloat32PipelineError::Clock { .. },
+                ..
+            }
+        ));
+        assert!(matches!(
+            queue.try_pop(),
+            Err(BoundedSampleQueuePopError::Empty)
+        ));
+
+        let report = completed_report(vec![record(0)]);
         let outcome = run_float32_inlet_session_report_recovery_clock_queue(
             report,
             recovery_activation(),
             policy(),
             clock_activation(),
-            config(),
+            config,
             &mut clock,
             &queue,
             wait(),
-            BoundedFloat32PipelineCancellation::new(
-                &cancelled,
-                &AtomicBool::new(false),
-                &AtomicBool::new(false),
-            ),
+            cancellation(&yes, &no, &no),
         )
         .unwrap();
-        match outcome {
-            Float32SessionReportPipelineOutcome::NotAcquired {
-                report,
-                termination: Float32SessionReportAcquisitionTermination::Cancelled,
-                states,
-            } => {
-                assert_eq!(
-                    states,
-                    vec![FiniteSampleRecoveryState::Cancelled {
-                        completed_attempts: 0,
-                    }]
-                );
-                let records = report.into_records();
-                assert_eq!(
-                    records[0].raw_source_timestamp().value().to_bits(),
-                    0x3ff8_0000_0000_0001
-                );
-                assert_eq!(records[0].sample().values()[0].to_bits(), 0x3fc0_0001);
-            }
-            other => panic!("unexpected outcome: {other:?}"),
-        }
-        assert_eq!(clock.0.load(Ordering::Relaxed), 0);
         assert!(matches!(
-            queue.try_pop(),
-            Err(BoundedSampleQueuePopError::Empty)
+            outcome,
+            Float32SessionReportPipelineOutcome::NotAcquired {
+                termination: Float32SessionReportAcquisitionTermination::Cancelled,
+                ..
+            }
         ));
+        assert!(yes.load(Ordering::Relaxed));
     }
 
     #[test]
-    fn p9_single_owned_record_reaches_pipeline_and_clock_cancellation_bypasses_queue() {
-        let report = completed_report(vec![record(0x4008_0000_0000_0001, 0x7fc0_9009)]);
-        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
-        let mut clock = CountingClock(AtomicUsize::new(0));
-        let error = run_float32_inlet_session_report_recovery_clock_queue(
+    fn p4_recovery_deadline_and_closed_queue_retain_indexed_ownership() {
+        let report = completed_report(vec![record(0), record(1)]);
+        let pointers: Vec<_> = report
+            .records()
+            .iter()
+            .map(|r| r.sample().values().as_ptr())
+            .collect();
+        let queue = BoundedSampleQueue::new(queue_activation(), 2).unwrap();
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let config = IntegratedClockCorrectionConfig::new(
+            "127.0.0.1:0".parse().unwrap(),
+            socket.local_addr().unwrap(),
+            91,
+            1,
+            256,
+            Duration::from_millis(1),
+            Duration::from_millis(5),
+        )
+        .unwrap();
+        let deadline_policy = FiniteSampleRecoveryPolicy::new(
+            1,
+            3,
+            Duration::ZERO,
+            Duration::from_nanos(1),
+            Duration::from_nanos(1),
+        )
+        .unwrap();
+        let mut clock = SequenceClock {
+            values: vec![],
+            index: 0,
+        };
+        let no = AtomicBool::new(false);
+        let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
+            report,
+            recovery_activation(),
+            deadline_policy,
+            clock_activation(),
+            config,
+            &mut clock,
+            &queue,
+            wait(),
+            cancellation(&no, &no, &no),
+        )
+        .unwrap_err();
+        match error {
+            Float32SessionReportBatchError::NotAcquired {
+                index: 0,
+                termination: Float32SessionReportBatchTermination::Deadline,
+                remaining,
+                ..
+            } => {
+                assert_eq!(remaining.len(), 2);
+                assert_eq!(remaining[0].sample().values().as_ptr(), pointers[0]);
+                assert_eq!(remaining[1].sample().values().as_ptr(), pointers[1]);
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+
+        let report = completed_report(vec![record(0), record(1)]);
+        let suffix_pointer = report.records()[1].sample().values().as_ptr();
+        let queue = BoundedSampleQueue::new(queue_activation(), 2).unwrap();
+        queue.close().unwrap();
+        let (config, responder) = correction(1);
+        let mut clock = SequenceClock {
+            values: vec![0.0, 1.0],
+            index: 0,
+        };
+        let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
             report,
             recovery_activation(),
             policy(),
             clock_activation(),
-            config(),
+            config,
             &mut clock,
             &queue,
             wait(),
-            BoundedFloat32PipelineCancellation::new(
-                &AtomicBool::new(false),
-                &AtomicBool::new(true),
-                &AtomicBool::new(false),
-            ),
+            cancellation(&no, &no, &no),
         )
         .unwrap_err();
         match error {
-            Float32SessionReportPipelineError::Pipeline(BoundedFloat32PipelineError::Clock {
-                error: IntegratedClockCorrectionError::Cancelled,
-                sample,
-                states,
-            }) => {
-                assert_eq!(
-                    sample.raw_source_timestamp().value().to_bits(),
-                    0x4008_0000_0000_0001
-                );
-                assert_eq!(sample.sample().values()[0].to_bits(), 0x7fc0_9009);
-                assert_eq!(
-                    states,
-                    vec![
-                        FiniteSampleRecoveryState::Attempting { attempt: 1 },
-                        FiniteSampleRecoveryState::Recovered { attempt: 1 },
-                    ]
-                );
+            Float32SessionReportBatchError::Pipeline {
+                index: 0,
+                error:
+                    BoundedFloat32PipelineError::Queue {
+                        error: BoundedSampleQueuePushError::Closed(sample),
+                        ..
+                    },
+                completed,
+                remaining,
+            } => {
+                assert!(completed.is_empty());
+                assert_eq!(sample.sample().values()[0].to_bits(), 0x3f80_0100);
+                assert_eq!(remaining.len(), 1);
+                assert_eq!(remaining[0].sample().values().as_ptr(), suffix_pointer);
             }
             other => panic!("unexpected error: {other:?}"),
         }
-        assert_eq!(clock.0.load(Ordering::Relaxed), 0);
+        responder.join().unwrap();
         assert!(matches!(
             queue.try_pop(),
-            Err(BoundedSampleQueuePopError::Empty)
+            Err(BoundedSampleQueuePopError::Closed)
         ));
     }
 }
