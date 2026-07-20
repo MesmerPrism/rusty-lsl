@@ -271,7 +271,7 @@ fn p9_float32_session_report_pipeline_adapter_is_public_on_both_facades() {
 }
 
 #[test]
-fn p4_session_batch_boundary_is_concrete_fail_closed_and_revision_33() {
+fn p4_session_batch_boundary_is_concrete_fail_closed_and_current_revision() {
     struct PublicClock;
     impl rusty_lsl::ClockSource for PublicClock {
         fn now(&mut self) -> f64 {
@@ -295,8 +295,8 @@ fn p4_session_batch_boundary_is_concrete_fail_closed_and_revision_33() {
     let _: Option<rusty_lsl::runtime::Float32SessionReportBatchError> = root_error;
     let root_termination: Option<rusty_lsl::Float32SessionReportBatchTermination> = None;
     let _: Option<rusty_lsl::runtime::Float32SessionReportBatchTermination> = root_termination;
-    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 33);
-    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 33);
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 34);
 }
 
 #[test]
