@@ -10,6 +10,7 @@ use crate::{
 };
 use crate::{
     timestamped_float32_session_runtime::{
+        TimestampedFloat32AcceptedOutletSession, TimestampedFloat32ConnectedInletSession,
         TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
         TimestampedFloat32OutletSession, TimestampedFloat32OutletSessionReport,
         TimestampedFloat32SessionCompletion, TimestampedFloat32SessionError,
@@ -143,6 +144,45 @@ pub struct TimestampedFloat32TwoRecordChunkOutletSession<'a> {
     session: TimestampedFloat32OutletSession<'a>,
 }
 
+/// Accepted exact-chunk outlet retaining the sole canonical Float32 stream owner.
+pub struct TimestampedFloat32TwoRecordChunkAcceptedOutletSession<'a> {
+    session: TimestampedFloat32AcceptedOutletSession<'a>,
+}
+
+impl TimestampedFloat32TwoRecordChunkAcceptedOutletSession<'_> {
+    /// Returns the caller-bound local address.
+    pub fn local_address(&self) -> SocketAddr {
+        self.session.local_address()
+    }
+    /// Returns the accepted peer address.
+    pub fn peer_address(&self) -> SocketAddr {
+        self.session.peer_address()
+    }
+    /// Returns the fixed channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.channel_count()
+    }
+    /// Returns the fixed record count.
+    pub fn record_count(&self) -> usize {
+        self.session.record_count()
+    }
+    /// Consumes the canonical owner and returns the existing chunk report wrapper.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedFloat32TwoRecordChunkOutletSessionReport,
+        TimestampedFloat32TwoRecordChunkError,
+    > {
+        let report = self.session.finish(cancelled).map_err(map_session_error)?;
+        Ok(TimestampedFloat32TwoRecordChunkOutletSessionReport { report })
+    }
+    /// Closes the canonical owner without manufacturing completion evidence.
+    pub fn close(self) {
+        self.session.close();
+    }
+}
+
 impl<'a> TimestampedFloat32TwoRecordChunkOutletSession<'a> {
     /// Validates the exact chunk shape before the shared session performs socket I/O.
     pub fn preflight(
@@ -178,16 +218,60 @@ impl<'a> TimestampedFloat32TwoRecordChunkOutletSession<'a> {
         TimestampedFloat32TwoRecordChunkOutletSessionReport,
         TimestampedFloat32TwoRecordChunkError,
     > {
-        let report = self.session.finish(cancelled).map_err(map_session_error)?;
-        debug_assert_eq!(report.channel_count(), 1);
-        debug_assert_eq!(report.record_count(), REQUIRED_RECORDS);
-        Ok(TimestampedFloat32TwoRecordChunkOutletSessionReport { report })
+        self.accept(cancelled)?.finish(cancelled)
+    }
+
+    /// Accepts the peer while retaining lifecycle ownership in the canonical session.
+    pub fn accept(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedFloat32TwoRecordChunkAcceptedOutletSession<'a>,
+        TimestampedFloat32TwoRecordChunkError,
+    > {
+        let session = self.session.accept(cancelled).map_err(map_session_error)?;
+        Ok(TimestampedFloat32TwoRecordChunkAcceptedOutletSession { session })
     }
 }
 
 /// Preflighted inlet owner for exactly one channel and two ordered Float32 records.
 pub struct TimestampedFloat32TwoRecordChunkInletSession<'a> {
     session: TimestampedFloat32InletSession<'a>,
+}
+
+/// Connected exact-chunk inlet retaining the sole canonical Float32 stream owner.
+pub struct TimestampedFloat32TwoRecordChunkConnectedInletSession {
+    session: TimestampedFloat32ConnectedInletSession,
+}
+
+impl TimestampedFloat32TwoRecordChunkConnectedInletSession {
+    /// Returns the caller-selected peer.
+    pub fn peer(&self) -> SocketAddr {
+        self.session.peer()
+    }
+    /// Returns the fixed channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.channel_count()
+    }
+    /// Returns the fixed record count.
+    pub fn record_count(&self) -> usize {
+        self.session.record_count()
+    }
+    /// Consumes the canonical owner and retains the allocation-owned exact chunk.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedFloat32TwoRecordChunkInletSessionReport,
+        TimestampedFloat32TwoRecordChunkError,
+    > {
+        let report = self.session.finish(cancelled).map_err(map_session_error)?;
+        Ok(TimestampedFloat32TwoRecordChunkInletSessionReport { report })
+    }
+    /// Closes the canonical owner without manufacturing completion evidence.
+    pub fn close(self) {
+        self.session.close();
+    }
 }
 
 impl<'a> TimestampedFloat32TwoRecordChunkInletSession<'a> {
@@ -219,10 +303,19 @@ impl<'a> TimestampedFloat32TwoRecordChunkInletSession<'a> {
         TimestampedFloat32TwoRecordChunkInletSessionReport,
         TimestampedFloat32TwoRecordChunkError,
     > {
-        let report = self.session.finish(cancelled).map_err(map_session_error)?;
-        debug_assert_eq!(report.channel_count(), 1);
-        debug_assert_eq!(report.record_count(), REQUIRED_RECORDS);
-        Ok(TimestampedFloat32TwoRecordChunkInletSessionReport { report })
+        self.connect(cancelled)?.finish(cancelled)
+    }
+
+    /// Connects while retaining lifecycle ownership in the canonical session.
+    pub fn connect(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedFloat32TwoRecordChunkConnectedInletSession,
+        TimestampedFloat32TwoRecordChunkError,
+    > {
+        let session = self.session.connect(cancelled).map_err(map_session_error)?;
+        Ok(TimestampedFloat32TwoRecordChunkConnectedInletSession { session })
     }
 }
 
@@ -526,6 +619,8 @@ mod tests {
                 &sent,
             )
             .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap()
             .finish(&AtomicBool::new(false))
             .unwrap()
         });
@@ -536,6 +631,8 @@ mod tests {
             handshake_limits(),
             sample_limits(),
         )
+        .connect(&AtomicBool::new(false))
+        .unwrap()
         .finish(&AtomicBool::new(false))
         .unwrap();
         assert_eq!(report.role(), TimestampedFloat32SessionRole::Inlet);

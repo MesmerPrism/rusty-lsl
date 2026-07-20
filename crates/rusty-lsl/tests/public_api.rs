@@ -283,6 +283,15 @@ fn float32_two_record_chunk_candidate_types_are_public() {
             > 0
     );
     assert!(
+        core::mem::size_of::<
+            rusty_lsl::TimestampedFloat32TwoRecordChunkAcceptedOutletSession<'static>,
+        >() > 0
+    );
+    assert!(
+        core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkConnectedInletSession>()
+            > 0
+    );
+    assert!(
         core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkOutletSessionReport>() > 0
     );
     assert!(
@@ -294,6 +303,11 @@ fn float32_two_record_chunk_candidate_types_are_public() {
     let _root_inlet = rusty_lsl::TimestampedFloat32TwoRecordChunkInletSession::preflight;
     let _runtime_inlet =
         rusty_lsl::runtime::TimestampedFloat32TwoRecordChunkInletSession::preflight;
+    let _root_accept = rusty_lsl::TimestampedFloat32TwoRecordChunkOutletSession::accept;
+    let _runtime_accept = rusty_lsl::runtime::TimestampedFloat32TwoRecordChunkOutletSession::accept;
+    let _root_connect = rusty_lsl::TimestampedFloat32TwoRecordChunkInletSession::connect;
+    let _runtime_connect =
+        rusty_lsl::runtime::TimestampedFloat32TwoRecordChunkInletSession::connect;
 }
 
 #[test]

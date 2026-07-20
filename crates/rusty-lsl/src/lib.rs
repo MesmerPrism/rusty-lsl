@@ -351,7 +351,9 @@ pub use timestamped_float32_session_runtime::{
 };
 pub use timestamped_float32_two_record_chunk_runtime::{
     run_timestamped_float32_two_record_chunk_inlet,
-    run_timestamped_float32_two_record_chunk_outlet, TimestampedFloat32TwoRecordChunkError,
+    run_timestamped_float32_two_record_chunk_outlet,
+    TimestampedFloat32TwoRecordChunkAcceptedOutletSession,
+    TimestampedFloat32TwoRecordChunkConnectedInletSession, TimestampedFloat32TwoRecordChunkError,
     TimestampedFloat32TwoRecordChunkInletSession,
     TimestampedFloat32TwoRecordChunkInletSessionReport, TimestampedFloat32TwoRecordChunkLimitError,
     TimestampedFloat32TwoRecordChunkLimits, TimestampedFloat32TwoRecordChunkOutletSession,

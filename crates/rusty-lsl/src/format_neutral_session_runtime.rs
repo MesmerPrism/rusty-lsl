@@ -169,6 +169,18 @@ impl<T> CompletedInletSession<T> {
     }
 }
 
+#[derive(Debug, Eq, PartialEq)]
+pub(crate) enum TransferError<E> {
+    Overrun { declared: usize },
+    Session(E),
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct PrematureCompletion {
+    pub(crate) completed: usize,
+    pub(crate) declared: usize,
+}
+
 struct SessionStream(Option<TcpStream>);
 
 impl Drop for SessionStream {
@@ -182,6 +194,9 @@ pub(crate) struct ConnectedInletSession<F: SealedSessionStrategy> {
     peer: SocketAddr,
     limits: F::Limits,
     shape: SessionShape,
+    initialized: bool,
+    cursor: usize,
+    records: Vec<F::Sample>,
     strategy: PhantomData<F>,
 }
 
@@ -191,6 +206,8 @@ pub(crate) struct AcceptedOutletSession<F: SealedSessionStrategy> {
     peer: SocketAddr,
     limits: F::Limits,
     shape: SessionShape,
+    initialized: bool,
+    cursor: usize,
     strategy: PhantomData<F>,
 }
 
@@ -212,25 +229,60 @@ impl<F: SealedSessionStrategy> AcceptedOutletSession<F> {
         records: &[F::Sample],
         cancelled: &AtomicBool,
     ) -> Result<CompletedOutletSession, F::SessionError> {
-        let socket = self.stream.0.as_mut().expect("session stream is present");
-        F::write_initialization(socket, self.shape.channels(), self.limits, cancelled)
-            .map_err(|error| F::record_error(None, error))?;
-        for (index, record) in records.iter().enumerate() {
-            F::write_record(
-                socket,
-                record,
-                self.shape.channels(),
-                self.limits,
-                cancelled,
-            )
-            .map_err(|error| F::record_error(Some(index), error))?;
+        for record in records {
+            match self.transfer_next(record, cancelled) {
+                Ok(()) => {}
+                Err(TransferError::Session(error)) => return Err(error),
+                Err(TransferError::Overrun { .. }) => unreachable!("preflighted shape drift"),
+            }
         }
+        self.require_complete()
+            .expect("preflighted records complete the canonical shape");
         terminal_close(self.stream.0.take());
         Ok(CompletedOutletSession {
             local: self.local,
             peer: self.peer,
             shape: self.shape,
         })
+    }
+
+    pub(crate) fn require_complete(&self) -> Result<(), PrematureCompletion> {
+        if self.cursor == self.shape.records() {
+            Ok(())
+        } else {
+            Err(PrematureCompletion {
+                completed: self.cursor,
+                declared: self.shape.records(),
+            })
+        }
+    }
+
+    pub(crate) fn transfer_next(
+        &mut self,
+        record: &F::Sample,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TransferError<F::SessionError>> {
+        if self.cursor == self.shape.records() {
+            return Err(TransferError::Overrun {
+                declared: self.shape.records(),
+            });
+        }
+        let socket = self.stream.0.as_mut().expect("session stream is present");
+        if !self.initialized {
+            F::write_initialization(socket, self.shape.channels(), self.limits, cancelled)
+                .map_err(|error| TransferError::Session(F::record_error(None, error)))?;
+            self.initialized = true;
+        }
+        F::write_record(
+            socket,
+            record,
+            self.shape.channels(),
+            self.limits,
+            cancelled,
+        )
+        .map_err(|error| TransferError::Session(F::record_error(Some(self.cursor), error)))?;
+        self.cursor += 1;
+        Ok(())
     }
 
     pub(crate) fn close(mut self) {
@@ -251,22 +303,55 @@ impl<F: SealedSessionStrategy> ConnectedInletSession<F> {
         mut self,
         cancelled: &AtomicBool,
     ) -> Result<CompletedInletSession<F::Sample>, F::SessionError> {
-        let socket = self.stream.0.as_mut().expect("session stream is present");
-        F::read_initialization(socket, self.shape.channels(), self.limits, cancelled)
-            .map_err(|error| F::record_error(None, error))?;
-        let mut records = Vec::with_capacity(self.shape.records());
-        for index in 0..self.shape.records() {
-            records.push(
-                F::read_record(socket, self.shape.channels(), self.limits, cancelled)
-                    .map_err(|error| F::record_error(Some(index), error))?,
-            );
+        while self.cursor < self.shape.records() {
+            match self.transfer_next(cancelled) {
+                Ok(()) => {}
+                Err(TransferError::Session(error)) => return Err(error),
+                Err(TransferError::Overrun { .. }) => unreachable!("canonical cursor drift"),
+            }
         }
+        self.require_complete()
+            .expect("the canonical inlet cursor reached its declared count");
+        let socket = self.stream.0.as_mut().expect("session stream is present");
         require_peer_close::<F>(socket, self.limits, cancelled)?;
         terminal_close(self.stream.0.take());
         Ok(CompletedInletSession {
-            records,
+            records: self.records,
             shape: self.shape,
         })
+    }
+
+    pub(crate) fn require_complete(&self) -> Result<(), PrematureCompletion> {
+        if self.cursor == self.shape.records() {
+            Ok(())
+        } else {
+            Err(PrematureCompletion {
+                completed: self.cursor,
+                declared: self.shape.records(),
+            })
+        }
+    }
+
+    pub(crate) fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TransferError<F::SessionError>> {
+        if self.cursor == self.shape.records() {
+            return Err(TransferError::Overrun {
+                declared: self.shape.records(),
+            });
+        }
+        let socket = self.stream.0.as_mut().expect("session stream is present");
+        if !self.initialized {
+            F::read_initialization(socket, self.shape.channels(), self.limits, cancelled)
+                .map_err(|error| TransferError::Session(F::record_error(None, error)))?;
+            self.initialized = true;
+        }
+        let record = F::read_record(socket, self.shape.channels(), self.limits, cancelled)
+            .map_err(|error| TransferError::Session(F::record_error(Some(self.cursor), error)))?;
+        self.records.push(record);
+        self.cursor += 1;
+        Ok(())
     }
 
     pub(crate) fn close(mut self) {
@@ -289,6 +374,9 @@ pub(crate) fn connect_inlet<F: SealedSessionStrategy>(
         peer,
         limits: format_limits,
         shape,
+        initialized: false,
+        cursor: 0,
+        records: Vec::with_capacity(shape.records()),
         strategy: PhantomData,
     })
 }
@@ -335,6 +423,8 @@ pub(crate) fn accept_outlet<F: SealedSessionStrategy>(
         peer,
         limits: format_limits,
         shape,
+        initialized: false,
+        cursor: 0,
         strategy: PhantomData,
     })
 }

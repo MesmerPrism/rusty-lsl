@@ -1,5 +1,12 @@
 # Validation
 
+The phased Float32 transfer candidate maps H01-H20 through the focused chunk
+and session tests, `public_api`, activation-closure checks, and the serialized
+Standard owner profile. Host-synthetic coverage includes exact bits/order,
+allocation-preserving inlet projection, phased finish and report-free close,
+typed damage/cancellation/deadline inheritance, cleanup, and immediate port
+reuse. Workflow/publication and any acceptance decision remain separate owners.
+
 LSLC-007P host-synthetic H01-H16 qualification covers public/private ownership,
 socket-free preflight, explicit accept facts, exact one- and multi-record bits,
 legacy delegation, report-free close, cancellation/deadline/damage inheritance,

@@ -1,5 +1,12 @@
 # Rusty LSL Agent Notes
 
+The sole crate-private format-neutral lifecycle owns phased bounded transfer:
+one-time initialization, the canonical exact-count cursor, successful-only
+record advancement, overrun rejection before extra I/O, and consuming
+completion facts. The exact one-channel/two-record Float32 chunk lifecycle is
+the first public proof; accepted/connected owners retain the stream and close
+or drop without reports. Activation remains explicit and default-disabled.
+
 The accepted Float32 outlet lifecycle is phased into caller-explicit preflight,
 accepted stream ownership, and canonical completion beneath the sole private
 format-neutral engine. The accepted owner retains the stream and supports

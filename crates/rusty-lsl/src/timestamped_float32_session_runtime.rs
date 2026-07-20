@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Rusty LSL contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! Bounded one- or two-record Float32 outlet/inlet session ownership.
+//! Bounded Float32 facades over the sole phased format-neutral transfer owner.
 
 use crate::format_neutral_session_runtime::{
     accept_outlet, connect_inlet, finish_inlet, finish_outlet, preflight_outlet_shape,

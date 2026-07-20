@@ -1,5 +1,11 @@
 # Rusty LSL
 
+The sole crate-private format-neutral lifecycle now owns one-time initialization,
+the exact bounded record cursor, per-record successful advancement, and
+exact-count completion. The exact one-channel/two-record Float32 chunk facade
+is the first public phased proof, with accepted/connected stream owners,
+canonical consuming reports, and report-free close/drop.
+
 The bounded Float32 outlet session now exposes a caller-explicit accepted
 state between preflight and its canonical consuming completion report. The
 same private lifecycle owner retains the connected stream, supports report-free

@@ -1,5 +1,12 @@
 # Architecture
 
+The format-neutral session engine is the sole transfer owner. After handshake
+it initializes the selected sealed strategy exactly once, retains one canonical
+zero-based cursor, advances only after a successful record operation, rejects
+overrun before socket access, and permits completion facts only at the declared
+count. Float32 exposes the first bounded projection through the exact 1x2 chunk
+accepted-outlet and connected-inlet states; no strategy or socket is public.
+
 LSLC-007P phases the bounded Float32 outlet into preflight, accepted-stream,
 and completed-report states over one crate-private format-neutral lifecycle.
 The accepted state exclusively retains the guarded socket and may be consumed
