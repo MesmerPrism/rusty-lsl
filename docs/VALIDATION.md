@@ -1,5 +1,25 @@
 # Validation
 
+The observable batch-health milestone requires focused host evidence that a
+borrowed successful outcome and every owner-preserving batch error produce one
+immutable Float32 snapshot without moving or duplicating retained allocations.
+Qualification covers exact total/completed/remaining accounting, presence of
+the current index only for indexed errors, and all nine classifications:
+`complete`, `empty-report`, `cancelled`, `deadline`, `terminal`, `exhausted`,
+`recovery-error`, `pipeline-error`, and `invariant`. Cases must demonstrate
+outer batch-result precedence, then nested termination precedence, then count
+derivation from exact retained lengths; cancellation, deadline, terminal,
+exhausted, recovery, clock, and queue evidence remains in its existing owner.
+Legacy report-batch regression and the concrete public boundary remain
+required.
+
+These checks establish deterministic completion and loss/termination facts,
+not estimated packet loss, health thresholds, monitoring policy, background
+monitoring, automatic recovery or queue policy, another format, device/oracle
+behavior, activation, or Manifold authority. Revision 33 remains explicit and
+default-disabled; this documentation lane does not change its bytes or any
+workflow/planning state.
+
 The frozen P4 session-batch milestone broadens only the existing concrete
 Float32 completed-session-report recovery/clock/queue composition. Its public
 boundary is checked at the crate root and `runtime` facade by:

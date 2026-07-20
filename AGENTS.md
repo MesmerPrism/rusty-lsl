@@ -1,5 +1,17 @@
 # Rusty LSL Agent Notes
 
+The Float32 report-batch health surface is an immutable borrowed projection of
+the existing successful outcome or owner-preserving batch error. It reports
+exact total/completed/remaining counts, an existing zero-based current index
+where present, and exactly one classification: complete, empty-report,
+cancelled, deadline, terminal, exhausted, recovery-error, pipeline-error, or
+invariant. Precedence is the existing outer batch result variant, then the
+existing termination variant, then exact retained lengths. It neither moves
+nor duplicates retained allocations or failure evidence and adds no estimated
+packet loss, thresholds, monitoring, policy, background work, format, device,
+oracle, activation, or Manifold authority; revision 33 remains explicit and
+default-disabled.
+
 The completed Float32 inlet-report batch facade uses the report's actual
 `record_count()` as its exact retained extent and delegates records
 sequentially through the sole recovery/clock/queue owner. Successful record

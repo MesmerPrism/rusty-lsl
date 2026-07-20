@@ -1,5 +1,17 @@
 # Rusty LSL
 
+The concrete Float32 report-batch health projection borrows either the
+successful batch outcome or the owner-preserving batch error and returns an
+immutable snapshot; it does not move, clone, or reinterpret retained records,
+failures, or recovery states. The snapshot reports exact total, completed, and
+remaining counts, the current zero-based index only when the batch error has
+one, and exactly one of `complete`, `empty-report`, `cancelled`, `deadline`,
+`terminal`, `exhausted`, `recovery-error`, `pipeline-error`, or `invariant`.
+Classification follows the existing batch result variant first, the existing
+termination variant second, and exact retained lengths last. It estimates no
+packet loss and adds no threshold, monitoring, recovery, queue, format,
+activation, device, oracle, or Manifold policy or authority.
+
 One private allocation-free selected-response contract now validates concrete
 format, channel count, UID, hostname, source ID, and session ID before session
 preflight and TCP. Six concrete Float32, Double64, Int32, Int16, Int8, and

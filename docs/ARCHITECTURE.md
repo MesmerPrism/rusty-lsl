@@ -1,5 +1,28 @@
 # Architecture
 
+Batch health is a borrowed observation over the existing concrete Float32
+report-batch result, not another lifecycle or evidence owner. A successful
+outcome yields `complete`, with total and completed equal to the existing
+completed-outcome length and remaining equal to zero. `EmptyReport` yields
+`empty-report` with all three counts zero. For indexed errors, completed is the
+existing completed-prefix length and the current index is the error's existing
+index: `NotAcquired` maps its termination to `cancelled`, `deadline`,
+`terminal`, or `exhausted`, and its remaining count includes the untouched
+current record and suffix; `Recovery` maps to `recovery-error` with the same
+remaining convention; `Pipeline` maps to `pipeline-error` and derives its
+remaining count from the current record retained by its existing error plus
+the untouched suffix. `Invariant` maps to `invariant` and likewise counts the
+indexed current position plus the exact remaining evidence retained by that
+existing error. For every indexed result, total equals completed plus
+remaining; no loss estimate fills a gap.
+
+The projection resolves the outer batch result variant before any nested
+termination variant and derives counts only after that classification. Thus
+terminal and exhausted failure evidence remains in the recovery owner's
+existing variant, while clock/queue evidence remains in the existing pipeline
+error. Borrowing preserves allocation identity and record order; the snapshot
+owns no records, states, failures, policy, thresholds, or background work.
+
 Caller-selected discovery resolution has one crate-private, allocation-free
 contract validator. Concrete adapters enforce endpoint, then format/channel
 shape and UID/hostname/source-ID/session-ID identity, then existing session
