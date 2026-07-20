@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+LSLC-007Y adds only concrete caller-selected typed-discovery response/run-index
+adapters into the existing phased Int32, Int16, and Int8 connected inlet
+owners. Endpoint projection precedes socket-free preflight, which precedes the
+sole existing session lifecycle; only the accepted 1x1 and 2x3 shapes remain
+available. The caller retains discovery execution, selection, identity,
+cancellation, deadlines, and activation. No generic public strategy, new
+capability, automatic selection, retry, device behavior, or Manifold authority
+is added, and activation remains explicit and default-disabled.
+
 The accepted Int32, Int16, and Int8 shapes now expose concrete phased
 accepted-outlet and connected-inlet owners for caller-driven transfer, exact
 completion, or report-free close. The sole crate-private format-neutral

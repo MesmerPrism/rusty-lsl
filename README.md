@@ -1,5 +1,13 @@
 # Rusty LSL
 
+The bounded integer discovery composition exposes concrete Int32, Int16, and
+Int8 entrypoints from one caller-selected completed typed discovery response
+to the existing phased connected inlet owners. It preserves endpoint,
+preflight, and session error precedence and admits only the evidenced 1x1 and
+2x3 shapes. Discovery policy, selection, identity, lifecycle, allocation, and
+activation retain their existing owners; activation remains explicit and
+default-disabled.
+
 The concrete Int32, Int16, and Int8 sessions now expose accepted-outlet and
 connected-inlet phases for only the accepted one-channel/one-record and
 two-channel/three-record shapes. Callers may advance the sole private cursor,

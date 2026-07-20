@@ -1,5 +1,13 @@
 # Architecture
 
+The integer discovery-to-session seam is a thin concrete adapter family. It
+borrows the caller-owned completed discovery run and selected receive-order
+index, strictly projects the endpoint, performs the existing format-specific
+socket-free preflight, and returns the existing Int32, Int16, or Int8 connected
+inlet owner. The private format-neutral lifecycle remains the sole stream,
+cursor, record-allocation, completion, terminal-close, and cleanup owner; no
+generic public discovery/session strategy is introduced.
+
 Concrete phased Int32, Int16, and Int8 sessions contain the same private
 format-neutral accepted/connected lifecycle owners used by the other formats.
 The outlet owner borrows the original typed caller slice; the inlet lifecycle
