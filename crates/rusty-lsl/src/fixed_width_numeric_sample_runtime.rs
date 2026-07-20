@@ -1,6 +1,6 @@
 // Copyright (C) 2026 Rusty LSL contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
-//! Bounded one-record runtime for four observed fixed-width numeric formats.
+//! Bounded runtime for the closed fixed-width numeric formats.
 
 use crate::timestamped_float32_session_runtime::{
     finish_fixed_width_integer_inlet_session, finish_fixed_width_integer_outlet_session,
@@ -40,6 +40,8 @@ pub enum FixedWidthNumericValue {
     Double64(f64),
     /// Signed 32-bit integer.
     Int32(i32),
+    /// Signed 64-bit integer.
+    Int64(i64),
     /// Signed 16-bit integer.
     Int16(i16),
     /// Signed 8-bit integer.
@@ -51,6 +53,7 @@ impl FixedWidthNumericValue {
         match self {
             Self::Double64(_) => "double64",
             Self::Int32(_) => "int32",
+            Self::Int64(_) => "int64",
             Self::Int16(_) => "int16",
             Self::Int8(_) => "int8",
         }
@@ -60,6 +63,7 @@ impl FixedWidthNumericValue {
         match self {
             Self::Double64(_) => 8,
             Self::Int32(_) => 4,
+            Self::Int64(_) => 8,
             Self::Int16(_) => 2,
             Self::Int8(_) => 1,
         }
@@ -72,6 +76,7 @@ impl FixedWidthNumericValue {
         match self {
             Self::Double64(v) => v.to_le_bytes().to_vec(),
             Self::Int32(v) => v.to_le_bytes().to_vec(),
+            Self::Int64(v) => v.to_le_bytes().to_vec(),
             Self::Int16(v) => v.to_le_bytes().to_vec(),
             Self::Int8(v) => v.to_le_bytes().to_vec(),
         }
@@ -83,6 +88,10 @@ impl FixedWidthNumericValue {
                 hex(&[0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x70, 0x41]),
             ],
             Self::Int32(_) => [hex(&[5, 0, 1, 0]), hex(&[3, 0, 1, 0])],
+            Self::Int64(_) => [
+                hex(&[5, 0, 1, 0, 0, 0, 0, 0]),
+                hex(&[3, 0, 1, 0, 0, 0, 0, 0]),
+            ],
             Self::Int16(_) => [hex(&[5, 1]), hex(&[3, 1])],
             Self::Int8(_) => [hex(&[5]), hex(&[3])],
         }
@@ -96,6 +105,10 @@ impl FixedWidthNumericValue {
             Self::Int32(_) => [
                 [Self::Int32(65_541), Self::Int32(-65_542)],
                 [Self::Int32(65_539), Self::Int32(-65_540)],
+            ],
+            Self::Int64(_) => [
+                [Self::Int64(65_541), Self::Int64(-65_542)],
+                [Self::Int64(65_539), Self::Int64(-65_540)],
             ],
             Self::Int16(_) => [
                 [Self::Int16(261), Self::Int16(-262)],
@@ -111,6 +124,7 @@ impl FixedWidthNumericValue {
         match template {
             Self::Double64(_) => Self::Double64(f64::from_le_bytes(b.try_into().unwrap())),
             Self::Int32(_) => Self::Int32(i32::from_le_bytes(b.try_into().unwrap())),
+            Self::Int64(_) => Self::Int64(i64::from_le_bytes(b.try_into().unwrap())),
             Self::Int16(_) => Self::Int16(i16::from_le_bytes(b.try_into().unwrap())),
             Self::Int8(_) => Self::Int8(i8::from_le_bytes(b.try_into().unwrap())),
         }
@@ -803,9 +817,33 @@ mod tests {
         .unwrap()
     }
     #[test]
+    fn p29_int64_codec_is_exact_signed_little_endian_at_both_boundaries() {
+        for value in [i64::MIN, -1, 0, 1, i64::MAX] {
+            let fixed = FixedWidthNumericValue::Int64(value);
+            assert_eq!(fixed.width(), 8);
+            assert_eq!(fixed.bytes(), value.to_le_bytes());
+            assert_eq!(
+                FixedWidthNumericValue::from_bytes(
+                    FixedWidthNumericValue::Int64(0),
+                    &value.to_le_bytes(),
+                ),
+                fixed
+            );
+        }
+        assert_eq!(
+            FixedWidthNumericValue::Int64(i64::MIN).bytes(),
+            [0, 0, 0, 0, 0, 0, 0, 0x80]
+        );
+        assert_eq!(
+            FixedWidthNumericValue::Int64(i64::MAX).bytes(),
+            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f]
+        );
+    }
+    #[test]
     fn lslc_003b_four_formats_preserve_timestamp_value_and_cleanup() {
         for value in [
             FixedWidthNumericValue::Double64(f64::from_bits(0x4009_21fb_5444_2d18)),
+            FixedWidthNumericValue::Int64(i64::MIN + 7),
             FixedWidthNumericValue::Int32(i32::MIN + 7),
             FixedWidthNumericValue::Int16(i16::MIN + 7),
             FixedWidthNumericValue::Int8(i8::MIN + 7),
@@ -932,6 +970,20 @@ mod tests {
                     FixedWidthNumericValue::Int32(-6),
                 ],
             ],
+            FixedWidthNumericValue::Int64(_) => [
+                [
+                    FixedWidthNumericValue::Int64(i64::MIN + 1),
+                    FixedWidthNumericValue::Int64(i64::MAX),
+                ],
+                [
+                    FixedWidthNumericValue::Int64(3),
+                    FixedWidthNumericValue::Int64(-4),
+                ],
+                [
+                    FixedWidthNumericValue::Int64(5),
+                    FixedWidthNumericValue::Int64(-6),
+                ],
+            ],
             FixedWidthNumericValue::Int16(_) => [
                 [
                     FixedWidthNumericValue::Int16(i16::MIN + 1),
@@ -973,6 +1025,7 @@ mod tests {
     fn lslc_003p_four_formats_preserve_two_channels_three_records_and_cleanup() {
         for template in [
             FixedWidthNumericValue::Double64(0.0),
+            FixedWidthNumericValue::Int64(0),
             FixedWidthNumericValue::Int32(0),
             FixedWidthNumericValue::Int16(0),
             FixedWidthNumericValue::Int8(0),
@@ -1117,6 +1170,7 @@ mod tests {
     fn lslc_003p_truncation_is_addressable_for_every_accepted_width() {
         for template in [
             FixedWidthNumericValue::Double64(0.0),
+            FixedWidthNumericValue::Int64(0),
             FixedWidthNumericValue::Int32(0),
             FixedWidthNumericValue::Int16(0),
             FixedWidthNumericValue::Int8(0),
@@ -1175,6 +1229,7 @@ mod tests {
     fn lslc_003p_width_shift_retains_marker_error_ownership_and_cleanup() {
         for template in [
             FixedWidthNumericValue::Double64(0.0),
+            FixedWidthNumericValue::Int64(0),
             FixedWidthNumericValue::Int32(0),
             FixedWidthNumericValue::Int16(0),
             FixedWidthNumericValue::Int8(0),

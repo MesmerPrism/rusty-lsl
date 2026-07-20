@@ -1534,6 +1534,15 @@ impl SealedIntegerValue for i32 {
         i32::from_le_bytes(bytes.try_into().expect("fixed Int32 width"))
     }
 }
+impl SealedIntegerValue for i64 {
+    const TEMPLATE: FixedWidthNumericValue = FixedWidthNumericValue::Int64(0);
+    fn to_fixed(self) -> FixedWidthNumericValue {
+        FixedWidthNumericValue::Int64(self)
+    }
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        i64::from_le_bytes(bytes.try_into().expect("fixed Int64 width"))
+    }
+}
 impl SealedIntegerValue for i16 {
     const TEMPLATE: FixedWidthNumericValue = FixedWidthNumericValue::Int16(0);
     fn to_fixed(self) -> FixedWidthNumericValue {
@@ -1993,6 +2002,24 @@ fixed_width_integer_session_facade!(
     TimestampedInt32AcceptedOutletSession,
     TimestampedInt32InletSession,
     TimestampedInt32ConnectedInletSession
+);
+fixed_width_integer_session_facade!(
+    i64,
+    Int64,
+    TimestampedInt64SessionLimits,
+    TimestampedInt64SessionLimitError,
+    TimestampedInt64SessionIoLimits,
+    TimestampedInt64SessionIoLimitError,
+    TimestampedInt64SessionPreflightError,
+    TimestampedInt64SessionError,
+    TimestampedInt64SessionTransferError,
+    TimestampedInt64SessionIncomplete,
+    TimestampedInt64OutletSessionReport,
+    TimestampedInt64InletSessionReport,
+    TimestampedInt64OutletSession,
+    TimestampedInt64AcceptedOutletSession,
+    TimestampedInt64InletSession,
+    TimestampedInt64ConnectedInletSession
 );
 fixed_width_integer_session_facade!(
     i16,
@@ -3866,6 +3893,14 @@ mod tests {
     }
 
     integer_facade_host_test!(
+        p29_integer_session_int64_preserves_typed_records_reports_bits_and_cleanup,
+        i64,
+        TimestampedInt64OutletSession,
+        TimestampedInt64InletSession,
+        TimestampedInt64SessionLimits,
+        [[i64::MIN + 1, i64::MAX], [3, -4], [5, -6]]
+    );
+    integer_facade_host_test!(
         p10_integer_session_int32_preserves_typed_records_reports_bits_and_cleanup,
         i32,
         TimestampedInt32OutletSession,
@@ -3986,6 +4021,19 @@ mod tests {
     }
 
     phased_integer_facade_host_test!(
+        p29_phased_int64_preserves_owner_bits_order_and_reuse,
+        i64,
+        TimestampedInt64OutletSession,
+        TimestampedInt64InletSession,
+        TimestampedInt64SessionLimits,
+        TimestampedInt64SessionTransferError,
+        [
+            [i64::MIN + 2, i64::MAX - 2],
+            [0x1020_3040_5060_7080, -0x1020_3040_5060_7080],
+            [7, -9]
+        ]
+    );
+    phased_integer_facade_host_test!(
         p22_phased_int32_preserves_owner_bits_order_and_reuse,
         i32,
         TimestampedInt32OutletSession,
@@ -4055,6 +4103,7 @@ mod tests {
             }};
         }
 
+        assert_integer_shape!(TimestampedInt64InletSession, TimestampedInt64SessionLimits);
         assert_integer_shape!(TimestampedInt32InletSession, TimestampedInt32SessionLimits);
         assert_integer_shape!(TimestampedInt16InletSession, TimestampedInt16SessionLimits);
         assert_integer_shape!(TimestampedInt8InletSession, TimestampedInt8SessionLimits);
