@@ -6,11 +6,23 @@
 use crate::{
     propose_typed_udp_discovery_ipv4_service_endpoint, FixedWidthNumericSampleActivation,
     StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedDouble64ConnectedInletSession,
-    TimestampedDouble64InletSession, TimestampedDouble64SessionError,
-    TimestampedDouble64SessionIoLimits, TimestampedDouble64SessionLimits,
-    TimestampedDouble64SessionPreflightError, TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
+    TimestampedDouble64InletSession, TimestampedDouble64InletSessionReport,
+    TimestampedDouble64SessionError, TimestampedDouble64SessionIoLimits,
+    TimestampedDouble64SessionLimits, TimestampedDouble64SessionPreflightError,
+    TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
 };
 use std::sync::atomic::AtomicBool;
+
+/// Failure from the caller-selected discovery-to-Double64 session composition.
+#[derive(Debug, Eq, PartialEq)]
+pub enum TypedUdpDiscoveryDouble64SessionConnectionError {
+    /// Strict projection of the caller-selected response failed.
+    Endpoint(TypedUdpDiscoveryEndpointError),
+    /// The selected endpoint or requested shape failed bounded session preflight.
+    Preflight(TimestampedDouble64SessionPreflightError),
+    /// Connect, transfer, terminal close, or cleanup failed.
+    Session(TimestampedDouble64SessionError),
+}
 
 /// Projects one caller-selected completed discovery response and connects one bounded inlet.
 ///
@@ -31,15 +43,11 @@ pub fn connect_selected_typed_udp_discovery_double64_session_inlet(
     channel_count: usize,
     record_count: usize,
     session_cancelled: &AtomicBool,
-) -> Result<
-    Result<
-        Result<TimestampedDouble64ConnectedInletSession, TimestampedDouble64SessionError>,
-        TimestampedDouble64SessionPreflightError,
-    >,
-    TypedUdpDiscoveryEndpointError,
-> {
-    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)?;
-    let session = match TimestampedDouble64InletSession::preflight_bounded(
+) -> Result<TimestampedDouble64ConnectedInletSession, TypedUdpDiscoveryDouble64SessionConnectionError>
+{
+    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
+        .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Endpoint)?;
+    let session = TimestampedDouble64InletSession::preflight_bounded(
         session_activation,
         endpoint.into(),
         expected_identity,
@@ -48,11 +56,42 @@ pub fn connect_selected_typed_udp_discovery_double64_session_inlet(
         session_limits,
         channel_count,
         record_count,
-    ) {
-        Ok(session) => session,
-        Err(error) => return Ok(Err(error)),
-    };
-    Ok(Ok(session.connect(session_cancelled)))
+    )
+    .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Preflight)?;
+    session
+        .connect(session_cancelled)
+        .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Session)
+}
+
+/// Runs the selected bounded Double64 inlet to its canonical completion report.
+#[allow(clippy::too_many_arguments)]
+pub fn run_selected_typed_udp_discovery_double64_session_inlet(
+    discovery: &TypedUdpDiscoveryRun,
+    response_index: usize,
+    session_activation: FixedWidthNumericSampleActivation,
+    expected_identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: TimestampedDouble64SessionIoLimits,
+    session_limits: TimestampedDouble64SessionLimits,
+    channel_count: usize,
+    record_count: usize,
+    session_cancelled: &AtomicBool,
+) -> Result<TimestampedDouble64InletSessionReport, TypedUdpDiscoveryDouble64SessionConnectionError>
+{
+    connect_selected_typed_udp_discovery_double64_session_inlet(
+        discovery,
+        response_index,
+        session_activation,
+        expected_identity,
+        handshake_limits,
+        io_limits,
+        session_limits,
+        channel_count,
+        record_count,
+        session_cancelled,
+    )?
+    .finish(session_cancelled)
+    .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Session)
 }
 
 #[cfg(test)]
@@ -244,8 +283,6 @@ mod tests {
             count,
             &AtomicBool::new(false),
         )
-        .unwrap()
-        .unwrap()
         .unwrap();
         assert_eq!(discovery.responses().len(), 1);
         assert_eq!(connected.peer(), endpoint);
@@ -296,10 +333,12 @@ mod tests {
                 3,
                 &AtomicBool::new(false),
             ),
-            Err(TypedUdpDiscoveryEndpointError::ResponseUnavailable {
-                index: 1,
-                response_count: 1
-            })
+            Err(TypedUdpDiscoveryDouble64SessionConnectionError::Endpoint(
+                TypedUdpDiscoveryEndpointError::ResponseUnavailable {
+                    index: 1,
+                    response_count: 1
+                }
+            ))
         ));
         assert!(matches!(
             connect_selected_typed_udp_discovery_double64_session_inlet(
@@ -314,7 +353,7 @@ mod tests {
                 3,
                 &AtomicBool::new(false),
             ),
-            Ok(Err(
+            Err(TypedUdpDiscoveryDouble64SessionConnectionError::Preflight(
                 TimestampedDouble64SessionPreflightError::ChannelCount {
                     index: 0,
                     actual: 3

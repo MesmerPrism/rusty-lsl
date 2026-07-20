@@ -366,7 +366,11 @@ pub use timestamped_float32_two_record_chunk_runtime::{
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
 };
-pub use typed_udp_discovery_double64_session_connection::connect_selected_typed_udp_discovery_double64_session_inlet;
+pub use typed_udp_discovery_double64_session_connection::{
+    connect_selected_typed_udp_discovery_double64_session_inlet,
+    run_selected_typed_udp_discovery_double64_session_inlet,
+    TypedUdpDiscoveryDouble64SessionConnectionError,
+};
 pub use typed_udp_discovery_endpoint::{
     propose_typed_udp_discovery_ipv4_service_endpoint, TypedUdpDiscoveryEndpointError,
 };

@@ -466,9 +466,13 @@ fn p18_discovery_to_phased_float32_connection_is_public_on_both_facades() {
 
 #[test]
 fn p20_discovery_to_phased_double64_connection_is_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryDouble64SessionConnectionError>() > 0);
     let _root_connect = rusty_lsl::connect_selected_typed_udp_discovery_double64_session_inlet;
     let _runtime_connect = runtime::connect_selected_typed_udp_discovery_double64_session_inlet;
     same_type(&_root_connect, &_runtime_connect);
+    let _root_run = rusty_lsl::run_selected_typed_udp_discovery_double64_session_inlet;
+    let _runtime_run = runtime::run_selected_typed_udp_discovery_double64_session_inlet;
+    same_type(&_root_run, &_runtime_run);
 }
 
 #[derive(Debug, Eq, PartialEq)]

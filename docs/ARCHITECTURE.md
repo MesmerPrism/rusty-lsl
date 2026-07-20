@@ -82,10 +82,10 @@ one completed typed discovery run and accepts the caller's receive-order index,
 activation, expected identity, limits, shape, and cancellation reference. The
 sole strict endpoint projector runs first; the existing Double64 preflight then
 admits only 1x1 or 2x3; its existing connect owner returns the concrete
-`TimestampedDouble64ConnectedInletSession`. Nested results preserve the strict
-endpoint, Double64 preflight, and Double64 session errors without defining a
-composition error. The existing direct Double64 whole-session `finish` remains
-a delegate through its connected owner. The adapter adds no discovery,
+`TimestampedDouble64ConnectedInletSession`. One concrete three-variant error
+preserves the strict endpoint, Double64 preflight, and Double64 session errors.
+The whole-session function is a thin delegate through the same connected owner
+and returns its canonical report. The adapter adds no discovery,
 ranking, retry, codec, cursor, lifecycle, socket, report, error, or activation
 owner.
 
