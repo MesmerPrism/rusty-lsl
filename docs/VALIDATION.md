@@ -1,5 +1,38 @@
 # Validation
 
+The frozen P4 session-batch milestone broadens only the existing concrete
+Float32 completed-session-report recovery/clock/queue composition. Its public
+boundary is checked at the crate root and `runtime` facade by:
+
+```text
+cargo test -p rusty-lsl --test public_api p4_session_batch_boundary_is_concrete_fail_closed_and_revision_33
+```
+
+This compile-time facade qualification is intentionally valid at the frozen
+base. It proves that the concrete function, outcome, acquisition termination,
+and owner-preserving error remain public on both facades, and that activation
+remains revision 33, explicit, and default-disabled. It does not manufacture
+multi-record runtime evidence before the production owner is composed.
+
+The canonical integrator must qualify the broadened implementation against this
+matrix before acceptance:
+
+| Dimension | Required composed evidence |
+| --- | --- |
+| 1 / 2 / bounded records | One, two, and the declared nonzero session bound preserve report order and exact timestamp/value bits; zero and over-bound reports fail before recovery, clock, or queue work. |
+| Ownership | Success does not duplicate record allocation; every indexed terminal result owns exact completed outcomes plus the unprocessed report suffix, including the current record when it was not queued. |
+| Indexed terminal suffix | The zero-based failing index agrees with the completed prefix, and the suffix remains in original report order without cloning or reconstruction. |
+| Precedence | Report shape precedes per-record recovery cancellation/deadline/terminal; those precede clock cancellation/error; those precede queue cancellation/close/wait. |
+| Cleanup / reuse | Every success, typed failure, cancellation, deadline, queue-close, and backpressure path drops run-owned state and preserves immediate reuse under the existing lifecycle and bounded queue tests. |
+| Legacy | The one-record facade behavior and its exact error/ownership projections remain unchanged while delegating through the batch owner. |
+| Activation / current | Revision 33 stays explicit and default-disabled with no new capability; current source/lock/consumer closure is regenerated only by the canonical integrator. |
+| Serialized Standard | Run exactly one `python ./tools/dispatch_validation.py --profile standard` after ordered composition; its receipt is evidence, not policy authority. |
+| Workflow / publication | Run current workflow, instruction, source-first/planning-last, clean-tree, private-content, and publication gates from `tools/validation-policy.json`; do not edit planning, activation, publication, or canonical state in this qualification lane. |
+
+This milestone adds no generic public strategy, automatic recovery or
+rediscovery policy, clock provider/domain choice, queue policy, parallel or
+background work, other format, device/oracle claim, or Manifold authority.
+
 The selected-resolution milestone is qualified host-synthetically across all
 six concrete adapters with exact format, channel-shape, UID, hostname, source
 ID, session ID, precedence, ownership, cleanup, and public-boundary checks:

@@ -271,6 +271,32 @@ fn p9_float32_session_report_pipeline_adapter_is_public_on_both_facades() {
 }
 
 #[test]
+fn p4_session_batch_boundary_is_concrete_fail_closed_and_revision_33() {
+    struct PublicClock;
+    impl rusty_lsl::ClockSource for PublicClock {
+        fn now(&mut self) -> f64 {
+            0.0
+        }
+    }
+
+    // The batch milestone broadens this concrete Float32 composition; it does not
+    // introduce a caller-selectable strategy or a second lifecycle/queue owner.
+    let _root = rusty_lsl::run_float32_inlet_session_report_recovery_clock_queue::<PublicClock>;
+    let _runtime =
+        rusty_lsl::runtime::run_float32_inlet_session_report_recovery_clock_queue::<PublicClock>;
+    assert!(core::mem::size_of::<rusty_lsl::Float32SessionReportPipelineOutcome>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::Float32SessionReportPipelineError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::Float32SessionReportAcquisitionTermination>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::runtime::Float32SessionReportPipelineOutcome>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::runtime::Float32SessionReportPipelineError>() > 0);
+    assert!(
+        core::mem::size_of::<rusty_lsl::runtime::Float32SessionReportAcquisitionTermination>() > 0
+    );
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 33);
+    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 33);
+}
+
+#[test]
 fn float32_two_record_chunk_candidate_types_are_public() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkError>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32TwoRecordChunkLimits>() > 0);
