@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+LSLC-007V composes one caller-selected completed typed-discovery response into
+the existing phased Double64 connected inlet for only the accepted one-channel
+one-record and two-channel three-record shapes. A concrete typed error preserves
+endpoint, preflight, and session failures, while the one-shot entrypoint remains
+a thin delegate returning the canonical report. Discovery selection, lifecycle,
+codec, socket, report, and activation ownership remain unchanged; activation is
+explicit and default-disabled.
+
 The already evidenced Double64 shapes now expose concrete phased accepted-outlet
 and connected-inlet owners for caller-driven record transfer, exact completion,
 or report-free close. The sole crate-private format-neutral lifecycle retains
