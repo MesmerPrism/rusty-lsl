@@ -6,7 +6,7 @@
   "revision": 32,
   "generated_at": "2026-07-20T04:33:32Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "9ec24ba0748309eee2440c0675c2f9b50a8d5953bd1499013059a3a218abf5ab",
+  "lock_fingerprint": "b587f36754fe222c9d26560858e8259d07ae278a01b0fd5d2b7e6b31fc239cb8",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -366,9 +366,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/string-sample.json",
-        "sha256": "bb56b12f41f19b21d9400d3af9d4194c8289dca7c8c82aec2fe06d933b711abb",
+        "sha256": "2031c32bb509da904c36c15f75b8dea2bfa01bf839112595ac229e4d51abc912",
         "source_repo": "rusty-lsl",
-        "source_revision": "aec0fa2f06043891f380aa98128919bc8ba7d786",
+        "source_revision": "beaf9ee7f254074d84dd3cf40d1f1ef8981d4920",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
         "source_sha256": "7dc8228376645337a9f2d0c20205c1b98a944baa255e1d8ef625678c59df70d9"
       },
@@ -421,9 +421,9 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "03549c36d71ba7c0c7afbf25a16fdd968c94380d7113df294ba37a19b1ed121c",
+        "sha256": "c54ecc6871a5a54896a626cb942428c8c2d9181a3945eff3675d6f6bdf36ed7d",
         "source_repo": "rusty-lsl",
-        "source_revision": "aec0fa2f06043891f380aa98128919bc8ba7d786",
+        "source_revision": "beaf9ee7f254074d84dd3cf40d1f1ef8981d4920",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
         "source_sha256": "7dc8228376645337a9f2d0c20205c1b98a944baa255e1d8ef625678c59df70d9"
       },
