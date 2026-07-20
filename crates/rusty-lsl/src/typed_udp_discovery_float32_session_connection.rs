@@ -5,10 +5,11 @@
 
 use crate::{
     propose_typed_udp_discovery_ipv4_service_endpoint, StreamHandshakeIdentity,
-    StreamHandshakeLimits, TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
-    TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits,
-    TimestampedFloat32SessionError, TimestampedFloat32SessionLimits,
-    TimestampedFloat32SessionPreflightError, TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
+    StreamHandshakeLimits, TimestampedFloat32ConnectedInletSession, TimestampedFloat32InletSession,
+    TimestampedFloat32InletSessionReport, TimestampedFloat32SampleActivation,
+    TimestampedFloat32SampleLimits, TimestampedFloat32SessionError,
+    TimestampedFloat32SessionLimits, TimestampedFloat32SessionPreflightError,
+    TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
 };
 use std::sync::atomic::AtomicBool;
 
@@ -21,6 +22,45 @@ pub enum TypedUdpDiscoveryFloat32SessionConnectionError {
     Preflight(TimestampedFloat32SessionPreflightError),
     /// The sole session owner failed after preflight.
     Session(TimestampedFloat32SessionError),
+}
+
+/// Projects one caller-selected completed discovery response and connects one bounded inlet.
+///
+/// The caller retains the completed discovery run and every selection/configuration decision.
+/// Endpoint projection precedes shape preflight, which precedes session I/O. The returned concrete
+/// connected owner delegates phased transfer, completion, and report-free close to the sole private
+/// session lifecycle. This adapter owns no discovery, selection, fallback, identity derivation,
+/// codec, cursor, record allocation, socket lifecycle, or completion report.
+#[allow(clippy::too_many_arguments)]
+pub fn connect_selected_typed_udp_discovery_float32_session_inlet(
+    discovery: &TypedUdpDiscoveryRun,
+    response_index: usize,
+    session_activation: TimestampedFloat32SampleActivation,
+    expected_identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    sample_limits: TimestampedFloat32SampleLimits,
+    session_limits: TimestampedFloat32SessionLimits,
+    channel_count: usize,
+    record_count: usize,
+    session_cancelled: &AtomicBool,
+) -> Result<TimestampedFloat32ConnectedInletSession, TypedUdpDiscoveryFloat32SessionConnectionError>
+{
+    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
+        .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint)?;
+    let session = TimestampedFloat32InletSession::preflight_bounded(
+        session_activation,
+        endpoint.into(),
+        expected_identity,
+        handshake_limits,
+        sample_limits,
+        session_limits,
+        channel_count,
+        record_count,
+    )
+    .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Preflight)?;
+    session
+        .connect(session_cancelled)
+        .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Session)
 }
 
 /// Projects one caller-selected completed discovery response and finishes one bounded inlet.
@@ -41,22 +81,20 @@ pub fn run_selected_typed_udp_discovery_float32_session_inlet(
     record_count: usize,
     session_cancelled: &AtomicBool,
 ) -> Result<TimestampedFloat32InletSessionReport, TypedUdpDiscoveryFloat32SessionConnectionError> {
-    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
-        .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint)?;
-    let session = TimestampedFloat32InletSession::preflight_bounded(
+    connect_selected_typed_udp_discovery_float32_session_inlet(
+        discovery,
+        response_index,
         session_activation,
-        endpoint.into(),
         expected_identity,
         handshake_limits,
         sample_limits,
         session_limits,
         channel_count,
         record_count,
-    )
-    .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Preflight)?;
-    session
-        .finish(session_cancelled)
-        .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Session)
+        session_cancelled,
+    )?
+    .finish(session_cancelled)
+    .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Session)
 }
 
 #[cfg(test)]
@@ -198,7 +236,104 @@ mod tests {
     }
 
     #[test]
-    fn selected_response_finishes_session_and_preserves_caller_discovery() {
+    fn p18_selected_response_connects_phased_session_and_preserves_caller_discovery() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let outlet = thread::spawn(move || {
+            let outlet_identity = identity("11111111-2222-4333-8444-555555555555");
+            TimestampedFloat32OutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &outlet_identity,
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+                &[record(11.25, [1.5, -2.5]), record(12.5, [3.25, -4.75])],
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let discovery = completed_discovery(document("127.0.0.1", endpoint.port()));
+        let mut connected = connect_selected_typed_udp_discovery_float32_session_inlet(
+            &discovery,
+            0,
+            session_activation(),
+            &identity("11111111-2222-4333-8444-555555555555"),
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+            2,
+            2,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(discovery.responses().len(), 1);
+        assert_eq!(connected.peer(), endpoint);
+        assert_eq!(connected.channel_count(), 2);
+        assert_eq!(connected.record_count(), 2);
+        assert_eq!(connected.completed_record_count(), 0);
+        assert!(connected.received_records().is_empty());
+        connected.transfer_next(&AtomicBool::new(false)).unwrap();
+        assert_eq!(connected.completed_record_count(), 1);
+        assert_eq!(
+            connected.received_records()[0].sample().values(),
+            &[1.5, -2.5]
+        );
+        connected.transfer_next(&AtomicBool::new(false)).unwrap();
+        let report = connected
+            .complete(&AtomicBool::new(false))
+            .unwrap()
+            .unwrap();
+        assert_eq!(report.peer(), endpoint);
+        assert_eq!(report.records()[1].sample().values(), &[3.25, -4.75]);
+        assert_eq!(outlet.join().unwrap().record_count(), 2);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p18_connected_owner_can_close_without_report_and_releases_the_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let outlet = thread::spawn(move || {
+            let outlet_identity = identity("11111111-2222-4333-8444-555555555555");
+            let records = [record(11.25, [1.5, -2.5]), record(12.5, [3.25, -4.75])];
+            TimestampedFloat32OutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &outlet_identity,
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap()
+            .close()
+        });
+        let discovery = completed_discovery(document("127.0.0.1", endpoint.port()));
+        let connected = connect_selected_typed_udp_discovery_float32_session_inlet(
+            &discovery,
+            0,
+            session_activation(),
+            &identity("11111111-2222-4333-8444-555555555555"),
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+            2,
+            2,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(discovery.responses().len(), 1);
+        connected.close();
+        outlet.join().unwrap();
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p18_legacy_whole_session_entrypoint_delegates_and_preserves_report() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let endpoint = listener.local_addr().unwrap();
         let outlet = thread::spawn(move || {

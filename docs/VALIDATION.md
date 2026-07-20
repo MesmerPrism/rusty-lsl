@@ -1,5 +1,19 @@
 # Validation
 
+Focused caller-selected discovery-to-phased-connection qualification is:
+
+```text
+cargo test -p rusty-lsl p18 -- --test-threads=1
+```
+
+It covers the concrete public root/runtime facades, retained caller discovery,
+zero-record connected state, caller-driven exact transfer and completion,
+report-free close, cleanup, and immediate port reuse. The unchanged LSLC-007D
+cases retain endpoint/preflight/session error precedence, cancellation,
+identity failure, and whole-session behavior. No activation-bound source bytes
+change, and no oracle, device, automatic selection, retry, or authority claim
+is added.
+
 Focused phased bounded Float32 shape qualification is:
 
 ```text

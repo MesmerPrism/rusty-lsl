@@ -1,5 +1,11 @@
 # Rusty LSL
 
+A caller-selected typed UDP discovery response can now be projected into the
+existing concrete connected Float32 inlet owner without consuming the whole
+session. The caller retains discovery and selection inputs and drives phased
+transfer, completion, or report-free close; the legacy whole-session adapter
+delegates through the same path.
+
 The bounded homogeneous Float32 session now exposes record-at-a-time transfer
 on its existing accepted/connected concrete owners. The sole private phased
 lifecycle still owns initialization-once, the exact cursor, successful-only
@@ -85,8 +91,9 @@ adapters. This does not claim arbitrary shapes or official interoperability.
 
 A caller may now borrow one completed typed UDP discovery run, explicitly
 select a response, project its strict IPv4 service endpoint, and enter the sole
-bounded Float32 inlet session. Discovery execution and selection policy remain
-caller-owned; the adapter returns the existing session report directly.
+bounded Float32 inlet session. It may retain the concrete connected owner for
+phased transfer or use the whole-session delegate. Discovery execution and
+selection policy remain caller-owned.
 
 See [Production Roadmap](docs/LSL-PRODUCTION-ROADMAP.md) for the completion
 definition and next production slice. Detailed accepted unit history remains in

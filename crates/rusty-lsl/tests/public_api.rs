@@ -438,6 +438,13 @@ fn discovery_to_bounded_float32_session_vertical_is_public_on_both_facades() {
     same_type(&_root, &_runtime);
 }
 
+#[test]
+fn p18_discovery_to_phased_float32_connection_is_public_on_both_facades() {
+    let _root = rusty_lsl::connect_selected_typed_udp_discovery_float32_session_inlet;
+    let _runtime = runtime::connect_selected_typed_udp_discovery_float32_session_inlet;
+    same_type(&_root, &_runtime);
+}
+
 #[derive(Debug, Eq, PartialEq)]
 enum StatefulProviderError {
     TemporarilyUnavailable(u64),

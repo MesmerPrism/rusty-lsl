@@ -7,7 +7,8 @@
 //! It defines no types, defaults, effects, or authority.
 
 pub use crate::{
-    admit_runtime_activation, run_bounded_float32_recovery_clock_queue, run_finite_sample_recovery,
+    admit_runtime_activation, connect_selected_typed_udp_discovery_float32_session_inlet,
+    run_bounded_float32_recovery_clock_queue, run_finite_sample_recovery,
     run_fixed_width_numeric_inlet, run_fixed_width_numeric_outlet, run_integrated_clock_correction,
     run_selected_typed_udp_discovery_float32_session_inlet, run_short_info_responder,
     run_stream_inlet_handshake, run_stream_outlet_handshake, run_timestamped_float32_inlet,

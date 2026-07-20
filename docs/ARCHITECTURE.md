@@ -79,10 +79,14 @@ activation, or public policy.
 `typed_udp_discovery_float32_session_connection` is a thin adapter over three
 existing owners: a caller-owned completed typed discovery run, strict IPv4
 service endpoint projection, and the sole bounded Float32 inlet session. Its
-order is endpoint projection, bounded session preflight, then consuming session
-finish. It borrows discovery, accepts an explicit response index, and returns
-`TimestampedFloat32InletSessionReport` directly. It performs no discovery,
-automatic selection, framing, handshake, socket cleanup, retry, or fallback.
+order is endpoint projection, bounded session preflight, then connection and
+handshake. It borrows discovery, accepts an explicit response index, and
+returns the existing `TimestampedFloat32ConnectedInletSession`; phased
+transfer, allocation retention, exact completion, and report-free close stay
+with that concrete owner and its sole private lifecycle. The whole-session
+function delegates through this seam and returns the canonical report. The
+adapter performs no discovery, automatic selection, framing, socket cleanup,
+retry, or fallback.
 
 ## Bounded Float32 session facade
 

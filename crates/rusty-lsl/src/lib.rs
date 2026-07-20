@@ -386,6 +386,7 @@ pub use typed_udp_discovery_float32_recovery_queue::{
     TypedUdpDiscoveryFloat32RecoveryQueueError, TypedUdpDiscoveryFloat32RecoveryQueueOutcome,
 };
 pub use typed_udp_discovery_float32_session_connection::{
+    connect_selected_typed_udp_discovery_float32_session_inlet,
     run_selected_typed_udp_discovery_float32_session_inlet,
     TypedUdpDiscoveryFloat32SessionConnectionError,
 };

@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+The caller-selected typed-discovery response adapter may now stop after the
+sole bounded Float32 inlet owner connects and completes its handshake. The
+returned existing concrete connected owner retains phased transfer,
+completion, allocation, and report-free close; the whole-session adapter
+delegates through it. The caller retains discovery, response index/identity,
+cancellation, deadlines, and selection policy. Activation remains explicit
+and default-disabled, with no automatic discovery, selection, retry, format,
+device, oracle, or Manifold authority widening.
+
 The bounded homogeneous Float32 session exposes phased record advancement only
 through its existing concrete accepted/connected owners. The sole crate-private
 format-neutral lifecycle remains the initialization, cursor, exact-count,
