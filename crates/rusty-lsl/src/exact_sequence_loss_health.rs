@@ -10,8 +10,20 @@ pub(crate) enum ExactPostProcessingFact {
     RetainedUnchanged,
     /// The observation was retained after caller-owned post-processing changed it.
     RetainedChanged,
-    /// Caller-owned post-processing discarded the observation.
-    Discarded,
+}
+
+impl ExactPostProcessingFact {
+    /// Maps the exact numerical result of successful requested post-processing.
+    ///
+    /// Callers must not invoke this for a post-processing error: an error produces
+    /// no fact and therefore no loss-health observation.
+    pub(crate) const fn from_successful_timestamp_change(changed: bool) -> Self {
+        if changed {
+            Self::RetainedChanged
+        } else {
+            Self::RetainedUnchanged
+        }
+    }
 }
 
 /// The exact relationship between one sequence number and prior admitted evidence.
@@ -41,7 +53,6 @@ pub(crate) struct ExactSequenceLossHealthSnapshot {
     out_of_order_count: u64,
     retained_unchanged_count: u64,
     retained_changed_count: u64,
-    discarded_count: u64,
     high_water_sequence: Option<u64>,
     last_classification: Option<ExactSequenceClassification>,
     last_post_processing_fact: Option<ExactPostProcessingFact>,
@@ -74,9 +85,6 @@ impl ExactSequenceLossHealthSnapshot {
     }
     pub(crate) const fn retained_changed_count(&self) -> u64 {
         self.retained_changed_count
-    }
-    pub(crate) const fn discarded_count(&self) -> u64 {
-        self.discarded_count
     }
     pub(crate) const fn high_water_sequence(&self) -> Option<u64> {
         self.high_water_sequence
@@ -119,7 +127,6 @@ impl ExactSequenceLossHealth {
                 out_of_order_count: 0,
                 retained_unchanged_count: 0,
                 retained_changed_count: 0,
-                discarded_count: 0,
                 high_water_sequence: None,
                 last_classification: None,
                 last_post_processing_fact: None,
@@ -167,9 +174,6 @@ impl ExactSequenceLossHealth {
             }
             ExactPostProcessingFact::RetainedChanged => {
                 next.retained_changed_count = add(next.retained_changed_count, 1)?
-            }
-            ExactPostProcessingFact::Discarded => {
-                next.discarded_count = add(next.discarded_count, 1)?
             }
         }
         if next
@@ -221,6 +225,23 @@ fn add(value: u64, addition: u64) -> Result<u64, ExactSequenceLossHealthError> {
 mod tests {
     use super::*;
 
+    fn unchanged() -> ExactPostProcessingFact {
+        ExactPostProcessingFact::RetainedUnchanged
+    }
+
+    fn assert_counter_overflow_without_mutation(
+        mut health: ExactSequenceLossHealth,
+        sequence: u64,
+        fact: ExactPostProcessingFact,
+    ) {
+        let before = health.clone();
+        assert_eq!(
+            health.observe(sequence, fact),
+            Err(ExactSequenceLossHealthError::CounterOverflow)
+        );
+        assert_eq!(health, before);
+    }
+
     #[test]
     fn exact_relationships_use_only_caller_sequence_evidence() {
         let mut health = ExactSequenceLossHealth::new(8);
@@ -243,10 +264,7 @@ mod tests {
             (15, ExactSequenceClassification::Contiguous),
         ];
         for (sequence, expected) in cases {
-            assert_eq!(
-                health.observe(sequence, ExactPostProcessingFact::RetainedUnchanged),
-                Ok(expected)
-            );
+            assert_eq!(health.observe(sequence, unchanged()), Ok(expected));
         }
         let snapshot = health.snapshot();
         assert_eq!(snapshot.observation_count(), 6);
@@ -264,71 +282,161 @@ mod tests {
     }
 
     #[test]
-    fn explicit_post_processing_facts_are_counted_without_inference() {
-        let mut health = ExactSequenceLossHealth::new(3);
+    fn successful_post_processing_mapping_is_deterministic_and_non_discarding() {
+        assert_eq!(
+            ExactPostProcessingFact::from_successful_timestamp_change(false),
+            ExactPostProcessingFact::RetainedUnchanged
+        );
+        assert_eq!(
+            ExactPostProcessingFact::from_successful_timestamp_change(true),
+            ExactPostProcessingFact::RetainedChanged
+        );
+
+        let mut health = ExactSequenceLossHealth::new(2);
         health
-            .observe(0, ExactPostProcessingFact::RetainedUnchanged)
+            .observe(
+                0,
+                ExactPostProcessingFact::from_successful_timestamp_change(false),
+            )
             .unwrap();
         health
-            .observe(1, ExactPostProcessingFact::RetainedChanged)
-            .unwrap();
-        health
-            .observe(2, ExactPostProcessingFact::Discarded)
+            .observe(
+                1,
+                ExactPostProcessingFact::from_successful_timestamp_change(true),
+            )
             .unwrap();
         let snapshot = health.snapshot();
         assert_eq!(snapshot.retained_unchanged_count(), 1);
         assert_eq!(snapshot.retained_changed_count(), 1);
-        assert_eq!(snapshot.discarded_count(), 1);
         assert_eq!(
             snapshot.last_post_processing_fact(),
-            Some(ExactPostProcessingFact::Discarded)
+            Some(ExactPostProcessingFact::RetainedChanged)
         );
     }
 
     #[test]
-    fn bound_rejection_has_no_partial_mutation() {
+    fn post_processing_error_produces_no_fact_observation_or_mutation() {
+        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+        struct ProcessingError;
+
+        let mut health = ExactSequenceLossHealth::new(1);
+        let before = health.clone();
+        let processing: Result<bool, ProcessingError> = Err(ProcessingError);
+        let fact = processing
+            .ok()
+            .map(ExactPostProcessingFact::from_successful_timestamp_change);
+        assert_eq!(fact, None);
+        if let Some(fact) = fact {
+            health.observe(7, fact).unwrap();
+        }
+        assert_eq!(health, before);
+    }
+
+    #[test]
+    fn zero_and_reached_bounds_reject_without_partial_mutation() {
+        let mut zero = ExactSequenceLossHealth::new(0);
+        let zero_before = zero.clone();
+        assert_eq!(
+            zero.observe(0, unchanged()),
+            Err(ExactSequenceLossHealthError::ObservationLimitReached { limit: 0 })
+        );
+        assert_eq!(zero, zero_before);
+
         let mut health = ExactSequenceLossHealth::new(1);
         health
             .observe(7, ExactPostProcessingFact::RetainedChanged)
             .unwrap();
         let before = health.clone();
         assert_eq!(
-            health.observe(9, ExactPostProcessingFact::Discarded),
+            health.observe(9, unchanged()),
             Err(ExactSequenceLossHealthError::ObservationLimitReached { limit: 1 })
         );
         assert_eq!(health, before);
     }
 
     #[test]
-    fn checked_counter_failure_has_no_partial_mutation() {
+    fn every_exercisable_affected_counter_overflow_has_no_partial_mutation() {
+        let base = ExactSequenceLossHealth::new(u64::MAX);
+
+        let mut first = base.clone();
+        first.snapshot.first_count = u64::MAX;
+        assert_counter_overflow_without_mutation(first, 4, unchanged());
+
+        let mut contiguous = base.clone();
+        contiguous.snapshot.high_water_sequence = Some(4);
+        contiguous.snapshot.contiguous_count = u64::MAX;
+        assert_counter_overflow_without_mutation(contiguous, 5, unchanged());
+
+        let mut gap = base.clone();
+        gap.snapshot.high_water_sequence = Some(4);
+        gap.snapshot.gap_count = u64::MAX;
+        assert_counter_overflow_without_mutation(gap, 6, unchanged());
+
+        let mut missing = base.clone();
+        missing.snapshot.high_water_sequence = Some(4);
+        missing.snapshot.explicit_missing_sequence_count = u64::MAX;
+        assert_counter_overflow_without_mutation(missing, 6, unchanged());
+
+        let mut duplicate = base.clone();
+        duplicate.snapshot.high_water_sequence = Some(4);
+        duplicate.snapshot.duplicate_count = u64::MAX;
+        assert_counter_overflow_without_mutation(duplicate, 4, unchanged());
+
+        let mut out_of_order = base.clone();
+        out_of_order.snapshot.high_water_sequence = Some(4);
+        out_of_order.snapshot.out_of_order_count = u64::MAX;
+        assert_counter_overflow_without_mutation(out_of_order, 3, unchanged());
+
+        let mut retained_unchanged = base.clone();
+        retained_unchanged.snapshot.retained_unchanged_count = u64::MAX;
+        assert_counter_overflow_without_mutation(retained_unchanged, 4, unchanged());
+
+        let mut retained_changed = base;
+        retained_changed.snapshot.retained_changed_count = u64::MAX;
+        assert_counter_overflow_without_mutation(
+            retained_changed,
+            4,
+            ExactPostProcessingFact::RetainedChanged,
+        );
+    }
+
+    #[test]
+    fn observation_count_max_uses_bound_precedence_without_mutation() {
         let mut health = ExactSequenceLossHealth::new(u64::MAX);
-        health.snapshot.observation_count = u64::MAX - 1;
-        health.snapshot.explicit_missing_sequence_count = u64::MAX;
-        health.snapshot.high_water_sequence = Some(0);
+        health.snapshot.observation_count = u64::MAX;
         let before = health.clone();
         assert_eq!(
-            health.observe(2, ExactPostProcessingFact::RetainedUnchanged),
-            Err(ExactSequenceLossHealthError::CounterOverflow)
+            health.observe(0, unchanged()),
+            Err(ExactSequenceLossHealthError::ObservationLimitReached { limit: u64::MAX })
         );
         assert_eq!(health, before);
     }
 
     #[test]
-    fn maximum_sequence_never_wraps() {
-        let mut health = ExactSequenceLossHealth::new(3);
+    fn u64_sequence_extremes_and_maximum_gap_are_exact_without_wrap() {
+        let mut health = ExactSequenceLossHealth::new(4);
         assert_eq!(
-            health.observe(u64::MAX, ExactPostProcessingFact::RetainedUnchanged),
+            health.observe(0, unchanged()),
             Ok(ExactSequenceClassification::First)
         );
         assert_eq!(
-            health.observe(u64::MAX, ExactPostProcessingFact::RetainedUnchanged),
+            health.observe(u64::MAX, unchanged()),
+            Ok(ExactSequenceClassification::Gap {
+                missing_sequence_count: u64::MAX - 1
+            })
+        );
+        assert_eq!(
+            health.observe(u64::MAX, unchanged()),
             Ok(ExactSequenceClassification::Duplicate)
         );
         assert_eq!(
-            health.observe(u64::MAX - 1, ExactPostProcessingFact::RetainedUnchanged),
+            health.observe(0, unchanged()),
             Ok(ExactSequenceClassification::OutOfOrder {
-                behind_high_water_by: 1
+                behind_high_water_by: u64::MAX
             })
         );
+        let snapshot = health.snapshot();
+        assert_eq!(snapshot.high_water_sequence(), Some(u64::MAX));
+        assert_eq!(snapshot.explicit_missing_sequence_count(), u64::MAX - 1);
     }
 }

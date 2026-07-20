@@ -2,7 +2,7 @@
 
 This candidate is a crate-private-ready, effect-free observation owner. A caller
 supplies each sequence number and one explicit post-processing fact: retained
-unchanged, retained changed, or discarded. The owner returns the exact sequence
+unchanged or retained changed. The owner returns the exact sequence
 relationship and maintains an immutable-copy snapshot of checked bounded counts.
 
 ## Exact interpretation
@@ -16,10 +16,17 @@ the bounded owner does not retain an unbounded set of all earlier numbers.
 
 The explicit missing-sequence count is evidence about the caller-provided
 sequence domain only. It is not estimated packet loss and does not assert that
-transport emitted, dropped, or should recover any packet. Likewise, discarded
-is counted only when the caller states that post-processing discarded that
-observation. No behavior is inferred from samples, timestamps, sockets, queue
-state, elapsed time, or absence of calls.
+transport emitted, dropped, or should recover any packet. No behavior is
+inferred from samples, timestamps, sockets, queue state, elapsed time, or
+absence of calls.
+
+The deterministic successful-stage mapping is: PassThrough is retained
+unchanged; Monotonic or DeJitter is retained unchanged when its effective
+timestamp is numerically unchanged and retained changed when it differs. State
+advancement alone never means changed. There is no discarded fact because no
+requested post-processing owner produces one. A post-processing error produces
+no fact, so an adapter must not call the loss-health owner and its snapshot must
+remain unchanged.
 
 Every affected counter is checked in a candidate snapshot before commit. The
 caller-configured observation limit and arithmetic overflow are typed errors,
@@ -42,3 +49,8 @@ packet inference, thresholding, policy selection, recovery, queue action,
 background monitoring, logging, activation, or device work. It grants no
 Makepad or Manifold authority. Stream admission, routing, leases,
 authorization, revision, and audit remain outside Rusty LSL.
+
+These classifications, counts, and mapping rules are independently authored
+local evidence. They do not claim or demonstrate behavioral, numerical, or
+protocol equivalence with liblsl, including its post-processing, sequence,
+loss, recovery, or wire behavior.
