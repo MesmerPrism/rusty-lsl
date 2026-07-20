@@ -3,13 +3,18 @@
 
 //! Caller-selected typed-discovery response to bounded Float32 inlet-session composition.
 
+use crate::typed_udp_discovery_session_contract::{
+    validate_selected_typed_udp_discovery_session_contract,
+    TypedUdpDiscoverySessionContractMismatch,
+};
+use crate::ChannelFormat;
 use crate::{
     propose_typed_udp_discovery_ipv4_service_endpoint, StreamHandshakeIdentity,
-    StreamHandshakeLimits, TimestampedFloat32ConnectedInletSession, TimestampedFloat32InletSession,
-    TimestampedFloat32InletSessionReport, TimestampedFloat32SampleActivation,
-    TimestampedFloat32SampleLimits, TimestampedFloat32SessionError,
-    TimestampedFloat32SessionLimits, TimestampedFloat32SessionPreflightError,
-    TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
+    StreamHandshakeIdentityRole, StreamHandshakeLimits, TimestampedFloat32ConnectedInletSession,
+    TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
+    TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits,
+    TimestampedFloat32SessionError, TimestampedFloat32SessionLimits,
+    TimestampedFloat32SessionPreflightError, TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
 };
 use std::sync::atomic::AtomicBool;
 
@@ -18,10 +23,137 @@ use std::sync::atomic::AtomicBool;
 pub enum TypedUdpDiscoveryFloat32SessionConnectionError {
     /// The caller-selected response could not produce a strict IPv4 service endpoint.
     Endpoint(TypedUdpDiscoveryEndpointError),
+    /// The selected response declared a different data format.
+    Format {
+        /// Required Float32 format.
+        expected: ChannelFormat,
+        /// Selected response format.
+        actual: ChannelFormat,
+    },
+    /// The selected response declared a different channel count.
+    ChannelCount {
+        /// Caller-requested channel count.
+        expected: usize,
+        /// Selected response channel count.
+        actual: usize,
+    },
+    /// One selected-response identity field differed from the caller expectation.
+    Identity {
+        /// Identity field checked in the foundation contract's fixed order.
+        role: StreamHandshakeIdentityRole,
+        /// Exact caller-owned expected evidence.
+        expected: String,
+        /// Exact discovery-owned actual evidence.
+        actual: String,
+    },
     /// The sole session owner rejected the bounded shape before TCP I/O.
     Preflight(TimestampedFloat32SessionPreflightError),
     /// The sole session owner failed after preflight.
     Session(TimestampedFloat32SessionError),
+}
+
+impl From<TypedUdpDiscoverySessionContractMismatch<'_>>
+    for TypedUdpDiscoveryFloat32SessionConnectionError
+{
+    fn from(mismatch: TypedUdpDiscoverySessionContractMismatch<'_>) -> Self {
+        match mismatch {
+            TypedUdpDiscoverySessionContractMismatch::Format { expected, actual } => {
+                Self::Format { expected, actual }
+            }
+            TypedUdpDiscoverySessionContractMismatch::ChannelCount { expected, actual } => {
+                Self::ChannelCount { expected, actual }
+            }
+            TypedUdpDiscoverySessionContractMismatch::Identity {
+                role,
+                expected,
+                actual,
+            } => Self::Identity {
+                role,
+                expected: expected.to_owned(),
+                actual: actual.to_owned(),
+            },
+        }
+    }
+}
+
+/// Socket-free resolved Float32 selection with the existing inlet preflight owner.
+pub struct ResolvedTypedUdpDiscoveryFloat32Session<'a> {
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    session: TimestampedFloat32InletSession<'a>,
+}
+
+impl<'a> ResolvedTypedUdpDiscoveryFloat32Session<'a> {
+    /// Returns the caller-owned discovery run retained by this resolution.
+    pub const fn discovery(&self) -> &'a TypedUdpDiscoveryRun {
+        self.discovery
+    }
+
+    /// Returns the caller-selected receive-order response index.
+    pub const fn response_index(&self) -> usize {
+        self.response_index
+    }
+
+    /// Connects through the existing concrete phased inlet owner.
+    pub fn connect(
+        self,
+        session_cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedFloat32ConnectedInletSession,
+        TypedUdpDiscoveryFloat32SessionConnectionError,
+    > {
+        self.session
+            .connect(session_cancelled)
+            .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Session)
+    }
+}
+
+/// Resolves one caller-selected response and performs Float32 inlet preflight without TCP I/O.
+///
+/// Strict endpoint projection precedes the foundation format, channel-count, and four-role
+/// identity contract. Existing bounded session preflight follows that contract. The returned
+/// concrete state borrows the caller's discovery run and expected identity and owns the sole
+/// existing preflighted inlet session.
+#[allow(clippy::too_many_arguments)]
+pub fn resolve_selected_typed_udp_discovery_float32_session_inlet<'a>(
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    session_activation: TimestampedFloat32SampleActivation,
+    expected_identity: &'a StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    sample_limits: TimestampedFloat32SampleLimits,
+    session_limits: TimestampedFloat32SessionLimits,
+    channel_count: usize,
+    record_count: usize,
+) -> Result<
+    ResolvedTypedUdpDiscoveryFloat32Session<'a>,
+    TypedUdpDiscoveryFloat32SessionConnectionError,
+> {
+    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
+        .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint)?;
+    validate_selected_typed_udp_discovery_session_contract(
+        &discovery.responses()[response_index],
+        ChannelFormat::Float32,
+        channel_count,
+        expected_identity,
+    )
+    .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::from)?;
+    let session = TimestampedFloat32InletSession::preflight_bounded(
+        session_activation,
+        endpoint.into(),
+        expected_identity,
+        handshake_limits,
+        sample_limits,
+        session_limits,
+        channel_count,
+        record_count,
+    )
+    .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Preflight)?;
+    Ok(ResolvedTypedUdpDiscoveryFloat32Session {
+        discovery,
+        response_index,
+        session,
+    })
 }
 
 /// Projects one caller-selected completed discovery response and connects one bounded inlet.
@@ -45,22 +177,18 @@ pub fn connect_selected_typed_udp_discovery_float32_session_inlet(
     session_cancelled: &AtomicBool,
 ) -> Result<TimestampedFloat32ConnectedInletSession, TypedUdpDiscoveryFloat32SessionConnectionError>
 {
-    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
-        .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint)?;
-    let session = TimestampedFloat32InletSession::preflight_bounded(
+    resolve_selected_typed_udp_discovery_float32_session_inlet(
+        discovery,
+        response_index,
         session_activation,
-        endpoint.into(),
         expected_identity,
         handshake_limits,
         sample_limits,
         session_limits,
         channel_count,
         record_count,
-    )
-    .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Preflight)?;
-    session
-        .connect(session_cancelled)
-        .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Session)
+    )?
+    .connect(session_cancelled)
 }
 
 /// Projects one caller-selected completed discovery response and finishes one bounded inlet.
@@ -165,18 +293,41 @@ mod tests {
     }
 
     fn document(address: &str, port: u16) -> String {
+        document_with_contract(
+            address,
+            port,
+            "float32",
+            "2",
+            "11111111-2222-4333-8444-555555555555",
+            "host",
+            "source",
+            "session",
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn document_with_contract(
+        address: &str,
+        port: u16,
+        format: &str,
+        channel_count: &str,
+        uid: &str,
+        hostname: &str,
+        source_id: &str,
+        session_id: &str,
+    ) -> String {
         let fields = [
             ("name", "selected".to_owned()),
             ("type", "independent".to_owned()),
-            ("channel_count", "2".to_owned()),
-            ("channel_format", "float32".to_owned()),
-            ("source_id", "source".to_owned()),
+            ("channel_count", channel_count.to_owned()),
+            ("channel_format", format.to_owned()),
+            ("source_id", source_id.to_owned()),
             ("nominal_srate", "100.0000000000000".to_owned()),
             ("version", "110".to_owned()),
             ("created_at", "1".to_owned()),
-            ("uid", "11111111-2222-4333-8444-555555555555".to_owned()),
-            ("session_id", "session".to_owned()),
-            ("hostname", "host".to_owned()),
+            ("uid", uid.to_owned()),
+            ("session_id", session_id.to_owned()),
+            ("hostname", hostname.to_owned()),
             ("v4address", address.to_owned()),
             ("v4data_port", "43001".to_owned()),
             ("v4service_port", port.to_string()),
@@ -190,6 +341,27 @@ mod tests {
         }
         body.push_str("\t<desc />\n</info>\n");
         body
+    }
+
+    fn resolve<'a>(
+        discovery: &'a TypedUdpDiscoveryRun,
+        expected_identity: &'a StreamHandshakeIdentity,
+        channel_count: usize,
+    ) -> Result<
+        ResolvedTypedUdpDiscoveryFloat32Session<'a>,
+        TypedUdpDiscoveryFloat32SessionConnectionError,
+    > {
+        resolve_selected_typed_udp_discovery_float32_session_inlet(
+            discovery,
+            0,
+            session_activation(),
+            expected_identity,
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+            channel_count,
+            2,
+        )
     }
 
     fn completed_discovery(document: String) -> TypedUdpDiscoveryRun {
@@ -233,6 +405,191 @@ mod tests {
             RawSourceTimestamp::new(timestamp).unwrap(),
             None,
         )
+    }
+
+    #[test]
+    fn p26_exact_resolution_is_socket_free_and_retains_selection_borrows() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let discovery = completed_discovery(document("127.0.0.1", endpoint.port()));
+        let expected_identity = identity("11111111-2222-4333-8444-555555555555");
+        let resolved = resolve(&discovery, &expected_identity, 2).unwrap();
+        assert!(std::ptr::eq(resolved.discovery(), &discovery));
+        assert_eq!(resolved.response_index(), 0);
+        drop(resolved);
+        drop(listener);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p26_contract_mismatches_return_exact_owned_evidence_in_frozen_order() {
+        let endpoint: std::net::SocketAddr = "127.0.0.1:43002".parse().unwrap();
+        let expected = identity("11111111-2222-4333-8444-555555555555");
+        let cases = [
+            (
+                document_with_contract(
+                    "127.0.0.1",
+                    endpoint.port(),
+                    "double64",
+                    "3",
+                    "uid-x",
+                    "host-x",
+                    "source-x",
+                    "session-x",
+                ),
+                TypedUdpDiscoveryFloat32SessionConnectionError::Format {
+                    expected: ChannelFormat::Float32,
+                    actual: ChannelFormat::Double64,
+                },
+            ),
+            (
+                document_with_contract(
+                    "127.0.0.1",
+                    endpoint.port(),
+                    "float32",
+                    "3",
+                    "uid-x",
+                    "host-x",
+                    "source-x",
+                    "session-x",
+                ),
+                TypedUdpDiscoveryFloat32SessionConnectionError::ChannelCount {
+                    expected: 2,
+                    actual: 3,
+                },
+            ),
+        ];
+        for (document, expected_error) in cases {
+            let discovery = completed_discovery(document);
+            assert_eq!(
+                resolve(&discovery, &expected, 2).err().unwrap(),
+                expected_error
+            );
+        }
+
+        for (uid, hostname, source_id, session_id, role, expected_value, actual_value) in [
+            (
+                "uid-x",
+                "host-x",
+                "source-x",
+                "session-x",
+                StreamHandshakeIdentityRole::Uid,
+                "11111111-2222-4333-8444-555555555555",
+                "uid-x",
+            ),
+            (
+                "11111111-2222-4333-8444-555555555555",
+                "host-x",
+                "source-x",
+                "session-x",
+                StreamHandshakeIdentityRole::Hostname,
+                "host",
+                "host-x",
+            ),
+            (
+                "11111111-2222-4333-8444-555555555555",
+                "host",
+                "source-x",
+                "session-x",
+                StreamHandshakeIdentityRole::SourceId,
+                "source",
+                "source-x",
+            ),
+            (
+                "11111111-2222-4333-8444-555555555555",
+                "host",
+                "source",
+                "session-x",
+                StreamHandshakeIdentityRole::SessionId,
+                "session",
+                "session-x",
+            ),
+        ] {
+            let discovery = completed_discovery(document_with_contract(
+                "127.0.0.1",
+                endpoint.port(),
+                "float32",
+                "2",
+                uid,
+                hostname,
+                source_id,
+                session_id,
+            ));
+            assert_eq!(
+                resolve(&discovery, &expected, 2).err().unwrap(),
+                TypedUdpDiscoveryFloat32SessionConnectionError::Identity {
+                    role,
+                    expected: expected_value.to_owned(),
+                    actual: actual_value.to_owned(),
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn p26_index_endpoint_contract_then_preflight_precedence_is_socket_free() {
+        let expected = identity("11111111-2222-4333-8444-555555555555");
+        let valid = completed_discovery(document("127.0.0.1", 9));
+        assert!(matches!(
+            resolve_selected_typed_udp_discovery_float32_session_inlet(
+                &valid,
+                1,
+                session_activation(),
+                &expected,
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+                3,
+                2,
+            ),
+            Err(TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint(
+                TypedUdpDiscoveryEndpointError::ResponseUnavailable { .. }
+            ))
+        ));
+        let invalid_endpoint = completed_discovery(document_with_contract(
+            "0.0.0.0",
+            9,
+            "double64",
+            "3",
+            "uid-x",
+            "host-x",
+            "source-x",
+            "session-x",
+        ));
+        assert!(matches!(
+            resolve(&invalid_endpoint, &expected, 3),
+            Err(TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint(_))
+        ));
+        let wrong_contract = completed_discovery(document_with_contract(
+            "127.0.0.1",
+            9,
+            "double64",
+            "3",
+            "uid-x",
+            "host-x",
+            "source-x",
+            "session-x",
+        ));
+        assert!(matches!(
+            resolve(&wrong_contract, &expected, 3),
+            Err(TypedUdpDiscoveryFloat32SessionConnectionError::Format { .. })
+        ));
+        let preflight = completed_discovery(document_with_contract(
+            "127.0.0.1",
+            9,
+            "float32",
+            "3",
+            "11111111-2222-4333-8444-555555555555",
+            "host",
+            "source",
+            "session",
+        ));
+        assert!(matches!(
+            resolve(&preflight, &expected, 3),
+            Err(TypedUdpDiscoveryFloat32SessionConnectionError::Preflight(
+                TimestampedFloat32SessionPreflightError::ChannelCount { .. }
+            ))
+        ));
     }
 
     #[test]
@@ -405,12 +762,12 @@ mod tests {
                 2,
                 &AtomicBool::new(false),
             ),
-            Err(TypedUdpDiscoveryFloat32SessionConnectionError::Preflight(
-                TimestampedFloat32SessionPreflightError::ChannelCount {
-                    index: 0,
-                    actual: 3
+            Err(
+                TypedUdpDiscoveryFloat32SessionConnectionError::ChannelCount {
+                    expected: 3,
+                    actual: 2
                 }
-            ))
+            )
         ));
     }
 
@@ -435,22 +792,7 @@ mod tests {
             ))
         ));
 
-        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        let endpoint = listener.local_addr().unwrap();
-        let outlet = thread::spawn(move || {
-            TimestampedFloat32OutletSession::preflight_bounded(
-                session_activation(),
-                listener,
-                &identity("11111111-2222-4333-8444-555555555555"),
-                handshake_limits(),
-                sample_limits(),
-                TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
-                &[record(1.0, [1.0, 2.0]), record(2.0, [3.0, 4.0])],
-            )
-            .unwrap()
-            .finish(&AtomicBool::new(false))
-        });
-        let discovery = completed_discovery(document("127.0.0.1", endpoint.port()));
+        let discovery = completed_discovery(document("127.0.0.1", 9));
         assert!(matches!(
             run_selected_typed_udp_discovery_float32_session_inlet(
                 &discovery,
@@ -464,16 +806,12 @@ mod tests {
                 2,
                 &AtomicBool::new(false),
             ),
-            Err(TypedUdpDiscoveryFloat32SessionConnectionError::Session(
-                TimestampedFloat32SessionError::Handshake(StreamHandshakeError::InvalidHeader)
-            ))
+            Err(TypedUdpDiscoveryFloat32SessionConnectionError::Identity {
+                role: StreamHandshakeIdentityRole::Uid,
+                expected,
+                actual,
+            }) if expected == "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee"
+                && actual == "11111111-2222-4333-8444-555555555555"
         ));
-        assert!(matches!(
-            outlet.join().unwrap(),
-            Err(TimestampedFloat32SessionError::Handshake(
-                StreamHandshakeError::IdentityMismatch
-            ))
-        ));
-        TcpListener::bind(endpoint).unwrap();
     }
 }
