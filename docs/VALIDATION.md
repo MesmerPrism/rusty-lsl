@@ -1,5 +1,21 @@
 # Validation
 
+Focused phased String qualification is:
+
+```text
+cargo test -p rusty-lsl p21 -- --test-threads=1
+```
+
+The host-synthetic cases cover the exact 0-byte, 1-byte, 128-byte, and
+multibyte UTF-8 values, caller-driven cursor advancement, retained inlet
+allocation identity, pre-I/O overrun, premature completion, canonical reports,
+report-free close, cleanup, immediate port reuse, and concrete root/runtime
+exports. Existing String, all-format, public API, activation-closure, and
+serialized Standard gates remain required. Because this candidate changes an
+activation-bound shared source file, its exact candidate-local descriptor/lock
+closure is regenerated separately; Standard current-closure remains canonical
+integrator work rather than acceptance evidence manufactured by this candidate.
+
 Focused caller-selected discovery-to-phased-Double64 qualification is:
 
 ```text

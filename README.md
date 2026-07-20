@@ -1,5 +1,13 @@
 # Rusty LSL
 
+The accepted one-channel, one-record String session now exposes concrete
+accepted-outlet and connected-inlet owners. Callers may advance the sole record,
+consume exact completion into the existing report, or close without a report;
+legacy finish delegates through the same private format-neutral lifecycle and
+sealed String codec. The 0 through 129 UTF-8-byte envelope, received allocation,
+typed damage/cancellation/deadline behavior, cleanup, and explicit
+default-disabled activation remain unchanged.
+
 A caller-selected completed typed UDP discovery response can now enter the
 existing concrete phased Double64 inlet for only the accepted one-channel/
 one-record and two-channel/three-record shapes. The caller retains the

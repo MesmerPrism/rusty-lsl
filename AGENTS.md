@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+The already accepted one-channel/one-record String shape now exposes concrete
+accepted-outlet and connected-inlet owners for caller-driven transfer, exact
+completion, or report-free close. The sole crate-private format-neutral
+lifecycle retains initialization, the cursor, the sealed String codec,
+allocation ownership, terminal close, and cleanup; legacy whole-session finish
+delegates through these owners. The exact 0 through 129 UTF-8-byte envelope and
+default-disabled explicit activation remain unchanged, with no authority or
+shape widening.
+
 LSLC-007V composes one caller-selected completed typed-discovery response into
 the existing phased Double64 connected inlet for only the accepted one-channel
 one-record and two-channel three-record shapes. A concrete typed error preserves

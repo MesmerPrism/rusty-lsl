@@ -1,5 +1,14 @@
 # Architecture
 
+The concrete one-channel/one-record String session exposes accepted and
+connected phases without exposing the neutral lifecycle, strategy, codec, or
+socket. Both phases delegate initialization-once, the exact cursor,
+successful-only advancement, allocation retention, terminal close, and cleanup
+to the sole crate-private owner. Exact completion produces the existing
+canonical reports; close/drop produces none, and legacy finish traverses the
+same owners. The sealed String codec and 0 through 129 UTF-8-byte envelope are
+unchanged.
+
 Bounded homogeneous Float32 accepted/connected sessions may advance one record
 at a time, but do not own a parallel lifecycle. Their concrete methods delegate
 to the sole crate-private format-neutral phased owner, which initializes once,

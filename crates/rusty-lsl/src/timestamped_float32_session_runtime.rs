@@ -1813,6 +1813,54 @@ pub enum TimestampedStringSessionError {
     },
 }
 
+/// Failure while advancing one record through a phased String session.
+#[derive(Debug, Eq, PartialEq)]
+pub enum TimestampedStringSessionTransferError {
+    /// The exact one-record shape was already completed; no additional I/O occurred.
+    Overrun {
+        /// Exact record count declared during preflight.
+        declared: usize,
+    },
+    /// The canonical session owner failed while transferring the indexed record.
+    Session(TimestampedStringSessionError),
+}
+
+/// Successful String completion was requested before its exact record count was reached.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedStringSessionIncomplete {
+    completed: usize,
+    declared: usize,
+}
+
+impl TimestampedStringSessionIncomplete {
+    /// Number of records successfully transferred before completion was requested.
+    pub const fn completed_record_count(self) -> usize {
+        self.completed
+    }
+    /// Exact record count declared during preflight.
+    pub const fn declared_record_count(self) -> usize {
+        self.declared
+    }
+}
+
+fn map_string_transfer_error(
+    error: TransferError<TimestampedStringSessionError>,
+) -> TimestampedStringSessionTransferError {
+    match error {
+        TransferError::Overrun { declared } => {
+            TimestampedStringSessionTransferError::Overrun { declared }
+        }
+        TransferError::Session(error) => TimestampedStringSessionTransferError::Session(error),
+    }
+}
+
+fn map_string_incomplete(error: PrematureCompletion) -> TimestampedStringSessionIncomplete {
+    TimestampedStringSessionIncomplete {
+        completed: error.completed,
+        declared: error.declared,
+    }
+}
+
 /// Successful String outlet lifecycle report.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct TimestampedStringOutletSessionReport {
@@ -1892,6 +1940,75 @@ pub struct TimestampedStringOutletSession<'a> {
     io_limits: StringSampleLimits,
     records: &'a [StringSampleRecord],
 }
+
+/// Accepted String outlet retaining the sole private lifecycle and sealed String codec owner.
+pub struct TimestampedStringAcceptedOutletSession<'a> {
+    session: AcceptedOutletSession<session_format::StringSample>,
+    records: &'a [StringSampleRecord],
+}
+
+impl TimestampedStringAcceptedOutletSession<'_> {
+    /// Bound local address retained by the accepted owner.
+    pub fn local_address(&self) -> SocketAddr {
+        self.session.local()
+    }
+    /// Accepted peer address.
+    pub fn peer_address(&self) -> SocketAddr {
+        self.session.peer()
+    }
+    /// Exact accepted channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.shape().channels()
+    }
+    /// Exact accepted caller-record count.
+    pub fn record_count(&self) -> usize {
+        self.session.shape().records()
+    }
+    /// Records successfully advanced by the canonical cursor.
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_records()
+    }
+    /// Advances the sole preflighted caller record, initializing at most once.
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedStringSessionTransferError> {
+        let index = self.session.completed_records();
+        let Some(record) = self.records.get(index) else {
+            return Err(TimestampedStringSessionTransferError::Overrun {
+                declared: self.records.len(),
+            });
+        };
+        self.session
+            .transfer_next(record, cancelled)
+            .map_err(map_string_transfer_error)
+    }
+    /// Consumes a fully advanced owner into the existing canonical report.
+    pub fn complete(
+        self,
+    ) -> Result<TimestampedStringOutletSessionReport, TimestampedStringSessionIncomplete> {
+        let completed = self.session.complete().map_err(map_string_incomplete)?;
+        Ok(TimestampedStringOutletSessionReport {
+            local: completed.local(),
+            peer: completed.peer(),
+        })
+    }
+    /// Delegates remaining transfer and completion to the sole private owner.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedStringOutletSessionReport, TimestampedStringSessionError> {
+        let completed = self.session.finish(self.records, cancelled)?;
+        Ok(TimestampedStringOutletSessionReport {
+            local: completed.local(),
+            peer: completed.peer(),
+        })
+    }
+    /// Closes the accepted stream without manufacturing a completion report.
+    pub fn close(self) {
+        self.session.close();
+    }
+}
 impl<'a> TimestampedStringOutletSession<'a> {
     /// Validates the exact one-channel, one-record, 0..=129-byte shape before socket I/O.
     pub fn preflight_bounded(
@@ -1916,26 +2033,32 @@ impl<'a> TimestampedStringOutletSession<'a> {
     }
     /// Consumes the facade through the sole accept/handshake/initialize/record/close lifecycle.
     pub fn finish(
-        mut self,
+        self,
         cancelled: &AtomicBool,
     ) -> Result<TimestampedStringOutletSessionReport, TimestampedStringSessionError> {
+        self.accept(cancelled)?.finish(cancelled)
+    }
+    /// Consumes preflight state and completes only accept plus handshake.
+    pub fn accept(
+        mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedStringAcceptedOutletSession<'a>, TimestampedStringSessionError> {
         let listener = self
             .listener
             .take()
             .expect("preflighted listener is present");
         let _ = self.activation;
-        let completed = finish_outlet::<session_format::StringSample>(
+        let session = accept_outlet::<session_format::StringSample>(
             listener,
             self.identity,
             self.handshake_limits,
             self.io_limits,
-            self.records,
             validated_session_shape(1, 1),
             cancelled,
         )?;
-        Ok(TimestampedStringOutletSessionReport {
-            local: completed.local(),
-            peer: completed.peer(),
+        Ok(TimestampedStringAcceptedOutletSession {
+            session,
+            records: self.records,
         })
     }
 }
@@ -1947,6 +2070,79 @@ pub struct TimestampedStringInletSession<'a> {
     identity: &'a StreamHandshakeIdentity,
     handshake_limits: StreamHandshakeLimits,
     io_limits: StringSampleLimits,
+}
+
+/// Connected String inlet retaining the sole private lifecycle and received allocation.
+pub struct TimestampedStringConnectedInletSession {
+    session: ConnectedInletSession<session_format::StringSample>,
+}
+
+impl TimestampedStringConnectedInletSession {
+    /// Caller-selected connected peer.
+    pub fn peer(&self) -> SocketAddr {
+        self.session.peer()
+    }
+    /// Exact accepted channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.shape().channels()
+    }
+    /// Exact accepted caller-record count.
+    pub fn record_count(&self) -> usize {
+        self.session.shape().records()
+    }
+    /// Records successfully retained by the canonical cursor.
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_records()
+    }
+    /// Borrows the allocation-owned String records received so far.
+    pub fn received_records(&self) -> &[StringSampleRecord] {
+        self.session.records()
+    }
+    /// Receives the sole caller record, initializing at most once.
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedStringSessionTransferError> {
+        self.session
+            .transfer_next(cancelled)
+            .map_err(map_string_transfer_error)
+    }
+    /// Verifies exact peer close and consumes a fully advanced owner into the canonical report.
+    pub fn complete(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        Result<TimestampedStringInletSessionReport, TimestampedStringSessionError>,
+        TimestampedStringSessionIncomplete,
+    > {
+        let peer = self.session.peer();
+        let completed = self
+            .session
+            .complete(cancelled)
+            .map_err(map_string_incomplete)?;
+        Ok(
+            completed.map(|completed| TimestampedStringInletSessionReport {
+                peer,
+                records: completed.into_records(),
+            }),
+        )
+    }
+    /// Delegates remaining transfer and terminal completion to the sole private owner.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedStringInletSessionReport, TimestampedStringSessionError> {
+        let peer = self.session.peer();
+        let completed = self.session.finish(cancelled)?;
+        Ok(TimestampedStringInletSessionReport {
+            peer,
+            records: completed.into_records(),
+        })
+    }
+    /// Closes the connected stream without manufacturing a completion report.
+    pub fn close(self) {
+        self.session.close();
+    }
 }
 impl<'a> TimestampedStringInletSession<'a> {
     /// Validates the exact one-channel, one-record shape before connecting.
@@ -1974,8 +2170,15 @@ impl<'a> TimestampedStringInletSession<'a> {
         self,
         cancelled: &AtomicBool,
     ) -> Result<TimestampedStringInletSessionReport, TimestampedStringSessionError> {
+        self.connect(cancelled)?.finish(cancelled)
+    }
+    /// Consumes preflight state and completes only connect plus handshake.
+    pub fn connect(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedStringConnectedInletSession, TimestampedStringSessionError> {
         let _ = self.activation;
-        let completed = finish_inlet::<session_format::StringSample>(
+        let session = connect_inlet::<session_format::StringSample>(
             self.peer,
             self.identity,
             self.handshake_limits,
@@ -1983,10 +2186,7 @@ impl<'a> TimestampedStringInletSession<'a> {
             validated_session_shape(1, 1),
             cancelled,
         )?;
-        Ok(TimestampedStringInletSessionReport {
-            peer: self.peer,
-            records: completed.into_records(),
-        })
+        Ok(TimestampedStringConnectedInletSession { session })
     }
 }
 
@@ -3053,6 +3253,120 @@ mod tests {
             );
             TcpListener::bind(address).expect("completed facade released listener port");
         }
+    }
+
+    #[test]
+    fn p21_string_phased_transfer_preserves_envelope_allocation_cursor_and_reuse() {
+        let values = [
+            String::new(),
+            String::from("x"),
+            "x".repeat(128),
+            String::from("μ界🦀"),
+        ];
+        for (case, value) in values.into_iter().enumerate() {
+            let timestamp = f64::from_bits(0x4094_0000_0000_0001 + case as u64);
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let expected = value.clone();
+            let worker = thread::spawn(move || {
+                let records = [StringSampleRecord::new(timestamp, value).unwrap()];
+                let identity = identity();
+                let mut accepted = TimestampedStringOutletSession::preflight_bounded(
+                    string_activation(),
+                    listener,
+                    &identity,
+                    handshake_limits(),
+                    StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+                        .unwrap(),
+                    TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                    &records,
+                )
+                .unwrap()
+                .accept(&AtomicBool::new(false))
+                .unwrap();
+                assert_eq!(accepted.completed_record_count(), 0);
+                accepted.transfer_next(&AtomicBool::new(false)).unwrap();
+                assert_eq!(accepted.completed_record_count(), 1);
+                assert_eq!(
+                    accepted.transfer_next(&AtomicBool::new(false)),
+                    Err(TimestampedStringSessionTransferError::Overrun { declared: 1 })
+                );
+                accepted.complete().unwrap()
+            });
+            let mut connected = TimestampedStringInletSession::preflight_bounded(
+                string_activation(),
+                address,
+                &identity(),
+                handshake_limits(),
+                StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+            )
+            .unwrap()
+            .connect(&AtomicBool::new(false))
+            .unwrap();
+            assert_eq!(connected.completed_record_count(), 0);
+            connected.transfer_next(&AtomicBool::new(false)).unwrap();
+            let allocation = connected.received_records()[0].value().as_ptr();
+            assert_eq!(connected.received_records()[0].value(), expected);
+            assert_eq!(
+                connected.transfer_next(&AtomicBool::new(false)),
+                Err(TimestampedStringSessionTransferError::Overrun { declared: 1 })
+            );
+            let report = connected
+                .complete(&AtomicBool::new(false))
+                .unwrap()
+                .unwrap();
+            assert_eq!(report.records()[0].value().as_ptr(), allocation);
+            assert_eq!(
+                report.records()[0].timestamp().to_bits(),
+                timestamp.to_bits()
+            );
+            assert_eq!(worker.join().unwrap().record_count(), 1);
+            TcpListener::bind(address).unwrap();
+        }
+    }
+
+    #[test]
+    fn p21_string_premature_completion_and_report_free_close_release_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let worker = thread::spawn(move || {
+            let records = [StringSampleRecord::new(1.0, String::from("x")).unwrap()];
+            let identity = identity();
+            let accepted = TimestampedStringOutletSession::preflight_bounded(
+                string_activation(),
+                listener,
+                &identity,
+                handshake_limits(),
+                StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap();
+            let incomplete = accepted.complete().unwrap_err();
+            assert_eq!(incomplete.completed_record_count(), 0);
+            assert_eq!(incomplete.declared_record_count(), 1);
+        });
+        let connected = TimestampedStringInletSession::preflight_bounded(
+            string_activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            StringSampleLimits::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+            TimestampedStringSessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        connected.close();
+        worker.join().unwrap();
+        TcpListener::bind(address).unwrap();
     }
 
     #[test]

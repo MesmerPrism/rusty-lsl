@@ -450,6 +450,23 @@ fn p11_bounded_string_session_vertical_is_public_on_both_facades() {
 }
 
 #[test]
+fn p21_phased_string_session_is_concrete_and_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringAcceptedOutletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringConnectedInletSession>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringSessionTransferError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedStringSessionIncomplete>() > 0);
+    let _root_accept = rusty_lsl::TimestampedStringOutletSession::accept;
+    let _runtime_accept = runtime::TimestampedStringOutletSession::accept;
+    let _root_connect = rusty_lsl::TimestampedStringInletSession::connect;
+    let _runtime_connect = runtime::TimestampedStringInletSession::connect;
+    let _outlet_next = rusty_lsl::TimestampedStringAcceptedOutletSession::transfer_next;
+    let _outlet_complete = rusty_lsl::TimestampedStringAcceptedOutletSession::complete;
+    let _inlet_next = rusty_lsl::TimestampedStringConnectedInletSession::transfer_next;
+    let _inlet_records = rusty_lsl::TimestampedStringConnectedInletSession::received_records;
+    let _inlet_complete = rusty_lsl::TimestampedStringConnectedInletSession::complete;
+}
+
+#[test]
 fn discovery_to_bounded_float32_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryFloat32SessionConnectionError>() > 0);
     let _root = rusty_lsl::run_selected_typed_udp_discovery_float32_session_inlet;

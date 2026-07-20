@@ -346,12 +346,14 @@ pub use timestamped_float32_session_runtime::{
     TimestampedInt8OutletSessionReport, TimestampedInt8SessionError,
     TimestampedInt8SessionIoLimitError, TimestampedInt8SessionIoLimits,
     TimestampedInt8SessionLimitError, TimestampedInt8SessionLimits,
-    TimestampedInt8SessionPreflightError, TimestampedStringInletSession,
+    TimestampedInt8SessionPreflightError, TimestampedStringAcceptedOutletSession,
+    TimestampedStringConnectedInletSession, TimestampedStringInletSession,
     TimestampedStringInletSessionReport, TimestampedStringOutletSession,
     TimestampedStringOutletSessionReport, TimestampedStringSessionCompletion,
-    TimestampedStringSessionError, TimestampedStringSessionLimitError,
-    TimestampedStringSessionLimits, TimestampedStringSessionPreflightError,
-    TimestampedStringSessionRole,
+    TimestampedStringSessionError, TimestampedStringSessionIncomplete,
+    TimestampedStringSessionLimitError, TimestampedStringSessionLimits,
+    TimestampedStringSessionPreflightError, TimestampedStringSessionRole,
+    TimestampedStringSessionTransferError,
 };
 pub use timestamped_float32_two_record_chunk_runtime::{
     run_timestamped_float32_two_record_chunk_inlet,
