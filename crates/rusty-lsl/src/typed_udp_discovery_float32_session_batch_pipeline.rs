@@ -422,7 +422,7 @@ mod tests {
     }
 
     #[test]
-    fn selection_and_endpoint_rejection_precede_session_and_pipeline_work() {
+    fn p32_selection_and_endpoint_rejection_precede_session_and_pipeline_work() {
         let discovery = completed_discovery(document("0.0.0.0", 9, 1));
         let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
         let off = AtomicBool::new(false);
@@ -501,7 +501,7 @@ mod tests {
     }
 
     #[test]
-    fn actual_multi_record_extent_transfers_exact_bits_order_and_allocations_once() {
+    fn p32_actual_multi_record_extent_transfers_exact_bits_order_and_allocations_once() {
         let count = 3;
         let records: Vec<_> = (0..count).map(|index| record(index, 2)).collect();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -581,7 +581,8 @@ mod tests {
     }
 
     #[test]
-    fn recovery_cancellation_retains_current_suffix_exact_health_and_releases_session_endpoint() {
+    fn p32_recovery_cancellation_retains_current_suffix_exact_health_and_releases_session_endpoint()
+    {
         let count = 2;
         let records: Vec<_> = (0..count).map(|index| record(index, 1)).collect();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();

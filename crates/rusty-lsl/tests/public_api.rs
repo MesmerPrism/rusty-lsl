@@ -300,7 +300,7 @@ fn p4_session_batch_boundary_is_concrete_fail_closed_and_current_revision() {
 }
 
 #[test]
-fn p32_selected_discovery_session_batch_pipeline_is_concrete_on_both_facades() {
+fn p32_selected_discovery_float32_session_batch_pipeline_is_concrete_on_both_facades() {
     struct PublicClock;
     impl rusty_lsl::ClockSource for PublicClock {
         fn now(&mut self) -> f64 {
