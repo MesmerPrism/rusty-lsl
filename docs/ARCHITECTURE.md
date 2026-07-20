@@ -1,5 +1,12 @@
 # Architecture
 
+Caller-selected discovery resolution has one crate-private, allocation-free
+contract validator. Concrete adapters enforce endpoint, then format/channel
+shape and UID/hostname/source-ID/session-ID identity, then existing session
+preflight, and only then TCP. The six public format facades remain concrete;
+the validator, strategies, codecs, sockets, cursors, allocations, and lifecycle
+owners do not leak or multiply.
+
 The concrete String discovery adapter borrows a caller-owned completed typed
 discovery run and receive-order index, strictly projects its endpoint, performs
 the existing exact 1x1 socket-free String preflight, and returns the existing

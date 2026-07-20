@@ -143,7 +143,7 @@ mod tests {
     }
 
     #[test]
-    fn exact_contract_succeeds_without_sockets() {
+    fn selected_resolution_exact_contract_succeeds_without_sockets() {
         assert_eq!(
             validate(
                 ChannelFormat::Float32,

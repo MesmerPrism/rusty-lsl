@@ -1,5 +1,12 @@
 # Rusty LSL
 
+One private allocation-free selected-response contract now validates concrete
+format, channel count, UID, hostname, source ID, and session ID before session
+preflight and TCP. Six concrete Float32, Double64, Int32, Int16, Int8, and
+String adapters use that owner while retaining caller selection and the
+existing format-specific lifecycle, codec, allocation, and report owners.
+Activation remains explicit and disabled by default.
+
 The bounded String discovery composition connects one caller-selected completed
 typed discovery response to the existing phased String inlet owner. It keeps
 strict endpoint, exact 1x1 preflight, and session error precedence; the

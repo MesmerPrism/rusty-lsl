@@ -497,7 +497,7 @@ mod tests {
     }
 
     #[test]
-    fn p23_each_integer_adapter_rejects_selected_contract_mismatch_before_tcp() {
+    fn selected_resolution_p23_each_integer_rejects_contract_mismatch_before_tcp() {
         assert_integer_contract_rejections!(
             connect_selected_typed_udp_discovery_int32_session_inlet,
             TypedUdpDiscoveryInt32SessionConnectionError,

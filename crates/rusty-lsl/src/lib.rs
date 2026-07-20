@@ -405,8 +405,9 @@ pub use typed_udp_discovery_float32_recovery_queue::{
 };
 pub use typed_udp_discovery_float32_session_connection::{
     connect_selected_typed_udp_discovery_float32_session_inlet,
+    resolve_selected_typed_udp_discovery_float32_session_inlet,
     run_selected_typed_udp_discovery_float32_session_inlet,
-    TypedUdpDiscoveryFloat32SessionConnectionError,
+    ResolvedTypedUdpDiscoveryFloat32Session, TypedUdpDiscoveryFloat32SessionConnectionError,
 };
 pub use typed_udp_discovery_handshake::{
     run_selected_typed_udp_discovery_inlet_handshake, TypedUdpDiscoveryHandshakeError,

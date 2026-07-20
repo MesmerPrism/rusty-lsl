@@ -450,7 +450,7 @@ mod tests {
     }
 
     #[test]
-    fn p20_selected_contract_mismatches_are_owned_and_follow_frozen_precedence() {
+    fn selected_resolution_p20_contract_mismatches_are_owned_in_frozen_precedence() {
         let expected_identity = identity();
         assert_eq!(
             contract_failure(

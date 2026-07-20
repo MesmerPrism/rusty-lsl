@@ -522,6 +522,17 @@ fn p18_discovery_to_phased_float32_connection_is_public_on_both_facades() {
 }
 
 #[test]
+fn selected_resolution_float32_socket_free_state_is_public_on_both_facades() {
+    let _root = rusty_lsl::resolve_selected_typed_udp_discovery_float32_session_inlet;
+    let _runtime = runtime::resolve_selected_typed_udp_discovery_float32_session_inlet;
+    same_type(&_root, &_runtime);
+    assert!(
+        core::mem::size_of::<rusty_lsl::ResolvedTypedUdpDiscoveryFloat32Session<'static>>() > 0
+    );
+    assert!(core::mem::size_of::<runtime::ResolvedTypedUdpDiscoveryFloat32Session<'static>>() > 0);
+}
+
+#[test]
 fn p20_discovery_to_phased_double64_connection_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryDouble64SessionConnectionError>() > 0);
     let _root_connect = rusty_lsl::connect_selected_typed_udp_discovery_double64_session_inlet;

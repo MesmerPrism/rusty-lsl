@@ -408,7 +408,7 @@ mod tests {
     }
 
     #[test]
-    fn p26_exact_resolution_is_socket_free_and_retains_selection_borrows() {
+    fn selected_resolution_p26_is_socket_free_and_retains_selection_borrows() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let endpoint = listener.local_addr().unwrap();
         let discovery = completed_discovery(document("127.0.0.1", endpoint.port()));
@@ -422,7 +422,7 @@ mod tests {
     }
 
     #[test]
-    fn p26_contract_mismatches_return_exact_owned_evidence_in_frozen_order() {
+    fn selected_resolution_p26_contract_mismatches_return_owned_evidence_in_order() {
         let endpoint: std::net::SocketAddr = "127.0.0.1:43002".parse().unwrap();
         let expected = identity("11111111-2222-4333-8444-555555555555");
         let cases = [
@@ -527,7 +527,7 @@ mod tests {
     }
 
     #[test]
-    fn p26_index_endpoint_contract_then_preflight_precedence_is_socket_free() {
+    fn selected_resolution_p26_endpoint_contract_preflight_precedence_is_socket_free() {
         let expected = identity("11111111-2222-4333-8444-555555555555");
         let valid = completed_discovery(document("127.0.0.1", 9));
         assert!(matches!(

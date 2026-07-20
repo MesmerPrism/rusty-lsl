@@ -416,7 +416,7 @@ mod tests {
     }
 
     #[test]
-    fn p24_string_adapter_rejects_owned_contract_mismatch_before_preflight_and_tcp() {
+    fn selected_resolution_p24_string_rejects_contract_before_preflight_and_tcp() {
         assert_eq!(
             contract_failure(document(9).replace("string", "float32")),
             TypedUdpDiscoveryStringSessionConnectionError::FormatMismatch {

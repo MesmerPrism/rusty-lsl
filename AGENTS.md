@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+The selected-discovery resolution milestone adds one crate-private,
+allocation-free contract owner for concrete format, channel count, UID,
+hostname, source ID, and session ID. Endpoint projection precedes that contract,
+which precedes existing preflight and TCP across the six concrete format
+adapters. Caller selection and every lifecycle, codec, allocation, completion,
+cleanup, and activation owner remain unchanged; activation is explicit and
+default-disabled.
+
 The caller-selected typed-discovery response adapter may now enter the existing
 one-channel/one-record phased String connected inlet. Strict endpoint projection
 precedes socket-free String preflight and the sole existing session lifecycle;

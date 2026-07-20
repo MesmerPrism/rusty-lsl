@@ -1,5 +1,17 @@
 # Validation
 
+The selected-resolution milestone is qualified host-synthetically across all
+six concrete adapters with exact format, channel-shape, UID, hostname, source
+ID, session ID, precedence, ownership, cleanup, and public-boundary checks:
+
+```text
+cargo test -p rusty-lsl selected_resolution -- --test-threads=1
+```
+
+Existing lifecycle and format regressions plus one serialized Standard remain
+required. Accepted device and oracle evidence is reused only under its prior
+claims; this milestone requires no rerun.
+
 Focused caller-selected discovery-to-phased-String qualification is:
 
 ```text
