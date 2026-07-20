@@ -1,5 +1,18 @@
 # Rusty LSL Agent Notes
 
+The frozen native Int64 bounded-session milestone adds only signed 64-bit
+little-endian record behavior for the already accepted one-channel/one-record
+and two-channel/three-record shapes. The sole crate-private format-neutral
+lifecycle owns preflight, accept/connect, handshake, initialization, the
+successful-only cursor, terminal close, and cleanup; its sealed crate-private
+Int64 codec alone owns exact eight-byte signed value framing without exposing a
+generic strategy. Qualification must cover exact values/bits/order, indexed and
+trailing damage, cancellation, deadline, cleanup and immediate port reuse,
+concrete public facades, existing-format regression, and unchanged explicit
+default-disabled activation. It adds no other integer format, shape, discovery,
+selection, retry, recovery, clock, queue, device, oracle, official compatibility,
+automatic policy, background work, command, or Manifold authority.
+
 The Float32 report-batch health surface is an immutable borrowed projection of
 the existing successful outcome or owner-preserving batch error. It reports
 exact total/completed/remaining counts, an existing zero-based current index

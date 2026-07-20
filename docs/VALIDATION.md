@@ -1,5 +1,27 @@
 # Validation
 
+The frozen native Int64 bounded-session milestone requires host-synthetic
+qualification of signed 64-bit little-endian transfer for only the 1x1 and 2x3
+shapes. Evidence must cover `i64::MIN`, `i64::MAX`, negative, zero, and positive
+values; exact timestamp bits, channel/record order, successful-only cursor
+advancement, consuming completion, and retained inlet allocation ownership.
+Damage cases must distinguish indexed eight-byte truncation from trailing
+bytes and prove rejection without false progress. Pre-cancellation, active
+cancellation, deadline, report-free close/drop, cleanup, repeated teardown,
+and immediate port reuse remain required, together with concrete crate-root and
+`runtime` public-facade checks and all existing-format regression.
+
+The evidence qualifies only the sealed crate-private Int64 codec beneath the
+sole crate-private format-neutral lifecycle. It does not qualify arbitrary
+shapes, another width or format, a public generic codec/strategy/lifecycle,
+discovery or selection, retry/recovery, clocks or queues, devices, an oracle,
+official or non-loopback compatibility, automatic policy, background work,
+commands, or Manifold authority. Activation must remain explicit and
+default-disabled, and qualification must not mutate activation, workflow,
+planning, or validation-policy state. The existing policy-owned quick and
+serialized Standard profiles remain the aggregate gates; no validation-router
+gate name, token, profile inventory, or `does_not_prove` text is changed here.
+
 The observable batch-health milestone requires focused host evidence that a
 borrowed successful outcome and every owner-preserving batch error produce one
 immutable Float32 snapshot without moving or duplicating retained allocations.

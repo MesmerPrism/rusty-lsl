@@ -1,5 +1,30 @@
 # Architecture
 
+## Native Int64 bounded session
+
+Native Int64 is one sealed format strategy beneath the existing sole
+crate-private format-neutral session lifecycle. The codec maps each Rust `i64`
+to exactly eight little-endian bytes and reconstructs the identical signed
+64-bit value; channel and record order are unchanged. It owns framing only.
+The lifecycle remains the sole owner of socket-free shape preflight,
+accept/connect, handshake and initialization sequencing, the canonical
+successful-only cursor, exact completion, cancellation/deadline classification,
+terminal close, and cleanup.
+
+Admission is closed to exactly one channel with one caller record and two
+channels with three caller records. Concrete Int64 accepted-outlet and
+connected-inlet facades may advance records, consume exact completion, or close
+without manufacturing a report, but expose neither the lifecycle engine nor
+the codec. Indexed truncation and trailing bytes remain typed damage; failed
+record transfer does not advance progress, and cancellation, deadline, drop,
+and explicit close all release run-owned resources.
+
+This seam does not generalize integer widths, channel or record counts, publish
+a generic strategy, or add discovery, selection, retries, recovery, clocks,
+queues, background work, device behavior, oracle or official compatibility,
+commands, or Manifold authority. It creates no activation owner or capability;
+runtime activation remains caller-explicit and default-disabled.
+
 Batch health is a borrowed observation over the existing concrete Float32
 report-batch result, not another lifecycle or evidence owner. A successful
 outcome yields `complete`, with total and completed equal to the existing

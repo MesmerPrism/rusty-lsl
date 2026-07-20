@@ -1,5 +1,17 @@
 # Rusty LSL
 
+The native Int64 bounded-session surface is deliberately closed to signed
+64-bit values encoded little-endian and to exactly the accepted 1x1 and 2x3
+shapes. Concrete public inlet/outlet facades remain thin adapters: the sole
+crate-private format-neutral lifecycle owns connection, progress, completion,
+terminal close, and cleanup, while one sealed crate-private Int64 codec owns
+the exact eight-byte framing. Damage, cancellation, and deadline remain typed
+and distinct; every terminal path retains cleanup and immediate reuse. This
+adds no generic public codec or lifecycle, broader shape or format, discovery,
+automatic policy, device/oracle or official-compatibility claim, activation
+authority, command path, or Manifold authority. Activation remains explicit
+and disabled by default.
+
 The concrete Float32 report-batch health projection borrows either the
 successful batch outcome or the owner-preserving batch error and returns an
 immutable snapshot; it does not move, clone, or reinterpret retained records,
