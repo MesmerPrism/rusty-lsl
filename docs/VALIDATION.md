@@ -1,5 +1,18 @@
 # Validation
 
+The frozen Int64 selected-discovery facade is qualified through the public API
+target, which requires its concrete connect, run, and typed-error surface on
+both the crate root and `runtime` facade:
+
+```text
+cargo test -p rusty-lsl --test public_api p30r_selected_discovery_int64_surface_is_public_on_both_facades
+```
+
+Candidate-local compilation may fail at the module boundary when the disjoint
+Int64 selected-discovery core adapter has not yet been integrated. That is an
+expected composition dependency, not passing runtime evidence; formatting,
+diff checks, and other source-independent gates remain required.
+
 The frozen native Int64 bounded-session milestone requires host-synthetic
 qualification of signed 64-bit little-endian transfer for only the 1x1 and 2x3
 shapes. Evidence must cover `i64::MIN`, `i64::MAX`, negative, zero, and positive

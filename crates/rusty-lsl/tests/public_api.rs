@@ -542,6 +542,17 @@ fn p29_phased_int64_sessions_are_concrete_and_public_on_both_facades() {
 }
 
 #[test]
+fn p30r_selected_discovery_int64_surface_is_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TypedUdpDiscoveryInt64SessionConnectionError>() > 0);
+    assert!(core::mem::size_of::<runtime::TypedUdpDiscoveryInt64SessionConnectionError>() > 0);
+
+    let _root_connect = rusty_lsl::connect_selected_typed_udp_discovery_int64_session_inlet;
+    let _runtime_connect = runtime::connect_selected_typed_udp_discovery_int64_session_inlet;
+    let _root_run = rusty_lsl::run_selected_typed_udp_discovery_int64_session_inlet;
+    let _runtime_run = runtime::run_selected_typed_udp_discovery_int64_session_inlet;
+}
+
+#[test]
 fn p11_bounded_string_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringOutletSession<'static>>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringInletSession<'static>>() > 0);

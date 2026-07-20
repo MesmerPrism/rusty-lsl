@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+The frozen Int64 selected-discovery facade adds only concrete root/runtime
+exports and public qualification for the caller-selected connect, run, and
+typed error surface. Endpoint projection and the existing selected-response
+contract precede socket-free Int64 preflight and the sole bounded session
+lifecycle. Discovery execution, response selection, identity, cancellation,
+deadlines, codec, allocation, cleanup, and activation ownership remain
+unchanged; activation stays explicit and default-disabled, with no retry,
+recovery, policy, device, oracle, automatic selection, or Manifold authority.
+
 The frozen native Int64 bounded-session milestone adds only signed 64-bit
 little-endian record behavior for the already accepted one-channel/one-record
 and two-channel/three-record shapes. The sole crate-private format-neutral

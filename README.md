@@ -1,5 +1,12 @@
 # Rusty LSL
 
+The frozen Int64 selected-discovery surface exposes concrete root and
+`runtime` facade entrypoints for caller-selected connect and complete-run
+operations, plus their typed error. It preserves the existing endpoint,
+selected-response contract, preflight, lifecycle, and activation owners; it
+adds no discovery execution, selection policy, retry, recovery, device, or
+Manifold authority, and activation remains explicit and default-disabled.
+
 The native Int64 bounded-session surface is deliberately closed to signed
 64-bit values encoded little-endian and to exactly the accepted 1x1 and 2x3
 shapes. Concrete public inlet/outlet facades remain thin adapters: the sole

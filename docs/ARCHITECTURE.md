@@ -1,5 +1,15 @@
 # Architecture
 
+## Caller-selected discovery to Int64 session
+
+The concrete Int64 selected-discovery facade projects one caller-selected
+typed response, validates its format, channel count, and handshake identity,
+then delegates to the existing socket-free Int64 preflight and sole bounded
+session lifecycle. Its connect entrypoint returns the existing phased
+connected inlet; its run entrypoint returns the canonical report. The facade
+does not own discovery, response selection, identity derivation, retry,
+recovery, codec, allocation, cleanup, activation, or Manifold stream authority.
+
 ## Native Int64 bounded session
 
 Native Int64 is one sealed format strategy beneath the existing sole
