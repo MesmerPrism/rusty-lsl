@@ -1,5 +1,13 @@
 # Rusty LSL
 
+The bounded homogeneous Float32 session now exposes record-at-a-time transfer
+on its existing accepted/connected concrete owners. The sole private phased
+lifecycle still owns initialization-once, the exact cursor, successful-only
+advancement, overrun rejection before I/O, consuming completion, terminal
+close, and allocation-owned inlet records. One-shot and exact two-record chunk
+facades continue through the same owner; activation remains explicit and
+default-disabled.
+
 The sole crate-private format-neutral lifecycle now owns one-time initialization,
 the exact bounded record cursor, per-record successful advancement, and
 exact-count completion. The exact one-channel/two-record Float32 chunk facade

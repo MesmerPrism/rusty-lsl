@@ -344,6 +344,18 @@ fn p2_bounded_float32_shape_seam_is_public() {
 }
 
 #[test]
+fn p17_phased_bounded_float32_shape_seam_is_concrete_and_public() {
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32SessionTransferError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedFloat32SessionIncomplete>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::runtime::TimestampedFloat32SessionTransferError>() > 0);
+    let _outlet_next = rusty_lsl::TimestampedFloat32AcceptedOutletSession::transfer_next;
+    let _outlet_complete = rusty_lsl::TimestampedFloat32AcceptedOutletSession::complete;
+    let _inlet_next = rusty_lsl::TimestampedFloat32ConnectedInletSession::transfer_next;
+    let _inlet_records = rusty_lsl::TimestampedFloat32ConnectedInletSession::received_records;
+    let _inlet_complete = rusty_lsl::TimestampedFloat32ConnectedInletSession::complete;
+}
+
+#[test]
 fn p2_bounded_double64_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64OutletSession<'static>>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64InletSession<'static>>() > 0);

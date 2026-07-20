@@ -6,7 +6,7 @@
 use crate::format_neutral_session_runtime::{
     accept_outlet, connect_inlet, finish_inlet, finish_outlet, preflight_outlet_shape,
     preflight_shape, terminal_close, AcceptedOutletSession, ConnectedInletSession,
-    SealedSessionStrategy, SessionShape, SessionShapeError,
+    PrematureCompletion, SealedSessionStrategy, SessionShape, SessionShapeError, TransferError,
 };
 
 fn validated_session_shape(channels: usize, records: usize) -> SessionShape {
@@ -327,6 +327,54 @@ pub enum TimestampedFloat32SessionError {
         /// First trailing byte.
         actual: u8,
     },
+}
+
+/// Failure while advancing one record through a phased Float32 session.
+#[derive(Debug, Eq, PartialEq)]
+pub enum TimestampedFloat32SessionTransferError {
+    /// The exact preflighted record count was already reached; no additional I/O occurred.
+    Overrun {
+        /// Exact record count declared during preflight.
+        declared: usize,
+    },
+    /// The canonical session owner failed while transferring the indexed record.
+    Session(TimestampedFloat32SessionError),
+}
+
+/// Successful completion was requested before the exact preflighted count was reached.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedFloat32SessionIncomplete {
+    completed: usize,
+    declared: usize,
+}
+
+impl TimestampedFloat32SessionIncomplete {
+    /// Number of records successfully transferred before completion was requested.
+    pub const fn completed_record_count(self) -> usize {
+        self.completed
+    }
+    /// Exact record count declared during preflight.
+    pub const fn declared_record_count(self) -> usize {
+        self.declared
+    }
+}
+
+fn map_transfer_error(
+    error: TransferError<TimestampedFloat32SessionError>,
+) -> TimestampedFloat32SessionTransferError {
+    match error {
+        TransferError::Overrun { declared } => {
+            TimestampedFloat32SessionTransferError::Overrun { declared }
+        }
+        TransferError::Session(error) => TimestampedFloat32SessionTransferError::Session(error),
+    }
+}
+
+fn map_incomplete(error: PrematureCompletion) -> TimestampedFloat32SessionIncomplete {
+    TimestampedFloat32SessionIncomplete {
+        completed: error.completed,
+        declared: error.declared,
+    }
 }
 
 /// Successful outlet lifecycle report.
@@ -2210,6 +2258,42 @@ impl TimestampedFloat32AcceptedOutletSession<'_> {
         self.session.shape().records()
     }
 
+    /// Returns the number of caller records successfully advanced by the canonical cursor.
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_records()
+    }
+
+    /// Advances exactly the next preflighted caller record, initializing at most once.
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SessionTransferError> {
+        let index = self.session.completed_records();
+        let Some(record) = self.records.get(index) else {
+            return Err(TimestampedFloat32SessionTransferError::Overrun {
+                declared: self.records.len(),
+            });
+        };
+        self.session
+            .transfer_next(record, cancelled)
+            .map_err(map_transfer_error)
+    }
+
+    /// Consumes a fully advanced session into the canonical report and rejects early completion.
+    pub fn complete(
+        self,
+    ) -> Result<TimestampedFloat32OutletSessionReport, TimestampedFloat32SessionIncomplete> {
+        let completed = self.session.complete().map_err(map_incomplete)?;
+        let shape = completed.shape();
+        Ok(TimestampedFloat32OutletSessionReport {
+            local: completed.local(),
+            peer: completed.peer(),
+            records: shape.records(),
+            channels: shape.channels(),
+            completion: TimestampedFloat32SessionCompletion::Complete,
+        })
+    }
+
     /// Completes initialization, record transfer, terminal cleanup, and the canonical report.
     pub fn finish(
         self,
@@ -2346,6 +2430,47 @@ impl TimestampedFloat32ConnectedInletSession {
     /// Returns the preflighted record count.
     pub fn record_count(&self) -> usize {
         self.session.shape().records()
+    }
+
+    /// Returns the number of records successfully retained by the canonical cursor.
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_records()
+    }
+
+    /// Borrows the ordered allocation-owned records received so far.
+    pub fn received_records(&self) -> &[TimestampedSample<f32>] {
+        self.session.records()
+    }
+
+    /// Receives exactly the next record, initializing at most once.
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedFloat32SessionTransferError> {
+        self.session
+            .transfer_next(cancelled)
+            .map_err(map_transfer_error)
+    }
+
+    /// Consumes a fully advanced session, verifies exact peer close, and returns the canonical report.
+    pub fn complete(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        Result<TimestampedFloat32InletSessionReport, TimestampedFloat32SessionError>,
+        TimestampedFloat32SessionIncomplete,
+    > {
+        let peer = self.session.peer();
+        let completed = self.session.complete(cancelled).map_err(map_incomplete)?;
+        Ok(completed.map(|completed| {
+            let shape = completed.shape();
+            TimestampedFloat32InletSessionReport {
+                peer,
+                records: completed.into_records(),
+                completion: TimestampedFloat32SessionCompletion::Complete,
+                channels: shape.channels(),
+            }
+        }))
     }
 
     /// Completes initialization, record receipt, peer close, and terminal cleanup.
@@ -2524,7 +2649,7 @@ mod tests {
         runtime_activation::test_capability, RawSourceTimestamp, RuntimeModule, Sample,
         SampleLimits, StreamHandshakeActivation,
     };
-    use std::{thread, time::Duration};
+    use std::{io::Write, thread, time::Duration};
 
     #[test]
     fn candidate_string_session_shape_is_closed_before_io() {
@@ -3472,6 +3597,358 @@ mod tests {
         let sent = worker.join().unwrap();
         assert_eq!(sent.channel_count(), 2);
         assert_eq!(sent.record_count(), 3);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p17_phased_bounded_shape_preserves_bits_order_allocation_and_exact_count() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [
+            shaped_sample(0x4092_5220_0000_0017, &[0x3f80_0017, 0xbf80_0018]),
+            shaped_sample(0x4092_5b80_0000_0019, &[0x4000_0019, 0xc000_001a]),
+            shaped_sample(0x4092_64e0_0000_001b, &[0x4040_001b, 0xc040_001c]),
+        ];
+        let worker = thread::spawn(move || {
+            let session_identity = identity();
+            let mut accepted = TimestampedFloat32OutletSession::preflight_bounded(
+                activation(),
+                listener,
+                &session_identity,
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 3).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap();
+            assert_eq!(accepted.completed_record_count(), 0);
+            for completed in 1..=3 {
+                accepted.transfer_next(&AtomicBool::new(false)).unwrap();
+                assert_eq!(accepted.completed_record_count(), completed);
+            }
+            assert_eq!(
+                accepted.transfer_next(&AtomicBool::new(false)),
+                Err(TimestampedFloat32SessionTransferError::Overrun { declared: 3 })
+            );
+            accepted.complete().unwrap()
+        });
+
+        let session_identity = identity();
+        let mut connected = TimestampedFloat32InletSession::preflight_bounded(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 3).unwrap(),
+            2,
+            3,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(connected.completed_record_count(), 0);
+        for completed in 1..=3 {
+            connected.transfer_next(&AtomicBool::new(false)).unwrap();
+            assert_eq!(connected.completed_record_count(), completed);
+            assert_eq!(connected.received_records().len(), completed);
+        }
+        assert_eq!(
+            connected.transfer_next(&AtomicBool::new(false)),
+            Err(TimestampedFloat32SessionTransferError::Overrun { declared: 3 })
+        );
+        let allocation = connected.received_records().as_ptr();
+        let report = connected
+            .complete(&AtomicBool::new(false))
+            .unwrap()
+            .unwrap();
+        assert_eq!(report.records().as_ptr(), allocation);
+        assert_eq!(
+            report.records()[0].raw_source_timestamp().value().to_bits(),
+            0x4092_5220_0000_0017
+        );
+        assert_eq!(
+            report.records()[1].sample().values()[1].to_bits(),
+            0xc000_001a
+        );
+        assert_eq!(
+            report.records()[2].sample().values()[0].to_bits(),
+            0x4040_001b
+        );
+        assert_eq!(worker.join().unwrap().record_count(), 3);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p17_phased_completion_rejects_short_transfer_and_drop_releases_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [
+            sample(0x4092_5220_0000_0017, 0x3f80_0017),
+            sample(0x4092_5b80_0000_0018, 0x4000_0018),
+        ];
+        let worker = thread::spawn(move || {
+            let session_identity = identity();
+            let mut accepted = TimestampedFloat32OutletSession::preflight(
+                activation(),
+                listener,
+                &session_identity,
+                handshake_limits(),
+                sample_limits(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap();
+            accepted.transfer_next(&AtomicBool::new(false)).unwrap();
+            accepted.complete().unwrap_err()
+        });
+        let session_identity = identity();
+        let result = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            2,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false));
+        assert!(result.is_err());
+        let incomplete = worker.join().unwrap();
+        assert_eq!(incomplete.completed_record_count(), 1);
+        assert_eq!(incomplete.declared_record_count(), 2);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p17_phased_damage_is_indexed_and_trailing_close_is_exact() {
+        for damaged_index in 0..2 {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let peer = thread::spawn(move || {
+                let (mut stream, _, _) = accept_handshake_stream(
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+                write_initialization_for_channels(
+                    &mut stream,
+                    1,
+                    sample_limits(),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+                if damaged_index == 1 {
+                    write_record_for_channels(
+                        &mut stream,
+                        &sample(0x4092_5220_0000_0017, 0x3f80_0017),
+                        1,
+                        sample_limits(),
+                        &AtomicBool::new(false),
+                    )
+                    .unwrap();
+                }
+                stream.write_all(&[9; 13]).unwrap();
+            });
+            let session_identity = identity();
+            let mut connected = TimestampedFloat32InletSession::preflight(
+                activation(),
+                address,
+                &session_identity,
+                handshake_limits(),
+                sample_limits(),
+                2,
+            )
+            .unwrap()
+            .connect(&AtomicBool::new(false))
+            .unwrap();
+            if damaged_index == 1 {
+                connected.transfer_next(&AtomicBool::new(false)).unwrap();
+            }
+            assert_eq!(
+                connected.transfer_next(&AtomicBool::new(false)),
+                Err(TimestampedFloat32SessionTransferError::Session(
+                    TimestampedFloat32SessionError::Record {
+                        index: Some(damaged_index),
+                        error: TimestampedFloat32SampleError::InvalidMarker { actual: 9 },
+                    }
+                ))
+            );
+            peer.join().unwrap();
+            TcpListener::bind(address).unwrap();
+        }
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let peer = thread::spawn(move || {
+            let (mut stream, _, _) = accept_handshake_stream(
+                listener,
+                &identity(),
+                handshake_limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            write_initialization_for_channels(
+                &mut stream,
+                1,
+                sample_limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            write_record_for_channels(
+                &mut stream,
+                &sample(0x4092_5220_0000_0017, 0x3f80_0017),
+                1,
+                sample_limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            stream.write_all(&[2]).unwrap();
+        });
+        let session_identity = identity();
+        let mut connected = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        connected.transfer_next(&AtomicBool::new(false)).unwrap();
+        assert!(matches!(
+            connected.complete(&AtomicBool::new(false)).unwrap(),
+            Err(TimestampedFloat32SessionError::TrailingByte { actual: 2 })
+        ));
+        peer.join().unwrap();
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p17_phased_cancellation_and_deadline_remain_separate() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let peer = thread::spawn(move || {
+            let (stream, _, _) = accept_handshake_stream(
+                listener,
+                &identity(),
+                handshake_limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            thread::sleep(Duration::from_millis(80));
+            drop(stream);
+        });
+        let short = TimestampedFloat32SampleLimits::new(
+            Duration::from_millis(2),
+            Duration::from_millis(20),
+        )
+        .unwrap();
+        let session_identity = identity();
+        let mut connected = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            short,
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(
+            connected.transfer_next(&AtomicBool::new(false)),
+            Err(TimestampedFloat32SessionTransferError::Session(
+                TimestampedFloat32SessionError::Record {
+                    index: None,
+                    error: TimestampedFloat32SampleError::Deadline
+                }
+            ))
+        );
+        peer.join().unwrap();
+        TcpListener::bind(address).unwrap();
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let peer = thread::spawn(move || {
+            accept_handshake_stream(
+                listener,
+                &identity(),
+                handshake_limits(),
+                &AtomicBool::new(false),
+            )
+            .unwrap()
+        });
+        let session_identity = identity();
+        let mut connected = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &session_identity,
+            handshake_limits(),
+            sample_limits(),
+            1,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(
+            connected.transfer_next(&AtomicBool::new(true)),
+            Err(TimestampedFloat32SessionTransferError::Session(
+                TimestampedFloat32SessionError::Record {
+                    index: None,
+                    error: TimestampedFloat32SampleError::Cancelled
+                }
+            ))
+        );
+        drop(peer.join().unwrap());
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p17_legacy_one_shot_finish_retains_the_same_canonical_bits_and_report() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [sample(0x4092_5220_0000_0017, 0xbf80_0017)];
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let report = TimestampedFloat32InletSession::preflight(
+            activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            sample_limits(),
+            1,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(
+            report.records()[0].raw_source_timestamp().value().to_bits(),
+            0x4092_5220_0000_0017
+        );
+        assert_eq!(
+            report.records()[0].sample().values()[0].to_bits(),
+            0xbf80_0017
+        );
+        assert_eq!(worker.join().unwrap().record_count(), 1);
         TcpListener::bind(address).unwrap();
     }
 

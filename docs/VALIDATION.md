@@ -1,5 +1,17 @@
 # Validation
 
+Focused phased bounded Float32 shape qualification is:
+
+```text
+cargo test -p rusty-lsl p17_ -- --test-threads=1
+```
+
+It covers multi-channel exact bits/order, successful-only cursor advancement,
+inlet allocation preservation, premature completion, pre-I/O overrun, indexed
+damage, trailing bytes, cancellation/deadline separation, close/drop cleanup,
+immediate port reuse, legacy one-shot continuity, and concrete public sealing.
+Standard remains the aggregate owner gate; this adds no oracle or device claim.
+
 LSLC-007R preserves
 `morphospace/receipts/rlsl-lslc-003m-standard-validation.json` byte-for-byte at
 SHA-256 `d979a92da01cf3b7c46844335c8612cb4d0aeacf64201b9f9e9a40997ac15d5b`.

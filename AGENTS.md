@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+The bounded homogeneous Float32 session exposes phased record advancement only
+through its existing concrete accepted/connected owners. The sole crate-private
+format-neutral lifecycle remains the initialization, cursor, exact-count,
+completion, terminal-close, and allocation owner. One-shot and exact-chunk
+facades remain delegates; activation stays explicit and default-disabled, with
+no generic strategy, socket, format, discovery, policy, device, or Manifold
+authority widening.
+
 LSLC-007R corrects only the LSLC-004L immutable-receipt checker to the
 byte-exact LSLC-003M Git blob that has existed unchanged since its introduction.
 The historical receipt remains untouched; the former expected hash identified

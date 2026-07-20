@@ -1,5 +1,13 @@
 # Architecture
 
+Bounded homogeneous Float32 accepted/connected sessions may advance one record
+at a time, but do not own a parallel lifecycle. Their concrete methods delegate
+to the sole crate-private format-neutral phased owner, which initializes once,
+checks overrun before I/O, advances its canonical cursor only after success,
+retains inlet allocations, enforces exact-count consuming completion, and owns
+terminal close/drop. Existing one-shot and exact two-record chunk facades use
+the same path and expose neither sockets nor format strategies.
+
 The format-neutral session engine is the sole transfer owner. After handshake
 it initializes the selected sealed strategy exactly once, retains one canonical
 zero-based cursor, advances only after a successful record operation, rejects

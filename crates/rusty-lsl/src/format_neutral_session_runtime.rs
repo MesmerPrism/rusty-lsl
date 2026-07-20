@@ -236,8 +236,13 @@ impl<F: SealedSessionStrategy> AcceptedOutletSession<F> {
                 Err(TransferError::Overrun { .. }) => unreachable!("preflighted shape drift"),
             }
         }
-        self.require_complete()
-            .expect("preflighted records complete the canonical shape");
+        Ok(self
+            .complete()
+            .expect("preflighted records complete the canonical shape"))
+    }
+
+    pub(crate) fn complete(mut self) -> Result<CompletedOutletSession, PrematureCompletion> {
+        self.require_complete()?;
         terminal_close(self.stream.0.take());
         Ok(CompletedOutletSession {
             local: self.local,
@@ -255,6 +260,10 @@ impl<F: SealedSessionStrategy> AcceptedOutletSession<F> {
                 declared: self.shape.records(),
             })
         }
+    }
+
+    pub(crate) const fn completed_records(&self) -> usize {
+        self.cursor
     }
 
     pub(crate) fn transfer_next(
@@ -310,15 +319,25 @@ impl<F: SealedSessionStrategy> ConnectedInletSession<F> {
                 Err(TransferError::Overrun { .. }) => unreachable!("canonical cursor drift"),
             }
         }
-        self.require_complete()
-            .expect("the canonical inlet cursor reached its declared count");
+        self.complete(cancelled)
+            .expect("the canonical inlet cursor reached its declared count")
+    }
+
+    pub(crate) fn complete(
+        mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<Result<CompletedInletSession<F::Sample>, F::SessionError>, PrematureCompletion>
+    {
+        self.require_complete()?;
         let socket = self.stream.0.as_mut().expect("session stream is present");
-        require_peer_close::<F>(socket, self.limits, cancelled)?;
+        if let Err(error) = require_peer_close::<F>(socket, self.limits, cancelled) {
+            return Ok(Err(error));
+        }
         terminal_close(self.stream.0.take());
-        Ok(CompletedInletSession {
+        Ok(Ok(CompletedInletSession {
             records: self.records,
             shape: self.shape,
-        })
+        }))
     }
 
     pub(crate) fn require_complete(&self) -> Result<(), PrematureCompletion> {
@@ -330,6 +349,14 @@ impl<F: SealedSessionStrategy> ConnectedInletSession<F> {
                 declared: self.shape.records(),
             })
         }
+    }
+
+    pub(crate) const fn completed_records(&self) -> usize {
+        self.cursor
+    }
+
+    pub(crate) fn records(&self) -> &[F::Sample] {
+        &self.records
     }
 
     pub(crate) fn transfer_next(
