@@ -113,6 +113,7 @@ mod timestamped_float32_sample_runtime;
 mod timestamped_float32_session_runtime;
 mod timestamped_float32_two_record_chunk_runtime;
 mod typed_short_info_response_observation;
+mod typed_udp_discovery_double64_session_connection;
 mod typed_udp_discovery_endpoint;
 mod typed_udp_discovery_float32;
 mod typed_udp_discovery_float32_clock_correction_queue;
@@ -365,6 +366,7 @@ pub use timestamped_float32_two_record_chunk_runtime::{
 pub use typed_short_info_response_observation::{
     TypedShortInfoResponseObservation, TypedShortInfoResponseObservationError,
 };
+pub use typed_udp_discovery_double64_session_connection::connect_selected_typed_udp_discovery_double64_session_inlet;
 pub use typed_udp_discovery_endpoint::{
     propose_typed_udp_discovery_ipv4_service_endpoint, TypedUdpDiscoveryEndpointError,
 };

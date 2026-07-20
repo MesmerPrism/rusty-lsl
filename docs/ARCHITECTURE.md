@@ -76,6 +76,19 @@ activation, or public policy.
 
 ## Caller-selected discovery to session
 
+`typed_udp_discovery_double64_session_connection` is the corresponding
+format-specific composition for the already phased Double64 inlet. It borrows
+one completed typed discovery run and accepts the caller's receive-order index,
+activation, expected identity, limits, shape, and cancellation reference. The
+sole strict endpoint projector runs first; the existing Double64 preflight then
+admits only 1x1 or 2x3; its existing connect owner returns the concrete
+`TimestampedDouble64ConnectedInletSession`. Nested results preserve the strict
+endpoint, Double64 preflight, and Double64 session errors without defining a
+composition error. The existing direct Double64 whole-session `finish` remains
+a delegate through its connected owner. The adapter adds no discovery,
+ranking, retry, codec, cursor, lifecycle, socket, report, error, or activation
+owner.
+
 `typed_udp_discovery_float32_session_connection` is a thin adapter over three
 existing owners: a caller-owned completed typed discovery run, strict IPv4
 service endpoint projection, and the sole bounded Float32 inlet session. Its

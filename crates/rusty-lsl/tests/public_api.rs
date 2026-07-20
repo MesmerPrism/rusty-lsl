@@ -464,6 +464,13 @@ fn p18_discovery_to_phased_float32_connection_is_public_on_both_facades() {
     same_type(&_root, &_runtime);
 }
 
+#[test]
+fn p20_discovery_to_phased_double64_connection_is_public_on_both_facades() {
+    let _root_connect = rusty_lsl::connect_selected_typed_udp_discovery_double64_session_inlet;
+    let _runtime_connect = runtime::connect_selected_typed_udp_discovery_double64_session_inlet;
+    same_type(&_root_connect, &_runtime_connect);
+}
+
 #[derive(Debug, Eq, PartialEq)]
 enum StatefulProviderError {
     TemporarilyUnavailable(u64),

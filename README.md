@@ -1,5 +1,15 @@
 # Rusty LSL
 
+A caller-selected completed typed UDP discovery response can now enter the
+existing concrete phased Double64 inlet for only the accepted one-channel/
+one-record and two-channel/three-record shapes. The caller retains the
+receive-order index, discovery run, identity, limits, cancellation, and
+activation; strict endpoint projection and the existing Double64 preflight,
+connect, lifecycle, and canonical report remain the sole owners. Existing
+endpoint, preflight, and session errors remain distinct and unchanged. No
+discovery, ranking, retry, shape, report, error, codec, lifecycle, socket, or
+activation authority is added.
+
 The two already evidenced Double64 shapes now expose concrete accepted-outlet
 and connected-inlet owners for caller-driven record transfer, exact completion,
 or report-free close. They delegate cursor, initialization, codec, allocation,

@@ -1,5 +1,20 @@
 # Validation
 
+Focused caller-selected discovery-to-phased-Double64 qualification is:
+
+```text
+cargo test -p rusty-lsl p20 -- --test-threads=1
+```
+
+The host-synthetic cases cover both accepted 1x1 and 2x3 shapes, retained
+caller discovery, explicit receive-order rejection before TCP I/O, strict
+shape rejection before TCP I/O, phased cursor advancement, exact Double64 bit
+preservation, canonical completion, cleanup/port reuse, and concrete root and
+runtime exports. Existing Double64, discovery, activation-closure, and
+serialized Standard gates remain required. This adds no automatic discovery,
+ranking, retry, shape, report, error, lifecycle, socket, codec, generic
+strategy, oracle, device, release, Makepad, Manifold, or activation claim.
+
 Focused phased Double64 qualification is:
 
 ```text
