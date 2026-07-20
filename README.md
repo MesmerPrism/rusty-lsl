@@ -1,5 +1,15 @@
 # Rusty LSL
 
+The concrete Int32, Int16, and Int8 sessions now expose accepted-outlet and
+connected-inlet phases for only the accepted one-channel/one-record and
+two-channel/three-record shapes. Callers may advance the sole private cursor,
+consume exact completion into the existing reports, or close without a report;
+legacy finish delegates through the same owners. Sealed typed integer
+strategies preserve exact width, bits, little-endian framing, record/channel
+order, and the inlet's sole received-record allocation without retaining a
+second projected collection. Activation remains explicit and disabled by
+default.
+
 The accepted one-channel, one-record String session now exposes concrete
 accepted-outlet and connected-inlet owners. Callers may advance the sole record,
 consume exact completion into the existing report, or close without a report;

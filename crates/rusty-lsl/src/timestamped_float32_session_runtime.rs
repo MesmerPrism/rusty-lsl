@@ -1519,13 +1519,223 @@ fn require_evidenced_integer_facade_shape(
     }
 }
 
+trait SealedIntegerValue: Copy {
+    const TEMPLATE: FixedWidthNumericValue;
+    fn to_fixed(self) -> FixedWidthNumericValue;
+    fn from_le_bytes(bytes: &[u8]) -> Self;
+}
+
+impl SealedIntegerValue for i32 {
+    const TEMPLATE: FixedWidthNumericValue = FixedWidthNumericValue::Int32(0);
+    fn to_fixed(self) -> FixedWidthNumericValue {
+        FixedWidthNumericValue::Int32(self)
+    }
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        i32::from_le_bytes(bytes.try_into().expect("fixed Int32 width"))
+    }
+}
+impl SealedIntegerValue for i16 {
+    const TEMPLATE: FixedWidthNumericValue = FixedWidthNumericValue::Int16(0);
+    fn to_fixed(self) -> FixedWidthNumericValue {
+        FixedWidthNumericValue::Int16(self)
+    }
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        i16::from_le_bytes(bytes.try_into().expect("fixed Int16 width"))
+    }
+}
+impl SealedIntegerValue for i8 {
+    const TEMPLATE: FixedWidthNumericValue = FixedWidthNumericValue::Int8(0);
+    fn to_fixed(self) -> FixedWidthNumericValue {
+        FixedWidthNumericValue::Int8(self)
+    }
+    fn from_le_bytes(bytes: &[u8]) -> Self {
+        i8::from_le_bytes(bytes.try_into().expect("fixed Int8 width"))
+    }
+}
+
+#[derive(Clone, Copy)]
+struct TypedFixedWidthInteger<T>(core::marker::PhantomData<T>);
+
+impl<T: SealedIntegerValue> SealedSessionStrategy for TypedFixedWidthInteger<T> {
+    type Sample = TimestampedSample<T>;
+    type Limits = FixedWidthNumericSampleLimits;
+    type RecordError = FixedWidthNumericSampleError;
+    type SessionError = TimestampedFixedWidthIntegerSessionError;
+
+    fn accept(
+        listener: TcpListener,
+        identity: &StreamHandshakeIdentity,
+        limits: StreamHandshakeLimits,
+        _format_limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(TcpStream, SocketAddr, SocketAddr), StreamHandshakeError> {
+        accept_handshake_stream_with_format(
+            listener,
+            identity,
+            limits,
+            cancelled,
+            T::TEMPLATE.width(),
+            false,
+        )
+    }
+    fn connect(
+        peer: SocketAddr,
+        identity: &StreamHandshakeIdentity,
+        limits: StreamHandshakeLimits,
+        _format_limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<TcpStream, StreamHandshakeError> {
+        connect_handshake_stream_with_format(
+            peer,
+            identity,
+            limits,
+            cancelled,
+            T::TEMPLATE.width(),
+            false,
+        )
+    }
+    fn write_initialization(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        FixedWidthInteger::write_initialization(
+            stream,
+            channels,
+            FixedWidthIntegerLimits {
+                io: limits,
+                template: T::TEMPLATE,
+            },
+            cancelled,
+        )
+    }
+    fn read_initialization(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        FixedWidthInteger::read_initialization(
+            stream,
+            channels,
+            FixedWidthIntegerLimits {
+                io: limits,
+                template: T::TEMPLATE,
+            },
+            cancelled,
+        )
+    }
+    fn write_record(
+        stream: &mut TcpStream,
+        sample: &Self::Sample,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<(), Self::RecordError> {
+        if sample.sample().declared_channels() != channels {
+            return Err(FixedWidthNumericSampleError::SequenceFormatMismatch {
+                record: 0,
+                channel: sample.sample().declared_channels(),
+            });
+        }
+        let width = T::TEMPLATE.width();
+        let mut bytes = Vec::with_capacity(9 + channels * width);
+        bytes.push(2);
+        bytes.extend_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
+        for value in sample.sample().values().iter().copied() {
+            bytes.extend_from_slice(&value.to_fixed().bytes());
+        }
+        write_exact_bounded(
+            stream,
+            &bytes,
+            limits.io_slice(),
+            limits.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_double_transport_error)
+    }
+    fn read_record(
+        stream: &mut TcpStream,
+        channels: usize,
+        limits: Self::Limits,
+        cancelled: &AtomicBool,
+    ) -> Result<Self::Sample, Self::RecordError> {
+        let width = T::TEMPLATE.width();
+        let mut bytes = vec![0; 9 + channels * width];
+        read_exact_bounded(
+            stream,
+            &mut bytes,
+            limits.io_slice(),
+            limits.total_deadline(),
+            cancelled,
+        )
+        .map_err(map_double_transport_error)?;
+        if bytes[0] != 2 {
+            return Err(FixedWidthNumericSampleError::InvalidMarker { actual: bytes[0] });
+        }
+        let timestamp = f64::from_le_bytes(bytes[1..9].try_into().expect("fixed timestamp width"));
+        if !timestamp.is_finite() {
+            return Err(FixedWidthNumericSampleError::InvalidTimestamp);
+        }
+        let sample = Sample::new(
+            SampleLimits::new(channels).map_err(|_| {
+                FixedWidthNumericSampleError::SequenceFormatMismatch {
+                    record: 0,
+                    channel: channels,
+                }
+            })?,
+            channels,
+            bytes[9..]
+                .chunks_exact(width)
+                .map(T::from_le_bytes)
+                .collect(),
+        )
+        .map_err(|_| FixedWidthNumericSampleError::SequenceFormatMismatch {
+            record: 0,
+            channel: channels,
+        })?;
+        Ok(TimestampedSample::new(
+            sample,
+            RawSourceTimestamp::new(timestamp)
+                .map_err(|_| FixedWidthNumericSampleError::InvalidTimestamp)?,
+            None,
+        ))
+    }
+    fn io_slice(limits: Self::Limits) -> Duration {
+        limits.io_slice()
+    }
+    fn total_deadline(limits: Self::Limits) -> Duration {
+        limits.total_deadline()
+    }
+    fn handshake_error(error: StreamHandshakeError) -> Self::SessionError {
+        TimestampedFixedWidthIntegerSessionError::Handshake(error)
+    }
+    fn record_error(index: Option<usize>, error: Self::RecordError) -> Self::SessionError {
+        TimestampedFixedWidthIntegerSessionError::Record { index, error }
+    }
+    fn cancelled_error() -> Self::SessionError {
+        Self::record_error(None, FixedWidthNumericSampleError::Cancelled)
+    }
+    fn deadline_error() -> Self::SessionError {
+        Self::record_error(None, FixedWidthNumericSampleError::Deadline)
+    }
+    fn io_error(kind: ErrorKind) -> Self::SessionError {
+        Self::record_error(None, FixedWidthNumericSampleError::Io(kind))
+    }
+    fn trailing_byte(actual: u8) -> Self::SessionError {
+        TimestampedFixedWidthIntegerSessionError::TrailingByte { actual }
+    }
+}
+
 macro_rules! fixed_width_integer_session_facade {
     (
         $value:ty, $variant:ident,
         $limits:ident, $limit_error:ident, $io_limits:ident, $io_limit_error:ident,
         $preflight_error:ident, $session_error:ident,
+        $transfer_error:ident, $incomplete:ident,
         $outlet_report:ident, $inlet_report:ident,
-        $outlet:ident, $inlet:ident
+        $outlet:ident, $accepted:ident, $inlet:ident, $connected:ident
     ) => {
         #[doc = concat!("Bounded homogeneous shape limits shared by the ", stringify!($variant), " session facade.")]
         pub type $limits = TimestampedFloat32SessionLimits;
@@ -1539,6 +1749,25 @@ macro_rules! fixed_width_integer_session_facade {
         pub type $preflight_error = TimestampedFloat32SessionPreflightError;
         #[doc = concat!("Started ", stringify!($variant), " session failure.")]
         pub type $session_error = TimestampedFixedWidthIntegerSessionError;
+
+        #[doc = concat!("Failure while advancing one record through a phased ", stringify!($variant), " session.")]
+        #[derive(Debug, Eq, PartialEq)]
+        pub enum $transfer_error {
+            /// The exact evidenced record count was already reached; no additional I/O occurred.
+            Overrun { /// Exact record count declared during preflight.
+                declared: usize },
+            /// The canonical session owner failed while transferring the indexed record.
+            Session($session_error),
+        }
+        #[doc = concat!(stringify!($variant), " completion was requested before the exact evidenced count was reached.")]
+        #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+        pub struct $incomplete { completed: usize, declared: usize }
+        impl $incomplete {
+            /// Records successfully transferred before completion was requested.
+            pub const fn completed_record_count(self) -> usize { self.completed }
+            /// Exact record count declared during preflight.
+            pub const fn declared_record_count(self) -> usize { self.declared }
+        }
 
         #[doc = concat!("Successful ", stringify!($variant), " outlet lifecycle report.")]
         #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -1594,8 +1823,48 @@ macro_rules! fixed_width_integer_session_facade {
             identity: &'a StreamHandshakeIdentity,
             handshake_limits: StreamHandshakeLimits,
             io_limits: FixedWidthNumericSampleLimits,
-            records: Vec<FixedWidthIntegerSessionRecord>,
+            records: &'a [TimestampedSample<$value>],
             channel_count: usize,
+        }
+        #[doc = concat!("Accepted ", stringify!($variant), " outlet retaining the sole private lifecycle and sealed strategy owner.")]
+        pub struct $accepted<'a> {
+            session: AcceptedOutletSession<TypedFixedWidthInteger<$value>>,
+            records: &'a [TimestampedSample<$value>],
+        }
+        impl $accepted<'_> {
+            /// Bound local address retained by the accepted owner.
+            pub fn local_address(&self) -> SocketAddr { self.session.local() }
+            /// Accepted peer address.
+            pub fn peer_address(&self) -> SocketAddr { self.session.peer() }
+            /// Exact evidenced channel count.
+            pub fn channel_count(&self) -> usize { self.session.shape().channels() }
+            /// Exact evidenced caller-record count.
+            pub fn record_count(&self) -> usize { self.session.shape().records() }
+            /// Records successfully advanced by the canonical cursor.
+            pub fn completed_record_count(&self) -> usize { self.session.completed_records() }
+            /// Advances exactly the next preflighted caller record.
+            pub fn transfer_next(&mut self, cancelled: &AtomicBool) -> Result<(), $transfer_error> {
+                let index = self.session.completed_records();
+                let Some(record) = self.records.get(index) else { return Err($transfer_error::Overrun { declared: self.records.len() }); };
+                self.session.transfer_next(record, cancelled).map_err(|error| match error {
+                    TransferError::Overrun { declared } => $transfer_error::Overrun { declared },
+                    TransferError::Session(error) => $transfer_error::Session(error),
+                })
+            }
+            /// Consumes a fully advanced owner into the canonical report.
+            pub fn complete(self) -> Result<$outlet_report, $incomplete> {
+                let completed = self.session.complete().map_err(|error| $incomplete { completed: error.completed, declared: error.declared })?;
+                let shape = completed.shape();
+                Ok($outlet_report { local: completed.local(), peer: completed.peer(), records: shape.records(), channels: shape.channels() })
+            }
+            /// Delegates remaining transfer and completion to the sole private owner.
+            pub fn finish(self, cancelled: &AtomicBool) -> Result<$outlet_report, $session_error> {
+                let completed = self.session.finish(self.records, cancelled)?;
+                let shape = completed.shape();
+                Ok($outlet_report { local: completed.local(), peer: completed.peer(), records: shape.records(), channels: shape.channels() })
+            }
+            /// Closes the accepted stream without manufacturing a completion report.
+            pub fn close(self) { self.session.close(); }
         }
         impl<'a> $outlet<'a> {
             /// Validates a bounded homogeneous integer shape before socket I/O.
@@ -1606,27 +1875,25 @@ macro_rules! fixed_width_integer_session_facade {
                 handshake_limits: StreamHandshakeLimits,
                 io_limits: FixedWidthNumericSampleLimits,
                 session_limits: $limits,
-                records: &[TimestampedSample<$value>],
+                records: &'a [TimestampedSample<$value>],
             ) -> Result<Self, $preflight_error> {
                 let channel_count = require_outlet_shape_generic(session_limits, records)?;
                 require_evidenced_integer_facade_shape(channel_count, records.len())?;
-                let records = records.iter().map(|record| FixedWidthIntegerSessionRecord {
-                    timestamp: record.raw_source_timestamp().value(),
-                    values: record.sample().values().iter().copied().map(FixedWidthNumericValue::$variant).collect(),
-                }).collect();
                 Ok(Self { activation, listener: Some(listener), identity, handshake_limits, io_limits, records, channel_count })
             }
             /// Consumes the facade through the sole accept/handshake/initialize/records/close lifecycle.
-            pub fn finish(mut self, cancelled: &AtomicBool) -> Result<$outlet_report, $session_error> {
+            pub fn finish(self, cancelled: &AtomicBool) -> Result<$outlet_report, $session_error> {
+                self.accept(cancelled)?.finish(cancelled)
+            }
+            /// Consumes preflight state and completes only accept plus handshake.
+            pub fn accept(mut self, cancelled: &AtomicBool) -> Result<$accepted<'a>, $session_error> {
                 let listener = self.listener.take().expect("preflighted listener is present");
                 let _ = self.activation;
-                let completed = finish_outlet::<FixedWidthInteger>(
-                    listener, self.identity, self.handshake_limits,
-                    FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
-                    &self.records, validated_session_shape(self.channel_count, self.records.len()), cancelled,
+                let session = accept_outlet::<TypedFixedWidthInteger<$value>>(
+                    listener, self.identity, self.handshake_limits, self.io_limits,
+                    validated_session_shape(self.channel_count, self.records.len()), cancelled,
                 )?;
-                let shape = completed.shape();
-                Ok($outlet_report { local: completed.local(), peer: completed.peer(), records: shape.records(), channels: shape.channels() })
+                Ok($accepted { session, records: self.records })
             }
         }
 
@@ -1639,6 +1906,42 @@ macro_rules! fixed_width_integer_session_facade {
             io_limits: FixedWidthNumericSampleLimits,
             record_count: usize,
             channel_count: usize,
+        }
+        #[doc = concat!("Connected ", stringify!($variant), " inlet retaining the sole private lifecycle and received allocation.")]
+        pub struct $connected { session: ConnectedInletSession<TypedFixedWidthInteger<$value>> }
+        impl $connected {
+            /// Caller-selected connected peer.
+            pub fn peer(&self) -> SocketAddr { self.session.peer() }
+            /// Exact evidenced channel count.
+            pub fn channel_count(&self) -> usize { self.session.shape().channels() }
+            /// Exact evidenced caller-record count.
+            pub fn record_count(&self) -> usize { self.session.shape().records() }
+            /// Records successfully retained by the canonical cursor.
+            pub fn completed_record_count(&self) -> usize { self.session.completed_records() }
+            /// Borrows ordered allocation-owned records received so far.
+            pub fn received_records(&self) -> &[TimestampedSample<$value>] { self.session.records() }
+            /// Receives exactly the next record.
+            pub fn transfer_next(&mut self, cancelled: &AtomicBool) -> Result<(), $transfer_error> {
+                self.session.transfer_next(cancelled).map_err(|error| match error {
+                    TransferError::Overrun { declared } => $transfer_error::Overrun { declared },
+                    TransferError::Session(error) => $transfer_error::Session(error),
+                })
+            }
+            /// Verifies exact peer close and consumes the owner into the canonical report.
+            pub fn complete(self, cancelled: &AtomicBool) -> Result<Result<$inlet_report, $session_error>, $incomplete> {
+                let peer = self.session.peer();
+                let completed = self.session.complete(cancelled).map_err(|error| $incomplete { completed: error.completed, declared: error.declared })?;
+                Ok(completed.map(|completed| { let shape = completed.shape(); $inlet_report { peer, records: completed.into_records(), channels: shape.channels() } }))
+            }
+            /// Delegates remaining transfer and terminal completion to the sole private owner.
+            pub fn finish(self, cancelled: &AtomicBool) -> Result<$inlet_report, $session_error> {
+                let peer = self.session.peer();
+                let completed = self.session.finish(cancelled)?;
+                let shape = completed.shape();
+                Ok($inlet_report { peer, records: completed.into_records(), channels: shape.channels() })
+            }
+            /// Closes the connected stream without manufacturing a completion report.
+            pub fn close(self) { self.session.close(); }
         }
         impl<'a> $inlet<'a> {
             /// Validates an exact bounded integer shape before connecting.
@@ -1658,29 +1961,16 @@ macro_rules! fixed_width_integer_session_facade {
             }
             /// Consumes the facade through the sole connect/handshake/initialize/records/close lifecycle.
             pub fn finish(self, cancelled: &AtomicBool) -> Result<$inlet_report, $session_error> {
+                self.connect(cancelled)?.finish(cancelled)
+            }
+            /// Consumes preflight state and completes only connect plus handshake.
+            pub fn connect(self, cancelled: &AtomicBool) -> Result<$connected, $session_error> {
                 let _ = self.activation;
-                let completed = finish_inlet::<FixedWidthInteger>(
-                    self.peer, self.identity, self.handshake_limits,
-                    FixedWidthIntegerLimits { io: self.io_limits, template: FixedWidthNumericValue::$variant(0 as $value) },
+                let session = connect_inlet::<TypedFixedWidthInteger<$value>>(
+                    self.peer, self.identity, self.handshake_limits, self.io_limits,
                     validated_session_shape(self.channel_count, self.record_count), cancelled,
                 )?;
-                let shape = completed.shape();
-                let records = completed.into_records().into_iter().map(|record| {
-                    let values = record.values.into_iter().map(|value| match value {
-                        FixedWidthNumericValue::$variant(value) => value,
-                        _ => unreachable!("sealed strategy retains the selected integer format"),
-                    }).collect();
-                    let sample = Sample::new(
-                        SampleLimits::new(self.channel_count).expect("preflighted nonzero channel count"),
-                        self.channel_count, values,
-                    ).expect("sealed strategy returns the preflighted channel count");
-                    TimestampedSample::new(
-                        sample,
-                        RawSourceTimestamp::new(record.timestamp).expect("sealed strategy validates finite timestamps"),
-                        None,
-                    )
-                }).collect();
-                Ok($inlet_report { peer: self.peer, records, channels: shape.channels() })
+                Ok($connected { session })
             }
         }
     };
@@ -1695,10 +1985,14 @@ fixed_width_integer_session_facade!(
     TimestampedInt32SessionIoLimitError,
     TimestampedInt32SessionPreflightError,
     TimestampedInt32SessionError,
+    TimestampedInt32SessionTransferError,
+    TimestampedInt32SessionIncomplete,
     TimestampedInt32OutletSessionReport,
     TimestampedInt32InletSessionReport,
     TimestampedInt32OutletSession,
-    TimestampedInt32InletSession
+    TimestampedInt32AcceptedOutletSession,
+    TimestampedInt32InletSession,
+    TimestampedInt32ConnectedInletSession
 );
 fixed_width_integer_session_facade!(
     i16,
@@ -1709,10 +2003,14 @@ fixed_width_integer_session_facade!(
     TimestampedInt16SessionIoLimitError,
     TimestampedInt16SessionPreflightError,
     TimestampedInt16SessionError,
+    TimestampedInt16SessionTransferError,
+    TimestampedInt16SessionIncomplete,
     TimestampedInt16OutletSessionReport,
     TimestampedInt16InletSessionReport,
     TimestampedInt16OutletSession,
-    TimestampedInt16InletSession
+    TimestampedInt16AcceptedOutletSession,
+    TimestampedInt16InletSession,
+    TimestampedInt16ConnectedInletSession
 );
 fixed_width_integer_session_facade!(
     i8,
@@ -1723,10 +2021,14 @@ fixed_width_integer_session_facade!(
     TimestampedInt8SessionIoLimitError,
     TimestampedInt8SessionPreflightError,
     TimestampedInt8SessionError,
+    TimestampedInt8SessionTransferError,
+    TimestampedInt8SessionIncomplete,
     TimestampedInt8OutletSessionReport,
     TimestampedInt8InletSessionReport,
     TimestampedInt8OutletSession,
-    TimestampedInt8InletSession
+    TimestampedInt8AcceptedOutletSession,
+    TimestampedInt8InletSession,
+    TimestampedInt8ConnectedInletSession
 );
 
 /// Closed shape limits for the concrete one-channel, one-record String facade.
@@ -3586,6 +3888,133 @@ mod tests {
         TimestampedInt8InletSession,
         TimestampedInt8SessionLimits,
         [[i8::MIN + 1, i8::MAX], [3, -4], [5, -6]]
+    );
+
+    macro_rules! phased_integer_facade_host_test {
+        ($name:ident, $value:ty, $outlet:ident, $inlet:ident, $limits:ident, $transfer:ident, $values:expr) => {
+            #[test]
+            fn $name() {
+                let values: [[$value; 2]; 3] = $values;
+                let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+                let address = listener.local_addr().unwrap();
+                let records: Vec<_> = values
+                    .iter()
+                    .enumerate()
+                    .map(|(index, values)| {
+                        TimestampedSample::new(
+                            Sample::new(SampleLimits::new(2).unwrap(), 2, values.to_vec()).unwrap(),
+                            RawSourceTimestamp::new(3000.125 + index as f64).unwrap(),
+                            None,
+                        )
+                    })
+                    .collect();
+                let worker = thread::spawn(move || {
+                    let session_identity = identity();
+                    let mut accepted = $outlet::preflight_bounded(
+                        double64_activation(),
+                        listener,
+                        &session_identity,
+                        handshake_limits(),
+                        FixedWidthNumericSampleLimits::new(
+                            Duration::from_millis(5),
+                            Duration::from_secs(1),
+                        )
+                        .unwrap(),
+                        $limits::new(2, 3).unwrap(),
+                        &records,
+                    )
+                    .unwrap()
+                    .accept(&AtomicBool::new(false))
+                    .unwrap();
+                    for completed in 1..=3 {
+                        accepted.transfer_next(&AtomicBool::new(false)).unwrap();
+                        assert_eq!(accepted.completed_record_count(), completed);
+                    }
+                    assert_eq!(
+                        accepted.transfer_next(&AtomicBool::new(false)),
+                        Err($transfer::Overrun { declared: 3 })
+                    );
+                    accepted.complete().unwrap()
+                });
+                let session_identity = identity();
+                let mut connected = $inlet::preflight_bounded(
+                    double64_activation(),
+                    address,
+                    &session_identity,
+                    handshake_limits(),
+                    FixedWidthNumericSampleLimits::new(
+                        Duration::from_millis(5),
+                        Duration::from_secs(1),
+                    )
+                    .unwrap(),
+                    $limits::new(2, 3).unwrap(),
+                    2,
+                    3,
+                )
+                .unwrap()
+                .connect(&AtomicBool::new(false))
+                .unwrap();
+                for completed in 1..=3 {
+                    connected.transfer_next(&AtomicBool::new(false)).unwrap();
+                    assert_eq!(connected.completed_record_count(), completed);
+                    assert_eq!(connected.received_records().len(), completed);
+                }
+                assert_eq!(
+                    connected.transfer_next(&AtomicBool::new(false)),
+                    Err($transfer::Overrun { declared: 3 })
+                );
+                let allocation = connected.received_records().as_ptr();
+                let report = connected
+                    .complete(&AtomicBool::new(false))
+                    .unwrap()
+                    .unwrap();
+                assert_eq!(report.records().as_ptr(), allocation);
+                for (index, expected) in values.iter().enumerate() {
+                    assert_eq!(
+                        report.records()[index]
+                            .raw_source_timestamp()
+                            .value()
+                            .to_bits(),
+                        (3000.125 + index as f64).to_bits()
+                    );
+                    assert_eq!(report.records()[index].sample().values(), expected);
+                }
+                assert_eq!(worker.join().unwrap().record_count(), 3);
+                TcpListener::bind(address).unwrap();
+            }
+        };
+    }
+
+    phased_integer_facade_host_test!(
+        p22_phased_int32_preserves_owner_bits_order_and_reuse,
+        i32,
+        TimestampedInt32OutletSession,
+        TimestampedInt32InletSession,
+        TimestampedInt32SessionLimits,
+        TimestampedInt32SessionTransferError,
+        [
+            [i32::MIN + 2, i32::MAX - 2],
+            [0x1020_3040, -0x1020_3040],
+            [7, -9]
+        ]
+    );
+    phased_integer_facade_host_test!(
+        p22_phased_int16_preserves_owner_bits_order_and_reuse,
+        i16,
+        TimestampedInt16OutletSession,
+        TimestampedInt16InletSession,
+        TimestampedInt16SessionLimits,
+        TimestampedInt16SessionTransferError,
+        [[i16::MIN + 2, i16::MAX - 2], [0x1020, -0x1020], [7, -9]]
+    );
+    phased_integer_facade_host_test!(
+        p22_phased_int8_preserves_owner_bits_order_and_reuse,
+        i8,
+        TimestampedInt8OutletSession,
+        TimestampedInt8InletSession,
+        TimestampedInt8SessionLimits,
+        TimestampedInt8SessionTransferError,
+        [[i8::MIN + 2, i8::MAX - 2], [0x20, -0x20], [7, -9]]
     );
 
     #[test]

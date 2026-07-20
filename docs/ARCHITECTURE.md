@@ -1,5 +1,14 @@
 # Architecture
 
+Concrete phased Int32, Int16, and Int8 sessions contain the same private
+format-neutral accepted/connected lifecycle owners used by the other formats.
+The outlet owner borrows the original typed caller slice; the inlet lifecycle
+allocates and retains typed records directly. No facade owns a parallel cursor,
+recomputes progress, or retains a second projected record collection. Sealed
+crate-private typed integer strategies preserve width and framing, while exact
+completion produces the established reports and close/drop produces none.
+Only the accepted 1x1 and 2x3 shapes remain admitted.
+
 The concrete one-channel/one-record String session exposes accepted and
 connected phases without exposing the neutral lifecycle, strategy, codec, or
 socket. Both phases delegate initialization-once, the exact cursor,

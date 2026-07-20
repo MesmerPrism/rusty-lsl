@@ -1,5 +1,15 @@
 # Rusty LSL Agent Notes
 
+The accepted Int32, Int16, and Int8 shapes now expose concrete phased
+accepted-outlet and connected-inlet owners for caller-driven transfer, exact
+completion, or report-free close. The sole crate-private format-neutral
+lifecycle retains the cursor, successful-only progress, allocation ownership,
+terminal close, and cleanup; sealed typed strategies preserve exact integer
+width, bits, endian, and order without retaining a duplicate projected record
+collection. Legacy whole-session finish delegates through these owners.
+Activation remains explicit and default-disabled, with no format, shape,
+discovery, device, oracle, or Manifold authority widening.
+
 The already accepted one-channel/one-record String shape now exposes concrete
 accepted-outlet and connected-inlet owners for caller-driven transfer, exact
 completion, or report-free close. The sole crate-private format-neutral

@@ -434,6 +434,46 @@ fn p10_bounded_integer_session_verticals_are_public_on_both_facades() {
 }
 
 #[test]
+fn p22_phased_integer_sessions_are_concrete_and_public_on_both_facades() {
+    macro_rules! assert_phased {
+        ($accepted:ty, $connected:ty, $transfer:ty, $incomplete:ty, $outlet:ident, $inlet:ident) => {{
+            assert!(core::mem::size_of::<$accepted>() > 0);
+            assert!(core::mem::size_of::<$connected>() > 0);
+            assert!(core::mem::size_of::<$transfer>() > 0);
+            assert!(core::mem::size_of::<$incomplete>() > 0);
+            let _root_accept = rusty_lsl::$outlet::accept;
+            let _runtime_accept = runtime::$outlet::accept;
+            let _root_connect = rusty_lsl::$inlet::connect;
+            let _runtime_connect = runtime::$inlet::connect;
+        }};
+    }
+    assert_phased!(
+        rusty_lsl::TimestampedInt32AcceptedOutletSession<'static>,
+        rusty_lsl::TimestampedInt32ConnectedInletSession,
+        rusty_lsl::TimestampedInt32SessionTransferError,
+        rusty_lsl::TimestampedInt32SessionIncomplete,
+        TimestampedInt32OutletSession,
+        TimestampedInt32InletSession
+    );
+    assert_phased!(
+        rusty_lsl::TimestampedInt16AcceptedOutletSession<'static>,
+        rusty_lsl::TimestampedInt16ConnectedInletSession,
+        rusty_lsl::TimestampedInt16SessionTransferError,
+        rusty_lsl::TimestampedInt16SessionIncomplete,
+        TimestampedInt16OutletSession,
+        TimestampedInt16InletSession
+    );
+    assert_phased!(
+        rusty_lsl::TimestampedInt8AcceptedOutletSession<'static>,
+        rusty_lsl::TimestampedInt8ConnectedInletSession,
+        rusty_lsl::TimestampedInt8SessionTransferError,
+        rusty_lsl::TimestampedInt8SessionIncomplete,
+        TimestampedInt8OutletSession,
+        TimestampedInt8InletSession
+    );
+}
+
+#[test]
 fn p11_bounded_string_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringOutletSession<'static>>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringInletSession<'static>>() > 0);

@@ -1,5 +1,21 @@
 # Validation
 
+Focused phased integer qualification is:
+
+```text
+cargo test -p rusty-lsl p22_ -- --test-threads=1
+```
+
+The host-synthetic cases cover Int32, Int16, and Int8 over the accepted 2x3
+shape, exact timestamp/value/order preservation, canonical cursor advancement,
+pre-I/O overrun, retained inlet allocation identity, exact consuming reports,
+cleanup, immediate port reuse, and concrete root/runtime exports. Existing
+integer legacy, all-format, public API, activation-closure, and serialized
+Standard gates remain required. Because this candidate changes an
+activation-bound shared source file, its exact candidate-local descriptor/lock
+closure is regenerated separately; Standard current-closure remains canonical
+integrator work rather than acceptance evidence manufactured by this candidate.
+
 Focused phased String qualification is:
 
 ```text
