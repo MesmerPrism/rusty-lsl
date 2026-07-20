@@ -2,7 +2,7 @@
   "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-descriptor.schema.json",
   "schema":"rusty.morphospace.workflow.feature_descriptor.v1",
   "feature_id":"string-sample","module_id":"string-sample","version":"0.1.0","owner_lane":"rusty-lsl",
-  "source":{"repo_id":"rusty-lsl","revision":"79ec7df3fb11da2922c54d1533f2c7efecfca5c4","path":"crates/rusty-lsl/src/timestamped_float32_session_runtime.rs","sha256":"e3ddd3b1e4aea888fab11ef0489d0a1988e23c83213a6ef217061209f4fd067d"},
+  "source":{"repo_id":"rusty-lsl","revision":"9b88b7e96eb88e642093cf6ce8f5f59f834112c5","path":"crates/rusty-lsl/src/timestamped_float32_session_runtime.rs","sha256":"2e0b64635a11563b57a61cc049382dc603eea3a5f34a39a3859d596d74089fb6"},
   "dependencies":["stream-handshake"],"conflicts":[],"exclusive_group":null,
   "effects":{"permissions":[],"services":[],"activities":[],"queries":[],"tools":[],"assets":[],"shaders":[],"native_libraries":[],"commands":[],"routes":[],"streams":[],"inputs":["explicit caller StringSample capability request"],"scenes":[],"markers":[]},
   "parameter_authorities":[{"parameter":"lsl.string-sample-capability","owner":"rusty-lsl"}],
