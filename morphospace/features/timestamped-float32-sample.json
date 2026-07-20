@@ -7,9 +7,9 @@
   "owner_lane": "rusty-lsl",
   "source": {
     "repo_id": "rusty-lsl",
-    "revision": "e0f14bb1467ceeca24bda562c9cecda92e5a6b03",
+    "revision": "aec0fa2f06043891f380aa98128919bc8ba7d786",
     "path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-    "sha256": "1153c7091ddc475fb9eff269f796a5b5c16d25dc248198dcb74f67257adf006f"
+    "sha256": "7dc8228376645337a9f2d0c20205c1b98a944baa255e1d8ef625678c59df70d9"
   },
   "dependencies": [
     "stream-handshake"
