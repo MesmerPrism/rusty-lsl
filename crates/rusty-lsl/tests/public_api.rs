@@ -820,3 +820,42 @@ fn lslc_005w_acquisition_rejects_identity_before_epoch_revision_and_value_damage
         Err(StreamInfoTransportAcquisitionError::ProviderIdentityMismatch)
     );
 }
+
+#[test]
+fn p4_float32_session_batch_health_is_concrete_and_public_on_both_facades() {
+    fn same_type<T>(_: &T, _: &T) {}
+
+    assert!(core::mem::size_of::<rusty_lsl::Float32SessionBatchHealth>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::Float32SessionBatchHealthClassification>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::runtime::Float32SessionBatchHealth>() > 0);
+    assert!(
+        core::mem::size_of::<rusty_lsl::runtime::Float32SessionBatchHealthClassification>() > 0
+    );
+
+    same_type(
+        &rusty_lsl::Float32SessionBatchHealth::from_outcome,
+        &rusty_lsl::runtime::Float32SessionBatchHealth::from_outcome,
+    );
+    same_type(
+        &rusty_lsl::Float32SessionBatchHealth::from_error,
+        &rusty_lsl::runtime::Float32SessionBatchHealth::from_error,
+    );
+    let _total = rusty_lsl::Float32SessionBatchHealth::total_record_count;
+    let _completed = rusty_lsl::Float32SessionBatchHealth::completed_record_count;
+    let _remaining = rusty_lsl::Float32SessionBatchHealth::remaining_record_count;
+    let _current = rusty_lsl::Float32SessionBatchHealth::current_record_index;
+    let _classification = rusty_lsl::Float32SessionBatchHealth::classification;
+
+    use rusty_lsl::Float32SessionBatchHealthClassification as Classification;
+    let _classes = [
+        Classification::Complete,
+        Classification::EmptyReport,
+        Classification::Cancelled,
+        Classification::Deadline,
+        Classification::Terminal,
+        Classification::Exhausted,
+        Classification::RecoveryError,
+        Classification::PipelineError,
+        Classification::Invariant,
+    ];
+}

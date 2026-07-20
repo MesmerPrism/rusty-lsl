@@ -114,9 +114,9 @@ pub use crate::{
 
 pub use crate::{
     run_float32_inlet_session_report_batch_recovery_clock_queue,
-    run_float32_inlet_session_report_recovery_clock_queue,
-    Float32SessionReportAcquisitionTermination, Float32SessionReportBatchError,
-    Float32SessionReportBatchOutcome, Float32SessionReportBatchTermination,
-    Float32SessionReportPipelineError, Float32SessionReportPipelineOutcome,
-    Float32SessionReportRecordOutcome,
+    run_float32_inlet_session_report_recovery_clock_queue, Float32SessionBatchHealth,
+    Float32SessionBatchHealthClassification, Float32SessionReportAcquisitionTermination,
+    Float32SessionReportBatchError, Float32SessionReportBatchOutcome,
+    Float32SessionReportBatchTermination, Float32SessionReportPipelineError,
+    Float32SessionReportPipelineOutcome, Float32SessionReportRecordOutcome,
 };
