@@ -25,8 +25,8 @@ matrix before acceptance:
 | Cleanup / reuse | Every success, typed failure, cancellation, deadline, queue-close, and backpressure path drops run-owned state and preserves immediate reuse under the existing lifecycle and bounded queue tests. |
 | Legacy | The existing one-record facade remains available and continues to use the same sole recovery/clock/queue owners. |
 | Activation / current | Revision 33 stays explicit and default-disabled with no new capability; current source/lock/consumer closure is regenerated only by the canonical integrator. |
-| Serialized Standard | Run exactly one `python ./tools/dispatch_validation.py --profile standard` after ordered composition; its receipt is evidence, not policy authority. |
-| Workflow / publication | Run current workflow, instruction, source-first/planning-last, clean-tree, private-content, and publication gates from `tools/validation-policy.json`; do not edit planning, activation, publication, or canonical state in this qualification lane. |
+| Serialized Standard | Run exactly one serialized Standard through the repository dispatcher after ordered composition; its receipt is evidence, not policy authority. |
+| Workflow / publication | Run the current policy-owned workflow, instruction, source-first/planning-last, clean-tree, private-content, and publication gates; qualification lanes do not edit planning, activation, publication, or canonical state. |
 
 This milestone adds no generic public strategy, automatic recovery or
 rediscovery policy, clock provider/domain choice, queue policy, parallel or
