@@ -137,6 +137,15 @@ impl StreamHandshakeIdentity {
     pub fn uid(&self) -> &str {
         &self.uid
     }
+
+    pub(crate) fn field(&self, role: StreamHandshakeIdentityRole) -> &str {
+        match role {
+            StreamHandshakeIdentityRole::Uid => &self.uid,
+            StreamHandshakeIdentityRole::Hostname => &self.hostname,
+            StreamHandshakeIdentityRole::SourceId => &self.source_id,
+            StreamHandshakeIdentityRole::SessionId => &self.session_id,
+        }
+    }
 }
 
 /// Identity field role.

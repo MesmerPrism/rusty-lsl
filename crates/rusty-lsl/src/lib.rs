@@ -126,6 +126,7 @@ mod typed_udp_discovery_integer_session_connection;
 mod typed_udp_discovery_response;
 mod typed_udp_discovery_run;
 mod typed_udp_discovery_selection;
+mod typed_udp_discovery_session_contract;
 mod typed_udp_discovery_string_session_connection;
 mod udp_discovery;
 mod xml_character_data;
