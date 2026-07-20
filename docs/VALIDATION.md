@@ -5,7 +5,7 @@ session-batch function, outcome, error, and stage-kind types at both facades,
 including their borrowed discovery/index, batch/error, and exact-health access:
 
 ```text
-cargo test -p rusty-lsl --test public_api p32_selected_discovery_session_batch_pipeline_is_concrete_on_both_facades
+cargo test -p rusty-lsl --test public_api p32_selected_discovery_float32_session_batch_pipeline_is_concrete_on_both_facades -- --exact --test-threads=1
 ```
 
 The path-disjoint facade candidate cannot compile until the production module

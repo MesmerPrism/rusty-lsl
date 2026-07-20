@@ -180,11 +180,11 @@ mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
     use crate::{
-        run_typed_udp_discovery, BoundedSampleQueueActivation, BoundedSampleQueuePopError,
-        Float32SessionBatchHealthClassification, MetadataTreeLimits, RawSourceTimestamp,
-        RuntimeModule, Sample, SampleLimits, ShortInfoQuery, ShortInfoQueryWire,
-        ShortInfoQueryWireLimits, ShortInfoResponseEnvelopeLimits, StreamDescriptorLimits,
-        StreamHandshakeActivation, StreamInfoObservedAdmissionLimits,
+        run_typed_udp_discovery, BoundedFloat32PipelineError, BoundedSampleQueueActivation,
+        BoundedSampleQueuePopError, Float32SessionBatchHealthClassification, MetadataTreeLimits,
+        RawSourceTimestamp, RuntimeModule, Sample, SampleLimits, ShortInfoQuery,
+        ShortInfoQueryWire, ShortInfoQueryWireLimits, ShortInfoResponseEnvelopeLimits,
+        StreamDescriptorLimits, StreamHandshakeActivation, StreamInfoObservedAdmissionLimits,
         StreamInfoVolatileFieldLimits, TimestampedFloat32OutletSession, TimestampedSample,
         TypedUdpDiscoveryEndpointError, UdpDiscoveryActivation, UdpDiscoveryConfig,
         UdpDiscoveryLimits,
@@ -208,7 +208,7 @@ mod tests {
     }
 
     fn handshake_limits() -> StreamHandshakeLimits {
-        StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(2))
+        StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(5))
             .unwrap()
     }
 
@@ -355,7 +355,7 @@ mod tests {
                     bytes + 32,
                     1,
                     Duration::from_millis(5),
-                    Duration::from_secs(2),
+                    Duration::from_secs(5),
                 )
                 .unwrap(),
                 ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
@@ -419,6 +419,33 @@ mod tests {
             Duration::from_millis(30),
         )
         .unwrap()
+    }
+
+    fn session_outlet(
+        channel_count: usize,
+        record_count: usize,
+    ) -> (std::net::SocketAddr, thread::JoinHandle<usize>) {
+        let records: Vec<_> = (0..record_count)
+            .map(|index| record(index, channel_count))
+            .collect();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let outlet = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(channel_count, record_count).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+            .record_count()
+        });
+        (endpoint, outlet)
     }
 
     #[test]
@@ -578,6 +605,179 @@ mod tests {
         correction.join().unwrap();
         assert_eq!(outlet.join().unwrap().record_count(), count);
         TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p32_one_record_composition_preserves_exact_bits_health_and_endpoint_reuse() {
+        let (endpoint, outlet) = session_outlet(1, 1);
+        let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 1));
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        let (clock_config, correction) = correction(1);
+        let mut clock = SequenceClock {
+            values: vec![0.0, 1.0],
+            index: 0,
+        };
+        let off = AtomicBool::new(false);
+        let outcome =
+            run_selected_typed_udp_discovery_float32_inlet_session_batch_recovery_clock_queue(
+                &discovery,
+                0,
+                session_activation(),
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+                &off,
+                recovery_activation(),
+                recovery_policy(),
+                clock_activation(),
+                clock_config,
+                &mut clock,
+                &queue,
+                queue_wait(),
+                cancellation(&off, &off, &off),
+            )
+            .unwrap();
+        assert_eq!(outcome.batch().completed.len(), 1);
+        assert_eq!(outcome.health().total_record_count(), 1);
+        assert_eq!(outcome.health().remaining_record_count(), 0);
+        let queued = queue.try_pop().unwrap();
+        assert_eq!(queued.sample().values()[0].to_bits(), 0x3f80_0100);
+        assert_eq!(
+            queued.raw_source_timestamp().value().to_bits(),
+            0x4008_0000_0000_0100
+        );
+        correction.join().unwrap();
+        assert_eq!(outlet.join().unwrap(), 1);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p32_recovery_deadline_retains_current_before_clock_and_queue() {
+        let (endpoint, outlet) = session_outlet(1, 1);
+        let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 1));
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        let deadline_policy = FiniteSampleRecoveryPolicy::new(
+            1,
+            3,
+            Duration::ZERO,
+            Duration::from_nanos(1),
+            Duration::from_nanos(1),
+        )
+        .unwrap();
+        let mut clock = SequenceClock {
+            values: Vec::new(),
+            index: 0,
+        };
+        let off = AtomicBool::new(false);
+        let error =
+            run_selected_typed_udp_discovery_float32_inlet_session_batch_recovery_clock_queue(
+                &discovery,
+                0,
+                session_activation(),
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+                &off,
+                recovery_activation(),
+                deadline_policy,
+                clock_activation(),
+                unused_clock_config(),
+                &mut clock,
+                &queue,
+                queue_wait(),
+                cancellation(&off, &off, &off),
+            )
+            .unwrap_err();
+        assert!(matches!(
+            error.kind(),
+            SelectedTypedUdpDiscoveryFloat32SessionBatchErrorKind::Batch(
+                Float32SessionReportBatchError::NotAcquired {
+                    index: 0,
+                    termination: crate::Float32SessionReportBatchTermination::Deadline,
+                    remaining,
+                    ..
+                }
+            ) if remaining.len() == 1
+        ));
+        assert_eq!(
+            error.health().unwrap().classification(),
+            Float32SessionBatchHealthClassification::Deadline
+        );
+        assert!(matches!(
+            queue.try_pop(),
+            Err(BoundedSampleQueuePopError::Empty)
+        ));
+        assert_eq!(outlet.join().unwrap(), 1);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p32_clock_and_queue_cancellation_retain_current_ownership_and_cleanup() {
+        for cancel_clock in [true, false] {
+            let (endpoint, outlet) = session_outlet(1, 1);
+            let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 1));
+            let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+            let (clock_config, correction) = correction(if cancel_clock { 0 } else { 1 });
+            let mut clock = SequenceClock {
+                values: if cancel_clock {
+                    Vec::new()
+                } else {
+                    vec![0.0, 1.0]
+                },
+                index: 0,
+            };
+            let off = AtomicBool::new(false);
+            let clock_cancelled = AtomicBool::new(cancel_clock);
+            let queue_cancelled = AtomicBool::new(!cancel_clock);
+            let error =
+                run_selected_typed_udp_discovery_float32_inlet_session_batch_recovery_clock_queue(
+                    &discovery,
+                    0,
+                    session_activation(),
+                    &identity(),
+                    handshake_limits(),
+                    sample_limits(),
+                    TimestampedFloat32SessionLimits::new(1, 1).unwrap(),
+                    1,
+                    1,
+                    &off,
+                    recovery_activation(),
+                    recovery_policy(),
+                    clock_activation(),
+                    clock_config,
+                    &mut clock,
+                    &queue,
+                    queue_wait(),
+                    cancellation(&off, &clock_cancelled, &queue_cancelled),
+                )
+                .unwrap_err();
+            let retained = matches!(
+                error.kind(),
+                SelectedTypedUdpDiscoveryFloat32SessionBatchErrorKind::Batch(
+                    Float32SessionReportBatchError::Pipeline {
+                        index: 0, error: BoundedFloat32PipelineError::Clock { .. }, remaining, ..
+                    }
+                ) if cancel_clock && remaining.is_empty()
+            ) || matches!(
+                error.kind(),
+                SelectedTypedUdpDiscoveryFloat32SessionBatchErrorKind::Batch(
+                    Float32SessionReportBatchError::Pipeline {
+                        index: 0, error: BoundedFloat32PipelineError::Queue { .. }, remaining, ..
+                    }
+                ) if !cancel_clock && remaining.is_empty()
+            );
+            assert!(retained);
+            assert_eq!(error.health().unwrap().current_record_index(), Some(0));
+            correction.join().unwrap();
+            assert_eq!(outlet.join().unwrap(), 1);
+            TcpListener::bind(endpoint).unwrap();
+        }
     }
 
     #[test]
