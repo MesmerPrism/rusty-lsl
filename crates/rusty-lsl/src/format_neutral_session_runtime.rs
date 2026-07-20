@@ -97,6 +97,29 @@ pub(crate) enum SessionShapeError {
     },
 }
 
+/// Crate-private, allocation-free projection from one bounded homogeneous chunk
+/// into the canonical session shape.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct BoundedChunkSessionProjection {
+    shape: SessionShape,
+}
+
+impl BoundedChunkSessionProjection {
+    pub(crate) const fn shape(self) -> SessionShape {
+        self.shape
+    }
+}
+
+pub(crate) fn project_bounded_chunk<T>(
+    max_channels: usize,
+    max_records: usize,
+    records: &[T],
+    channels: impl Fn(&T) -> usize,
+) -> Result<BoundedChunkSessionProjection, SessionShapeError> {
+    preflight_outlet_shape(max_channels, max_records, records, channels)
+        .map(|shape| BoundedChunkSessionProjection { shape })
+}
+
 pub(crate) fn preflight_shape(
     max_channels: usize,
     max_records: usize,

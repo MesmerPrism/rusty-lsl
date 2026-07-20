@@ -10,6 +10,7 @@ use crate::{
 };
 use crate::{
     timestamped_float32_session_runtime::{
+        all_format_bounded_chunk_session::project_float32_chunk,
         TimestampedFloat32AcceptedOutletSession, TimestampedFloat32ConnectedInletSession,
         TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
         TimestampedFloat32OutletSession, TimestampedFloat32OutletSessionReport,
@@ -198,6 +199,9 @@ impl<'a> TimestampedFloat32TwoRecordChunkOutletSession<'a> {
                 actual: chunk.samples().len(),
             });
         }
+        let projection = project_float32_chunk(chunk)
+            .expect("the legacy exact chunk has already passed its accepted shape checks");
+        debug_assert_eq!(projection.shape().records(), REQUIRED_RECORDS);
         let session = TimestampedFloat32OutletSession::preflight(
             activation,
             listener,
