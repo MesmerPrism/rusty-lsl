@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+The already evidenced Double64 shapes now expose concrete phased accepted-outlet
+and connected-inlet owners for caller-driven record transfer, exact completion,
+or report-free close. The sole crate-private format-neutral lifecycle retains
+the codec, initialization, cursor, allocation, completion, and cleanup; legacy
+whole-session entrypoints delegate through these owners. Activation remains
+explicit and default-disabled, with no shape, discovery, device, oracle, or
+Manifold authority widening.
+
 The caller-selected typed-discovery response adapter may now stop after the
 sole bounded Float32 inlet owner connects and completes its handshake. The
 returned existing concrete connected owner retains phased transfer,

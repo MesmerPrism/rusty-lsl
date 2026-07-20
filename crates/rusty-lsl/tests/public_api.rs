@@ -373,6 +373,25 @@ fn p2_bounded_double64_session_vertical_is_public_on_both_facades() {
 }
 
 #[test]
+fn p19_phased_double64_session_is_concrete_and_public_on_both_facades() {
+    assert!(
+        core::mem::size_of::<rusty_lsl::TimestampedDouble64AcceptedOutletSession<'static>>() > 0
+    );
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64ConnectedInletSession>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64SessionTransferError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedDouble64SessionIncomplete>() > 0);
+    let _root_accept = rusty_lsl::TimestampedDouble64OutletSession::accept;
+    let _runtime_accept = runtime::TimestampedDouble64OutletSession::accept;
+    let _root_connect = rusty_lsl::TimestampedDouble64InletSession::connect;
+    let _runtime_connect = runtime::TimestampedDouble64InletSession::connect;
+    let _outlet_next = rusty_lsl::TimestampedDouble64AcceptedOutletSession::transfer_next;
+    let _outlet_complete = rusty_lsl::TimestampedDouble64AcceptedOutletSession::complete;
+    let _inlet_next = rusty_lsl::TimestampedDouble64ConnectedInletSession::transfer_next;
+    let _inlet_records = rusty_lsl::TimestampedDouble64ConnectedInletSession::received_records;
+    let _inlet_complete = rusty_lsl::TimestampedDouble64ConnectedInletSession::complete;
+}
+
+#[test]
 fn p10_bounded_integer_session_verticals_are_public_on_both_facades() {
     macro_rules! assert_facade {
         ($outlet:ty, $inlet:ty, $report:ty, $root_outlet:path, $runtime_outlet:path, $root_inlet:path, $runtime_inlet:path) => {{

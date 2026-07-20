@@ -1,5 +1,20 @@
 # Validation
 
+Focused phased Double64 qualification is:
+
+```text
+cargo test -p rusty-lsl p19_ -- --test-threads=1
+```
+
+The host-synthetic cases cover the evidenced two-channel/three-record shape,
+exact timestamp/value bits, canonical cursor advancement, retained inlet
+allocation identity, overrun rejection before extra I/O, premature completion,
+report-free close, cleanup, immediate port reuse, and concrete root/runtime
+public exports. Existing `p2_double64`, fixed-width legacy, activation-closure,
+and serialized Standard checks remain required. This adds no shape, generic
+strategy, discovery, oracle, device, activation, compatibility, or authority
+claim.
+
 Focused caller-selected discovery-to-phased-connection qualification is:
 
 ```text

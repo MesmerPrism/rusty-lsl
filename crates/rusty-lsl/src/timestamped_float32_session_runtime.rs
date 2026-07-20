@@ -2019,6 +2019,54 @@ pub type TimestampedDouble64SessionLimitError = TimestampedFloat32SessionLimitEr
 /// Socket-free Double64 shape preflight failure.
 pub type TimestampedDouble64SessionPreflightError = TimestampedFloat32SessionPreflightError;
 
+/// Failure while advancing one record through a phased Double64 session.
+#[derive(Debug, Eq, PartialEq)]
+pub enum TimestampedDouble64SessionTransferError {
+    /// The exact evidenced record count was already reached; no additional I/O occurred.
+    Overrun {
+        /// Exact record count declared during preflight.
+        declared: usize,
+    },
+    /// The canonical session owner failed while transferring the indexed record.
+    Session(TimestampedDouble64SessionError),
+}
+
+/// Double64 completion was requested before the exact evidenced count was reached.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TimestampedDouble64SessionIncomplete {
+    completed: usize,
+    declared: usize,
+}
+
+impl TimestampedDouble64SessionIncomplete {
+    /// Number of records successfully transferred before completion was requested.
+    pub const fn completed_record_count(self) -> usize {
+        self.completed
+    }
+    /// Exact record count declared during preflight.
+    pub const fn declared_record_count(self) -> usize {
+        self.declared
+    }
+}
+
+fn map_double64_transfer_error(
+    error: TransferError<TimestampedDouble64SessionError>,
+) -> TimestampedDouble64SessionTransferError {
+    match error {
+        TransferError::Overrun { declared } => {
+            TimestampedDouble64SessionTransferError::Overrun { declared }
+        }
+        TransferError::Session(error) => TimestampedDouble64SessionTransferError::Session(error),
+    }
+}
+
+fn map_double64_incomplete(error: PrematureCompletion) -> TimestampedDouble64SessionIncomplete {
+    TimestampedDouble64SessionIncomplete {
+        completed: error.completed,
+        declared: error.declared,
+    }
+}
+
 /// Successful Double64 outlet lifecycle report.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct TimestampedDouble64OutletSessionReport {
@@ -2094,6 +2142,82 @@ pub struct TimestampedDouble64OutletSession<'a> {
     records: &'a [TimestampedSample<f64>],
     channel_count: usize,
 }
+
+/// Accepted Double64 outlet retaining the sole private lifecycle and sealed codec owner.
+pub struct TimestampedDouble64AcceptedOutletSession<'a> {
+    session: AcceptedOutletSession<Double64>,
+    records: &'a [TimestampedSample<f64>],
+}
+
+impl TimestampedDouble64AcceptedOutletSession<'_> {
+    /// Bound local address retained by the accepted owner.
+    pub fn local_address(&self) -> SocketAddr {
+        self.session.local()
+    }
+    /// Accepted peer address.
+    pub fn peer_address(&self) -> SocketAddr {
+        self.session.peer()
+    }
+    /// Exact evidenced channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.shape().channels()
+    }
+    /// Exact evidenced caller-record count.
+    pub fn record_count(&self) -> usize {
+        self.session.shape().records()
+    }
+    /// Records successfully advanced by the canonical cursor.
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_records()
+    }
+    /// Advances exactly the next preflighted caller record, initializing at most once.
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedDouble64SessionTransferError> {
+        let index = self.session.completed_records();
+        let Some(record) = self.records.get(index) else {
+            return Err(TimestampedDouble64SessionTransferError::Overrun {
+                declared: self.records.len(),
+            });
+        };
+        self.session
+            .transfer_next(record, cancelled)
+            .map_err(map_double64_transfer_error)
+    }
+    /// Consumes a fully advanced owner into the existing canonical report.
+    pub fn complete(
+        self,
+    ) -> Result<TimestampedDouble64OutletSessionReport, TimestampedDouble64SessionIncomplete> {
+        let completed = self.session.complete().map_err(map_double64_incomplete)?;
+        let shape = completed.shape();
+        Ok(TimestampedDouble64OutletSessionReport {
+            local: completed.local(),
+            peer: completed.peer(),
+            records: shape.records(),
+            channels: shape.channels(),
+        })
+    }
+    /// Delegates remaining transfer and completion to the sole private owner.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedDouble64OutletSessionReport, TimestampedDouble64SessionError> {
+        let completed = self.session.finish(self.records, cancelled)?;
+        let shape = completed.shape();
+        Ok(TimestampedDouble64OutletSessionReport {
+            local: completed.local(),
+            peer: completed.peer(),
+            records: shape.records(),
+            channels: shape.channels(),
+        })
+    }
+    /// Closes the accepted stream without manufacturing a completion report.
+    pub fn close(self) {
+        self.session.close();
+    }
+}
+
 impl<'a> TimestampedDouble64OutletSession<'a> {
     /// Validates a bounded homogeneous Double64 shape before socket I/O.
     pub fn preflight_bounded(
@@ -2119,29 +2243,32 @@ impl<'a> TimestampedDouble64OutletSession<'a> {
     }
     /// Consumes the facade through the sole accept/handshake/initialize/records/close lifecycle.
     pub fn finish(
-        mut self,
+        self,
         cancelled: &AtomicBool,
     ) -> Result<TimestampedDouble64OutletSessionReport, TimestampedDouble64SessionError> {
+        self.accept(cancelled)?.finish(cancelled)
+    }
+    /// Consumes preflight state and completes only accept plus handshake.
+    pub fn accept(
+        mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedDouble64AcceptedOutletSession<'a>, TimestampedDouble64SessionError> {
         let listener = self
             .listener
             .take()
             .expect("preflighted listener is present");
         let _ = self.activation;
-        let completed = finish_outlet::<Double64>(
+        let session = accept_outlet::<Double64>(
             listener,
             self.identity,
             self.handshake_limits,
             self.io_limits,
-            self.records,
             validated_session_shape(self.channel_count, self.records.len()),
             cancelled,
         )?;
-        let shape = completed.shape();
-        Ok(TimestampedDouble64OutletSessionReport {
-            local: completed.local(),
-            peer: completed.peer(),
-            records: shape.records(),
-            channels: shape.channels(),
+        Ok(TimestampedDouble64AcceptedOutletSession {
+            session,
+            records: self.records,
         })
     }
 }
@@ -2156,6 +2283,84 @@ pub struct TimestampedDouble64InletSession<'a> {
     record_count: usize,
     channel_count: usize,
 }
+
+/// Connected Double64 inlet retaining the sole private lifecycle and received allocations.
+pub struct TimestampedDouble64ConnectedInletSession {
+    session: ConnectedInletSession<Double64>,
+}
+
+impl TimestampedDouble64ConnectedInletSession {
+    /// Caller-selected connected peer.
+    pub fn peer(&self) -> SocketAddr {
+        self.session.peer()
+    }
+    /// Exact evidenced channel count.
+    pub fn channel_count(&self) -> usize {
+        self.session.shape().channels()
+    }
+    /// Exact evidenced caller-record count.
+    pub fn record_count(&self) -> usize {
+        self.session.shape().records()
+    }
+    /// Records successfully retained by the canonical cursor.
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_records()
+    }
+    /// Borrows ordered allocation-owned records received so far.
+    pub fn received_records(&self) -> &[TimestampedSample<f64>] {
+        self.session.records()
+    }
+    /// Receives exactly the next record, initializing at most once.
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedDouble64SessionTransferError> {
+        self.session
+            .transfer_next(cancelled)
+            .map_err(map_double64_transfer_error)
+    }
+    /// Verifies exact peer close and consumes a fully advanced owner into the canonical report.
+    pub fn complete(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        Result<TimestampedDouble64InletSessionReport, TimestampedDouble64SessionError>,
+        TimestampedDouble64SessionIncomplete,
+    > {
+        let peer = self.session.peer();
+        let completed = self
+            .session
+            .complete(cancelled)
+            .map_err(map_double64_incomplete)?;
+        Ok(completed.map(|completed| {
+            let shape = completed.shape();
+            TimestampedDouble64InletSessionReport {
+                peer,
+                records: completed.into_records(),
+                channels: shape.channels(),
+            }
+        }))
+    }
+    /// Delegates remaining transfer and terminal completion to the sole private owner.
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedDouble64InletSessionReport, TimestampedDouble64SessionError> {
+        let peer = self.session.peer();
+        let completed = self.session.finish(cancelled)?;
+        let shape = completed.shape();
+        Ok(TimestampedDouble64InletSessionReport {
+            peer,
+            records: completed.into_records(),
+            channels: shape.channels(),
+        })
+    }
+    /// Closes the connected stream without manufacturing a completion report.
+    pub fn close(self) {
+        self.session.close();
+    }
+}
+
 impl<'a> TimestampedDouble64InletSession<'a> {
     /// Validates an exact bounded Double64 shape before connecting.
     pub fn preflight_bounded(
@@ -2185,8 +2390,15 @@ impl<'a> TimestampedDouble64InletSession<'a> {
         self,
         cancelled: &AtomicBool,
     ) -> Result<TimestampedDouble64InletSessionReport, TimestampedDouble64SessionError> {
+        self.connect(cancelled)?.finish(cancelled)
+    }
+    /// Consumes preflight state and completes only connect plus handshake.
+    pub fn connect(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<TimestampedDouble64ConnectedInletSession, TimestampedDouble64SessionError> {
         let _ = self.activation;
-        let completed = finish_inlet::<Double64>(
+        let session = connect_inlet::<Double64>(
             self.peer,
             self.identity,
             self.handshake_limits,
@@ -2194,12 +2406,7 @@ impl<'a> TimestampedDouble64InletSession<'a> {
             validated_session_shape(self.channel_count, self.record_count),
             cancelled,
         )?;
-        let shape = completed.shape();
-        Ok(TimestampedDouble64InletSessionReport {
-            peer: self.peer,
-            records: completed.into_records(),
-            channels: shape.channels(),
-        })
+        Ok(TimestampedDouble64ConnectedInletSession { session })
     }
 }
 
@@ -3230,6 +3437,152 @@ mod tests {
         let sent = worker.join().unwrap();
         assert_eq!(sent.record_count(), 3);
         assert_eq!(sent.local_address(), address);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p19_double64_phased_transfer_preserves_bits_allocations_cursor_and_reuse() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [
+            double64_sample(
+                0x4092_5220_0000_0001,
+                &[0x3ff0_0000_0000_0001, 0xbff0_0000_0000_0002],
+            ),
+            double64_sample(
+                0x4092_5b80_0000_0002,
+                &[0x7ff8_0000_0000_0042, 0x4000_0000_0000_0003],
+            ),
+            double64_sample(
+                0x4092_64e0_0000_0003,
+                &[0x8000_0000_0000_0000, 0x4010_0000_0000_0004],
+            ),
+        ];
+        let worker = thread::spawn(move || {
+            let identity = identity();
+            let mut accepted = TimestampedDouble64OutletSession::preflight_bounded(
+                double64_activation(),
+                listener,
+                &identity,
+                handshake_limits(),
+                TimestampedDouble64SessionIoLimits::new(
+                    Duration::from_millis(5),
+                    Duration::from_secs(1),
+                )
+                .unwrap(),
+                TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap();
+            assert_eq!(accepted.completed_record_count(), 0);
+            for completed in 1..=3 {
+                accepted.transfer_next(&AtomicBool::new(false)).unwrap();
+                assert_eq!(accepted.completed_record_count(), completed);
+            }
+            assert_eq!(
+                accepted.transfer_next(&AtomicBool::new(false)),
+                Err(TimestampedDouble64SessionTransferError::Overrun { declared: 3 })
+            );
+            accepted.complete().unwrap()
+        });
+        let mut connected = TimestampedDouble64InletSession::preflight_bounded(
+            double64_activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            TimestampedDouble64SessionIoLimits::new(
+                Duration::from_millis(5),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+            2,
+            3,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(connected.completed_record_count(), 0);
+        connected.transfer_next(&AtomicBool::new(false)).unwrap();
+        let first_values = connected.received_records()[0].sample().values().as_ptr();
+        connected.transfer_next(&AtomicBool::new(false)).unwrap();
+        connected.transfer_next(&AtomicBool::new(false)).unwrap();
+        assert_eq!(
+            connected.received_records()[0].sample().values().as_ptr(),
+            first_values
+        );
+        assert_eq!(
+            connected.received_records()[1].sample().values()[0].to_bits(),
+            0x7ff8_0000_0000_0042
+        );
+        assert_eq!(
+            connected.transfer_next(&AtomicBool::new(false)),
+            Err(TimestampedDouble64SessionTransferError::Overrun { declared: 3 })
+        );
+        let received = connected
+            .complete(&AtomicBool::new(false))
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            received.records()[2].sample().values()[0].to_bits(),
+            0x8000_0000_0000_0000
+        );
+        assert_eq!(worker.join().unwrap().record_count(), 3);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn p19_double64_premature_completion_and_report_free_close_release_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let records = [
+            double64_sample(1.0f64.to_bits(), &[2.0f64.to_bits(), 3.0f64.to_bits()]),
+            double64_sample(4.0f64.to_bits(), &[5.0f64.to_bits(), 6.0f64.to_bits()]),
+            double64_sample(7.0f64.to_bits(), &[8.0f64.to_bits(), 9.0f64.to_bits()]),
+        ];
+        let worker = thread::spawn(move || {
+            let identity = identity();
+            let accepted = TimestampedDouble64OutletSession::preflight_bounded(
+                double64_activation(),
+                listener,
+                &identity,
+                handshake_limits(),
+                TimestampedDouble64SessionIoLimits::new(
+                    Duration::from_millis(5),
+                    Duration::from_secs(1),
+                )
+                .unwrap(),
+                TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap();
+            let incomplete = accepted.complete().unwrap_err();
+            assert_eq!(incomplete.completed_record_count(), 0);
+            assert_eq!(incomplete.declared_record_count(), 3);
+        });
+        let connected = TimestampedDouble64InletSession::preflight_bounded(
+            double64_activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            TimestampedDouble64SessionIoLimits::new(
+                Duration::from_millis(5),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+            2,
+            3,
+        )
+        .unwrap()
+        .connect(&AtomicBool::new(false))
+        .unwrap();
+        connected.close();
+        worker.join().unwrap();
         TcpListener::bind(address).unwrap();
     }
 

@@ -1,5 +1,12 @@
 # Rusty LSL
 
+The two already evidenced Double64 shapes now expose concrete accepted-outlet
+and connected-inlet owners for caller-driven record transfer, exact completion,
+or report-free close. They delegate cursor, initialization, codec, allocation,
+completion, and cleanup to the sole private format-neutral lifecycle; legacy
+whole-session entrypoints continue through the same owners. Activation remains
+explicit and default-disabled.
+
 A caller-selected typed UDP discovery response can now be projected into the
 existing concrete connected Float32 inlet owner without consuming the whole
 session. The caller retains discovery and selection inputs and drives phased

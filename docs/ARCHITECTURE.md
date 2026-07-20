@@ -110,6 +110,14 @@ one channel with one caller record, or two channels with three caller records.
 The legacy fixed-width Double64 functions convert at the facade boundary and
 map errors explicitly.
 
+Concrete accepted-outlet and connected-inlet Double64 states expose the
+caller-owned production boundary hidden by whole-session `finish`: callers may
+advance one record at a time, observe canonical progress and retained inlet
+allocations, request exact consuming completion, or close without a report.
+These states contain the existing private generic owners and add no cursor,
+codec, socket, allocation, shape, policy, or completion authority. Legacy
+`finish` delegates through `accept`/`connect` and these same concrete states.
+
 ## Bounded integer session convergence
 
 Int32, Int16, and Int8 are sealed format strategies beneath the same session
