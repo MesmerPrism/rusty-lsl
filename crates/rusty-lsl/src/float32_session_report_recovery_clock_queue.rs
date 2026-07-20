@@ -40,9 +40,15 @@ pub enum Float32SessionReportBatchTermination {
     /// The recovery deadline preceded acquisition.
     Deadline,
     /// The acquisition owner classified a failure as terminal.
-    Terminal,
+    Terminal {
+        /// Exact caller-labelled terminal failure.
+        failure: RecoveryAttemptFailure,
+    },
     /// The acquisition owner exhausted its bounded attempts.
-    Exhausted,
+    Exhausted {
+        /// Exact last caller-labelled retryable failure.
+        failure: RecoveryAttemptFailure,
+    },
 }
 
 /// Owner-preserving indexed rejection from the batch adapter.
@@ -110,7 +116,78 @@ fn restore_current(
     current.into_iter().chain(suffix).collect()
 }
 
-/// Sequentially feeds every already-bounded ordered report record through the sole pipeline owner.
+fn map_record_result(
+    index: usize,
+    result: Result<BoundedFloat32PipelineOutcome, BoundedFloat32PipelineError>,
+    current: Option<TimestampedSample<f32>>,
+    remaining: VecDeque<TimestampedSample<f32>>,
+    mut completed: Vec<Float32SessionReportRecordOutcome>,
+) -> Result<
+    (
+        Vec<Float32SessionReportRecordOutcome>,
+        VecDeque<TimestampedSample<f32>>,
+    ),
+    Float32SessionReportBatchError,
+> {
+    match result {
+        Ok(BoundedFloat32PipelineOutcome::Queued { states }) => {
+            completed.push(Float32SessionReportRecordOutcome { index, states });
+            Ok((completed, remaining))
+        }
+        Ok(BoundedFloat32PipelineOutcome::Cancelled { states }) => {
+            Err(Float32SessionReportBatchError::NotAcquired {
+                index,
+                termination: Float32SessionReportBatchTermination::Cancelled,
+                states,
+                completed,
+                remaining: restore_current(current, remaining),
+            })
+        }
+        Ok(BoundedFloat32PipelineOutcome::Deadline { states }) => {
+            Err(Float32SessionReportBatchError::NotAcquired {
+                index,
+                termination: Float32SessionReportBatchTermination::Deadline,
+                states,
+                completed,
+                remaining: restore_current(current, remaining),
+            })
+        }
+        Ok(BoundedFloat32PipelineOutcome::Terminal { failure, states }) => {
+            Err(Float32SessionReportBatchError::NotAcquired {
+                index,
+                termination: Float32SessionReportBatchTermination::Terminal { failure },
+                states,
+                completed,
+                remaining: restore_current(current, remaining),
+            })
+        }
+        Ok(BoundedFloat32PipelineOutcome::Exhausted { failure, states }) => {
+            Err(Float32SessionReportBatchError::NotAcquired {
+                index,
+                termination: Float32SessionReportBatchTermination::Exhausted { failure },
+                states,
+                completed,
+                remaining: restore_current(current, remaining),
+            })
+        }
+        Err(BoundedFloat32PipelineError::Recovery(error)) if current.is_some() => {
+            Err(Float32SessionReportBatchError::Recovery {
+                index,
+                error,
+                completed,
+                remaining: restore_current(current, remaining),
+            })
+        }
+        Err(error) => Err(Float32SessionReportBatchError::Pipeline {
+            index,
+            error,
+            completed,
+            remaining: restore_current(current, remaining),
+        }),
+    }
+}
+
+/// Sequentially feeds the report's exact nonzero record extent through the sole pipeline owner.
 #[allow(clippy::too_many_arguments)]
 #[allow(dead_code)]
 pub fn run_float32_inlet_session_report_batch_recovery_clock_queue<C>(
@@ -150,65 +227,7 @@ where
             queue_wait,
             cancellation,
         );
-        match result {
-            Ok(BoundedFloat32PipelineOutcome::Queued { states }) => {
-                completed.push(Float32SessionReportRecordOutcome { index, states });
-            }
-            Ok(BoundedFloat32PipelineOutcome::Cancelled { states }) => {
-                return Err(Float32SessionReportBatchError::NotAcquired {
-                    index,
-                    termination: Float32SessionReportBatchTermination::Cancelled,
-                    states,
-                    completed,
-                    remaining: restore_current(current, remaining),
-                });
-            }
-            Ok(BoundedFloat32PipelineOutcome::Deadline { states }) => {
-                return Err(Float32SessionReportBatchError::NotAcquired {
-                    index,
-                    termination: Float32SessionReportBatchTermination::Deadline,
-                    states,
-                    completed,
-                    remaining: restore_current(current, remaining),
-                });
-            }
-            Ok(BoundedFloat32PipelineOutcome::Terminal { failure, states }) => {
-                let _ = failure;
-                return Err(Float32SessionReportBatchError::NotAcquired {
-                    index,
-                    termination: Float32SessionReportBatchTermination::Terminal,
-                    states,
-                    completed,
-                    remaining: restore_current(current, remaining),
-                });
-            }
-            Ok(BoundedFloat32PipelineOutcome::Exhausted { failure, states }) => {
-                let _ = failure;
-                return Err(Float32SessionReportBatchError::NotAcquired {
-                    index,
-                    termination: Float32SessionReportBatchTermination::Exhausted,
-                    states,
-                    completed,
-                    remaining: restore_current(current, remaining),
-                });
-            }
-            Err(BoundedFloat32PipelineError::Recovery(error)) if current.is_some() => {
-                return Err(Float32SessionReportBatchError::Recovery {
-                    index,
-                    error,
-                    completed,
-                    remaining: restore_current(current, remaining),
-                });
-            }
-            Err(error) => {
-                return Err(Float32SessionReportBatchError::Pipeline {
-                    index,
-                    error,
-                    completed,
-                    remaining: restore_current(current, remaining),
-                });
-            }
-        }
+        (completed, remaining) = map_record_result(index, result, current, remaining, completed)?;
     }
     Ok(Float32SessionReportBatchOutcome { completed })
 }
@@ -364,10 +383,11 @@ mod tests {
     use crate::runtime_activation::test_capability;
     use crate::{
         BoundedSampleQueueActivation, BoundedSampleQueuePopError, BoundedSampleQueuePushError,
-        RawSourceTimestamp, RuntimeModule, Sample, SampleLimits, StreamHandshakeActivation,
-        StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32InletSession,
-        TimestampedFloat32OutletSession, TimestampedFloat32SampleActivation,
-        TimestampedFloat32SampleLimits, TimestampedFloat32SessionLimits,
+        IntegratedClockCorrectionError, RawSourceTimestamp, RuntimeModule, Sample, SampleLimits,
+        StreamHandshakeActivation, StreamHandshakeIdentity, StreamHandshakeLimits,
+        TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
+        TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits,
+        TimestampedFloat32SessionLimits,
     };
     use std::net::{TcpListener, UdpSocket};
     use std::sync::atomic::{AtomicBool, Ordering};
@@ -532,8 +552,10 @@ mod tests {
     }
 
     #[test]
-    fn p4_batch_one_two_and_max_three_preserve_order_bits_and_allocations() {
-        for count in 1..=3 {
+    fn p4_batch_uses_each_reports_actual_nonzero_extent_and_preserves_order_and_allocations() {
+        // One, two, and three are representative milestone fixtures; four proves that three is
+        // not a universal maximum. Each completed report's own record_count is the exact extent.
+        for count in [1, 2, 3, 4] {
             let report = completed_report((0..count).map(record).collect());
             let pointers: Vec<_> = report
                 .records()
@@ -610,7 +632,6 @@ mod tests {
             index: 0,
         };
         let yes = AtomicBool::new(true);
-        let no = AtomicBool::new(false);
         let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
             report,
             recovery_activation(),
@@ -620,7 +641,7 @@ mod tests {
             &mut clock,
             &queue,
             wait(),
-            cancellation(&yes, &no, &no),
+            cancellation(&yes, &yes, &yes),
         )
         .unwrap_err();
         match error {
@@ -646,7 +667,7 @@ mod tests {
     }
 
     #[test]
-    fn p4_queue_close_is_indexed_after_completed_prefix_and_retains_current_plus_suffix() {
+    fn p4_queue_deadline_is_indexed_after_completed_prefix_and_retains_current_plus_suffix() {
         let report = completed_report((0..3).map(record).collect());
         let suffix_pointer = report.records()[2].sample().values().as_ptr();
         let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
@@ -696,7 +717,7 @@ mod tests {
     }
 
     #[test]
-    fn p4_clock_cancellation_precedes_queue_and_legacy_one_record_is_unchanged() {
+    fn p4_clock_cancellation_precedes_queue_cancellation() {
         let report = completed_report(vec![record(0)]);
         let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
         let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
@@ -725,7 +746,7 @@ mod tests {
             &mut clock,
             &queue,
             wait(),
-            cancellation(&no, &yes, &no),
+            cancellation(&no, &yes, &yes),
         )
         .unwrap_err();
         assert!(matches!(
@@ -740,8 +761,30 @@ mod tests {
             queue.try_pop(),
             Err(BoundedSampleQueuePopError::Empty)
         ));
+    }
 
+    #[test]
+    fn p4_legacy_one_record_recovery_cancellation_preserves_the_completed_report() {
         let report = completed_report(vec![record(0)]);
+        let pointer = report.records()[0].sample().values().as_ptr();
+        let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let config = IntegratedClockCorrectionConfig::new(
+            "127.0.0.1:0".parse().unwrap(),
+            socket.local_addr().unwrap(),
+            91,
+            1,
+            256,
+            Duration::from_millis(1),
+            Duration::from_millis(5),
+        )
+        .unwrap();
+        let mut clock = SequenceClock {
+            values: vec![],
+            index: 0,
+        };
+        let yes = AtomicBool::new(true);
+        let no = AtomicBool::new(false);
         let outcome = run_float32_inlet_session_report_recovery_clock_queue(
             report,
             recovery_activation(),
@@ -757,9 +800,10 @@ mod tests {
         assert!(matches!(
             outcome,
             Float32SessionReportPipelineOutcome::NotAcquired {
+                ref report,
                 termination: Float32SessionReportAcquisitionTermination::Cancelled,
                 ..
-            }
+            } if report.records()[0].sample().values().as_ptr() == pointer
         ));
         assert!(yes.load(Ordering::Relaxed));
     }
@@ -866,6 +910,177 @@ mod tests {
         assert!(matches!(
             queue.try_pop(),
             Err(BoundedSampleQueuePopError::Closed)
+        ));
+    }
+
+    #[test]
+    fn p4_terminal_and_exhausted_retain_exact_failure_payload_current_and_suffix() {
+        for (outcome, expected_class, expected_code) in [
+            (
+                BoundedFloat32PipelineOutcome::Terminal {
+                    failure: RecoveryAttemptFailure::new(RecoveryFailureClass::Terminal, 71),
+                    states: vec![FiniteSampleRecoveryState::TerminalFailure {
+                        attempt: 1,
+                        code: 71,
+                    }],
+                },
+                RecoveryFailureClass::Terminal,
+                71,
+            ),
+            (
+                BoundedFloat32PipelineOutcome::Exhausted {
+                    failure: RecoveryAttemptFailure::new(RecoveryFailureClass::Retryable, 72),
+                    states: vec![FiniteSampleRecoveryState::Exhausted { attempts: 3 }],
+                },
+                RecoveryFailureClass::Retryable,
+                72,
+            ),
+        ] {
+            let current = record(1);
+            let current_pointer = current.sample().values().as_ptr();
+            let suffix = record(2);
+            let suffix_pointer = suffix.sample().values().as_ptr();
+            let error = map_record_result(
+                1,
+                Ok(outcome),
+                Some(current),
+                VecDeque::from([suffix]),
+                vec![Float32SessionReportRecordOutcome {
+                    index: 0,
+                    states: vec![FiniteSampleRecoveryState::Recovered { attempt: 1 }],
+                }],
+            )
+            .unwrap_err();
+            match error {
+                Float32SessionReportBatchError::NotAcquired {
+                    index: 1,
+                    termination,
+                    completed,
+                    remaining,
+                    ..
+                } => {
+                    let failure = match termination {
+                        Float32SessionReportBatchTermination::Terminal { failure }
+                        | Float32SessionReportBatchTermination::Exhausted { failure } => failure,
+                        other => panic!("unexpected termination: {other:?}"),
+                    };
+                    assert_eq!(failure.class(), expected_class);
+                    assert_eq!(failure.code(), expected_code);
+                    assert_eq!(completed[0].index, 0);
+                    assert_eq!(remaining[0].sample().values().as_ptr(), current_pointer);
+                    assert_eq!(remaining[1].sample().values().as_ptr(), suffix_pointer);
+                }
+                other => panic!("unexpected error: {other:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn p4_non_cancellation_clock_failure_retains_current_suffix_and_releases_endpoints() {
+        let report = completed_report(vec![record(0), record(1)]);
+        let tcp_address = report.peer();
+        let current_pointer = report.records()[0].sample().values().as_ptr();
+        let suffix_pointer = report.records()[1].sample().values().as_ptr();
+        let reserved = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let udp_address = reserved.local_addr().unwrap();
+        drop(reserved);
+        let peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let config = IntegratedClockCorrectionConfig::new(
+            udp_address,
+            peer.local_addr().unwrap(),
+            91,
+            1,
+            256,
+            Duration::from_millis(1),
+            Duration::from_millis(5),
+        )
+        .unwrap();
+        let queue = BoundedSampleQueue::new(queue_activation(), 2).unwrap();
+        let mut clock = SequenceClock {
+            values: vec![f64::NAN],
+            index: 0,
+        };
+        let no = AtomicBool::new(false);
+        let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
+            report,
+            recovery_activation(),
+            policy(),
+            clock_activation(),
+            config,
+            &mut clock,
+            &queue,
+            wait(),
+            cancellation(&no, &no, &no),
+        )
+        .unwrap_err();
+        match error {
+            Float32SessionReportBatchError::Pipeline {
+                index: 0,
+                error:
+                    BoundedFloat32PipelineError::Clock {
+                        error: IntegratedClockCorrectionError::NonFiniteClock { .. },
+                        sample,
+                        ..
+                    },
+                remaining,
+                ..
+            } => {
+                assert_eq!(sample.sample().values().as_ptr(), current_pointer);
+                assert_eq!(remaining[0].sample().values().as_ptr(), suffix_pointer);
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        drop(peer);
+        drop(TcpListener::bind(tcp_address).unwrap());
+        drop(UdpSocket::bind(udp_address).unwrap());
+    }
+
+    #[test]
+    fn p4_queue_cancellation_retains_current_and_untouched_suffix() {
+        let report = completed_report(vec![record(0), record(1)]);
+        let current_pointer = report.records()[0].sample().values().as_ptr();
+        let suffix_pointer = report.records()[1].sample().values().as_ptr();
+        let queue = BoundedSampleQueue::new(queue_activation(), 2).unwrap();
+        let (config, responder) = correction(1);
+        let mut clock = SequenceClock {
+            values: vec![0.0, 1.0],
+            index: 0,
+        };
+        let no = AtomicBool::new(false);
+        let yes = AtomicBool::new(true);
+        let error = run_float32_inlet_session_report_batch_recovery_clock_queue(
+            report,
+            recovery_activation(),
+            policy(),
+            clock_activation(),
+            config,
+            &mut clock,
+            &queue,
+            wait(),
+            cancellation(&no, &no, &yes),
+        )
+        .unwrap_err();
+        match error {
+            Float32SessionReportBatchError::Pipeline {
+                index: 0,
+                error:
+                    BoundedFloat32PipelineError::Queue {
+                        error: BoundedSampleQueuePushError::Cancelled(sample),
+                        ..
+                    },
+                completed,
+                remaining,
+            } => {
+                assert!(completed.is_empty());
+                assert_eq!(sample.sample().values().as_ptr(), current_pointer);
+                assert_eq!(remaining[0].sample().values().as_ptr(), suffix_pointer);
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        responder.join().unwrap();
+        assert!(matches!(
+            queue.try_pop(),
+            Err(BoundedSampleQueuePopError::Empty)
         ));
     }
 }
