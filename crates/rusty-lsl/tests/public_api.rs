@@ -503,6 +503,46 @@ fn p22_phased_integer_sessions_are_concrete_and_public_on_both_facades() {
 }
 
 #[test]
+fn p29_phased_int64_sessions_are_concrete_and_public_on_both_facades() {
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64AcceptedOutletSession<'static>>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64ConnectedInletSession>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64InletSessionReport>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64OutletSessionReport>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64SessionError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64SessionTransferError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64SessionIncomplete>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64SessionIoLimitError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64SessionLimitError>() > 0);
+    assert!(core::mem::size_of::<rusty_lsl::TimestampedInt64SessionPreflightError>() > 0);
+
+    for (channels, records) in [(1, 1), (2, 3)] {
+        let limits = rusty_lsl::TimestampedInt64SessionLimits::new(channels, records).unwrap();
+        let io_limits = rusty_lsl::TimestampedInt64SessionIoLimits::new(
+            core::time::Duration::from_secs(1),
+            core::time::Duration::from_secs(2),
+        )
+        .unwrap();
+        assert_eq!(limits.channel_count(), channels);
+        assert_eq!(limits.record_count(), records);
+        assert_eq!(io_limits.io_slice(), core::time::Duration::from_secs(1));
+    }
+
+    let _root_preflight_outlet = rusty_lsl::TimestampedInt64OutletSession::preflight_bounded;
+    let _runtime_preflight_outlet = runtime::TimestampedInt64OutletSession::preflight_bounded;
+    let _root_preflight_inlet = rusty_lsl::TimestampedInt64InletSession::preflight_bounded;
+    let _runtime_preflight_inlet = runtime::TimestampedInt64InletSession::preflight_bounded;
+    let _root_accept = rusty_lsl::TimestampedInt64OutletSession::accept;
+    let _runtime_accept = runtime::TimestampedInt64OutletSession::accept;
+    let _root_connect = rusty_lsl::TimestampedInt64InletSession::connect;
+    let _runtime_connect = runtime::TimestampedInt64InletSession::connect;
+    let _outlet_next = rusty_lsl::TimestampedInt64AcceptedOutletSession::transfer_next;
+    let _outlet_complete = rusty_lsl::TimestampedInt64AcceptedOutletSession::complete;
+    let _inlet_next = rusty_lsl::TimestampedInt64ConnectedInletSession::transfer_next;
+    let _inlet_records = rusty_lsl::TimestampedInt64ConnectedInletSession::received_records;
+    let _inlet_complete = rusty_lsl::TimestampedInt64ConnectedInletSession::complete;
+}
+
+#[test]
 fn p11_bounded_string_session_vertical_is_public_on_both_facades() {
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringOutletSession<'static>>() > 0);
     assert!(core::mem::size_of::<rusty_lsl::TimestampedStringInletSession<'static>>() > 0);
