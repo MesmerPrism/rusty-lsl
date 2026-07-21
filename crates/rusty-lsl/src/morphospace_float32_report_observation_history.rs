@@ -157,6 +157,10 @@ impl MorphospaceFloat32ReportObservationHistory {
         &self.windows
     }
 
+    pub(crate) fn into_windows(self) -> Vec<MorphospaceFloat32ReportObservationWindow> {
+        self.windows
+    }
+
     pub(crate) const fn totals(&self) -> MorphospaceFloat32ReportObservationHistoryTotals {
         self.totals
     }
@@ -320,6 +324,44 @@ mod tests {
         assert_eq!(history.totals().window_count(), 3);
         assert_eq!(history.totals().report_count(), 3);
         assert_eq!(history.totals().record_count(), 4);
+    }
+
+    #[test]
+    fn extraction_preserves_exact_order_for_equal_windows() {
+        let first = window(&[7.0]);
+        let middle = window(&[7.0]);
+        let final_window = window(&[7.0]);
+        let expected = [pointers(&first), pointers(&middle), pointers(&final_window)];
+        let windows = MorphospaceFloat32ReportObservationHistory::new(3, 1)
+            .unwrap()
+            .append(first)
+            .unwrap()
+            .append(middle)
+            .unwrap()
+            .append(final_window)
+            .unwrap()
+            .into_windows();
+        assert_eq!(windows.len(), 3);
+        for (actual, expected) in windows.iter().zip(expected) {
+            assert_eq!(pointers(actual), expected);
+        }
+    }
+
+    #[test]
+    fn extraction_preserves_every_record_allocation_identity() {
+        let first = window(&[1.0, 2.0]);
+        let second = window(&[3.0, 4.0]);
+        let expected = [pointers(&first), pointers(&second)];
+        let windows = MorphospaceFloat32ReportObservationHistory::new(2, 1)
+            .unwrap()
+            .append(first)
+            .unwrap()
+            .append(second)
+            .unwrap()
+            .into_windows();
+        assert_eq!(windows.len(), 2);
+        assert_eq!(pointers(&windows[0]), expected[0]);
+        assert_eq!(pointers(&windows[1]), expected[1]);
     }
 
     #[test]
