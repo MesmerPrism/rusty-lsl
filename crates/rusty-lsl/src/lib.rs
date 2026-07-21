@@ -66,6 +66,8 @@ mod all_format_bounded_chunk_session;
 mod bounded_fixed_record_transport;
 mod bounded_float32_recovery_clock_queue_runtime;
 mod bounded_sample_queue_runtime;
+mod caller_requested_float32_report_post_processing;
+mod caller_requested_float32_report_post_processing_admission;
 mod clock_filter_selection;
 mod clock_offset_application;
 pub mod contract;

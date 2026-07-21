@@ -103,9 +103,39 @@ pub(crate) enum Float32PostProcessingBatchError {
         sequence: u64,
         error: Float32SessionReportRequestedPostProcessingError,
         completed: Vec<Float32PostProcessingBatchRecordOutcome>,
-        remaining_sequences: Vec<u64>,
-        remaining_records: Vec<TimestampedSample<f32>>,
+        remaining_sequences: Float32PostProcessingBatchRemainder<u64>,
+        remaining_records: Float32PostProcessingBatchRemainder<TimestampedSample<f32>>,
     },
+}
+
+/// Allocation-preserving unprocessed suffix of one caller-owned vector.
+#[derive(Debug)]
+pub(crate) struct Float32PostProcessingBatchRemainder<T> {
+    values: std::vec::IntoIter<T>,
+}
+
+impl<T> Float32PostProcessingBatchRemainder<T> {
+    fn new(values: std::vec::IntoIter<T>) -> Self {
+        Self { values }
+    }
+
+    pub(crate) fn as_slice(&self) -> &[T] {
+        self.values.as_slice()
+    }
+
+    pub(crate) fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    pub(crate) fn is_empty(&self) -> bool {
+        self.values.len() == 0
+    }
+}
+
+impl<T: PartialEq> PartialEq for Float32PostProcessingBatchRemainder<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_slice() == other.as_slice()
+    }
 }
 
 /// Sole bounded lifecycle owner for P33 post-processing plus exact health.
@@ -167,9 +197,12 @@ impl Float32SessionReportPostProcessingBatch {
         sequences: Vec<u64>,
         records: Vec<TimestampedSample<f32>>,
     ) -> Result<Float32PostProcessingBatchOutcome, Float32PostProcessingBatchError> {
-        self.process_records_with_candidate_copy(sequences, records, |history, requested| {
-            history.try_reserve_exact(requested).map_err(|_| ())
-        })
+        self.process_records_with_reservations(
+            sequences,
+            records,
+            |completed, requested| completed.try_reserve_exact(requested).map_err(|_| ()),
+            |history, requested| history.try_reserve_exact(requested).map_err(|_| ()),
+        )
     }
 
     fn process_records_with_candidate_copy<F>(
@@ -180,6 +213,25 @@ impl Float32SessionReportPostProcessingBatch {
     ) -> Result<Float32PostProcessingBatchOutcome, Float32PostProcessingBatchError>
     where
         F: FnOnce(&mut Vec<f64>, usize) -> Result<(), ()>,
+    {
+        self.process_records_with_reservations(
+            sequences,
+            records,
+            |completed, requested| completed.try_reserve_exact(requested).map_err(|_| ()),
+            reserve,
+        )
+    }
+
+    fn process_records_with_reservations<F, G>(
+        &mut self,
+        sequences: Vec<u64>,
+        records: Vec<TimestampedSample<f32>>,
+        reserve_completed: F,
+        reserve_candidate: G,
+    ) -> Result<Float32PostProcessingBatchOutcome, Float32PostProcessingBatchError>
+    where
+        F: FnOnce(&mut Vec<Float32PostProcessingBatchRecordOutcome>, usize) -> Result<(), ()>,
+        G: FnOnce(&mut Vec<f64>, usize) -> Result<(), ()>,
     {
         let actual = records.len();
         if actual == 0 {
@@ -203,23 +255,24 @@ impl Float32SessionReportPostProcessingBatch {
         }
 
         let mut completed = Vec::new();
-        if completed.try_reserve_exact(actual).is_err() {
+        if reserve_completed(&mut completed, actual).is_err() {
             return Err(Float32PostProcessingBatchError::Allocation {
                 requested: actual,
                 sequences,
                 records,
             });
         }
-        let mut next_record_owner = match self.record_owner.try_candidate_copy_with(reserve) {
-            Ok(candidate) => candidate,
-            Err(_) => {
-                return Err(Float32PostProcessingBatchError::Allocation {
-                    requested: actual,
-                    sequences,
-                    records,
-                });
-            }
-        };
+        let mut next_record_owner =
+            match self.record_owner.try_candidate_copy_with(reserve_candidate) {
+                Ok(candidate) => candidate,
+                Err(_) => {
+                    return Err(Float32PostProcessingBatchError::Allocation {
+                        requested: actual,
+                        sequences,
+                        records,
+                    });
+                }
+            };
         let mut sequence_iter = sequences.into_iter();
         let mut record_iter = records.into_iter();
 
@@ -233,8 +286,10 @@ impl Float32SessionReportPostProcessingBatch {
                         sequence,
                         error,
                         completed,
-                        remaining_sequences: sequence_iter.collect(),
-                        remaining_records: record_iter.collect(),
+                        remaining_sequences: Float32PostProcessingBatchRemainder::new(
+                            sequence_iter,
+                        ),
+                        remaining_records: Float32PostProcessingBatchRemainder::new(record_iter),
                     });
                 }
             };
@@ -377,6 +432,45 @@ mod tests {
     }
 
     #[test]
+    fn outcome_reserve_refusal_preserves_exact_input_allocations_and_live_state() {
+        let mut owner = Float32SessionReportPostProcessingBatch::new(2, monotonic()).unwrap();
+        let before = owner.try_candidate_copy().unwrap();
+        let sequences = vec![u64::MIN, u64::MAX];
+        let sequence_pointer = sequences.as_ptr();
+        let records = vec![sample(10.0, 1.0), sample(11.0, 2.0)];
+        let record_pointers: Vec<_> = records
+            .iter()
+            .map(|record| record.sample().values().as_ptr())
+            .collect();
+        let error = owner
+            .process_records_with_reservations(
+                sequences,
+                records,
+                |_, requested| {
+                    assert_eq!(requested, 2);
+                    Err(())
+                },
+                |_, _| panic!("candidate copy must follow outcome storage"),
+            )
+            .unwrap_err();
+        match error {
+            Float32PostProcessingBatchError::Allocation {
+                requested,
+                sequences,
+                records,
+            } => {
+                assert_eq!(requested, 2);
+                assert_eq!(sequences, [u64::MIN, u64::MAX]);
+                assert_eq!(sequences.as_ptr(), sequence_pointer);
+                assert_eq!(records[0].sample().values().as_ptr(), record_pointers[0]);
+                assert_eq!(records[1].sample().values().as_ptr(), record_pointers[1]);
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        assert_eq!(owner, before);
+    }
+
+    #[test]
     fn maximum_gap_duplicate_out_of_order_and_u64_max_are_exact() {
         let mut owner = Float32SessionReportPostProcessingBatch::new(
             4,
@@ -486,8 +580,11 @@ mod tests {
                     other => panic!("unexpected error: {other:?}"),
                 };
                 assert_eq!(current.sample().values().as_ptr(), pointers[1]);
-                assert_eq!(remaining_sequences, vec![22]);
-                assert_eq!(remaining_records[0].sample().values().as_ptr(), pointers[2]);
+                assert_eq!(remaining_sequences.as_slice(), [22]);
+                assert_eq!(
+                    remaining_records.as_slice()[0].sample().values().as_ptr(),
+                    pointers[2]
+                );
             }
             other => panic!("unexpected error: {other:?}"),
         }
@@ -526,10 +623,9 @@ mod tests {
                 .iter()
                 .map(|record| record.sample().values().as_ptr())
                 .collect();
-            match owner
-                .process_records(vec![20, 21, 22], records)
-                .unwrap_err()
-            {
+            let sequences = vec![20, 21, 22];
+            let sequence_pointer = sequences.as_ptr();
+            match owner.process_records(sequences, records).unwrap_err() {
                 Float32PostProcessingBatchError::Record {
                     index,
                     sequence,
@@ -550,8 +646,17 @@ mod tests {
                         error.into_sample().sample().values().as_ptr(),
                         pointers[failing]
                     );
-                    assert_eq!(remaining_sequences, vec![20, 21, 22][failing + 1..]);
-                    for (offset, record) in remaining_records.iter().enumerate() {
+                    assert_eq!(
+                        remaining_sequences.as_slice(),
+                        &vec![20, 21, 22][failing + 1..]
+                    );
+                    if !remaining_sequences.is_empty() {
+                        assert_eq!(
+                            remaining_sequences.as_slice().as_ptr(),
+                            sequence_pointer.wrapping_add(failing + 1)
+                        );
+                    }
+                    for (offset, record) in remaining_records.as_slice().iter().enumerate() {
                         assert_eq!(
                             record.sample().values().as_ptr(),
                             pointers[failing + 1 + offset]
@@ -646,6 +751,8 @@ mod tests {
     fn source_contains_no_discarded_mapping_or_equivalence_claim() {
         let source = include_str!("float32_session_report_post_processing_batch.rs");
         assert!(!source.contains(&["::", "Discarded"].concat()));
+        assert!(!source.contains(&["sequence_iter", ".", "collect()"].concat()));
+        assert!(!source.contains(&["record_iter", ".", "collect()"].concat()));
         assert!(source.contains("process_record_in_candidate"));
         assert_eq!(
             ExactPostProcessingFact::from_successful_timestamp_change(false),

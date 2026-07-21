@@ -16,4 +16,13 @@ This project-local composition does not establish behavioral, numerical, wire, o
 
 ## Focused isolated validation
 
-The candidate is validated from an isolated temporary copy because its admission owner and crate module declarations arrive from a sibling lane. Validation copies the actual sibling admission candidate, adds only temporary module declarations and a test-only report constructor, and exercises the real `CallerRequestedFloat32ReportPostProcessingPlan` interface. Focused tests cover intact plan return on request and maximum mismatch, successful ordered single-report delegation, and failing P34 delegation with exact evidence and unchanged live state. Temporary resources are removed after the run.
+The canonical integrated tree is validated directly with only these four focused commands:
+
+```text
+cargo test -p rusty-lsl caller_requested_float32_report_post_processing_admission::tests --lib
+cargo test -p rusty-lsl caller_requested_float32_report_post_processing::tests --lib
+cargo test -p rusty-lsl float32_session_report_post_processing_batch::tests --lib
+cargo test -p rusty-lsl --test public_api
+```
+
+The focused private tests exercise real admitted plans and real completed loopback reports across the admission-to-entrypoint boundary. They cover exact caller sequence-allocation retention, intact plan/report return on request or maximum mismatch, success, first/middle/final P34 failure partitions, retained record allocations, actual fallible outcome-storage and candidate-copy refusals, rollback followed by success, repeated reports, `u64` extremes, and the crate-private default-inert boundary. P34 failure suffixes retain the already-owned sequence and record vector allocations with their exact cursors; constructing a record failure performs no allocating collection and makes no claim about an allocation failure that cannot be induced at a genuine fallible seam.

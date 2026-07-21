@@ -76,3 +76,224 @@ impl CallerRequestedFloat32ReportPostProcessing {
             .map_err(CallerRequestedFloat32ReportPostProcessingError::PostProcessing)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::caller_requested_float32_report_post_processing_admission::CallerRequestedFloat32ReportPostProcessingAdmission;
+    use crate::requested_timestamp_post_processing::RequestedTimestampPostProcessingConfig;
+    use crate::runtime_activation::test_capability;
+    use crate::{
+        RawSourceTimestamp, RuntimeModule, Sample, SampleLimits, StreamHandshakeActivation,
+        StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32InletSession,
+        TimestampedFloat32OutletSession, TimestampedFloat32SampleActivation,
+        TimestampedFloat32SampleLimits, TimestampedSample,
+    };
+    use std::net::TcpListener;
+    use std::sync::atomic::AtomicBool;
+    use std::thread;
+    use std::time::Duration;
+
+    fn request() -> RequestedTimestampPostProcessing {
+        RequestedTimestampPostProcessing::DeJitter(
+            RequestedTimestampPostProcessingConfig::new(4, 1.0, 10.0).unwrap(),
+        )
+    }
+
+    fn report(timestamps: &[f64]) -> crate::TimestampedFloat32InletSessionReport {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let limits =
+            StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(1))
+                .unwrap();
+        let identity = StreamHandshakeIdentity::new(
+            "35353535-2222-4333-8444-555555555555".into(),
+            "p35-host".into(),
+            "p35-source".into(),
+            "p35-session".into(),
+            limits,
+        )
+        .unwrap();
+        let activation = TimestampedFloat32SampleActivation::new(
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap(),
+        )
+        .unwrap();
+        let sample_limits =
+            TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+                .unwrap();
+        let records: Vec<_> = timestamps
+            .iter()
+            .enumerate()
+            .map(|(index, timestamp)| {
+                TimestampedSample::new(
+                    Sample::new(SampleLimits::new(1).unwrap(), 1, vec![index as f32]).unwrap(),
+                    RawSourceTimestamp::new(*timestamp).unwrap(),
+                    None,
+                )
+            })
+            .collect();
+        let worker_identity = identity.clone();
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight(
+                activation,
+                listener,
+                &worker_identity,
+                limits,
+                sample_limits,
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let report = TimestampedFloat32InletSession::preflight(
+            activation,
+            address,
+            &identity,
+            limits,
+            sample_limits,
+            timestamps.len(),
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        worker.join().unwrap();
+        TcpListener::bind(address).unwrap();
+        report
+    }
+
+    fn plan(
+        maximum: usize,
+        sequences: Vec<u64>,
+        timestamps: &[f64],
+    ) -> CallerRequestedFloat32ReportPostProcessingPlan {
+        CallerRequestedFloat32ReportPostProcessingAdmission::new(maximum)
+            .unwrap()
+            .admit(request(), sequences, report(timestamps))
+            .unwrap()
+    }
+
+    #[test]
+    fn real_plan_success_preserves_order_extremes_and_record_allocations() {
+        let plan = plan(2, vec![u64::MIN, u64::MAX], &[10.0, 11.0]);
+        let sequence_pointer = plan.sequences().as_ptr();
+        let record_pointers: Vec<_> = plan
+            .report()
+            .records()
+            .iter()
+            .map(|record| record.sample().values().as_ptr())
+            .collect();
+        assert_eq!(plan.sequences().as_ptr(), sequence_pointer);
+        let mut owner = CallerRequestedFloat32ReportPostProcessing::new(2, request()).unwrap();
+        let outcome = owner.process_report(plan).unwrap();
+        assert_eq!(
+            outcome
+                .records()
+                .iter()
+                .map(|record| record.sequence())
+                .collect::<Vec<_>>(),
+            vec![u64::MIN, u64::MAX]
+        );
+        for (record, pointer) in outcome.records().iter().zip(record_pointers) {
+            assert_eq!(
+                record.processed().sample().sample().values().as_ptr(),
+                pointer
+            );
+        }
+    }
+
+    #[test]
+    fn request_and_maximum_mismatch_return_the_intact_opaque_plan() {
+        for mismatch_request in [false, true] {
+            let plan = plan(2, vec![4, u64::MAX], &[10.0, 11.0]);
+            let sequence_pointer = plan.sequences().as_ptr();
+            let record_pointer = plan.report().records()[0].sample().values().as_ptr();
+            let owner_request = if mismatch_request {
+                RequestedTimestampPostProcessing::PassThrough
+            } else {
+                request()
+            };
+            let owner_maximum = if mismatch_request { 2 } else { 3 };
+            let mut owner =
+                CallerRequestedFloat32ReportPostProcessing::new(owner_maximum, owner_request)
+                    .unwrap();
+            match owner.process_report(plan).unwrap_err() {
+                CallerRequestedFloat32ReportPostProcessingError::AdmissionMismatch {
+                    plan, ..
+                } => {
+                    assert_eq!(plan.maximum_records(), 2);
+                    assert_eq!(plan.request(), request());
+                    assert_eq!(plan.sequences(), [4, u64::MAX]);
+                    assert_eq!(plan.sequences().as_ptr(), sequence_pointer);
+                    assert_eq!(
+                        plan.report().records()[0].sample().values().as_ptr(),
+                        record_pointer
+                    );
+                }
+                other => panic!("unexpected error: {other:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn failed_transaction_rolls_back_and_the_same_owner_then_succeeds() {
+        let mut owner = CallerRequestedFloat32ReportPostProcessing::new(2, request()).unwrap();
+        let before = owner.batch.health();
+        match owner
+            .process_report(plan(2, vec![20, 21], &[10.0, 10.0]))
+            .unwrap_err()
+        {
+            CallerRequestedFloat32ReportPostProcessingError::PostProcessing(
+                Float32PostProcessingBatchError::Record {
+                    index,
+                    sequence,
+                    completed,
+                    remaining_sequences,
+                    remaining_records,
+                    ..
+                },
+            ) => {
+                assert_eq!((index, sequence), (1, 21));
+                assert_eq!(completed.len(), 1);
+                assert!(remaining_sequences.is_empty());
+                assert!(remaining_records.is_empty());
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        assert_eq!(owner.batch.health(), before);
+        assert_eq!(
+            owner
+                .process_report(plan(2, vec![30, 31], &[10.0, 11.0]))
+                .unwrap()
+                .records()
+                .len(),
+            2
+        );
+    }
+
+    #[test]
+    fn repeated_real_reports_commit_in_order_without_ambient_activation() {
+        let mut owner = CallerRequestedFloat32ReportPostProcessing::new(
+            2,
+            RequestedTimestampPostProcessing::PassThrough,
+        )
+        .unwrap();
+        for sequence in [u64::MIN, u64::MAX] {
+            let plan = CallerRequestedFloat32ReportPostProcessingAdmission::new(2)
+                .unwrap()
+                .admit(
+                    RequestedTimestampPostProcessing::PassThrough,
+                    vec![sequence],
+                    report(&[sequence as f64 + 1.0]),
+                )
+                .unwrap();
+            assert_eq!(
+                owner.process_report(plan).unwrap().records()[0].sequence(),
+                sequence
+            );
+        }
+        assert_eq!(owner.batch.health().observation_count(), 2);
+    }
+}
