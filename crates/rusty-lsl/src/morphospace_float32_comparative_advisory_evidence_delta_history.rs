@@ -39,10 +39,11 @@ impl MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryBounds {
         }
         Ok(Self {
             maximum_proposals,
-            maximum_proposals_u64: u64::try_from(maximum_proposals)
-                .map_err(|_| BoundUnrepresentable {
+            maximum_proposals_u64: u64::try_from(maximum_proposals).map_err(|_| {
+                BoundUnrepresentable {
                     requested: maximum_proposals,
-                })?,
+                }
+            })?,
             maximum_facts: u64::try_from(maximum_facts).map_err(|_| BoundUnrepresentable {
                 requested: maximum_facts,
             })?,
@@ -310,7 +311,7 @@ mod tests {
         .unwrap()
     }
 
-    fn report_evidence(sequence: u64) -> crate::caller_requested_float32_report_advisory_evidence::CallerRequestedFloat32ReportAdvisoryEvidence {
+    fn report_evidence(sequence: u64) -> crate::caller_requested_float32_report_advisory_evidence::CallerRequestedFloat32ReportAdvisoryEvidence{
         let mut processor = Float32SessionReportRequestedPostProcessing::new(
             RequestedTimestampPostProcessor::new(RequestedTimestampPostProcessing::Monotonic(
                 RequestedTimestampPostProcessingConfig::new(2, 1.0, 10.0).unwrap(),
@@ -335,7 +336,7 @@ mod tests {
         .unwrap()
     }
 
-    fn package(seed: u64) -> crate::caller_requested_float32_advisory_report_package::CallerRequestedFloat32AdvisoryReportPackage {
+    fn package(seed: u64) -> crate::caller_requested_float32_advisory_report_package::CallerRequestedFloat32AdvisoryReportPackage{
         let history = CallerRequestedFloat32ReportAdvisoryEvidenceHistory::new(1)
             .unwrap()
             .append(report_evidence(seed))
@@ -358,7 +359,7 @@ mod tests {
         .unwrap()
     }
 
-    fn evidence(seed: u64) -> crate::caller_requested_float32_comparative_advisory_evidence::CallerRequestedFloat32ComparativeAdvisoryEvidence {
+    fn evidence(seed: u64) -> crate::caller_requested_float32_comparative_advisory_evidence::CallerRequestedFloat32ComparativeAdvisoryEvidence{
         let delta = MorphospaceFloat32AdvisoryReportPackageDeltaProposalOwner::new(
             MorphospaceFloat32AdvisoryReportPackageDeltaBounds::new(4).unwrap(),
         )
@@ -379,7 +380,7 @@ mod tests {
         .unwrap()
     }
 
-    fn identity(value: &MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaProposal) -> (*const crate::caller_requested_float32_comparative_advisory_evidence::CallerRequestedFloat32ComparativeAdvisoryEvidenceFact, *const crate::caller_requested_float32_comparative_advisory_evidence::CallerRequestedFloat32ComparativeAdvisoryEvidenceFact, *const crate::morphospace_float32_comparative_advisory_evidence_delta_proposal::MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaFact) {
+    fn identity(value: &MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaProposal) -> (*const crate::caller_requested_float32_comparative_advisory_evidence::CallerRequestedFloat32ComparativeAdvisoryEvidenceFact, *const crate::caller_requested_float32_comparative_advisory_evidence::CallerRequestedFloat32ComparativeAdvisoryEvidenceFact, *const crate::morphospace_float32_comparative_advisory_evidence_delta_proposal::MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaFact){
         (
             value.earlier().facts().as_ptr(),
             value.later().facts().as_ptr(),
@@ -387,7 +388,10 @@ mod tests {
         )
     }
 
-    fn bounds(proposals: usize, facts: usize) -> MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryBounds {
+    fn bounds(
+        proposals: usize,
+        facts: usize,
+    ) -> MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryBounds {
         MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryBounds::new(proposals, facts)
             .unwrap()
     }
@@ -408,7 +412,14 @@ mod tests {
         let candidate = proposal(2);
         let candidate_id = identity(&candidate);
         let error = history.append(candidate).unwrap_err();
-        assert!(matches!(error, MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryAppendError::ProposalLimit { limit: 1, required: 2, .. }));
+        assert!(matches!(
+            error,
+            MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryAppendError::ProposalLimit {
+                limit: 1,
+                required: 2,
+                ..
+            }
+        ));
         let (history, candidate) = error.into_parts();
         assert_eq!(history.totals().proposal_count(), 1);
         assert_eq!(identity(&candidate), candidate_id);
@@ -424,20 +435,44 @@ mod tests {
         );
         assert_eq!(history.totals().proposal_count(), 3);
         assert_eq!(history.totals().fact_count(), 12);
-        assert_eq!(history.proposals().iter().map(identity).collect::<Vec<_>>(), ids);
+        assert_eq!(
+            history.proposals().iter().map(identity).collect::<Vec<_>>(),
+            ids
+        );
         assert_eq!(history.proposals()[0], history.proposals()[1]);
-        assert_eq!(history.into_proposals().iter().map(identity).collect::<Vec<_>>(), ids);
+        assert_eq!(
+            history
+                .into_proposals()
+                .iter()
+                .map(identity)
+                .collect::<Vec<_>>(),
+            ids
+        );
     }
 
     #[test]
     fn usize_and_u64_extremes_are_checked() {
-        assert!(MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryBounds::new(usize::MAX, usize::MAX).is_ok() || usize::BITS > u64::BITS);
+        assert!(
+            MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryBounds::new(
+                usize::MAX,
+                usize::MAX
+            )
+            .is_ok()
+                || usize::BITS > u64::BITS
+        );
         let candidate = proposal(30);
         let id = identity(&candidate);
         let error = MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistory::new(bounds(1, 3))
             .append(candidate)
             .unwrap_err();
-        assert!(matches!(error, MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryAppendError::FactLimit { limit: 3, required: 4, .. }));
+        assert!(matches!(
+            error,
+            MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistoryAppendError::FactLimit {
+                limit: 3,
+                required: 4,
+                ..
+            }
+        ));
         let (history, candidate) = error.into_parts();
         assert!(history.proposals().is_empty());
         assert_eq!(identity(&candidate), id);
@@ -450,36 +485,67 @@ mod tests {
             let kept_id = identity(&kept);
             let candidate = proposal(50 + failure);
             let candidate_id = identity(&candidate);
-            let mut history = MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistory::new(bounds(2, 16))
-                .append(kept)
-                .unwrap();
+            let mut history =
+                MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistory::new(bounds(2, 16))
+                    .append(kept)
+                    .unwrap();
             let before = history.totals();
             if failure == 2 {
                 history.totals.fact_count = u64::MAX;
             }
-            let error = history.append_with(
-                candidate,
-                |_, _| if failure == 3 { Err(()) } else { Ok(()) },
-                |value| if failure == 1 { Err(()) } else { Ok(value as u64) },
-                |left, right| left.checked_add(right).ok_or(()),
-                |left, right| if failure == 0 { Err(()) } else { left.checked_add(right).ok_or(()) },
-            ).unwrap_err();
+            let error = history
+                .append_with(
+                    candidate,
+                    |_, _| if failure == 3 { Err(()) } else { Ok(()) },
+                    |value| {
+                        if failure == 1 {
+                            Err(())
+                        } else {
+                            Ok(value as u64)
+                        }
+                    },
+                    |left, right| left.checked_add(right).ok_or(()),
+                    |left, right| {
+                        if failure == 0 {
+                            Err(())
+                        } else {
+                            left.checked_add(right).ok_or(())
+                        }
+                    },
+                )
+                .unwrap_err();
             let (history, candidate) = error.into_parts();
             assert_eq!(identity(&history.proposals()[0]), kept_id);
             assert_eq!(identity(&candidate), candidate_id);
             assert_eq!(history.totals().proposal_count(), before.proposal_count());
-            assert_eq!(history.totals().fact_count(), if failure == 2 { u64::MAX } else { before.fact_count() });
+            assert_eq!(
+                history.totals().fact_count(),
+                if failure == 2 {
+                    u64::MAX
+                } else {
+                    before.fact_count()
+                }
+            );
         }
     }
 
     #[test]
     fn boundary_is_crate_private_default_inert_non_applying_and_non_authoritative() {
-        let source = include_str!("morphospace_float32_comparative_advisory_evidence_delta_history.rs");
-        for forbidden in [concat!("fn ap", "ply("), concat!("fn act", "ivate("), concat!("fn auth", "orize("), concat!("fn ro", "ute(")] {
+        let source =
+            include_str!("morphospace_float32_comparative_advisory_evidence_delta_history.rs");
+        for forbidden in [
+            concat!("fn ap", "ply("),
+            concat!("fn act", "ivate("),
+            concat!("fn auth", "orize("),
+            concat!("fn ro", "ute("),
+        ] {
             assert!(!source.contains(forbidden));
         }
-        assert!(!include_str!("runtime.rs").contains("MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistory"));
-        assert!(!include_str!("lib.rs").contains("pub mod morphospace_float32_comparative_advisory_evidence_delta_history"));
-        assert!(!include_str!("lib.rs").contains("pub use morphospace_float32_comparative_advisory_evidence_delta_history"));
+        assert!(!include_str!("runtime.rs")
+            .contains("MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaHistory"));
+        assert!(!include_str!("lib.rs")
+            .contains("pub mod morphospace_float32_comparative_advisory_evidence_delta_history"));
+        assert!(!include_str!("lib.rs")
+            .contains("pub use morphospace_float32_comparative_advisory_evidence_delta_history"));
     }
 }
