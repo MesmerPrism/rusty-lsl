@@ -261,7 +261,12 @@ mod tests {
         MorphospaceFloat32ReportAdvisorySnapshotBounds,
         MorphospaceFloat32ReportAdvisorySnapshotOwner,
     };
+    use crate::morphospace_float32_report_advisory_snapshot_history::MorphospaceFloat32ReportAdvisorySnapshotHistory;
+    use crate::morphospace_float32_report_observation::{
+        tests::outcome, MorphospaceFloat32ReportObservationOwner,
+    };
     use crate::morphospace_float32_report_observation_history::MorphospaceFloat32ReportObservationHistory;
+    use crate::morphospace_float32_report_observation_window::MorphospaceFloat32ReportObservationWindow;
     use crate::morphospace_float32_report_window_delta_history::MorphospaceFloat32ReportWindowDeltaHistory;
     use crate::morphospace_float32_report_window_stability_proposal::{
         MorphospaceFloat32ReportWindowStabilityBounds,
@@ -304,6 +309,37 @@ mod tests {
         .unwrap()
     }
 
+    fn actual_nonzero_advisory() -> MorphospaceFloat32ReportAdvisorySnapshot {
+        let sample = TimestampedSample::new(
+            Sample::new(SampleLimits::new(1).unwrap(), 1, vec![23.0]).unwrap(),
+            RawSourceTimestamp::new(5.0).unwrap(),
+            None,
+        );
+        let observation = MorphospaceFloat32ReportObservationOwner::new(1)
+            .unwrap()
+            .observe(outcome(vec![23.0f32.to_bits() as u64], vec![sample]))
+            .unwrap();
+        let window = MorphospaceFloat32ReportObservationWindow::new(1, 1)
+            .unwrap()
+            .append(observation)
+            .unwrap();
+        let observations = MorphospaceFloat32ReportObservationHistory::new(1, 1)
+            .unwrap()
+            .append(window)
+            .unwrap();
+        let deltas = MorphospaceFloat32ReportWindowDeltaHistory::new(1, 1).unwrap();
+        let stability = MorphospaceFloat32ReportWindowStabilityProposalOwner::new(
+            MorphospaceFloat32ReportWindowStabilityBounds::new(1, 1, 1, 1, 0, 0.0).unwrap(),
+        )
+        .propose(MorphospaceFloat32ReportObservationHistory::new(1, 1).unwrap())
+        .unwrap();
+        MorphospaceFloat32ReportAdvisorySnapshotOwner::new(
+            MorphospaceFloat32ReportAdvisorySnapshotBounds::new(1, 1, 1, 1, 2).unwrap(),
+        )
+        .snapshot(observations, deltas, stability)
+        .unwrap()
+    }
+
     fn owner() -> CallerRequestedFloat32ReportAdvisoryEvidenceOwner {
         CallerRequestedFloat32ReportAdvisoryEvidenceOwner::new(
             CallerRequestedFloat32ReportAdvisoryEvidenceBounds::new(1, 1).unwrap(),
@@ -336,6 +372,56 @@ mod tests {
         let (report, advisory) = evidence.into_parts();
         assert_eq!(pointers(&report), allocation);
         assert!(advisory.evidence().is_empty());
+    }
+
+    #[test]
+    fn actual_p34_p40_p41_nonzero_composition_preserves_both_allocations_and_order() {
+        let report = actual_report();
+        let report_allocation = pointers(&report);
+        let advisory = actual_nonzero_advisory();
+        let advisory_allocation = advisory.observation_history().windows()[0].observations()[0]
+            .records()[0]
+            .processed()
+            .sample()
+            .sample()
+            .values()
+            .as_ptr();
+        let history = MorphospaceFloat32ReportAdvisorySnapshotHistory::new(1)
+            .unwrap()
+            .append(advisory)
+            .unwrap();
+        assert_eq!(history.totals().snapshot_count(), 1);
+        assert_eq!(history.totals().evidence_count(), 1);
+        let advisory = history.into_snapshots().into_iter().next().unwrap();
+        let composed = CallerRequestedFloat32ReportAdvisoryEvidenceOwner::new(
+            CallerRequestedFloat32ReportAdvisoryEvidenceBounds::new(1, 2).unwrap(),
+        )
+        .compose(report, advisory)
+        .unwrap();
+        assert_eq!(pointers(composed.report()), report_allocation);
+        assert_eq!(composed.ordered().len(), 2);
+        assert!(matches!(
+            composed.ordered()[0],
+            CallerRequestedFloat32ReportAdvisoryEvidenceItem::TransactionalReport { .. }
+        ));
+        assert!(matches!(
+            composed.ordered()[1],
+            CallerRequestedFloat32ReportAdvisoryEvidenceItem::Advisory {
+                advisory_index: 0,
+                ..
+            }
+        ));
+        let (report, advisory) = composed.into_parts();
+        assert_eq!(pointers(&report), report_allocation);
+        assert_eq!(
+            advisory.observation_history().windows()[0].observations()[0].records()[0]
+                .processed()
+                .sample()
+                .sample()
+                .values()
+                .as_ptr(),
+            advisory_allocation
+        );
     }
 
     #[test]
