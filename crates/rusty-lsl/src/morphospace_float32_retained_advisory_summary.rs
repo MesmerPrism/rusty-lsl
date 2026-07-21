@@ -379,6 +379,7 @@ mod tests {
         CallerRequestedFloat32ReportAdvisoryEvidenceBounds,
         CallerRequestedFloat32ReportAdvisoryEvidenceOwner,
     };
+    use crate::caller_requested_float32_report_advisory_evidence_history::CallerRequestedFloat32ReportAdvisoryEvidenceHistory;
     use crate::exact_sequence_loss_health::ExactSequenceLossHealth;
     use crate::float32_session_report_requested_post_processing::Float32SessionReportRequestedPostProcessing;
     use crate::morphospace_float32_report_advisory_snapshot::{
@@ -526,6 +527,31 @@ mod tests {
         let (retained, history) = summary.into_parts();
         assert_eq!(report_pointer(&retained), pointer);
         assert_eq!(history.totals().snapshot_count(), 1);
+    }
+
+    #[test]
+    fn actual_p41_history_value_composes_into_nonzero_p42_summary() {
+        let retained = retained();
+        let pointer = report_pointer(&retained);
+        let evidence_history = CallerRequestedFloat32ReportAdvisoryEvidenceHistory::new(1)
+            .unwrap()
+            .append(retained)
+            .unwrap();
+        assert_eq!(evidence_history.totals().value_count(), 1);
+        assert_eq!(evidence_history.totals().ordered_evidence_count(), 1);
+
+        let retained = evidence_history.into_values().pop().unwrap();
+        assert_eq!(report_pointer(&retained), pointer);
+        let summary = owner().summarize(retained, history()).unwrap();
+
+        assert_eq!(report_pointer(summary.retained()), pointer);
+        assert_eq!(summary.totals().retained_evidence_count(), 1);
+        assert_eq!(summary.totals().history_snapshot_count(), 1);
+        assert_eq!(summary.totals().history_evidence_count(), 1);
+        assert_eq!(summary.totals().summary_fact_count(), 3);
+        let (retained, snapshot_history) = summary.into_parts();
+        assert_eq!(report_pointer(&retained), pointer);
+        assert_eq!(snapshot_history.totals().snapshot_count(), 1);
     }
 
     #[test]
