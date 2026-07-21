@@ -683,7 +683,7 @@ mod tests {
     }
 
     #[test]
-    fn real_repeated_windows_preserve_allocations_exact_totals_reason_order_and_ties() {
+    fn actual_p36_window_composition_preserves_allocations_exact_totals_reason_order_and_ties() {
         let build = || {
             window(vec![
                 observation(vec![7, 7], vec![4.0, 2.0]),
@@ -826,27 +826,43 @@ mod tests {
         let lib = include_str!("lib.rs");
         let runtime = include_str!("runtime.rs");
         let activation = include_str!("runtime_activation.rs");
+        let public_api = include_str!("../tests/public_api.rs");
+        assert_eq!(
+            lib.matches("mod morphospace_float32_report_observation_window;")
+                .count(),
+            1
+        );
         assert_eq!(
             lib.matches("mod morphospace_float32_report_trend_proposal;")
                 .count(),
             1
         );
+        assert!(!lib.contains("pub mod morphospace_float32_report_observation_window"));
         assert!(!lib.contains("pub mod morphospace_float32_report_trend_proposal"));
+        assert!(!runtime.contains("MorphospaceFloat32ReportObservationWindow"));
         assert!(!runtime.contains("MorphospaceFloat32ReportTrend"));
+        assert!(!activation.contains("MorphospaceFloat32ReportObservationWindow"));
         assert!(!activation.contains("MorphospaceFloat32ReportTrend"));
+        assert!(!public_api.contains("MorphospaceFloat32ReportObservationWindow"));
+        assert!(!public_api.contains("MorphospaceFloat32ReportTrend"));
+        assert!(!lib.contains("pub use morphospace_float32_report_observation_window"));
         assert!(!lib.contains("pub use morphospace_float32_report_trend_proposal"));
-        let source = include_str!("morphospace_float32_report_trend_proposal.rs");
-        for operation in [
-            concat!("fn ap", "ply("),
-            concat!("fn ac", "cept("),
-            concat!("fn ad", "mit("),
-            concat!("fn ro", "ute("),
-            concat!("fn le", "ase("),
-            concat!("fn re", "vise("),
-            concat!("fn auth", "orize("),
-            concat!("fn au", "dit("),
+        for source in [
+            include_str!("morphospace_float32_report_observation_window.rs"),
+            include_str!("morphospace_float32_report_trend_proposal.rs"),
         ] {
-            assert!(!source.contains(operation));
+            for operation in [
+                concat!("fn ap", "ply("),
+                concat!("fn ac", "cept("),
+                concat!("fn ad", "mit("),
+                concat!("fn ro", "ute("),
+                concat!("fn le", "ase("),
+                concat!("fn re", "vise("),
+                concat!("fn auth", "orize("),
+                concat!("fn au", "dit("),
+            ] {
+                assert!(!source.contains(operation));
+            }
         }
     }
 }
