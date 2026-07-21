@@ -646,6 +646,10 @@ mod tests {
         tests::outcome_with, MorphospaceFloat32ReportObservationOwner,
     };
     use crate::morphospace_float32_report_observation_window::MorphospaceFloat32ReportObservationWindow;
+    use crate::morphospace_float32_report_window_delta_history::MorphospaceFloat32ReportWindowDeltaHistory;
+    use crate::morphospace_float32_report_window_delta_proposal::{
+        MorphospaceFloat32ReportWindowDeltaBounds, MorphospaceFloat32ReportWindowDeltaProposalOwner,
+    };
     use crate::requested_timestamp_post_processing::{
         RequestedTimestampPostProcessing, RequestedTimestampPostProcessingConfig,
     };
@@ -712,6 +716,39 @@ mod tests {
             )
             .unwrap(),
         )
+    }
+
+    fn through_delta_history(
+        pairs: [(
+            MorphospaceFloat32ReportObservationWindow,
+            MorphospaceFloat32ReportObservationWindow,
+        ); 2],
+    ) -> MorphospaceFloat32ReportObservationHistory {
+        let deltas = pairs.map(|(earlier, later)| {
+            MorphospaceFloat32ReportWindowDeltaProposalOwner::new(
+                MorphospaceFloat32ReportWindowDeltaBounds::new(1, 8, 12).unwrap(),
+            )
+            .propose(earlier, later)
+            .unwrap()
+        });
+        let delta_history = deltas.into_iter().fold(
+            MorphospaceFloat32ReportWindowDeltaHistory::new(2, 12).unwrap(),
+            |history, delta| history.append(delta).unwrap(),
+        );
+        assert_eq!(delta_history.totals().delta_count(), 2);
+        assert_eq!(delta_history.totals().window_count(), 4);
+        assert_eq!(delta_history.totals().evidence_count(), 24);
+        delta_history
+            .into_deltas()
+            .into_iter()
+            .flat_map(|delta| {
+                let (earlier, later) = delta.into_windows();
+                [earlier, later]
+            })
+            .fold(
+                MorphospaceFloat32ReportObservationHistory::new(4, 1).unwrap(),
+                |history, window| history.append(window).unwrap(),
+            )
     }
 
     #[test]
@@ -797,6 +834,60 @@ mod tests {
     }
 
     #[test]
+    fn p38_p39_delta_history_composes_in_order_into_stability_with_exact_identity() {
+        let a = window(vec![10, 11], vec![4.0, 2.0]);
+        let b = window(vec![10, 11], vec![4.0, 2.0]);
+        let c = window(vec![10, 13], vec![4.0, 8.0]);
+        let d = window(vec![10, 11], vec![4.0, 2.0]);
+        let history = through_delta_history([(a, b), (c, d)]);
+        let expected_pointers = pointers(&history);
+        let proposal = owner(0, 0.0, 36).propose(history).unwrap();
+        assert!(!proposal.is_stable());
+        assert!(proposal.evidence()[..12].iter().all(|e| match e {
+            MorphospaceFloat32ReportWindowStabilityEvidence::Counter {
+                direction,
+                assessment,
+                ..
+            } =>
+                *direction == MorphospaceFloat32ReportWindowStabilityDirection::Equal
+                    && *assessment
+                        == MorphospaceFloat32ReportWindowStabilityAssessment::WithinThreshold,
+            MorphospaceFloat32ReportWindowStabilityEvidence::LargestAbsoluteAdjustment {
+                direction,
+                ..
+            } => *direction == MorphospaceFloat32ReportWindowStabilityDirection::Equal,
+        }));
+        let missing = |index| match proposal.evidence()[index] {
+            MorphospaceFloat32ReportWindowStabilityEvidence::Counter {
+                counter:
+                    MorphospaceFloat32ReportWindowStabilityCounter::ExplicitObservedMissingSequences,
+                direction,
+                ..
+            } => direction,
+            _ => panic!("explicit missing-sequence evidence"),
+        };
+        assert_eq!(
+            missing(12 + 6),
+            MorphospaceFloat32ReportWindowStabilityDirection::Increase
+        );
+        assert_eq!(
+            missing(24 + 6),
+            MorphospaceFloat32ReportWindowStabilityDirection::Decrease
+        );
+        assert!(matches!(
+            proposal.evidence()[23],
+            MorphospaceFloat32ReportWindowStabilityEvidence::LargestAbsoluteAdjustment {
+                later: Some(MorphospaceFloat32ReportWindowStabilityAdjustment {
+                    record_index: 0,
+                    ..
+                }),
+                ..
+            }
+        ));
+        assert_eq!(pointers(&proposal.into_history()), expected_pointers);
+    }
+
+    #[test]
     fn decreasing_extreme_sequences_and_threshold_edges_are_exact() {
         let a = window(vec![0, u64::MAX], vec![1.0, 9.0]);
         let b = window(vec![u64::MAX], vec![1.0]);
@@ -816,7 +907,7 @@ mod tests {
     }
 
     #[test]
-    fn every_failure_returns_complete_history_with_pointer_identity_and_reason_order() {
+    fn p38_p39_every_failure_returns_complete_history_without_partial_mutation() {
         for kind in 0..7 {
             let h = history(vec![window(vec![0], vec![1.0]), window(vec![0], vec![2.0])]);
             let expected = pointers(&h);

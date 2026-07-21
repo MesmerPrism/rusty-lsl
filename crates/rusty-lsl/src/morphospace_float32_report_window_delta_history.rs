@@ -309,7 +309,7 @@ mod tests {
     }
 
     #[test]
-    fn first_middle_final_and_repeated_deltas_keep_exact_order_evidence_and_allocations() {
+    fn p38_p39_composition_keeps_delta_order_evidence_and_exact_sample_allocations() {
         let values = [
             proposal(1.0, 2.0),
             proposal(2.0, 3.0),
@@ -358,7 +358,7 @@ mod tests {
     }
 
     #[test]
-    fn capacity_evidence_and_allocation_errors_are_atomic_and_retryable() {
+    fn p38_p39_typed_failures_return_complete_inputs_without_partial_mutation() {
         let (kept, kept_ptrs) = proposal(1.0, 2.0);
         let (candidate, candidate_ptrs) = proposal(2.0, 4.0);
         let history = MorphospaceFloat32ReportWindowDeltaHistory::new(1, 12)
