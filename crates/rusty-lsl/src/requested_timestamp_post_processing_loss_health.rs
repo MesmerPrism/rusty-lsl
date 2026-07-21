@@ -10,6 +10,7 @@ use crate::exact_sequence_loss_health::{
 use crate::requested_timestamp_post_processing::{
     RequestedTimestampPostProcessed, RequestedTimestampPostProcessingDisposition,
     RequestedTimestampPostProcessingError, RequestedTimestampPostProcessor,
+    RequestedTimestampPostProcessorCopyError,
 };
 use crate::TimestampedSample;
 
@@ -42,6 +43,10 @@ impl<T> RequestedTimestampPostProcessingLossHealthOutcome<T> {
 /// Typed transactional refusal. Neither owner commits on either variant.
 #[derive(Debug, PartialEq)]
 pub(crate) enum RequestedTimestampPostProcessingLossHealthError<T> {
+    Allocation {
+        sample: TimestampedSample<T>,
+        error: RequestedTimestampPostProcessorCopyError,
+    },
     PostProcessing(RequestedTimestampPostProcessingError<T>),
     Health {
         processed: RequestedTimestampPostProcessed<T>,
@@ -51,7 +56,7 @@ pub(crate) enum RequestedTimestampPostProcessingLossHealthError<T> {
 
 /// Processes one sample and observes only its exact successful disposition.
 ///
-/// Both private owners are cloned as bounded candidate state. They replace the
+/// Both private owners are copied as bounded candidate state. They replace the
 /// caller's owners only after processing and health observation both succeed.
 /// A processing error therefore creates no health fact or mutation; a health
 /// refusal returns the processed sample while leaving both caller owners intact.
@@ -64,7 +69,14 @@ pub(crate) fn process_requested_timestamp_and_observe_exact_health<T>(
     RequestedTimestampPostProcessingLossHealthOutcome<T>,
     RequestedTimestampPostProcessingLossHealthError<T>,
 > {
-    let mut next_processor = processor.clone();
+    let mut next_processor = match processor.try_candidate_copy() {
+        Ok(candidate) => candidate,
+        Err(error) => {
+            return Err(
+                RequestedTimestampPostProcessingLossHealthError::Allocation { sample, error },
+            );
+        }
+    };
     let mut next_health = health.clone();
     let processed = next_processor
         .process(sample)
@@ -195,7 +207,7 @@ mod tests {
             sample(10.0, "first"),
         )
         .unwrap();
-        let processor_before = processor.clone();
+        let processor_before = processor.try_candidate_copy().unwrap();
         let health_before = health.clone();
         let error = process_requested_timestamp_and_observe_exact_health(
             &mut processor,
@@ -221,7 +233,7 @@ mod tests {
         )
         .unwrap();
         let mut health = ExactSequenceLossHealth::new(0);
-        let processor_before = processor.clone();
+        let processor_before = processor.try_candidate_copy().unwrap();
         let health_before = health.clone();
         let input = sample(10.0, "retained");
         let allocation = input.sample().values()[0].as_ptr();

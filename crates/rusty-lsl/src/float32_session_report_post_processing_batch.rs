@@ -6,13 +6,13 @@
 use crate::exact_sequence_loss_health::{
     ExactSequenceClassification, ExactSequenceLossHealth, ExactSequenceLossHealthSnapshot,
 };
+use crate::float32_session_report_requested_post_processing::{
+    Float32SessionReportRequestedPostProcessing, Float32SessionReportRequestedPostProcessingError,
+};
 use crate::requested_timestamp_post_processing::{
     RequestedTimestampPostProcessed, RequestedTimestampPostProcessing,
     RequestedTimestampPostProcessingConfigError, RequestedTimestampPostProcessor,
-};
-use crate::requested_timestamp_post_processing_loss_health::{
-    process_requested_timestamp_and_observe_exact_health,
-    RequestedTimestampPostProcessingLossHealthError,
+    RequestedTimestampPostProcessorCopyError,
 };
 use crate::{TimestampedFloat32InletSessionReport, TimestampedSample};
 
@@ -101,15 +101,7 @@ pub(crate) enum Float32PostProcessingBatchError {
     Record {
         index: usize,
         sequence: u64,
-        error: RequestedTimestampPostProcessingLossHealthError<f32>,
-        completed: Vec<Float32PostProcessingBatchRecordOutcome>,
-        remaining_sequences: Vec<u64>,
-        remaining_records: Vec<TimestampedSample<f32>>,
-    },
-    CounterOverflow {
-        index: usize,
-        sequence: u64,
-        current: RequestedTimestampPostProcessed<f32>,
+        error: Float32SessionReportRequestedPostProcessingError,
         completed: Vec<Float32PostProcessingBatchRecordOutcome>,
         remaining_sequences: Vec<u64>,
         remaining_records: Vec<TimestampedSample<f32>>,
@@ -117,14 +109,20 @@ pub(crate) enum Float32PostProcessingBatchError {
 }
 
 /// Sole bounded lifecycle owner for P33 post-processing plus exact health.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub(crate) struct Float32SessionReportPostProcessingBatch {
     maximum_records: usize,
-    processor: RequestedTimestampPostProcessor,
-    health: ExactSequenceLossHealth,
+    record_owner: Float32SessionReportRequestedPostProcessing,
 }
 
 impl Float32SessionReportPostProcessingBatch {
+    fn try_candidate_copy(&self) -> Result<Self, RequestedTimestampPostProcessorCopyError> {
+        let record_owner = self.record_owner.try_candidate_copy()?;
+        Ok(Self {
+            maximum_records: self.maximum_records,
+            record_owner,
+        })
+    }
     pub(crate) fn new(
         maximum_records: usize,
         request: RequestedTimestampPostProcessing,
@@ -141,8 +139,10 @@ impl Float32SessionReportPostProcessingBatch {
             .map_err(Float32PostProcessingBatchConfigError::PostProcessing)?;
         Ok(Self {
             maximum_records,
-            processor,
-            health: ExactSequenceLossHealth::new(health_limit),
+            record_owner: Float32SessionReportRequestedPostProcessing::new(
+                processor,
+                ExactSequenceLossHealth::new(health_limit),
+            ),
         })
     }
 
@@ -150,7 +150,7 @@ impl Float32SessionReportPostProcessingBatch {
         self.maximum_records
     }
     pub(crate) const fn health(&self) -> ExactSequenceLossHealthSnapshot {
-        self.health.snapshot()
+        self.record_owner.health()
     }
 
     /// Consumes the report allocation and commits owner state only on total success.
@@ -167,6 +167,20 @@ impl Float32SessionReportPostProcessingBatch {
         sequences: Vec<u64>,
         records: Vec<TimestampedSample<f32>>,
     ) -> Result<Float32PostProcessingBatchOutcome, Float32PostProcessingBatchError> {
+        self.process_records_with_candidate_copy(sequences, records, |history, requested| {
+            history.try_reserve_exact(requested).map_err(|_| ())
+        })
+    }
+
+    fn process_records_with_candidate_copy<F>(
+        &mut self,
+        sequences: Vec<u64>,
+        records: Vec<TimestampedSample<f32>>,
+        reserve: F,
+    ) -> Result<Float32PostProcessingBatchOutcome, Float32PostProcessingBatchError>
+    where
+        F: FnOnce(&mut Vec<f64>, usize) -> Result<(), ()>,
+    {
         let actual = records.len();
         if actual == 0 {
             return Err(Float32PostProcessingBatchError::Empty { sequences, records });
@@ -196,20 +210,22 @@ impl Float32SessionReportPostProcessingBatch {
                 records,
             });
         }
-        let mut next_processor = self.processor.clone();
-        let mut next_health = self.health.clone();
+        let mut next_record_owner = match self.record_owner.try_candidate_copy_with(reserve) {
+            Ok(candidate) => candidate,
+            Err(_) => {
+                return Err(Float32PostProcessingBatchError::Allocation {
+                    requested: actual,
+                    sequences,
+                    records,
+                });
+            }
+        };
         let mut sequence_iter = sequences.into_iter();
         let mut record_iter = records.into_iter();
-        let mut completed_count = 0usize;
 
         while let (Some(sequence), Some(record)) = (sequence_iter.next(), record_iter.next()) {
-            let index = completed_count;
-            let observed = match process_requested_timestamp_and_observe_exact_health(
-                &mut next_processor,
-                &mut next_health,
-                sequence,
-                record,
-            ) {
+            let index = completed.len();
+            let observed = match next_record_owner.process_record_in_candidate(sequence, record) {
                 Ok(observed) => observed,
                 Err(error) => {
                     return Err(Float32PostProcessingBatchError::Record {
@@ -224,20 +240,8 @@ impl Float32SessionReportPostProcessingBatch {
             };
             let classification = observed.classification();
             let health = observed.health();
-            let processed = observed.into_processed();
-            completed_count = match completed_count.checked_add(1) {
-                Some(count) => count,
-                None => {
-                    return Err(Float32PostProcessingBatchError::CounterOverflow {
-                        index,
-                        sequence,
-                        current: processed,
-                        completed,
-                        remaining_sequences: sequence_iter.collect(),
-                        remaining_records: record_iter.collect(),
-                    });
-                }
-            };
+            let (_, sample, facts, _, _) = observed.into_parts();
+            let processed = RequestedTimestampPostProcessed::from_parts(sample, facts);
             completed.push(Float32PostProcessingBatchRecordOutcome {
                 index,
                 sequence,
@@ -247,10 +251,8 @@ impl Float32SessionReportPostProcessingBatch {
             });
         }
 
-        debug_assert_eq!(completed_count, actual);
-        let health = next_health.snapshot();
-        self.processor = next_processor;
-        self.health = next_health;
+        let health = next_record_owner.health();
+        self.record_owner = next_record_owner;
         Ok(Float32PostProcessingBatchOutcome {
             records: completed,
             health,
@@ -350,6 +352,67 @@ mod tests {
     }
 
     #[test]
+    fn candidate_copy_refusal_preserves_every_input_and_live_state() {
+        let mut owner = Float32SessionReportPostProcessingBatch::new(2, monotonic()).unwrap();
+        let before = owner.try_candidate_copy().unwrap();
+        let records = vec![sample(10.0, 1.0), sample(11.0, 2.0)];
+        let pointers: Vec<_> = records
+            .iter()
+            .map(|record| record.sample().values().as_ptr())
+            .collect();
+        let error = owner
+            .process_records_with_candidate_copy(vec![4, 5], records, |_, _| Err(()))
+            .unwrap_err();
+        match error {
+            Float32PostProcessingBatchError::Allocation {
+                sequences, records, ..
+            } => {
+                assert_eq!(sequences, vec![4, 5]);
+                assert_eq!(records[0].sample().values().as_ptr(), pointers[0]);
+                assert_eq!(records[1].sample().values().as_ptr(), pointers[1]);
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        assert_eq!(owner, before);
+    }
+
+    #[test]
+    fn maximum_gap_duplicate_out_of_order_and_u64_max_are_exact() {
+        let mut owner = Float32SessionReportPostProcessingBatch::new(
+            4,
+            RequestedTimestampPostProcessing::PassThrough,
+        )
+        .unwrap();
+        let outcome = owner
+            .process_records(
+                vec![0, u64::MAX, u64::MAX, 0],
+                vec![
+                    sample(1.0, 1.0),
+                    sample(2.0, 2.0),
+                    sample(3.0, 3.0),
+                    sample(4.0, 4.0),
+                ],
+            )
+            .unwrap();
+        assert_eq!(
+            outcome.records()[1].classification(),
+            ExactSequenceClassification::Gap {
+                missing_sequence_count: u64::MAX - 1
+            }
+        );
+        assert_eq!(
+            outcome.records()[2].classification(),
+            ExactSequenceClassification::Duplicate
+        );
+        assert_eq!(
+            outcome.records()[3].classification(),
+            ExactSequenceClassification::OutOfOrder {
+                behind_high_water_by: u64::MAX
+            }
+        );
+    }
+
+    #[test]
     fn zero_empty_mismatch_and_upper_bound_reject_before_owner_mutation() {
         assert_eq!(
             Float32SessionReportPostProcessingBatch::new(
@@ -363,7 +426,7 @@ mod tests {
             RequestedTimestampPostProcessing::PassThrough,
         )
         .unwrap();
-        let before = owner.clone();
+        let before = owner.try_candidate_copy().unwrap();
         assert!(matches!(
             owner.process_records(vec![], vec![]),
             Err(Float32PostProcessingBatchError::Empty { .. })
@@ -392,7 +455,7 @@ mod tests {
     #[test]
     fn middle_processing_failure_retains_exact_evidence_and_commits_nothing() {
         let mut owner = Float32SessionReportPostProcessingBatch::new(3, de_jitter()).unwrap();
-        let before = owner.clone();
+        let before = owner.try_candidate_copy().unwrap();
         let records = vec![sample(10.0, 1.0), sample(10.0, 2.0), sample(12.0, 3.0)];
         let pointers: Vec<_> = records
             .iter()
@@ -417,7 +480,7 @@ mod tests {
                     pointers[0]
                 );
                 let current = match error {
-                    RequestedTimestampPostProcessingLossHealthError::PostProcessing(error) => {
+                    Float32SessionReportRequestedPostProcessingError::PostProcessing(error) => {
                         error.into_sample()
                     }
                     other => panic!("unexpected error: {other:?}"),
@@ -432,20 +495,145 @@ mod tests {
     }
 
     #[test]
+    fn first_middle_and_final_processing_failures_partition_exact_evidence() {
+        let config = RequestedTimestampPostProcessingConfig::new(4, 1.0, 10.0).unwrap();
+        for failing in 0..3 {
+            let processor = RequestedTimestampPostProcessor::from_retained_state(
+                RequestedTimestampPostProcessing::DeJitter(config),
+                vec![10.0],
+                Some(10.0),
+            )
+            .unwrap();
+            let mut owner = Float32SessionReportPostProcessingBatch {
+                maximum_records: 3,
+                record_owner: Float32SessionReportRequestedPostProcessing::new(
+                    processor,
+                    ExactSequenceLossHealth::new(3),
+                ),
+            };
+            let before = owner.try_candidate_copy().unwrap();
+            let timestamps = match failing {
+                0 => [10.0, 12.0, 13.0],
+                1 => [11.0, 11.0, 13.0],
+                _ => [11.0, 12.0, 12.0],
+            };
+            let records: Vec<_> = timestamps
+                .into_iter()
+                .enumerate()
+                .map(|(index, timestamp)| sample(timestamp, index as f32))
+                .collect();
+            let pointers: Vec<_> = records
+                .iter()
+                .map(|record| record.sample().values().as_ptr())
+                .collect();
+            match owner
+                .process_records(vec![20, 21, 22], records)
+                .unwrap_err()
+            {
+                Float32PostProcessingBatchError::Record {
+                    index,
+                    sequence,
+                    error,
+                    completed,
+                    remaining_sequences,
+                    remaining_records,
+                } => {
+                    assert_eq!((index, sequence), (failing, 20 + failing as u64));
+                    assert_eq!(completed.len(), failing);
+                    for (index, outcome) in completed.iter().enumerate() {
+                        assert_eq!(
+                            outcome.processed().sample().sample().values().as_ptr(),
+                            pointers[index]
+                        );
+                    }
+                    assert_eq!(
+                        error.into_sample().sample().values().as_ptr(),
+                        pointers[failing]
+                    );
+                    assert_eq!(remaining_sequences, vec![20, 21, 22][failing + 1..]);
+                    for (offset, record) in remaining_records.iter().enumerate() {
+                        assert_eq!(
+                            record.sample().values().as_ptr(),
+                            pointers[failing + 1 + offset]
+                        );
+                    }
+                }
+                other => panic!("unexpected error: {other:?}"),
+            }
+            assert_eq!(owner, before);
+        }
+    }
+
+    #[test]
+    fn first_middle_and_final_health_failures_are_single_transaction_refusals() {
+        for failing in 0..3 {
+            let mut owner = Float32SessionReportPostProcessingBatch {
+                maximum_records: 3,
+                record_owner: Float32SessionReportRequestedPostProcessing::new(
+                    RequestedTimestampPostProcessor::new(
+                        RequestedTimestampPostProcessing::PassThrough,
+                    )
+                    .unwrap(),
+                    ExactSequenceLossHealth::new(failing as u64),
+                ),
+            };
+            let before = owner.try_candidate_copy().unwrap();
+            let records = vec![sample(1.0, 1.0), sample(2.0, 2.0), sample(3.0, 3.0)];
+            let pointers: Vec<_> = records
+                .iter()
+                .map(|record| record.sample().values().as_ptr())
+                .collect();
+            match owner.process_records(vec![7, 8, 9], records).unwrap_err() {
+                Float32PostProcessingBatchError::Record {
+                    index,
+                    error,
+                    completed,
+                    remaining_sequences,
+                    remaining_records,
+                    ..
+                } => {
+                    assert_eq!(index, failing);
+                    assert_eq!(completed.len(), failing);
+                    match error {
+                        Float32SessionReportRequestedPostProcessingError::Health {
+                            sample,
+                            facts,
+                            ..
+                        } => {
+                            assert_eq!(sample.sample().values().as_ptr(), pointers[failing]);
+                            assert_eq!(
+                                facts.disposition(),
+                                RequestedTimestampPostProcessingDisposition::RetainedUnchanged
+                            );
+                        }
+                        other => panic!("unexpected error: {other:?}"),
+                    }
+                    assert_eq!(remaining_sequences.len(), 2 - failing);
+                    assert_eq!(remaining_records.len(), 2 - failing);
+                }
+                other => panic!("unexpected error: {other:?}"),
+            }
+            assert_eq!(owner, before);
+        }
+    }
+
+    #[test]
     fn health_failure_observes_no_partial_batch_and_retains_current_processed_record() {
         let mut owner = Float32SessionReportPostProcessingBatch::new(
             2,
             RequestedTimestampPostProcessing::PassThrough,
         )
         .unwrap();
-        owner.health = ExactSequenceLossHealth::new(1);
-        let before = owner.clone();
+        owner
+            .process_records(vec![0], vec![sample(0.0, 0.0)])
+            .unwrap();
+        let before = owner.try_candidate_copy().unwrap();
         let error = owner
             .process_records(vec![1, 2], vec![sample(1.0, 1.0), sample(2.0, 2.0)])
             .unwrap_err();
         assert!(matches!(error, Float32PostProcessingBatchError::Record {
             index: 1,
-            error: RequestedTimestampPostProcessingLossHealthError::Health { .. },
+            error: Float32SessionReportRequestedPostProcessingError::Health { .. },
             ref completed,
             ref remaining_sequences,
             ref remaining_records,
@@ -458,7 +646,7 @@ mod tests {
     fn source_contains_no_discarded_mapping_or_equivalence_claim() {
         let source = include_str!("float32_session_report_post_processing_batch.rs");
         assert!(!source.contains(&["::", "Discarded"].concat()));
-        assert!(source.contains("process_requested_timestamp_and_observe_exact_health"));
+        assert!(source.contains("process_record_in_candidate"));
         assert_eq!(
             ExactPostProcessingFact::from_successful_timestamp_change(false),
             ExactPostProcessingFact::RetainedUnchanged

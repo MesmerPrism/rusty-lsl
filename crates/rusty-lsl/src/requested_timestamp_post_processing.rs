@@ -168,6 +168,12 @@ pub(crate) struct RequestedTimestampPostProcessed<T> {
 }
 
 impl<T> RequestedTimestampPostProcessed<T> {
+    pub(crate) const fn from_parts(
+        sample: TimestampedSample<T>,
+        facts: RequestedTimestampPostProcessingFacts,
+    ) -> Self {
+        Self { sample, facts }
+    }
     pub(crate) const fn sample(&self) -> &TimestampedSample<T> {
         &self.sample
     }
@@ -236,7 +242,7 @@ impl<T> RequestedTimestampPostProcessingError<T> {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub(crate) struct RequestedTimestampPostProcessor {
     request: RequestedTimestampPostProcessing,
     input_history: Vec<f64>,
@@ -244,6 +250,34 @@ pub(crate) struct RequestedTimestampPostProcessor {
 }
 
 impl RequestedTimestampPostProcessor {
+    pub(crate) fn try_candidate_copy(
+        &self,
+    ) -> Result<Self, RequestedTimestampPostProcessorCopyError> {
+        self.try_candidate_copy_with(|history, requested| {
+            history.try_reserve_exact(requested).map_err(|_| ())
+        })
+    }
+
+    pub(crate) fn try_candidate_copy_with<F>(
+        &self,
+        reserve: F,
+    ) -> Result<Self, RequestedTimestampPostProcessorCopyError>
+    where
+        F: FnOnce(&mut Vec<f64>, usize) -> Result<(), ()>,
+    {
+        let requested = configured_history(self.request).unwrap_or(0);
+        let mut input_history = Vec::new();
+        reserve(&mut input_history, requested).map_err(|()| {
+            RequestedTimestampPostProcessorCopyError::AllocationFailed { requested }
+        })?;
+        input_history.extend_from_slice(&self.input_history);
+        Ok(Self {
+            request: self.request,
+            input_history,
+            last_output: self.last_output,
+        })
+    }
+
     pub(crate) fn new(
         request: RequestedTimestampPostProcessing,
     ) -> Result<Self, RequestedTimestampPostProcessingConfigError> {
@@ -472,6 +506,11 @@ impl RequestedTimestampPostProcessor {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum RequestedTimestampPostProcessorCopyError {
+    AllocationFailed { requested: usize },
+}
+
 fn configured_history(request: RequestedTimestampPostProcessing) -> Option<usize> {
     match request {
         RequestedTimestampPostProcessing::PassThrough => None,
@@ -510,6 +549,32 @@ fn facts(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn candidate_copy_allocation_refusal_is_typed_and_leaves_state_unchanged() {
+        let config = RequestedTimestampPostProcessingConfig::new(4, 1.0, 10.0).unwrap();
+        let mut owner = RequestedTimestampPostProcessor::new(
+            RequestedTimestampPostProcessing::Monotonic(config),
+        )
+        .unwrap();
+        owner.process(sample(1.0, "first", None)).unwrap();
+        let before_history = owner.input_history.clone();
+        let before_output = owner.last_output;
+        assert_eq!(
+            owner.try_candidate_copy_with(|_, requested| {
+                assert_eq!(requested, 4);
+                Err(())
+            }),
+            Err(RequestedTimestampPostProcessorCopyError::AllocationFailed { requested: 4 })
+        );
+        assert_eq!(owner.input_history, before_history);
+        assert_eq!(owner.last_output, before_output);
+
+        let mut candidate = owner.try_candidate_copy().unwrap();
+        assert!(candidate.input_history.capacity() >= 4);
+        candidate.process(sample(2.0, "second", None)).unwrap();
+        assert!(candidate.input_history.capacity() >= 4);
+    }
     use crate::{DerivedTimestamp, RawSourceTimestamp, Sample, SampleLimits};
 
     fn sample(

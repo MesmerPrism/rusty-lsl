@@ -9,16 +9,13 @@
 //! with liblsl.
 
 use crate::exact_sequence_loss_health::{
-    ExactSequenceClassification, ExactSequenceLossHealth, ExactSequenceLossHealthError,
-    ExactSequenceLossHealthSnapshot,
+    ExactPostProcessingFact, ExactSequenceClassification, ExactSequenceLossHealth,
+    ExactSequenceLossHealthError, ExactSequenceLossHealthSnapshot,
 };
+use crate::requested_timestamp_post_processing::RequestedTimestampPostProcessingDisposition;
 use crate::requested_timestamp_post_processing::{
     RequestedTimestampPostProcessingError, RequestedTimestampPostProcessingFacts,
-    RequestedTimestampPostProcessor,
-};
-use crate::requested_timestamp_post_processing_loss_health::{
-    process_requested_timestamp_and_observe_exact_health,
-    RequestedTimestampPostProcessingLossHealthError,
+    RequestedTimestampPostProcessor, RequestedTimestampPostProcessorCopyError,
 };
 use crate::TimestampedSample;
 
@@ -75,6 +72,10 @@ impl Float32SessionReportRequestedPostProcessingOutcome {
 /// Typed refusal retaining the exact Float32 report record.
 #[derive(Debug, PartialEq)]
 pub(crate) enum Float32SessionReportRequestedPostProcessingError {
+    Allocation {
+        sample: TimestampedSample<f32>,
+        error: RequestedTimestampPostProcessorCopyError,
+    },
     PostProcessing(RequestedTimestampPostProcessingError<f32>),
     Health {
         sample: TimestampedSample<f32>,
@@ -86,6 +87,7 @@ pub(crate) enum Float32SessionReportRequestedPostProcessingError {
 impl Float32SessionReportRequestedPostProcessingError {
     pub(crate) fn into_sample(self) -> TimestampedSample<f32> {
         match self {
+            Self::Allocation { sample, .. } => sample,
             Self::PostProcessing(error) => error.into_sample(),
             Self::Health { sample, .. } => sample,
         }
@@ -93,13 +95,35 @@ impl Float32SessionReportRequestedPostProcessingError {
 }
 
 /// Sole per-record owner of requested processing state and exact sequence health.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub(crate) struct Float32SessionReportRequestedPostProcessing {
     processor: RequestedTimestampPostProcessor,
     health: ExactSequenceLossHealth,
 }
 
 impl Float32SessionReportRequestedPostProcessing {
+    pub(crate) fn try_candidate_copy(
+        &self,
+    ) -> Result<Self, RequestedTimestampPostProcessorCopyError> {
+        Ok(Self {
+            processor: self.processor.try_candidate_copy()?,
+            health: self.health.clone(),
+        })
+    }
+
+    pub(crate) fn try_candidate_copy_with<F>(
+        &self,
+        reserve: F,
+    ) -> Result<Self, RequestedTimestampPostProcessorCopyError>
+    where
+        F: FnOnce(&mut Vec<f64>, usize) -> Result<(), ()>,
+    {
+        Ok(Self {
+            processor: self.processor.try_candidate_copy_with(reserve)?,
+            health: self.health.clone(),
+        })
+    }
+
     pub(crate) const fn new(
         processor: RequestedTimestampPostProcessor,
         health: ExactSequenceLossHealth,
@@ -120,28 +144,52 @@ impl Float32SessionReportRequestedPostProcessing {
         Float32SessionReportRequestedPostProcessingOutcome,
         Float32SessionReportRequestedPostProcessingError,
     > {
-        let processed = process_requested_timestamp_and_observe_exact_health(
-            &mut self.processor,
-            &mut self.health,
-            sequence,
-            sample,
-        )
-        .map_err(|error| match error {
-            RequestedTimestampPostProcessingLossHealthError::PostProcessing(error) => {
-                Float32SessionReportRequestedPostProcessingError::PostProcessing(error)
+        let mut candidate = match self.try_candidate_copy() {
+            Ok(candidate) => candidate,
+            Err(error) => {
+                return Err(
+                    Float32SessionReportRequestedPostProcessingError::Allocation { sample, error },
+                );
             }
-            RequestedTimestampPostProcessingLossHealthError::Health { processed, error } => {
+        };
+        let outcome = candidate.process_record_in_candidate(sequence, sample)?;
+        *self = candidate;
+        Ok(outcome)
+    }
+
+    pub(crate) fn process_record_in_candidate(
+        &mut self,
+        sequence: u64,
+        sample: TimestampedSample<f32>,
+    ) -> Result<
+        Float32SessionReportRequestedPostProcessingOutcome,
+        Float32SessionReportRequestedPostProcessingError,
+    > {
+        let processed = self
+            .processor
+            .process(sample)
+            .map_err(Float32SessionReportRequestedPostProcessingError::PostProcessing)?;
+        let fact = match processed.facts().disposition() {
+            RequestedTimestampPostProcessingDisposition::RetainedUnchanged => {
+                ExactPostProcessingFact::RetainedUnchanged
+            }
+            RequestedTimestampPostProcessingDisposition::RetainedChanged => {
+                ExactPostProcessingFact::RetainedChanged
+            }
+        };
+        let classification = match self.health.observe(sequence, fact) {
+            Ok(classification) => classification,
+            Err(error) => {
                 let (sample, facts) = processed.into_parts();
-                Float32SessionReportRequestedPostProcessingError::Health {
+                return Err(Float32SessionReportRequestedPostProcessingError::Health {
                     sample,
                     facts,
                     error,
-                }
+                });
             }
-        })?;
-        let classification = processed.classification();
-        let health = processed.health();
-        let (sample, facts) = processed.into_processed().into_parts();
+        };
+        let health = self.health.snapshot();
+        let (sample, facts) = processed.into_parts();
         Ok(Float32SessionReportRequestedPostProcessingOutcome {
             sequence,
             sample,
@@ -225,7 +273,7 @@ mod tests {
             ExactSequenceLossHealth::new(2),
         );
         owner.process_record(7, record(1.0, 10.0, 1.0)).unwrap();
-        let before = owner.clone();
+        let before = owner.try_candidate_copy().unwrap();
         let input = record(2.0, 10.0, 2.0);
         let allocation = input.sample().values().as_ptr();
         let returned = owner.process_record(9, input).unwrap_err().into_sample();
@@ -236,7 +284,7 @@ mod tests {
     #[test]
     fn health_error_returns_processed_record_and_changes_neither_owner() {
         let mut owner = monotonic_owner(0);
-        let before = owner.clone();
+        let before = owner.try_candidate_copy().unwrap();
         let input = record(3.0, 12.0, 3.0);
         let allocation = input.sample().values().as_ptr();
         let error = owner.process_record(u64::MAX, input).unwrap_err();
