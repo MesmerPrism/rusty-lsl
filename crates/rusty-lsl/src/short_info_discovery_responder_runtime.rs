@@ -710,7 +710,6 @@ mod tests {
                 &AtomicBool::new(false),
             )
         });
-        thread::sleep(Duration::from_millis(20));
         let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
         let query = ShortInfoQuery::new(
             "name='explicit-interface'".into(),
@@ -720,17 +719,18 @@ mod tests {
         )
         .unwrap();
         let wire = ShortInfoQueryWire::encode(&query, query_limits).unwrap();
-        response_socket
-            .send_to(
-                wire.as_bytes(),
-                (
-                    DOCUMENTED_IPV4_MULTICAST_GROUP,
-                    DOCUMENTED_IPV4_MULTICAST_PORT,
-                ),
-            )
-            .unwrap();
         let mut bytes = [0_u8; 1024];
-        let (count, _) = response_socket.recv_from(&mut bytes).unwrap();
+        let (count, _) = receive_with_bounded_query_retries(
+            &response_socket,
+            wire.as_bytes(),
+            SocketAddr::from((
+                DOCUMENTED_IPV4_MULTICAST_GROUP,
+                DOCUMENTED_IPV4_MULTICAST_PORT,
+            )),
+            &mut bytes,
+            Duration::from_secs(1),
+        )
+        .expect("responder must become ready within the bounded retry window");
         assert!(std::str::from_utf8(&bytes[..count])
             .unwrap()
             .starts_with("89\r\n"));
