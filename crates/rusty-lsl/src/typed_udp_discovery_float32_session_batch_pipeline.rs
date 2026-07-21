@@ -179,6 +179,7 @@ where
 mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
+    use crate::test_network_harness::tcp::SpawnedTcpPeer;
     use crate::{
         run_typed_udp_discovery, BoundedFloat32PipelineError, BoundedSampleQueueActivation,
         BoundedSampleQueuePopError, Float32SessionBatchHealthClassification, MetadataTreeLimits,
@@ -425,18 +426,12 @@ mod tests {
         .unwrap()
     }
 
-    fn session_outlet(
-        channel_count: usize,
-        record_count: usize,
-    ) -> (std::net::SocketAddr, thread::JoinHandle<usize>) {
+    fn session_outlet(channel_count: usize, record_count: usize) -> SpawnedTcpPeer<usize> {
         let records: Vec<_> = (0..record_count)
             .map(|index| record(index, channel_count))
             .collect();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        let endpoint = listener.local_addr().unwrap();
-        let (ready_sender, ready_receiver) = sync_channel(0);
-        let outlet = thread::spawn(move || {
-            ready_sender.send(()).unwrap();
+        SpawnedTcpPeer::spawn("p32-session-outlet", listener, move |listener| {
             TimestampedFloat32OutletSession::preflight_bounded(
                 session_activation(),
                 listener,
@@ -450,9 +445,7 @@ mod tests {
             .finish(&AtomicBool::new(false))
             .unwrap()
             .record_count()
-        });
-        ready_receiver.recv().unwrap();
-        (endpoint, outlet)
+        })
     }
 
     #[test]
@@ -539,8 +532,7 @@ mod tests {
         let count = 3;
         let records: Vec<_> = (0..count).map(|index| record(index, 2)).collect();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        let endpoint = listener.local_addr().unwrap();
-        let outlet = thread::spawn(move || {
+        let outlet = SpawnedTcpPeer::spawn("p32-multi-record-outlet", listener, move |listener| {
             TimestampedFloat32OutletSession::preflight_bounded(
                 session_activation(),
                 listener,
@@ -554,6 +546,7 @@ mod tests {
             .finish(&AtomicBool::new(false))
             .unwrap()
         });
+        let endpoint = outlet.endpoint();
         let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 2));
         let queue = BoundedSampleQueue::new(queue_activation(), count).unwrap();
         let (clock_config, correction) = correction(count);
@@ -610,13 +603,20 @@ mod tests {
             );
         }
         correction.join().unwrap();
-        assert_eq!(outlet.join().unwrap().record_count(), count);
+        assert_eq!(
+            outlet
+                .complete(Duration::from_secs(3))
+                .unwrap()
+                .record_count(),
+            count
+        );
         TcpListener::bind(endpoint).unwrap();
     }
 
     #[test]
     fn p32_one_record_composition_preserves_exact_bits_health_and_endpoint_reuse() {
-        let (endpoint, outlet) = session_outlet(1, 1);
+        let outlet = session_outlet(1, 1);
+        let endpoint = outlet.endpoint();
         let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 1));
         let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
         let (clock_config, correction) = correction(1);
@@ -657,13 +657,14 @@ mod tests {
             0x4008_0000_0000_0100
         );
         correction.join().unwrap();
-        assert_eq!(outlet.join().unwrap(), 1);
+        assert_eq!(outlet.complete(Duration::from_secs(3)).unwrap(), 1);
         TcpListener::bind(endpoint).unwrap();
     }
 
     #[test]
     fn p32_recovery_deadline_retains_current_before_clock_and_queue() {
-        let (endpoint, outlet) = session_outlet(1, 1);
+        let outlet = session_outlet(1, 1);
+        let endpoint = outlet.endpoint();
         let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 1));
         let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
         let deadline_policy = FiniteSampleRecoveryPolicy::new(
@@ -720,14 +721,15 @@ mod tests {
             queue.try_pop(),
             Err(BoundedSampleQueuePopError::Empty)
         ));
-        assert_eq!(outlet.join().unwrap(), 1);
+        assert_eq!(outlet.complete(Duration::from_secs(3)).unwrap(), 1);
         TcpListener::bind(endpoint).unwrap();
     }
 
     #[test]
     fn p32_clock_and_queue_cancellation_retain_current_ownership_and_cleanup() {
         for cancel_clock in [true, false] {
-            let (endpoint, outlet) = session_outlet(1, 1);
+            let outlet = session_outlet(1, 1);
+            let endpoint = outlet.endpoint();
             let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 1));
             let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
             let (clock_config, correction) = correction(if cancel_clock { 0 } else { 1 });
@@ -782,7 +784,7 @@ mod tests {
             assert!(retained);
             assert_eq!(error.health().unwrap().current_record_index(), Some(0));
             correction.join().unwrap();
-            assert_eq!(outlet.join().unwrap(), 1);
+            assert_eq!(outlet.complete(Duration::from_secs(3)).unwrap(), 1);
             TcpListener::bind(endpoint).unwrap();
         }
     }
@@ -793,21 +795,22 @@ mod tests {
         let count = 2;
         let records: Vec<_> = (0..count).map(|index| record(index, 1)).collect();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        let endpoint = listener.local_addr().unwrap();
-        let outlet = thread::spawn(move || {
-            TimestampedFloat32OutletSession::preflight_bounded(
-                session_activation(),
-                listener,
-                &identity(),
-                handshake_limits(),
-                sample_limits(),
-                TimestampedFloat32SessionLimits::new(1, count).unwrap(),
-                &records,
-            )
-            .unwrap()
-            .finish(&AtomicBool::new(false))
-            .unwrap()
-        });
+        let outlet =
+            SpawnedTcpPeer::spawn("p32-cancelled-recovery-outlet", listener, move |listener| {
+                TimestampedFloat32OutletSession::preflight_bounded(
+                    session_activation(),
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    sample_limits(),
+                    TimestampedFloat32SessionLimits::new(1, count).unwrap(),
+                    &records,
+                )
+                .unwrap()
+                .finish(&AtomicBool::new(false))
+                .unwrap()
+            });
+        let endpoint = outlet.endpoint();
         let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 1));
         let queue = BoundedSampleQueue::new(queue_activation(), count).unwrap();
         let off = AtomicBool::new(false);
@@ -872,7 +875,13 @@ mod tests {
             queue.try_pop(),
             Err(BoundedSampleQueuePopError::Empty)
         ));
-        assert_eq!(outlet.join().unwrap().record_count(), count);
+        assert_eq!(
+            outlet
+                .complete(Duration::from_secs(3))
+                .unwrap()
+                .record_count(),
+            count
+        );
         TcpListener::bind(endpoint).unwrap();
     }
 }

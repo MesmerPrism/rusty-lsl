@@ -133,6 +133,7 @@ where
 mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
+    use crate::test_network_harness::tcp::SpawnedTcpPeer;
     use crate::{
         run_timestamped_float32_outlet, run_typed_udp_discovery, BoundedSampleQueueActivation,
         MetadataTreeLimits, RawSourceTimestamp, RecoveryFailureClass, RuntimeModule, Sample,
@@ -280,9 +281,8 @@ mod tests {
     fn lslc_005b_caller_classifies_retry_then_queues_exact_record() {
         let first = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = first.local_addr().unwrap();
-        let worker = thread::spawn(move || {
-            let (stream, _) = first.accept().unwrap();
-            drop(stream);
+        let worker = SpawnedTcpPeer::spawn("lslc-005b-retry-outlet", first, move |first| {
+            drop(first.accept().unwrap().0);
             drop(first);
             let second = TcpListener::bind(address).unwrap();
             run_timestamped_float32_outlet(
@@ -328,25 +328,29 @@ mod tests {
             (-0.0f64).to_bits()
         );
         assert_eq!(drained.sample().values()[0].to_bits(), 0x7fc0_2468);
-        worker.join().unwrap();
+        worker.complete(Duration::from_secs(2)).unwrap();
     }
 
     #[test]
     fn lslc_005b_queue_cancellation_retains_record_and_recovery_states() {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
-        let worker = thread::spawn(move || {
-            run_timestamped_float32_outlet(
-                sample_activation(),
-                listener,
-                &identity(),
-                handshake_limits(),
-                sample_limits(),
-                &sample(1234.5, 7.25),
-                &AtomicBool::new(false),
-            )
-            .unwrap();
-        });
+        let worker = SpawnedTcpPeer::spawn(
+            "lslc-005b-cancelled-queue-outlet",
+            listener,
+            move |listener| {
+                run_timestamped_float32_outlet(
+                    sample_activation(),
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    sample_limits(),
+                    &sample(1234.5, 7.25),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+            },
+        );
         let queue = BoundedSampleQueue::new(queue_activation(), 1).unwrap();
         let error = run_recovering_selected_typed_udp_discovery_float32_inlet_into_queue(
             &typed_run(address.port()),
@@ -385,6 +389,6 @@ mod tests {
             }
             other => panic!("expected queue cancellation, got {other:?}"),
         }
-        worker.join().unwrap();
+        worker.complete(Duration::from_secs(2)).unwrap();
     }
 }
