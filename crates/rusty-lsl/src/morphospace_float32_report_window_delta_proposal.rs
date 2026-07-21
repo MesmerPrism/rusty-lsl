@@ -616,6 +616,7 @@ mod tests {
         tests::outcome_with, MorphospaceFloat32ReportObservation,
         MorphospaceFloat32ReportObservationOwner,
     };
+    use crate::morphospace_float32_report_observation_history::MorphospaceFloat32ReportObservationHistory;
     use crate::requested_timestamp_post_processing::{
         RequestedTimestampPostProcessing, RequestedTimestampPostProcessingConfig,
     };
@@ -692,6 +693,27 @@ mod tests {
             .collect()
     }
 
+    fn through_history(
+        earlier: MorphospaceFloat32ReportObservationWindow,
+        later: MorphospaceFloat32ReportObservationWindow,
+    ) -> (
+        MorphospaceFloat32ReportObservationWindow,
+        MorphospaceFloat32ReportObservationWindow,
+    ) {
+        let windows = MorphospaceFloat32ReportObservationHistory::new(2, 8)
+            .unwrap()
+            .append(earlier)
+            .unwrap()
+            .append(later)
+            .unwrap()
+            .into_windows();
+        let mut windows = windows.into_iter();
+        let earlier = windows.next().unwrap();
+        let later = windows.next().unwrap();
+        assert!(windows.next().is_none());
+        (earlier, later)
+    }
+
     #[test]
     fn bounds_cover_zero_and_platform_extremes() {
         use MorphospaceFloat32ReportWindowDeltaBoundsError::*;
@@ -714,12 +736,13 @@ mod tests {
     }
 
     #[test]
-    fn equality_direction_order_ties_sequence_extremes_and_allocations_are_exact() {
+    fn p38_composition_equality_order_ties_extremes_and_allocations_are_exact() {
         let build = |sequences| window(vec![observation(sequences, vec![4.0, 2.0])]);
         let earlier = build(vec![u64::MAX, 0]);
         let later = build(vec![u64::MAX, 0]);
         let first_ptrs = pointers(&earlier);
         let second_ptrs = pointers(&later);
+        let (earlier, later) = through_history(earlier, later);
         let proposal = owner(12).propose(earlier, later).unwrap();
         assert_eq!(
             directions(&proposal),
@@ -800,9 +823,9 @@ mod tests {
     }
 
     #[test]
-    fn every_error_returns_both_complete_inputs_without_partial_mutation() {
+    fn p38_composition_every_error_returns_both_inputs_without_partial_mutation() {
         let make = || {
-            (
+            through_history(
                 window(vec![observation(vec![0], vec![1.0])]),
                 window(vec![
                     observation(vec![0], vec![1.0]),
@@ -822,6 +845,7 @@ mod tests {
                 .unwrap_err(),
                 1 => {
                     let wide = window(vec![observation(vec![0, 1], vec![2.0, 1.0])]);
+                    let (a, wide) = through_history(a, wide);
                     let wide_pointers = pointers(&wide);
                     let error = MorphospaceFloat32ReportWindowDeltaProposalOwner::new(
                         MorphospaceFloat32ReportWindowDeltaBounds::new(8, 1, 12).unwrap(),
