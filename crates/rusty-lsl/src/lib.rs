@@ -149,6 +149,8 @@ mod stream_info_volatile_fields;
 mod stream_info_volatile_snapshot;
 mod stream_info_volatile_xml;
 mod string_sample_runtime;
+#[cfg(test)]
+mod test_network_harness;
 mod timestamped;
 mod timestamped_descriptor_chunk;
 mod timestamped_descriptor_sample;
