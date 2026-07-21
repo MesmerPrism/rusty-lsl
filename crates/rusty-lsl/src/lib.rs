@@ -86,6 +86,8 @@ mod integrated_clock_correction_runtime;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
+mod morphospace_float32_report_advisory_proposal;
+mod morphospace_float32_report_observation;
 mod raw_clock_exchange;
 mod requested_timestamp_post_processing;
 mod requested_timestamp_post_processing_loss_health;

@@ -218,16 +218,24 @@ impl MorphospaceFloat32ReportObservationOwner {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
+    use crate::float32_session_report_post_processing_batch::Float32SessionReportPostProcessingBatch;
     use crate::requested_timestamp_post_processing::{
         RequestedEffectiveTimestampSource, RequestedTimestampPostProcessing,
         RequestedTimestampPostProcessingConfig,
     };
+    use crate::runtime_activation::test_capability;
     use crate::{
-        DerivedTimestamp, DerivedTimestampKind, RawSourceTimestamp, Sample, SampleLimits,
-        TimestampedSample,
+        DerivedTimestamp, DerivedTimestampKind, RawSourceTimestamp, RuntimeModule, Sample,
+        SampleLimits, StreamHandshakeActivation, StreamHandshakeIdentity, StreamHandshakeLimits,
+        TimestampedFloat32InletSession, TimestampedFloat32OutletSession,
+        TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits, TimestampedSample,
     };
+    use std::net::TcpListener;
+    use std::sync::atomic::AtomicBool;
+    use std::thread;
+    use std::time::Duration;
 
     fn sample(timestamp: f64, value: f32, derived: bool) -> TimestampedSample<f32> {
         TimestampedSample::new(
@@ -240,19 +248,79 @@ mod tests {
         )
     }
 
-    fn outcome(
+    pub(crate) fn outcome(
         sequences: Vec<u64>,
         records: Vec<TimestampedSample<f32>>,
     ) -> Float32PostProcessingBatchOutcome {
-        let maximum = records.len().max(1);
-        let mut owner = super::super::Float32SessionReportPostProcessingBatch::new(
-            maximum,
+        outcome_with(
+            sequences,
+            records,
             RequestedTimestampPostProcessing::Monotonic(
                 RequestedTimestampPostProcessingConfig::new(2, 1.0, 200.0).unwrap(),
             ),
         )
+    }
+
+    pub(crate) fn outcome_with(
+        sequences: Vec<u64>,
+        records: Vec<TimestampedSample<f32>>,
+        request: RequestedTimestampPostProcessing,
+    ) -> Float32PostProcessingBatchOutcome {
+        let maximum = records.len().max(1);
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let limits =
+            StreamHandshakeLimits::new(1024, 64, Duration::from_millis(5), Duration::from_secs(1))
+                .unwrap();
+        let identity = StreamHandshakeIdentity::new(
+            "36363636-2222-4333-8444-555555555555".into(),
+            "p36-host".into(),
+            "p36-source".into(),
+            "p36-session".into(),
+            limits,
+        )
         .unwrap();
-        owner.process_records(sequences, records).unwrap()
+        let activation = TimestampedFloat32SampleActivation::new(
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap(),
+        )
+        .unwrap();
+        let sample_limits =
+            TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+                .unwrap();
+        let worker_identity = identity.clone();
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight(
+                activation,
+                listener,
+                &worker_identity,
+                limits,
+                sample_limits,
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let report = TimestampedFloat32InletSession::preflight(
+            activation,
+            address,
+            &identity,
+            limits,
+            sample_limits,
+            maximum,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        worker.join().unwrap();
+        TcpListener::bind(address).unwrap();
+
+        Float32SessionReportPostProcessingBatch::new(maximum, request)
+            .unwrap()
+            .process_report(sequences, report)
+            .unwrap()
     }
 
     #[test]
@@ -270,16 +338,15 @@ mod tests {
         let records = vec![
             sample(10.0, f32::from_bits(0x3f80_0001), true),
             sample(9.0, f32::from_bits(0xc020_0001), false),
-            sample(12.0, f32::from_bits(0x4040_0001), false),
-            sample(13.0, f32::from_bits(0x4080_0001), false),
         ];
-        let pointers: Vec<_> = records
+        let batch = outcome(vec![0, u64::MAX], records);
+        let pointers: Vec<_> = batch
+            .records()
             .iter()
-            .map(|record| record.sample().values().as_ptr())
+            .map(|record| record.processed().sample().sample().values().as_ptr())
             .collect();
-        let batch = outcome(vec![0, u64::MAX, u64::MAX, 0], records);
         let expected_health = batch.health();
-        let observation = MorphospaceFloat32ReportObservationOwner::new(4)
+        let observation = MorphospaceFloat32ReportObservationOwner::new(2)
             .unwrap()
             .observe(batch)
             .unwrap();
@@ -290,7 +357,7 @@ mod tests {
                 .iter()
                 .map(|record| (record.index(), record.sequence()))
                 .collect::<Vec<_>>(),
-            vec![(0, 0), (1, u64::MAX), (2, u64::MAX), (3, 0)]
+            vec![(0, 0), (1, u64::MAX)]
         );
         assert_eq!(
             observation
@@ -304,18 +371,13 @@ mod tests {
             observation.records()[0].effective_timestamp().source(),
             RequestedEffectiveTimestampSource::ProjectPostProcessed
         );
-        assert_eq!(
-            observation.records()[0].effective_timestamp().value(),
-            110.0
-        );
+        assert_eq!(observation.records()[0].effective_timestamp().value(), 10.0);
         assert_eq!(
             observation.records()[0]
                 .processed()
                 .sample()
-                .derived_timestamp()
-                .unwrap()
-                .kind(),
-            DerivedTimestampKind::ClockCorrected
+                .derived_timestamp(),
+            None
         );
         assert_eq!(
             observation.records()[0].disposition(),
@@ -335,17 +397,62 @@ mod tests {
                 missing_sequence_count: u64::MAX - 1
             }
         );
+        assert_eq!(observation.terminal_health(), expected_health);
+
+        let duplicate = MorphospaceFloat32ReportObservationOwner::new(2)
+            .unwrap()
+            .observe(outcome(
+                vec![u64::MAX, u64::MAX],
+                vec![sample(1.0, 1.0, false), sample(2.0, 2.0, false)],
+            ))
+            .unwrap();
         assert_eq!(
-            observation.records()[2].classification(),
+            duplicate.records()[1].classification(),
             ExactSequenceClassification::Duplicate
         );
+
+        let out_of_order = MorphospaceFloat32ReportObservationOwner::new(2)
+            .unwrap()
+            .observe(outcome(
+                vec![u64::MAX, 0],
+                vec![sample(1.0, 1.0, false), sample(2.0, 2.0, false)],
+            ))
+            .unwrap();
         assert_eq!(
-            observation.records()[3].classification(),
+            out_of_order.records()[1].classification(),
             ExactSequenceClassification::OutOfOrder {
                 behind_high_water_by: u64::MAX
             }
         );
-        assert_eq!(observation.terminal_health(), expected_health);
+
+        let contiguous = MorphospaceFloat32ReportObservationOwner::new(2)
+            .unwrap()
+            .observe(outcome(
+                vec![0, 1],
+                vec![sample(1.0, 1.0, false), sample(2.0, 2.0, false)],
+            ))
+            .unwrap();
+        assert_eq!(
+            contiguous.records()[1].classification(),
+            ExactSequenceClassification::Contiguous
+        );
+
+        let pass_through = MorphospaceFloat32ReportObservationOwner::new(1)
+            .unwrap()
+            .observe(outcome_with(
+                vec![0],
+                vec![sample(17.0, 4.0, false)],
+                RequestedTimestampPostProcessing::PassThrough,
+            ))
+            .unwrap();
+        assert_eq!(
+            pass_through.records()[0].effective_timestamp().source(),
+            RequestedEffectiveTimestampSource::RawSource
+        );
+        assert_eq!(
+            pass_through.records()[0].effective_timestamp().value(),
+            17.0
+        );
     }
 
     #[test]

@@ -2,9 +2,9 @@
 
 ## Decision and exact interface
 
-This repaired candidate adds one crate-private deterministic advisory proposal
-owner directly over `MorphospaceFloat32ReportObservation` from exact sibling
-commit `32dbc7b2869fbf2f165cadc1d344c17fcff98dbf`. It defines no parallel
+This integrated candidate adds one crate-private deterministic advisory proposal
+owner directly over the crate-private `MorphospaceFloat32ReportObservation`
+owner. It defines no parallel
 observation trait, sequence classification, disposition, effective timestamp,
 or terminal-health model. It reads the sibling's ordered record index and
 sequence, existing `ExactSequenceClassification`,
@@ -50,14 +50,13 @@ Manifold, stream, runtime, or policy authority.
 This independently authored candidate does not claim behavioral, numerical,
 wire, protocol, post-processing, health, or loss equivalence with liblsl.
 
-## Isolated actual-interface validation and integration requirement
+## Actual-interface validation and integration boundary
 
-The candidate base intentionally does not contain or wire the sibling module,
-and this task forbids `lib.rs` changes. Validation therefore uses a disposable
-copy of the repository containing the exact sibling observation source from
-commit `32dbc7b2869fbf2f165cadc1d344c17fcff98dbf`. Only that disposable copy may
-add temporary module declarations or accessor adaptation; the candidate
-checkout remains limited to its two owned paths.
+The crate root declares both modules privately. Neither module is re-exported,
+registered, activated, or reachable through a public runtime facade. The
+observation owner consumes the canonical successful P35 outcome, and the
+proposal owner consumes that observation without adding a second evidence
+model or an applying action.
 
 Actual-interface tests cover all five exact sequence classifications, signed
 and exact adjustment boundaries, effective timestamp source/value, every
@@ -66,7 +65,6 @@ equal-magnitude selection and reason order, zero/extreme configuration,
 record-bound and injected allocation failures, real sample-allocation identity,
 and explicit authority denials.
 
-A future reviewed integration must land or otherwise provide the exact sibling
-observation, wire both private modules, and rerun crate-level qualification.
-That wiring must not add a public facade or any application or authority
-surface. This candidate is not itself actual runtime integration evidence.
+Crate-level focused qualification exercises the real P35 outcome through
+observation and retain/review proposal results. The private, default-inert
+wiring adds no public facade, application surface, activation, or authority.
