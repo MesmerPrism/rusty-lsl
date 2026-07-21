@@ -439,6 +439,29 @@ mod tests {
         )
     }
 
+    fn receive_with_bounded_query_retries(
+        socket: &UdpSocket,
+        wire: &[u8],
+        destination: SocketAddr,
+        buffer: &mut [u8],
+        timeout: Duration,
+    ) -> Option<(usize, SocketAddr)> {
+        let deadline = Instant::now() + timeout;
+        loop {
+            let remaining = deadline.checked_duration_since(Instant::now())?;
+            socket
+                .set_read_timeout(Some(remaining.min(Duration::from_millis(10))))
+                .unwrap();
+            socket.send_to(wire, destination).unwrap();
+            match socket.recv_from(buffer) {
+                Ok(response) => return Some(response),
+                Err(error)
+                    if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
+                Err(error) => panic!("unexpected bounded response receive failure: {error}"),
+            }
+        }
+    }
+
     #[test]
     fn lslc_002z_valid_query_returns_matching_envelope_and_releases_port() {
         let responder_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
@@ -774,7 +797,6 @@ mod tests {
                 &AtomicBool::new(false),
             )
         });
-        thread::sleep(Duration::from_millis(20));
         let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
         let query_id = 10_000_000_000_000_000_001_u64;
         let query = ShortInfoQuery::new(
@@ -788,17 +810,18 @@ mod tests {
         assert_eq!(wire.as_bytes().len(), 65);
         assert!(wire.as_bytes().starts_with(b"LSL:shortinfo\r\n"));
         assert!(wire.as_bytes().ends_with(b"\r\n"));
-        response_socket
-            .send_to(
-                wire.as_bytes(),
-                (
-                    DOCUMENTED_IPV4_MULTICAST_GROUP,
-                    DOCUMENTED_IPV4_MULTICAST_PORT,
-                ),
-            )
-            .unwrap();
         let mut bytes = [0_u8; 1024];
-        let (count, _) = response_socket.recv_from(&mut bytes).unwrap();
+        let (count, _) = receive_with_bounded_query_retries(
+            &response_socket,
+            wire.as_bytes(),
+            SocketAddr::from((
+                DOCUMENTED_IPV4_MULTICAST_GROUP,
+                DOCUMENTED_IPV4_MULTICAST_PORT,
+            )),
+            &mut bytes,
+            Duration::from_secs(1),
+        )
+        .expect("responder must become ready within the bounded retry window");
         assert!(std::str::from_utf8(&bytes[..count])
             .unwrap()
             .starts_with("10000000000000000001\r\n"));
@@ -809,6 +832,22 @@ mod tests {
             ShortInfoResponderTermination::RequestLimit
         );
         assert!(UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)).is_ok());
+    }
+
+    #[test]
+    fn lslc_004m_bounded_query_retries_fail_closed_without_a_responder() {
+        let response_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let silent_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let unavailable = silent_socket.local_addr().unwrap();
+        let mut bytes = [0_u8; 1];
+        let response = receive_with_bounded_query_retries(
+            &response_socket,
+            b"bounded readiness probe",
+            unavailable,
+            &mut bytes,
+            Duration::from_millis(40),
+        );
+        assert!(response.is_none());
     }
 
     #[test]
