@@ -924,7 +924,6 @@ mod tests {
                 &AtomicBool::new(false),
             )
         });
-        thread::sleep(Duration::from_millis(20));
         let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
         let query = ShortInfoQuery::new(
             "name='production-composition'".into(),
@@ -934,27 +933,35 @@ mod tests {
         )
         .unwrap();
         let wire = ShortInfoQueryWire::encode(&query, query_limits).unwrap();
-        let run = run_udp_discovery(
-            UdpDiscoveryActivation::new(test_capability(RuntimeModule::UdpDiscovery)).unwrap(),
-            UdpDiscoveryConfig::new(
-                requester_bind,
-                SocketAddr::from((
-                    DOCUMENTED_IPV4_MULTICAST_GROUP,
-                    DOCUMENTED_IPV4_MULTICAST_PORT,
-                )),
-                UdpDiscoveryLimits::new(
-                    response_maximum,
-                    1,
-                    Duration::from_millis(10),
-                    Duration::from_secs(1),
-                )
-                .unwrap(),
-                ShortInfoResponseEnvelopeLimits::new(body().len(), response_maximum).unwrap(),
-            ),
-            &wire,
-            &AtomicBool::new(false),
-        )
-        .unwrap();
+        let mut run = None;
+        for _ in 0..25 {
+            let attempt = run_udp_discovery(
+                UdpDiscoveryActivation::new(test_capability(RuntimeModule::UdpDiscovery)).unwrap(),
+                UdpDiscoveryConfig::new(
+                    requester_bind,
+                    SocketAddr::from((
+                        DOCUMENTED_IPV4_MULTICAST_GROUP,
+                        DOCUMENTED_IPV4_MULTICAST_PORT,
+                    )),
+                    UdpDiscoveryLimits::new(
+                        response_maximum,
+                        1,
+                        Duration::from_millis(10),
+                        Duration::from_millis(40),
+                    )
+                    .unwrap(),
+                    ShortInfoResponseEnvelopeLimits::new(body().len(), response_maximum).unwrap(),
+                ),
+                &wire,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            if attempt.termination() == UdpDiscoveryTermination::ResponseLimit {
+                run = Some(attempt);
+                break;
+            }
+        }
+        let run = run.expect("responder must become ready within the bounded retry window");
         let responder_run = responder.join().unwrap().unwrap();
         assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
         assert_eq!(run.responses().len(), 1);
