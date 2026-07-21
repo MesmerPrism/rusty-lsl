@@ -1,43 +1,20 @@
 // Copyright (C) 2026 Rusty LSL contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! Deterministic, effect-free trend advice over an ordered window of exact P36 observations.
+//! Deterministic, effect-free trend advice over the concrete P37 observation window.
 //!
-//! This disposable candidate is crate-private and unwired. It returns the owned window on every
-//! result and failure and exposes no apply, accept, route, lease, revision, authorization,
-//! application, or audit mechanism. It neither invents loss nor introduces terminal facts.
+//! The owner borrows only exact P36 observations and the window's checked totals before returning
+//! the complete window. It is crate-private, default-inert proposal data and owns no downstream
+//! action or authority.
 
-/// Borrowed record facts already exposed by one frozen P36 observation.
-pub(crate) trait Float32ReportTrendObservedRecord {
-    fn record_index(&self) -> u64;
-    fn sequence(&self) -> u64;
-    fn signed_adjustment_bits(&self) -> u64;
-}
-
-/// Borrowed exact facts already checked by one frozen P36 observation.
-pub(crate) trait Float32ReportTrendObservedReport {
-    type Record: Float32ReportTrendObservedRecord;
-
-    fn report_index(&self) -> u64;
-    fn records(&self) -> &[Self::Record];
-    fn exact_record_count(&self) -> u64;
-    fn explicit_missing_sequence_count(&self) -> u64;
-    fn duplicate_count(&self) -> u64;
-    fn out_of_order_count(&self) -> u64;
-    fn retained_changed_count(&self) -> u64;
-}
-
-/// Owned ordered window. The proposal only borrows this view before returning the owner intact.
-pub(crate) trait Float32ReportTrendObservationWindow {
-    type Report: Float32ReportTrendObservedReport;
-
-    fn reports(&self) -> &[Self::Report];
-}
+use crate::morphospace_float32_report_observation_window::{
+    MorphospaceFloat32ReportObservationWindow, MorphospaceFloat32ReportObservationWindowTotals,
+};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct Float32ReportTrendThresholds {
+pub(crate) struct MorphospaceFloat32ReportTrendThresholds {
     maximum_reports: usize,
-    maximum_records_per_report: u64,
+    maximum_records_per_report: usize,
     maximum_total_records: u64,
     maximum_explicit_missing_sequences: u64,
     maximum_duplicates: u64,
@@ -47,43 +24,53 @@ pub(crate) struct Float32ReportTrendThresholds {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportTrendThresholdError {
+pub(crate) enum MorphospaceFloat32ReportTrendThresholdError {
     ZeroMaximumReports,
+    ZeroMaximumRecordsPerReport,
     MaximumReportsUnrepresentable { requested: usize },
+    MaximumRecordsPerReportUnrepresentable { requested: usize },
     NonFiniteMaximumAbsoluteAdjustment { bits: u64 },
     NegativeMaximumAbsoluteAdjustment { bits: u64 },
 }
 
-impl Float32ReportTrendThresholds {
+impl MorphospaceFloat32ReportTrendThresholds {
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         maximum_reports: usize,
-        maximum_records_per_report: u64,
+        maximum_records_per_report: usize,
         maximum_total_records: u64,
         maximum_explicit_missing_sequences: u64,
         maximum_duplicates: u64,
         maximum_out_of_order: u64,
         maximum_retained_changed: u64,
         maximum_absolute_adjustment: f64,
-    ) -> Result<Self, Float32ReportTrendThresholdError> {
+    ) -> Result<Self, MorphospaceFloat32ReportTrendThresholdError> {
         if maximum_reports == 0 {
-            return Err(Float32ReportTrendThresholdError::ZeroMaximumReports);
+            return Err(MorphospaceFloat32ReportTrendThresholdError::ZeroMaximumReports);
+        }
+        if maximum_records_per_report == 0 {
+            return Err(MorphospaceFloat32ReportTrendThresholdError::ZeroMaximumRecordsPerReport);
         }
         u64::try_from(maximum_reports).map_err(|_| {
-            Float32ReportTrendThresholdError::MaximumReportsUnrepresentable {
+            MorphospaceFloat32ReportTrendThresholdError::MaximumReportsUnrepresentable {
                 requested: maximum_reports,
+            }
+        })?;
+        u64::try_from(maximum_records_per_report).map_err(|_| {
+            MorphospaceFloat32ReportTrendThresholdError::MaximumRecordsPerReportUnrepresentable {
+                requested: maximum_records_per_report,
             }
         })?;
         if !maximum_absolute_adjustment.is_finite() {
             return Err(
-                Float32ReportTrendThresholdError::NonFiniteMaximumAbsoluteAdjustment {
+                MorphospaceFloat32ReportTrendThresholdError::NonFiniteMaximumAbsoluteAdjustment {
                     bits: maximum_absolute_adjustment.to_bits(),
                 },
             );
         }
         if maximum_absolute_adjustment < 0.0 {
             return Err(
-                Float32ReportTrendThresholdError::NegativeMaximumAbsoluteAdjustment {
+                MorphospaceFloat32ReportTrendThresholdError::NegativeMaximumAbsoluteAdjustment {
                     bits: maximum_absolute_adjustment.to_bits(),
                 },
             );
@@ -102,7 +89,7 @@ impl Float32ReportTrendThresholds {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct Float32ReportTrendLargestAdjustment {
+pub(crate) struct MorphospaceFloat32ReportTrendLargestAdjustment {
     pub(crate) report_index: u64,
     pub(crate) record_index: u64,
     pub(crate) sequence: u64,
@@ -111,19 +98,14 @@ pub(crate) struct Float32ReportTrendLargestAdjustment {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct Float32ReportTrendAggregates {
-    pub(crate) report_count: u64,
-    pub(crate) total_records: u64,
-    pub(crate) explicit_missing_sequences: u64,
-    pub(crate) duplicates: u64,
-    pub(crate) out_of_order: u64,
-    pub(crate) retained_changed: u64,
-    pub(crate) largest_absolute_adjustment: Option<Float32ReportTrendLargestAdjustment>,
+pub(crate) struct MorphospaceFloat32ReportTrendAggregates {
+    pub(crate) window_totals: MorphospaceFloat32ReportObservationWindowTotals,
+    pub(crate) largest_absolute_adjustment: Option<MorphospaceFloat32ReportTrendLargestAdjustment>,
 }
 
-/// Review reasons are emitted in this declaration order.
+/// Reasons are emitted in this declaration order and only for strict threshold exceedance.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportTrendReviewReason {
+pub(crate) enum MorphospaceFloat32ReportTrendReviewReason {
     TotalRecords {
         observed: u64,
         maximum: u64,
@@ -155,166 +137,182 @@ pub(crate) enum Float32ReportTrendReviewReason {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum Float32ReportTrendProposal<W> {
+pub(crate) enum MorphospaceFloat32ReportTrendProposal {
     Retain {
-        window: W,
-        aggregates: Float32ReportTrendAggregates,
+        window: MorphospaceFloat32ReportObservationWindow,
+        aggregates: MorphospaceFloat32ReportTrendAggregates,
     },
     Review {
-        window: W,
-        aggregates: Float32ReportTrendAggregates,
-        reasons: Vec<Float32ReportTrendReviewReason>,
-    },
-}
-
-#[derive(Debug, PartialEq)]
-pub(crate) enum Float32ReportTrendError<W> {
-    EmptyWindow {
-        window: W,
-    },
-    ReportBound {
-        limit: usize,
-        actual: usize,
-        window: W,
-    },
-    ReportCountUnrepresentable {
-        actual: usize,
-        window: W,
-    },
-    RecordBound {
-        report_index: u64,
-        limit: u64,
-        actual: u64,
-        window: W,
-    },
-    RecordExtentMismatch {
-        report_index: u64,
-        declared: u64,
-        actual: u64,
-        window: W,
-    },
-    CounterOverflow {
-        report_index: u64,
-        counter: Float32ReportTrendCounter,
-        window: W,
-    },
-    NonFiniteAdjustment {
-        report_index: u64,
-        record_index: u64,
-        sequence: u64,
-        bits: u64,
-        window: W,
-    },
-    Allocation {
-        requested_reasons: usize,
-        window: W,
+        window: MorphospaceFloat32ReportObservationWindow,
+        aggregates: MorphospaceFloat32ReportTrendAggregates,
+        reasons: Vec<MorphospaceFloat32ReportTrendReviewReason>,
     },
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportTrendCounter {
-    TotalRecords,
+pub(crate) enum MorphospaceFloat32ReportTrendCounter {
+    RecordCount,
+    ObservationCount,
     ExplicitMissingSequences,
     Duplicates,
     OutOfOrder,
     RetainedChanged,
 }
 
-impl<W> Float32ReportTrendError<W> {
-    pub(crate) fn into_window(self) -> W {
+#[derive(Debug, PartialEq)]
+pub(crate) enum MorphospaceFloat32ReportTrendError {
+    EmptyWindow {
+        window: MorphospaceFloat32ReportObservationWindow,
+    },
+    ReportLimit {
+        limit: usize,
+        actual: usize,
+        window: MorphospaceFloat32ReportObservationWindow,
+    },
+    RecordLimit {
+        report_index: u64,
+        limit: usize,
+        actual: usize,
+        window: MorphospaceFloat32ReportObservationWindow,
+    },
+    CounterOverflow {
+        report_index: u64,
+        counter: MorphospaceFloat32ReportTrendCounter,
+        window: MorphospaceFloat32ReportObservationWindow,
+    },
+    WindowTotalsMismatch {
+        window: MorphospaceFloat32ReportObservationWindow,
+    },
+    Allocation {
+        requested_reasons: usize,
+        window: MorphospaceFloat32ReportObservationWindow,
+    },
+}
+
+impl MorphospaceFloat32ReportTrendError {
+    pub(crate) fn into_window(self) -> MorphospaceFloat32ReportObservationWindow {
         match self {
             Self::EmptyWindow { window }
-            | Self::ReportBound { window, .. }
-            | Self::ReportCountUnrepresentable { window, .. }
-            | Self::RecordBound { window, .. }
-            | Self::RecordExtentMismatch { window, .. }
+            | Self::ReportLimit { window, .. }
+            | Self::RecordLimit { window, .. }
             | Self::CounterOverflow { window, .. }
-            | Self::NonFiniteAdjustment { window, .. }
+            | Self::WindowTotalsMismatch { window }
             | Self::Allocation { window, .. } => window,
         }
     }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct Float32ReportTrendProposalOwner {
-    thresholds: Float32ReportTrendThresholds,
+pub(crate) struct MorphospaceFloat32ReportTrendProposalOwner {
+    thresholds: MorphospaceFloat32ReportTrendThresholds,
 }
 
-impl Float32ReportTrendProposalOwner {
-    pub(crate) const fn new(thresholds: Float32ReportTrendThresholds) -> Self {
+impl MorphospaceFloat32ReportTrendProposalOwner {
+    pub(crate) const fn new(thresholds: MorphospaceFloat32ReportTrendThresholds) -> Self {
         Self { thresholds }
     }
 
-    pub(crate) fn propose<W: Float32ReportTrendObservationWindow>(
+    pub(crate) fn propose(
         &self,
-        window: W,
-    ) -> Result<Float32ReportTrendProposal<W>, Float32ReportTrendError<W>> {
-        self.propose_with(window, |reasons, count| {
-            reasons.try_reserve_exact(count).map_err(|_| ())
-        })
+        window: MorphospaceFloat32ReportObservationWindow,
+    ) -> Result<MorphospaceFloat32ReportTrendProposal, MorphospaceFloat32ReportTrendError> {
+        self.propose_with(
+            window,
+            |reasons, requested| reasons.try_reserve_exact(requested).map_err(|_| ()),
+            |current, value| current.checked_add(value).ok_or(()),
+        )
     }
 
-    fn propose_with<W, R>(
+    fn propose_with<R, A>(
         &self,
-        window: W,
+        window: MorphospaceFloat32ReportObservationWindow,
         reserve: R,
-    ) -> Result<Float32ReportTrendProposal<W>, Float32ReportTrendError<W>>
+        mut add: A,
+    ) -> Result<MorphospaceFloat32ReportTrendProposal, MorphospaceFloat32ReportTrendError>
     where
-        W: Float32ReportTrendObservationWindow,
-        R: FnOnce(&mut Vec<Float32ReportTrendReviewReason>, usize) -> Result<(), ()>,
+        R: FnOnce(&mut Vec<MorphospaceFloat32ReportTrendReviewReason>, usize) -> Result<(), ()>,
+        A: FnMut(u64, u64) -> Result<u64, ()>,
     {
-        let aggregates = match collect(window.reports(), self.thresholds.maximum_records_per_report)
-        {
-            Ok(value) => value,
-            Err(failure) => return Err(failure.attach(window)),
-        };
-        if window.reports().len() > self.thresholds.maximum_reports {
-            return Err(Float32ReportTrendError::ReportBound {
+        let observations = window.observations();
+        if observations.is_empty() {
+            return Err(MorphospaceFloat32ReportTrendError::EmptyWindow { window });
+        }
+        if observations.len() > self.thresholds.maximum_reports {
+            return Err(MorphospaceFloat32ReportTrendError::ReportLimit {
                 limit: self.thresholds.maximum_reports,
-                actual: window.reports().len(),
+                actual: observations.len(),
                 window,
             });
         }
+
+        let collected = match collect_exact(
+            &window,
+            self.thresholds.maximum_records_per_report,
+            &mut add,
+        ) {
+            Ok(value) => value,
+            Err(failure) => return Err(failure.attach(window)),
+        };
+        if !collected.matches(window.totals()) {
+            return Err(MorphospaceFloat32ReportTrendError::WindowTotalsMismatch { window });
+        }
+        let aggregates = MorphospaceFloat32ReportTrendAggregates {
+            window_totals: window.totals(),
+            largest_absolute_adjustment: collected.largest_absolute_adjustment,
+        };
+
         const MAXIMUM_REASONS: usize = 6;
         let mut reasons = Vec::new();
         if reserve(&mut reasons, MAXIMUM_REASONS).is_err() {
-            return Err(Float32ReportTrendError::Allocation {
+            return Err(MorphospaceFloat32ReportTrendError::Allocation {
                 requested_reasons: MAXIMUM_REASONS,
                 window,
             });
         }
-        push(
+        let totals = aggregates.window_totals;
+        push_threshold(
             &mut reasons,
-            aggregates.total_records,
+            totals.record_count(),
             self.thresholds.maximum_total_records,
-            |observed, maximum| Float32ReportTrendReviewReason::TotalRecords { observed, maximum },
-        );
-        push(
-            &mut reasons,
-            aggregates.explicit_missing_sequences,
-            self.thresholds.maximum_explicit_missing_sequences,
-            |observed, maximum| Float32ReportTrendReviewReason::ExplicitMissingSequences {
+            |observed, maximum| MorphospaceFloat32ReportTrendReviewReason::TotalRecords {
                 observed,
                 maximum,
             },
         );
-        push(
+        push_threshold(
             &mut reasons,
-            aggregates.duplicates,
+            totals.explicit_missing_sequence_count(),
+            self.thresholds.maximum_explicit_missing_sequences,
+            |observed, maximum| {
+                MorphospaceFloat32ReportTrendReviewReason::ExplicitMissingSequences {
+                    observed,
+                    maximum,
+                }
+            },
+        );
+        push_threshold(
+            &mut reasons,
+            totals.duplicate_count(),
             self.thresholds.maximum_duplicates,
-            |observed, maximum| Float32ReportTrendReviewReason::Duplicates { observed, maximum },
+            |observed, maximum| MorphospaceFloat32ReportTrendReviewReason::Duplicates {
+                observed,
+                maximum,
+            },
         );
-        push(
+        push_threshold(
             &mut reasons,
-            aggregates.out_of_order,
+            totals.out_of_order_count(),
             self.thresholds.maximum_out_of_order,
-            |observed, maximum| Float32ReportTrendReviewReason::OutOfOrder { observed, maximum },
+            |observed, maximum| MorphospaceFloat32ReportTrendReviewReason::OutOfOrder {
+                observed,
+                maximum,
+            },
         );
-        push(
+        push_threshold(
             &mut reasons,
-            aggregates.retained_changed,
+            totals.retained_changed_count(),
             self.thresholds.maximum_retained_changed,
-            |observed, maximum| Float32ReportTrendReviewReason::RetainedChanged {
+            |observed, maximum| MorphospaceFloat32ReportTrendReviewReason::RetainedChanged {
                 observed,
                 maximum,
             },
@@ -323,20 +321,23 @@ impl Float32ReportTrendProposalOwner {
             if f64::from_bits(largest.absolute_adjustment_bits)
                 > f64::from_bits(self.thresholds.maximum_absolute_adjustment_bits)
             {
-                reasons.push(Float32ReportTrendReviewReason::AbsoluteAdjustment {
-                    report_index: largest.report_index,
-                    record_index: largest.record_index,
-                    sequence: largest.sequence,
-                    signed_adjustment_bits: largest.signed_adjustment_bits,
-                    observed_absolute_bits: largest.absolute_adjustment_bits,
-                    maximum_absolute_bits: self.thresholds.maximum_absolute_adjustment_bits,
-                });
+                reasons.push(
+                    MorphospaceFloat32ReportTrendReviewReason::AbsoluteAdjustment {
+                        report_index: largest.report_index,
+                        record_index: largest.record_index,
+                        sequence: largest.sequence,
+                        signed_adjustment_bits: largest.signed_adjustment_bits,
+                        observed_absolute_bits: largest.absolute_adjustment_bits,
+                        maximum_absolute_bits: self.thresholds.maximum_absolute_adjustment_bits,
+                    },
+                );
             }
         }
+
         if reasons.is_empty() {
-            Ok(Float32ReportTrendProposal::Retain { window, aggregates })
+            Ok(MorphospaceFloat32ReportTrendProposal::Retain { window, aggregates })
         } else {
-            Ok(Float32ReportTrendProposal::Review {
+            Ok(MorphospaceFloat32ReportTrendProposal::Review {
                 window,
                 aggregates,
                 reasons,
@@ -345,209 +346,189 @@ impl Float32ReportTrendProposalOwner {
     }
 }
 
+#[derive(Clone, Copy)]
+struct Collected {
+    record_count: u64,
+    observation_count: u64,
+    explicit_missing_sequences: u64,
+    duplicates: u64,
+    out_of_order: u64,
+    retained_changed: u64,
+    largest_absolute_adjustment: Option<MorphospaceFloat32ReportTrendLargestAdjustment>,
+}
+
+impl Collected {
+    fn matches(self, totals: MorphospaceFloat32ReportObservationWindowTotals) -> bool {
+        self.record_count == totals.record_count()
+            && self.observation_count == totals.observation_count()
+            && self.explicit_missing_sequences == totals.explicit_missing_sequence_count()
+            && self.duplicates == totals.duplicate_count()
+            && self.out_of_order == totals.out_of_order_count()
+            && self.retained_changed == totals.retained_changed_count()
+    }
+}
+
 enum CollectFailure {
-    EmptyWindow,
-    ReportCountUnrepresentable {
+    RecordLimit {
+        report_index: u64,
+        limit: usize,
         actual: usize,
-    },
-    RecordBound {
-        report_index: u64,
-        limit: u64,
-        actual: u64,
-    },
-    RecordExtentMismatch {
-        report_index: u64,
-        declared: u64,
-        actual: u64,
     },
     CounterOverflow {
         report_index: u64,
-        counter: Float32ReportTrendCounter,
-    },
-    NonFiniteAdjustment {
-        report_index: u64,
-        record_index: u64,
-        sequence: u64,
-        bits: u64,
+        counter: MorphospaceFloat32ReportTrendCounter,
     },
 }
 
 impl CollectFailure {
-    fn attach<W>(self, window: W) -> Float32ReportTrendError<W> {
+    fn attach(
+        self,
+        window: MorphospaceFloat32ReportObservationWindow,
+    ) -> MorphospaceFloat32ReportTrendError {
         match self {
-            Self::EmptyWindow => Float32ReportTrendError::EmptyWindow { window },
-            Self::ReportCountUnrepresentable { actual } => {
-                Float32ReportTrendError::ReportCountUnrepresentable { actual, window }
-            }
-            Self::RecordBound {
+            Self::RecordLimit {
                 report_index,
                 limit,
                 actual,
-            } => Float32ReportTrendError::RecordBound {
+            } => MorphospaceFloat32ReportTrendError::RecordLimit {
                 report_index,
                 limit,
-                actual,
-                window,
-            },
-            Self::RecordExtentMismatch {
-                report_index,
-                declared,
-                actual,
-            } => Float32ReportTrendError::RecordExtentMismatch {
-                report_index,
-                declared,
                 actual,
                 window,
             },
             Self::CounterOverflow {
                 report_index,
                 counter,
-            } => Float32ReportTrendError::CounterOverflow {
+            } => MorphospaceFloat32ReportTrendError::CounterOverflow {
                 report_index,
                 counter,
-                window,
-            },
-            Self::NonFiniteAdjustment {
-                report_index,
-                record_index,
-                sequence,
-                bits,
-            } => Float32ReportTrendError::NonFiniteAdjustment {
-                report_index,
-                record_index,
-                sequence,
-                bits,
                 window,
             },
         }
     }
 }
 
-fn collect<R: Float32ReportTrendObservedReport>(
-    reports: &[R],
-    per_report_limit: u64,
-) -> Result<Float32ReportTrendAggregates, CollectFailure> {
-    if reports.is_empty() {
-        return Err(CollectFailure::EmptyWindow);
-    }
-    let report_count =
-        u64::try_from(reports.len()).map_err(|_| CollectFailure::ReportCountUnrepresentable {
-            actual: reports.len(),
-        })?;
-    let mut result = Float32ReportTrendAggregates {
-        report_count,
-        total_records: 0,
+fn collect_exact<A>(
+    window: &MorphospaceFloat32ReportObservationWindow,
+    maximum_records_per_report: usize,
+    add: &mut A,
+) -> Result<Collected, CollectFailure>
+where
+    A: FnMut(u64, u64) -> Result<u64, ()>,
+{
+    let mut collected = Collected {
+        record_count: 0,
+        observation_count: 0,
         explicit_missing_sequences: 0,
         duplicates: 0,
         out_of_order: 0,
         retained_changed: 0,
         largest_absolute_adjustment: None,
     };
-    for report in reports {
-        let report_index = report.report_index();
-        let actual =
-            u64::try_from(report.records().len()).map_err(|_| CollectFailure::CounterOverflow {
+    for (report_position, observation) in window.observations().iter().enumerate() {
+        let report_index = u64::try_from(report_position)
+            .expect("the concrete window validates its maximum report count");
+        if observation.records().len() > maximum_records_per_report {
+            return Err(CollectFailure::RecordLimit {
                 report_index,
-                counter: Float32ReportTrendCounter::TotalRecords,
-            })?;
-        if actual > per_report_limit {
-            return Err(CollectFailure::RecordBound {
-                report_index,
-                limit: per_report_limit,
-                actual,
+                limit: maximum_records_per_report,
+                actual: observation.records().len(),
             });
         }
-        if actual != report.exact_record_count() {
-            return Err(CollectFailure::RecordExtentMismatch {
+        let health = observation.terminal_health();
+        checked_add(
+            add,
+            &mut collected.record_count,
+            u64::try_from(observation.records().len())
+                .expect("the concrete P36 observation validates its maximum record count"),
+            report_index,
+            MorphospaceFloat32ReportTrendCounter::RecordCount,
+        )?;
+        checked_add(
+            add,
+            &mut collected.observation_count,
+            health.observation_count(),
+            report_index,
+            MorphospaceFloat32ReportTrendCounter::ObservationCount,
+        )?;
+        checked_add(
+            add,
+            &mut collected.explicit_missing_sequences,
+            health.explicit_missing_sequence_count(),
+            report_index,
+            MorphospaceFloat32ReportTrendCounter::ExplicitMissingSequences,
+        )?;
+        checked_add(
+            add,
+            &mut collected.duplicates,
+            health.duplicate_count(),
+            report_index,
+            MorphospaceFloat32ReportTrendCounter::Duplicates,
+        )?;
+        checked_add(
+            add,
+            &mut collected.out_of_order,
+            health.out_of_order_count(),
+            report_index,
+            MorphospaceFloat32ReportTrendCounter::OutOfOrder,
+        )?;
+        checked_add(
+            add,
+            &mut collected.retained_changed,
+            health.retained_changed_count(),
+            report_index,
+            MorphospaceFloat32ReportTrendCounter::RetainedChanged,
+        )?;
+
+        for record in observation.records() {
+            let adjustment = record.processed().facts().adjustment();
+            debug_assert!(
+                adjustment.is_finite(),
+                "P36 admits only finite adjustment facts"
+            );
+            let candidate = MorphospaceFloat32ReportTrendLargestAdjustment {
                 report_index,
-                declared: report.exact_record_count(),
-                actual,
-            });
-        }
-        checked_add(
-            &mut result.total_records,
-            actual,
-            report_index,
-            Float32ReportTrendCounter::TotalRecords,
-        )?;
-        checked_add(
-            &mut result.explicit_missing_sequences,
-            report.explicit_missing_sequence_count(),
-            report_index,
-            Float32ReportTrendCounter::ExplicitMissingSequences,
-        )?;
-        checked_add(
-            &mut result.duplicates,
-            report.duplicate_count(),
-            report_index,
-            Float32ReportTrendCounter::Duplicates,
-        )?;
-        checked_add(
-            &mut result.out_of_order,
-            report.out_of_order_count(),
-            report_index,
-            Float32ReportTrendCounter::OutOfOrder,
-        )?;
-        checked_add(
-            &mut result.retained_changed,
-            report.retained_changed_count(),
-            report_index,
-            Float32ReportTrendCounter::RetainedChanged,
-        )?;
-        for record in report.records() {
-            let adjustment = f64::from_bits(record.signed_adjustment_bits());
-            if !adjustment.is_finite() {
-                return Err(CollectFailure::NonFiniteAdjustment {
-                    report_index,
-                    record_index: record.record_index(),
-                    sequence: record.sequence(),
-                    bits: adjustment.to_bits(),
-                });
-            }
-            let candidate = Float32ReportTrendLargestAdjustment {
-                report_index,
-                record_index: record.record_index(),
+                record_index: record.index(),
                 sequence: record.sequence(),
                 signed_adjustment_bits: adjustment.to_bits(),
                 absolute_adjustment_bits: adjustment.abs().to_bits(),
             };
-            let replace = result
+            // Concrete windows and P36 records are ordered by ascending zero-based indices.
+            // Strict replacement therefore makes report index, then record index, the tie order.
+            if collected
                 .largest_absolute_adjustment
-                .map(|current| {
-                    adjustment.abs() > f64::from_bits(current.absolute_adjustment_bits)
-                        || (adjustment.abs() == f64::from_bits(current.absolute_adjustment_bits)
-                            && (candidate.report_index, candidate.record_index)
-                                < (current.report_index, current.record_index))
-                })
-                .unwrap_or(true);
-            if replace {
-                result.largest_absolute_adjustment = Some(candidate);
+                .map(|current| adjustment.abs() > f64::from_bits(current.absolute_adjustment_bits))
+                .unwrap_or(true)
+            {
+                collected.largest_absolute_adjustment = Some(candidate);
             }
         }
     }
-    Ok(result)
+    Ok(collected)
 }
 
-fn checked_add(
-    target: &mut u64,
+fn checked_add<A>(
+    add: &mut A,
+    current: &mut u64,
     value: u64,
     report_index: u64,
-    counter: Float32ReportTrendCounter,
-) -> Result<(), CollectFailure> {
-    *target = target
-        .checked_add(value)
-        .ok_or(CollectFailure::CounterOverflow {
-            report_index,
-            counter,
-        })?;
+    counter: MorphospaceFloat32ReportTrendCounter,
+) -> Result<(), CollectFailure>
+where
+    A: FnMut(u64, u64) -> Result<u64, ()>,
+{
+    *current = add(*current, value).map_err(|_| CollectFailure::CounterOverflow {
+        report_index,
+        counter,
+    })?;
     Ok(())
 }
 
-fn push(
-    reasons: &mut Vec<Float32ReportTrendReviewReason>,
+fn push_threshold(
+    reasons: &mut Vec<MorphospaceFloat32ReportTrendReviewReason>,
     observed: u64,
     maximum: u64,
-    make: fn(u64, u64) -> Float32ReportTrendReviewReason,
+    make: fn(u64, u64) -> MorphospaceFloat32ReportTrendReviewReason,
 ) {
     if observed > maximum {
         reasons.push(make(observed, maximum));
@@ -557,99 +538,108 @@ fn push(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::morphospace_float32_report_observation::{
+        tests::outcome_with, MorphospaceFloat32ReportObservation,
+        MorphospaceFloat32ReportObservationOwner,
+    };
+    use crate::requested_timestamp_post_processing::{
+        RequestedTimestampPostProcessing, RequestedTimestampPostProcessingConfig,
+    };
+    use crate::{RawSourceTimestamp, Sample, SampleLimits, TimestampedSample};
 
-    #[derive(Debug, PartialEq)]
-    struct Record {
-        index: u64,
-        sequence: u64,
-        adjustment: f64,
-        allocation: Box<u8>,
+    fn observation(
+        sequences: Vec<u64>,
+        timestamps: Vec<f64>,
+    ) -> MorphospaceFloat32ReportObservation {
+        let count = timestamps.len();
+        let records = timestamps
+            .into_iter()
+            .enumerate()
+            .map(|(index, timestamp)| {
+                TimestampedSample::new(
+                    Sample::new(SampleLimits::new(1).unwrap(), 1, vec![index as f32]).unwrap(),
+                    RawSourceTimestamp::new(timestamp).unwrap(),
+                    None,
+                )
+            })
+            .collect();
+        MorphospaceFloat32ReportObservationOwner::new(count)
+            .unwrap()
+            .observe(outcome_with(
+                sequences,
+                records,
+                RequestedTimestampPostProcessing::Monotonic(
+                    RequestedTimestampPostProcessingConfig::new(8, 1.0, f64::MAX).unwrap(),
+                ),
+            ))
+            .unwrap()
     }
-    impl Float32ReportTrendObservedRecord for Record {
-        fn record_index(&self) -> u64 {
-            self.index
-        }
-        fn sequence(&self) -> u64 {
-            self.sequence
-        }
-        fn signed_adjustment_bits(&self) -> u64 {
-            self.adjustment.to_bits()
-        }
+
+    fn window(
+        observations: Vec<MorphospaceFloat32ReportObservation>,
+    ) -> MorphospaceFloat32ReportObservationWindow {
+        let records: usize = observations.iter().map(|value| value.records().len()).sum();
+        observations.into_iter().fold(
+            MorphospaceFloat32ReportObservationWindow::new(8, records.max(1)).unwrap(),
+            |window, observation| window.append(observation).unwrap(),
+        )
     }
-    #[derive(Debug, PartialEq)]
-    struct Report {
-        index: u64,
-        declared: u64,
-        missing: u64,
-        duplicates: u64,
-        out: u64,
-        changed: u64,
-        records: Vec<Record>,
+
+    fn pointers(window: &MorphospaceFloat32ReportObservationWindow) -> Vec<*const f32> {
+        window
+            .observations()
+            .iter()
+            .flat_map(|observation| observation.records().iter())
+            .map(|record| record.processed().sample().sample().values().as_ptr())
+            .collect()
     }
-    impl Float32ReportTrendObservedReport for Report {
-        type Record = Record;
-        fn report_index(&self) -> u64 {
-            self.index
-        }
-        fn records(&self) -> &[Record] {
-            &self.records
-        }
-        fn exact_record_count(&self) -> u64 {
-            self.declared
-        }
-        fn explicit_missing_sequence_count(&self) -> u64 {
-            self.missing
-        }
-        fn duplicate_count(&self) -> u64 {
-            self.duplicates
-        }
-        fn out_of_order_count(&self) -> u64 {
-            self.out
-        }
-        fn retained_changed_count(&self) -> u64 {
-            self.changed
-        }
+
+    fn thresholds(maximum: u64) -> MorphospaceFloat32ReportTrendThresholds {
+        MorphospaceFloat32ReportTrendThresholds::new(
+            8,
+            8,
+            maximum,
+            maximum,
+            maximum,
+            maximum,
+            maximum,
+            maximum as f64,
+        )
+        .unwrap()
     }
-    #[derive(Debug, PartialEq)]
-    struct Window(Vec<Report>);
-    impl Float32ReportTrendObservationWindow for Window {
-        type Report = Report;
-        fn reports(&self) -> &[Report] {
-            &self.0
+
+    fn parts(
+        proposal: MorphospaceFloat32ReportTrendProposal,
+    ) -> (
+        MorphospaceFloat32ReportObservationWindow,
+        MorphospaceFloat32ReportTrendAggregates,
+        Vec<MorphospaceFloat32ReportTrendReviewReason>,
+    ) {
+        match proposal {
+            MorphospaceFloat32ReportTrendProposal::Retain { window, aggregates } => {
+                (window, aggregates, Vec::new())
+            }
+            MorphospaceFloat32ReportTrendProposal::Review {
+                window,
+                aggregates,
+                reasons,
+            } => (window, aggregates, reasons),
         }
-    }
-    fn record(index: u64, sequence: u64, adjustment: f64) -> Record {
-        Record {
-            index,
-            sequence,
-            adjustment,
-            allocation: Box::new(index as u8),
-        }
-    }
-    fn report(index: u64, adjustment: f64) -> Report {
-        Report {
-            index,
-            declared: 1,
-            missing: index,
-            duplicates: index,
-            out: index,
-            changed: index,
-            records: vec![record(0, 7, adjustment)],
-        }
-    }
-    fn thresholds(max: u64) -> Float32ReportTrendThresholds {
-        Float32ReportTrendThresholds::new(4, u64::MAX, max, max, max, max, max, max as f64).unwrap()
     }
 
     #[test]
-    fn zero_and_extreme_thresholds_are_explicit() {
+    fn zero_extreme_empty_and_strict_threshold_edges_are_exact() {
         assert_eq!(
-            Float32ReportTrendThresholds::new(0, 0, 0, 0, 0, 0, 0, 0.0),
-            Err(Float32ReportTrendThresholdError::ZeroMaximumReports)
+            MorphospaceFloat32ReportTrendThresholds::new(0, 1, 0, 0, 0, 0, 0, 0.0),
+            Err(MorphospaceFloat32ReportTrendThresholdError::ZeroMaximumReports)
         );
-        assert!(Float32ReportTrendThresholds::new(
-            usize::try_from(u64::MAX).unwrap_or(usize::MAX),
-            u64::MAX,
+        assert_eq!(
+            MorphospaceFloat32ReportTrendThresholds::new(1, 0, 0, 0, 0, 0, 0, 0.0),
+            Err(MorphospaceFloat32ReportTrendThresholdError::ZeroMaximumRecordsPerReport)
+        );
+        assert!(MorphospaceFloat32ReportTrendThresholds::new(
+            usize::MAX,
+            usize::MAX,
             u64::MAX,
             u64::MAX,
             u64::MAX,
@@ -659,140 +649,204 @@ mod tests {
         )
         .is_ok());
         assert!(matches!(
-            Float32ReportTrendThresholds::new(1, 0, 0, 0, 0, 0, 0, f64::INFINITY),
-            Err(Float32ReportTrendThresholdError::NonFiniteMaximumAbsoluteAdjustment { .. })
+            MorphospaceFloat32ReportTrendThresholds::new(1, 1, 0, 0, 0, 0, 0, f64::INFINITY),
+            Err(
+                MorphospaceFloat32ReportTrendThresholdError::NonFiniteMaximumAbsoluteAdjustment { .. }
+            )
+        ));
+
+        let empty = MorphospaceFloat32ReportObservationWindow::new(1, 1).unwrap();
+        assert!(matches!(
+            MorphospaceFloat32ReportTrendProposalOwner::new(thresholds(0)).propose(empty),
+            Err(MorphospaceFloat32ReportTrendError::EmptyWindow { .. })
+        ));
+
+        let actual = window(vec![observation(vec![0], vec![1.0])]);
+        let totals = actual.totals();
+        let exact = MorphospaceFloat32ReportTrendThresholds::new(
+            1,
+            1,
+            totals.record_count(),
+            totals.explicit_missing_sequence_count(),
+            totals.duplicate_count(),
+            totals.out_of_order_count(),
+            totals.retained_changed_count(),
+            0.0,
+        )
+        .unwrap();
+        assert!(matches!(
+            MorphospaceFloat32ReportTrendProposalOwner::new(exact)
+                .propose(actual)
+                .unwrap(),
+            MorphospaceFloat32ReportTrendProposal::Retain { .. }
         ));
     }
 
     #[test]
-    fn repeated_windows_have_exact_aggregates_reason_order_and_index_ties() {
+    fn real_repeated_windows_preserve_allocations_exact_totals_reason_order_and_ties() {
+        let build = || {
+            window(vec![
+                observation(vec![7, 7], vec![4.0, 2.0]),
+                observation(vec![7, 7], vec![4.0, 2.0]),
+            ])
+        };
         for _ in 0..2 {
-            let window = Window(vec![report(9, -2.0), report(3, 2.0)]);
-            let proposal = Float32ReportTrendProposalOwner::new(thresholds(0))
-                .propose(window)
-                .unwrap();
-            let (window, aggregates, reasons) = match proposal {
-                Float32ReportTrendProposal::Review {
-                    window,
-                    aggregates,
-                    reasons,
-                } => (window, aggregates, reasons),
-                _ => panic!(),
-            };
-            assert_eq!((aggregates.report_count, aggregates.total_records), (2, 2));
-            let largest = aggregates.largest_absolute_adjustment.unwrap();
-            assert_eq!(
-                (largest.report_index, largest.record_index, largest.sequence),
-                (3, 0, 7)
+            let actual = build();
+            let expected_pointers = pointers(&actual);
+            let expected_totals = actual.totals();
+            let (actual, aggregates, reasons) = parts(
+                MorphospaceFloat32ReportTrendProposalOwner::new(thresholds(0))
+                    .propose(actual)
+                    .unwrap(),
             );
+            assert_eq!(pointers(&actual), expected_pointers);
+            assert_eq!(aggregates.window_totals, expected_totals);
+            assert_eq!(
+                aggregates.largest_absolute_adjustment.unwrap().report_index,
+                0
+            );
+            assert_eq!(
+                aggregates.largest_absolute_adjustment.unwrap().record_index,
+                1
+            );
+            assert_eq!(aggregates.largest_absolute_adjustment.unwrap().sequence, 7);
             assert!(matches!(
                 reasons.as_slice(),
                 [
-                    Float32ReportTrendReviewReason::TotalRecords { .. },
-                    Float32ReportTrendReviewReason::ExplicitMissingSequences { .. },
-                    Float32ReportTrendReviewReason::Duplicates { .. },
-                    Float32ReportTrendReviewReason::OutOfOrder { .. },
-                    Float32ReportTrendReviewReason::RetainedChanged { .. },
-                    Float32ReportTrendReviewReason::AbsoluteAdjustment { .. }
+                    MorphospaceFloat32ReportTrendReviewReason::TotalRecords { .. },
+                    MorphospaceFloat32ReportTrendReviewReason::Duplicates { .. },
+                    MorphospaceFloat32ReportTrendReviewReason::RetainedChanged { .. },
+                    MorphospaceFloat32ReportTrendReviewReason::AbsoluteAdjustment { .. },
                 ]
             ));
-            assert_eq!(window.0.len(), 2);
+            assert_eq!(
+                aggregates.window_totals.explicit_missing_sequence_count(),
+                actual.totals().explicit_missing_sequence_count()
+            );
+            assert_eq!(
+                aggregates.window_totals.observation_count(),
+                actual.totals().observation_count()
+            );
         }
-        assert!(matches!(
-            Float32ReportTrendProposalOwner::new(thresholds(u64::MAX))
-                .propose(Window(vec![report(0, 0.0)]))
+
+        for (first_sequence, second_sequence) in [(9, 7), (7, 9)] {
+            let actual = window(vec![
+                observation(vec![first_sequence, first_sequence], vec![4.0, 2.0]),
+                observation(vec![second_sequence, second_sequence], vec![4.0, 2.0]),
+            ]);
+            let (_, aggregates, _) = parts(
+                MorphospaceFloat32ReportTrendProposalOwner::new(thresholds(u64::MAX))
+                    .propose(actual)
+                    .unwrap(),
+            );
+            let largest = aggregates.largest_absolute_adjustment.unwrap();
+            assert_eq!((largest.report_index, largest.record_index), (0, 1));
+            assert_eq!(largest.sequence, first_sequence);
+        }
+
+        let actual = window(vec![observation(vec![7, 7], vec![1.0, 2.0])]);
+        let (_, aggregates, _) = parts(
+            MorphospaceFloat32ReportTrendProposalOwner::new(thresholds(u64::MAX))
+                .propose(actual)
                 .unwrap(),
-            Float32ReportTrendProposal::Retain { .. }
-        ));
+        );
+        assert_eq!(
+            aggregates.largest_absolute_adjustment.unwrap().record_index,
+            0
+        );
     }
 
     #[test]
-    fn bound_counter_and_allocation_failures_preserve_owned_window() {
-        let window = Window(vec![report(1, 1.0)]);
-        let pointer = window.0[0].records[0].allocation.as_ref() as *const u8;
-        let returned = Float32ReportTrendProposalOwner::new(
-            Float32ReportTrendThresholds::new(1, 0, 9, 9, 9, 9, 9, 9.0).unwrap(),
-        )
-        .propose(window)
-        .unwrap_err()
-        .into_window();
+    fn every_trend_failure_returns_the_complete_real_window() {
+        let report_limited = window(vec![
+            observation(vec![0], vec![1.0]),
+            observation(vec![1], vec![2.0]),
+        ]);
+        let report_pointers = pointers(&report_limited);
+        let owner = MorphospaceFloat32ReportTrendProposalOwner::new(
+            MorphospaceFloat32ReportTrendThresholds::new(1, 2, 9, 9, 9, 9, 9, 9.0).unwrap(),
+        );
         assert_eq!(
-            returned.0[0].records[0].allocation.as_ref() as *const u8,
-            pointer
+            pointers(&owner.propose(report_limited).unwrap_err().into_window()),
+            report_pointers
         );
 
-        let overflow = Window(vec![
-            Report {
-                index: 0,
-                declared: 0,
-                missing: u64::MAX,
-                duplicates: 0,
-                out: 0,
-                changed: 0,
-                records: vec![],
-            },
-            Report {
-                index: 1,
-                declared: 0,
-                missing: 1,
-                duplicates: 0,
-                out: 0,
-                changed: 0,
-                records: vec![],
-            },
-        ]);
-        assert!(matches!(
-            Float32ReportTrendProposalOwner::new(thresholds(u64::MAX)).propose(overflow),
-            Err(Float32ReportTrendError::CounterOverflow {
-                counter: Float32ReportTrendCounter::ExplicitMissingSequences,
-                ..
-            })
-        ));
+        let record_limited = window(vec![observation(vec![0, 1], vec![2.0, 1.0])]);
+        let record_pointers = pointers(&record_limited);
+        let owner = MorphospaceFloat32ReportTrendProposalOwner::new(
+            MorphospaceFloat32ReportTrendThresholds::new(2, 1, 9, 9, 9, 9, 9, 9.0).unwrap(),
+        );
+        assert_eq!(
+            pointers(&owner.propose(record_limited).unwrap_err().into_window()),
+            record_pointers
+        );
 
-        let window = Window(vec![report(0, 1.0)]);
-        let returned = Float32ReportTrendProposalOwner::new(thresholds(9))
-            .propose_with(window, |_, _| Err(()))
+        let overflow = window(vec![observation(vec![0], vec![1.0])]);
+        let overflow_pointers = pointers(&overflow);
+        let returned = MorphospaceFloat32ReportTrendProposalOwner::new(thresholds(9))
+            .propose_with(overflow, |_, _| Ok(()), |_, _| Err(()))
             .unwrap_err()
             .into_window();
-        assert_eq!(returned.0.len(), 1);
+        assert_eq!(pointers(&returned), overflow_pointers);
+
+        let allocation = window(vec![observation(vec![0], vec![1.0])]);
+        let allocation_pointers = pointers(&allocation);
+        let returned = MorphospaceFloat32ReportTrendProposalOwner::new(thresholds(9))
+            .propose_with(
+                allocation,
+                |_, _| Err(()),
+                |a, b| a.checked_add(b).ok_or(()),
+            )
+            .unwrap_err()
+            .into_window();
+        assert_eq!(pointers(&returned), allocation_pointers);
+
+        let mismatch = window(vec![observation(vec![0], vec![1.0])]);
+        let mismatch_pointers = pointers(&mismatch);
+        let returned = MorphospaceFloat32ReportTrendProposalOwner::new(thresholds(9))
+            .propose_with(
+                mismatch,
+                |_, _| Ok(()),
+                |a, b| Ok(a.saturating_add(b).saturating_add(1)),
+            )
+            .unwrap_err()
+            .into_window();
+        assert_eq!(pointers(&returned), mismatch_pointers);
     }
 
     #[test]
-    fn extent_and_nonfinite_failures_are_typed_and_authority_is_denied() {
-        let mismatch = Window(vec![Report {
-            declared: 2,
-            ..report(4, 0.0)
-        }]);
-        assert!(matches!(
-            Float32ReportTrendProposalOwner::new(thresholds(9)).propose(mismatch),
-            Err(Float32ReportTrendError::RecordExtentMismatch {
-                report_index: 4,
-                ..
-            })
-        ));
-        let nonfinite = Window(vec![report(5, f64::NAN)]);
-        assert!(matches!(
-            Float32ReportTrendProposalOwner::new(thresholds(9)).propose(nonfinite),
-            Err(Float32ReportTrendError::NonFiniteAdjustment {
-                report_index: 5,
-                record_index: 0,
-                ..
-            })
-        ));
-        let source = include_str!("morphospace_float32_report_trend_proposal.rs");
-        for denied in [
-            "apply",
-            "accept",
-            "route",
-            "lease",
-            "revision",
-            "authorization",
-            "application",
-            "audit",
-            "Manifold",
-        ] {
-            assert!(source.contains(denied));
+    fn private_structure_has_no_runtime_activation_or_authority_surface() {
+        fn concrete_only(
+            _: MorphospaceFloat32ReportObservationWindow,
+        ) -> Result<MorphospaceFloat32ReportTrendProposal, MorphospaceFloat32ReportTrendError>
+        {
+            unreachable!()
         }
-        assert!(!source.contains(concat!("enum Float32ReportObserved", "TerminalHealth")));
+        let _ = concrete_only;
+        let lib = include_str!("lib.rs");
+        let runtime = include_str!("runtime.rs");
+        let activation = include_str!("runtime_activation.rs");
+        assert_eq!(
+            lib.matches("mod morphospace_float32_report_trend_proposal;")
+                .count(),
+            1
+        );
+        assert!(!lib.contains("pub mod morphospace_float32_report_trend_proposal"));
+        assert!(!runtime.contains("MorphospaceFloat32ReportTrend"));
+        assert!(!activation.contains("MorphospaceFloat32ReportTrend"));
+        assert!(!lib.contains("pub use morphospace_float32_report_trend_proposal"));
+        let source = include_str!("morphospace_float32_report_trend_proposal.rs");
+        for operation in [
+            concat!("fn ap", "ply("),
+            concat!("fn ac", "cept("),
+            concat!("fn ad", "mit("),
+            concat!("fn ro", "ute("),
+            concat!("fn le", "ase("),
+            concat!("fn re", "vise("),
+            concat!("fn auth", "orize("),
+            concat!("fn au", "dit("),
+        ] {
+            assert!(!source.contains(operation));
+        }
     }
 }

@@ -1,59 +1,72 @@
-# P37 bounded Float32 report advisory window candidate
+# P37 bounded Float32 report trend proposal candidate
 
-## Decision and frozen sibling interface
+## Decision and concrete interface
 
-This disposable, crate-private, unwired candidate reads an owned ordered window
-through a faithful borrowed interface over exact P36 observations. Each report
-exposes its report index, ordered records, checked record extent, and the exact
-P36 explicit-missing, duplicate, out-of-order, and retained-changed aggregates.
-Each record exposes its record index, caller sequence, and signed adjustment
-bits. Report index followed by record index disambiguates every item, including
-duplicate sequences.
+This repaired disposable candidate consumes the concrete crate-private
+`MorphospaceFloat32ReportObservationWindow` frozen at `bebc5741`. It directly
+borrows the window's ordered `MorphospaceFloat32ReportObservation` values,
+their ordered `MorphospaceFloat32ReportRecordObservation` values, and the
+window's checked `MorphospaceFloat32ReportObservationWindowTotals`. It defines
+no compatibility trait, mirror record, mirror observation, or synthetic window
+interface.
 
-The caller explicitly bounds report count, records per report, total records,
-the four exact counters, and finite nonnegative absolute adjustment. Zero is a
-valid strict threshold for every value threshold; `u64::MAX` is valid for all
-integer thresholds. A nonzero report capacity is required. Exact equality
-retains; only a strictly greater observation reviews.
+No sibling change is required for the candidate: the actual window already
+provides borrowed observations and checked totals, while actual P36 records
+already provide crate-private record index, caller sequence, and processed
+facts. A future integrator only needs private module composition; no new public
+or runtime accessor is requested.
 
-## Deterministic result and failures
+## Thresholds, evidence, and deterministic order
 
-The result is exactly `Retain` or `Review`, always carrying the original owned
-window and checked aggregate evidence. Review reasons have fixed order: total
-records, explicit missing sequences, duplicates, out of order, retained
-changed, then absolute adjustment. The largest absolute adjustment wins;
-equal magnitudes use ascending report index and then ascending record index,
-independent of the window's iteration order. Its report index, record index,
-sequence, and signed/absolute bits remain addressable.
+The caller explicitly supplies nonzero report and per-report record bounds,
+plus thresholds for total records, explicit missing sequences, duplicates,
+out-of-order records, retained-changed records, and finite nonnegative absolute
+adjustment. Count thresholds accept zero through `u64::MAX`. Equality retains;
+only strict exceedance reviews.
 
-Empty windows, report and per-report record bounds, unrepresentable counts,
-declared/actual record mismatch, checked counter overflow, nonfinite adjustment,
-and reason-allocation failure are typed. Evaluation borrows before returning;
-every failure returns the complete owned window without moving, cloning, or
-reallocating its reports, records, or retained sample allocations.
+The result is exactly `Retain` or `Review` and returns the complete concrete
+window with its original observation, record, and sample allocations. Evidence
+contains the exact checked window totals and the largest actual P36 adjustment.
+Report index is the zero-based ordered window position. Record index is the
+actual P36 record index, so duplicate caller sequences remain unambiguous.
+Largest-magnitude ties retain the earliest report index, then earliest record
+index. Review reasons are fixed as total records, explicit missing sequences,
+duplicates, out of order, retained changed, then absolute adjustment.
 
-## Exact facts and authority boundary
+## Exact aggregation and failures
 
-The candidate sums only counters already exposed by P36. “Missing” means only
-P36's explicit missing-sequence count. It never estimates packet loss, infers
-absence, reclassifies records, or invents terminal facts. It defines no
-terminal model and does not derive facts from time, transport, queues, report
-spacing, or omitted calls.
+Trend collection checked-sums the actual observations only to verify the
+frozen window totals. The returned counters are the window owner's totals, not
+a replacement model. The proposal neither reconstructs classifications nor
+creates terminal state. “Missing” is only the exact explicit-missing counter
+already supplied by P36 and checked by the window; it is not estimated loss.
 
-The output is inert advice. There is no apply, accept, route, lease, revision,
-authorization, application, activation, or audit mechanism. It grants no
-runtime, device, ADB, Makepad, Manifold, stream, policy, or public authority and
-makes no behavioral, numerical, wire, protocol, health, loss, or liblsl
-equivalence claim.
+Empty window, trend report bound, per-report record bound, checked aggregation
+overflow, window-total mismatch, and review-reason allocation refusal are
+typed. Every failure returns the complete concrete window. Collection and
+reason allocation occur while borrowing it; reports, observations, records,
+and retained sample allocations are never copied, extracted, or replaced.
 
-## Qualification and integration boundary
+## Authority and integration boundary
 
-The source is intentionally absent from `lib.rs` and every public/runtime
-surface. Its isolated faithful sibling fixtures exercise zero and extreme
-thresholds, repeated identical windows, exact aggregate and reason order,
-report/record index tie resolution, record-bound and counter-overflow failures,
-injected allocation refusal, retained allocation identity, extent/nonfinite
-failures, and explicit authority denials. A future reviewed integration would
-need to implement the borrowed interface for the frozen actual P36 observation
-without copying or reinterpreting facts; this candidate is not integration,
-activation, acceptance, or runtime evidence.
+This is inert proposal data only. The source defines no operation that applies
+or accepts a result and no admission, routing, lease, revision, authorization,
+application, activation, or audit mechanism. It has no root/runtime export,
+feature-lock entry, device behavior, ADB, Makepad, Manifold authority, or
+liblsl-equivalence claim.
+
+Focused qualification is performed in a disposable source copy composed from
+the exact `c607605` candidate history, the exact `bebc5741` window source, and
+the exact P36 observation/runtime sources. The copy adds only private module
+declarations needed to compile the two frozen sibling candidates together.
+Tests construct real P36 observations, append the actual window, and exercise
+trend retain, review, strict thresholds, reason and tie order, repeated windows,
+all trend failures, checked-overflow injection, and real allocation identity.
+The actual window's own focused tests additionally cover allocation rollback
+with retry and atomic refusal for every checked aggregate counter. Structural
+tests inspect the disposable crate root, runtime, and activation source to
+prove private-only reachability without comment-word assertions.
+
+The candidate remains absent from this branch's `lib.rs`; canonical integration
+must compose the exact window before the repaired trend source. This repair is
+not integration, public activation, acceptance, or runtime evidence.
