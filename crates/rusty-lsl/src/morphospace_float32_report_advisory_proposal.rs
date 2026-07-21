@@ -1,320 +1,328 @@
 // Copyright (C) 2026 Rusty LSL contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! Deterministic, effect-free advisory proposals over a completed Float32 report observation.
+//! Deterministic, effect-free advice over the exact P36 Float32 report observation.
 //!
-//! This candidate is deliberately crate-private and unwired. It reads only exact facts supplied
-//! by the sibling observation interface, returns the observation unchanged, and owns no action,
-//! acceptance, routing, lease, revision, authorization, application, or audit mechanism.
+//! This owner only reads the sibling observation's ordered records, exact post-processing
+//! facts, and terminal exact loss-health snapshot. It returns that observation intact and
+//! owns no acceptance, route, lease, revision, authorization, application, or audit action.
 
-/// Exact terminal health supplied by the completed-report observation owner.
+use crate::exact_sequence_loss_health::ExactSequenceLossHealthSnapshot;
+use crate::morphospace_float32_report_observation::MorphospaceFloat32ReportObservation;
+use crate::requested_timestamp_post_processing::{
+    RequestedEffectiveTimestampSource, RequestedTimestampPostProcessingDisposition,
+};
+
+/// Explicit caller bounds for an advisory classification.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportObservedTerminalHealth {
-    Complete,
-    EmptyReport,
-    Cancelled,
-    Deadline,
-    Terminal,
-    Exhausted,
-    RecoveryError,
-    PipelineError,
-    Invariant,
-}
-
-/// Exact sequence classification supplied for one ordered observed record.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportObservedSequenceClassification {
-    First,
-    Contiguous,
-    Gap { missing: u64 },
-    Duplicate,
-    OutOfOrder { distance: u64 },
-}
-
-/// Exact successful disposition supplied by post-processing observation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportObservedDisposition {
-    RetainedUnchanged,
-    RetainedChanged,
-}
-
-/// Borrowed record view required from the frozen sibling observation.
-pub(crate) trait Float32ReportAdvisoryObservedRecord {
-    fn sequence(&self) -> u64;
-    fn classification(&self) -> Float32ReportObservedSequenceClassification;
-    fn disposition(&self) -> Float32ReportObservedDisposition;
-    fn adjustment_bits(&self) -> u64;
-    fn effective_timestamp_bits(&self) -> u64;
-}
-
-/// Borrowed, ordered view required from the frozen sibling observation.
-pub(crate) trait Float32ReportAdvisoryObservation {
-    type Record: Float32ReportAdvisoryObservedRecord;
-
-    fn records(&self) -> &[Self::Record];
-    fn terminal_health(&self) -> Float32ReportObservedTerminalHealth;
-}
-
-/// Caller-owned bounded policy for producing advice, never applying it.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct Float32ReportAdvisoryProposalConfig {
+pub(crate) struct MorphospaceFloat32ReportAdvisoryProposalConfig {
     maximum_records: usize,
-    maximum_explicit_missing: u64,
+    maximum_explicit_missing_sequences: u64,
     maximum_duplicates: u64,
     maximum_out_of_order: u64,
-    maximum_adjusted: u64,
+    maximum_retained_changed: u64,
     maximum_absolute_adjustment_bits: u64,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportAdvisoryProposalConfigError {
+pub(crate) enum MorphospaceFloat32ReportAdvisoryProposalConfigError {
     ZeroMaximumRecords,
     MaximumRecordsUnrepresentable { requested: usize },
     NonFiniteMaximumAbsoluteAdjustment { bits: u64 },
     NegativeMaximumAbsoluteAdjustment { bits: u64 },
 }
 
-impl Float32ReportAdvisoryProposalConfig {
+impl MorphospaceFloat32ReportAdvisoryProposalConfig {
     pub(crate) fn new(
         maximum_records: usize,
-        maximum_explicit_missing: u64,
+        maximum_explicit_missing_sequences: u64,
         maximum_duplicates: u64,
         maximum_out_of_order: u64,
-        maximum_adjusted: u64,
+        maximum_retained_changed: u64,
         maximum_absolute_adjustment: f64,
-    ) -> Result<Self, Float32ReportAdvisoryProposalConfigError> {
+    ) -> Result<Self, MorphospaceFloat32ReportAdvisoryProposalConfigError> {
         if maximum_records == 0 {
-            return Err(Float32ReportAdvisoryProposalConfigError::ZeroMaximumRecords);
-        }
-        if u64::try_from(maximum_records).is_err() {
             return Err(
-                Float32ReportAdvisoryProposalConfigError::MaximumRecordsUnrepresentable {
+                MorphospaceFloat32ReportAdvisoryProposalConfigError::ZeroMaximumRecords,
+            );
+        }
+        u64::try_from(maximum_records).map_err(|_| {
+            MorphospaceFloat32ReportAdvisoryProposalConfigError::
+                MaximumRecordsUnrepresentable {
                     requested: maximum_records,
-                },
-            );
-        }
+                }
+        })?;
         if !maximum_absolute_adjustment.is_finite() {
-            return Err(
-                Float32ReportAdvisoryProposalConfigError::NonFiniteMaximumAbsoluteAdjustment {
+            return Err(MorphospaceFloat32ReportAdvisoryProposalConfigError::
+                NonFiniteMaximumAbsoluteAdjustment {
                     bits: maximum_absolute_adjustment.to_bits(),
-                },
-            );
+                });
         }
         if maximum_absolute_adjustment < 0.0 {
-            return Err(
-                Float32ReportAdvisoryProposalConfigError::NegativeMaximumAbsoluteAdjustment {
+            return Err(MorphospaceFloat32ReportAdvisoryProposalConfigError::
+                NegativeMaximumAbsoluteAdjustment {
                     bits: maximum_absolute_adjustment.to_bits(),
-                },
-            );
+                });
         }
         Ok(Self {
             maximum_records,
-            maximum_explicit_missing,
+            maximum_explicit_missing_sequences,
             maximum_duplicates,
             maximum_out_of_order,
-            maximum_adjusted,
+            maximum_retained_changed,
             maximum_absolute_adjustment_bits: maximum_absolute_adjustment.to_bits(),
         })
     }
 }
 
-/// Exact checked evidence copied from the observation; it contains no inferred loss.
+/// Addressable evidence for the first ordered record having the largest magnitude.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct Float32ReportAdvisoryEvidence {
-    pub(crate) record_count: u64,
-    pub(crate) explicit_missing: u64,
-    pub(crate) gaps: u64,
-    pub(crate) duplicates: u64,
-    pub(crate) out_of_order: u64,
-    pub(crate) adjusted: u64,
-    pub(crate) largest_absolute_adjustment_bits: u64,
-    pub(crate) largest_absolute_adjustment_sequence: Option<u64>,
-    pub(crate) last_effective_timestamp_bits: Option<u64>,
-    pub(crate) terminal_health: Float32ReportObservedTerminalHealth,
+pub(crate) struct MorphospaceFloat32ReportLargestAdjustmentEvidence {
+    pub(crate) record_index: u64,
+    pub(crate) sequence: u64,
+    pub(crate) signed_adjustment_bits: u64,
+    pub(crate) absolute_adjustment_bits: u64,
+    pub(crate) effective_timestamp_value_bits: u64,
+    pub(crate) effective_timestamp_source: RequestedEffectiveTimestampSource,
+    pub(crate) disposition: RequestedTimestampPostProcessingDisposition,
 }
 
-/// Review reasons are emitted in this declaration order, independent of record order.
+/// Exact borrowed facts copied without reclassifying the sibling observation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportAdvisoryReviewReason {
-    TerminalHealth {
-        observed: Float32ReportObservedTerminalHealth,
-    },
-    ExplicitMissingThreshold {
+pub(crate) struct MorphospaceFloat32ReportAdvisoryEvidence {
+    pub(crate) terminal_health: ExactSequenceLossHealthSnapshot,
+    pub(crate) largest_adjustment:
+        Option<MorphospaceFloat32ReportLargestAdjustmentEvidence>,
+}
+
+/// Review reasons always appear in this declaration order.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum MorphospaceFloat32ReportAdvisoryReviewReason {
+    ExplicitMissingSequences {
         observed: u64,
         maximum: u64,
     },
-    DuplicateThreshold {
+    Duplicates {
         observed: u64,
         maximum: u64,
     },
-    OutOfOrderThreshold {
+    OutOfOrder {
         observed: u64,
         maximum: u64,
     },
-    AdjustedThreshold {
+    RetainedChanged {
         observed: u64,
         maximum: u64,
     },
-    AbsoluteAdjustmentThreshold {
-        observed_bits: u64,
-        maximum_bits: u64,
+    AbsoluteAdjustment {
+        record_index: u64,
         sequence: u64,
+        signed_adjustment_bits: u64,
+        observed_absolute_bits: u64,
+        maximum_absolute_bits: u64,
     },
 }
 
-#[derive(Debug)]
-pub(crate) enum Float32ReportAdvisoryProposal<O> {
+#[derive(Debug, PartialEq)]
+pub(crate) enum MorphospaceFloat32ReportAdvisoryProposal {
     RecommendRetain {
-        observation: O,
-        evidence: Float32ReportAdvisoryEvidence,
+        observation: MorphospaceFloat32ReportObservation,
+        evidence: MorphospaceFloat32ReportAdvisoryEvidence,
     },
     RecommendReview {
-        observation: O,
-        evidence: Float32ReportAdvisoryEvidence,
-        reasons: Vec<Float32ReportAdvisoryReviewReason>,
+        observation: MorphospaceFloat32ReportObservation,
+        evidence: MorphospaceFloat32ReportAdvisoryEvidence,
+        reasons: Vec<MorphospaceFloat32ReportAdvisoryReviewReason>,
     },
 }
 
-/// Every refusal returns the exact caller observation without mutation.
-#[derive(Debug)]
-pub(crate) enum Float32ReportAdvisoryProposalError<O> {
-    RecordBoundExceeded {
-        maximum: usize,
-        observed: usize,
-        observation: O,
+/// Every refusal returns the sole observation, including its original sample allocations.
+#[derive(Debug, PartialEq)]
+pub(crate) enum MorphospaceFloat32ReportAdvisoryProposalError {
+    RecordLimit {
+        limit: usize,
+        actual: usize,
+        observation: MorphospaceFloat32ReportObservation,
     },
-    CounterOverflow {
-        counter: Float32ReportAdvisoryCounter,
-        observation: O,
+    RecordCountUnrepresentable {
+        actual: usize,
+        observation: MorphospaceFloat32ReportObservation,
+    },
+    TerminalHealthExtentMismatch {
+        records: u64,
+        health_observations: u64,
+        observation: MorphospaceFloat32ReportObservation,
     },
     NonFiniteAdjustment {
+        record_index: u64,
         sequence: u64,
         bits: u64,
-        observation: O,
+        observation: MorphospaceFloat32ReportObservation,
     },
-    AllocationFailure {
+    Allocation {
         requested_reasons: usize,
-        observation: O,
+        observation: MorphospaceFloat32ReportObservation,
     },
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum Float32ReportAdvisoryCounter {
-    RecordCount,
-    ExplicitMissing,
-    Gaps,
-    Duplicates,
-    OutOfOrder,
-    Adjusted,
+impl MorphospaceFloat32ReportAdvisoryProposalError {
+    pub(crate) fn into_observation(self) -> MorphospaceFloat32ReportObservation {
+        match self {
+            Self::RecordLimit { observation, .. }
+            | Self::RecordCountUnrepresentable { observation, .. }
+            | Self::TerminalHealthExtentMismatch { observation, .. }
+            | Self::NonFiniteAdjustment { observation, .. }
+            | Self::Allocation { observation, .. } => observation,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct Float32ReportAdvisoryProposalOwner {
-    config: Float32ReportAdvisoryProposalConfig,
+pub(crate) struct MorphospaceFloat32ReportAdvisoryProposalOwner {
+    config: MorphospaceFloat32ReportAdvisoryProposalConfig,
 }
 
-impl Float32ReportAdvisoryProposalOwner {
-    pub(crate) const fn new(config: Float32ReportAdvisoryProposalConfig) -> Self {
+impl MorphospaceFloat32ReportAdvisoryProposalOwner {
+    pub(crate) const fn new(config: MorphospaceFloat32ReportAdvisoryProposalConfig) -> Self {
         Self { config }
     }
 
-    pub(crate) fn propose<O: Float32ReportAdvisoryObservation>(
-        self,
-        observation: O,
-    ) -> Result<Float32ReportAdvisoryProposal<O>, Float32ReportAdvisoryProposalError<O>> {
+    pub(crate) fn propose(
+        &self,
+        observation: MorphospaceFloat32ReportObservation,
+    ) -> Result<
+        MorphospaceFloat32ReportAdvisoryProposal,
+        MorphospaceFloat32ReportAdvisoryProposalError,
+    > {
+        self.propose_with(observation, |reasons, requested| {
+            reasons.try_reserve_exact(requested).map_err(|_| ())
+        })
+    }
+
+    fn propose_with<R>(
+        &self,
+        observation: MorphospaceFloat32ReportObservation,
+        reserve: R,
+    ) -> Result<
+        MorphospaceFloat32ReportAdvisoryProposal,
+        MorphospaceFloat32ReportAdvisoryProposalError,
+    >
+    where
+        R: FnOnce(
+            &mut Vec<MorphospaceFloat32ReportAdvisoryReviewReason>,
+            usize,
+        ) -> Result<(), ()>,
+    {
         let evidence = match collect_evidence(&observation, self.config.maximum_records) {
             Ok(evidence) => evidence,
-            Err(CollectError::Bound { observed }) => {
-                return Err(Float32ReportAdvisoryProposalError::RecordBoundExceeded {
-                    maximum: self.config.maximum_records,
-                    observed,
+            Err(CollectError::RecordLimit { actual }) => {
+                return Err(MorphospaceFloat32ReportAdvisoryProposalError::RecordLimit {
+                    limit: self.config.maximum_records,
+                    actual,
                     observation,
                 });
             }
-            Err(CollectError::Counter(counter)) => {
-                return Err(Float32ReportAdvisoryProposalError::CounterOverflow {
-                    counter,
-                    observation,
-                });
+            Err(CollectError::RecordCountUnrepresentable { actual }) => {
+                return Err(MorphospaceFloat32ReportAdvisoryProposalError::
+                    RecordCountUnrepresentable {
+                        actual,
+                        observation,
+                    });
             }
-            Err(CollectError::NonFinite { sequence, bits }) => {
-                return Err(Float32ReportAdvisoryProposalError::NonFiniteAdjustment {
-                    sequence,
-                    bits,
-                    observation,
-                });
+            Err(CollectError::TerminalHealthExtentMismatch {
+                records,
+                health_observations,
+            }) => {
+                return Err(MorphospaceFloat32ReportAdvisoryProposalError::
+                    TerminalHealthExtentMismatch {
+                        records,
+                        health_observations,
+                        observation,
+                    });
+            }
+            Err(CollectError::NonFiniteAdjustment {
+                record_index,
+                sequence,
+                bits,
+            }) => {
+                return Err(MorphospaceFloat32ReportAdvisoryProposalError::
+                    NonFiniteAdjustment {
+                        record_index,
+                        sequence,
+                        bits,
+                        observation,
+                    });
             }
         };
-        let terminal_health = evidence.terminal_health;
 
+        const MAXIMUM_REASON_COUNT: usize = 5;
         let mut reasons = Vec::new();
-        if reasons.try_reserve_exact(6).is_err() {
-            return Err(Float32ReportAdvisoryProposalError::AllocationFailure {
-                requested_reasons: 6,
+        if reserve(&mut reasons, MAXIMUM_REASON_COUNT).is_err() {
+            return Err(MorphospaceFloat32ReportAdvisoryProposalError::Allocation {
+                requested_reasons: MAXIMUM_REASON_COUNT,
                 observation,
             });
         }
-        if terminal_health != Float32ReportObservedTerminalHealth::Complete {
-            reasons.push(Float32ReportAdvisoryReviewReason::TerminalHealth {
-                observed: terminal_health,
-            });
-        }
-        push_threshold_reason(
+        let health = evidence.terminal_health;
+        push_threshold(
             &mut reasons,
-            evidence.explicit_missing,
-            self.config.maximum_explicit_missing,
-            |observed, maximum| Float32ReportAdvisoryReviewReason::ExplicitMissingThreshold {
-                observed,
-                maximum,
+            health.explicit_missing_sequence_count(),
+            self.config.maximum_explicit_missing_sequences,
+            |observed, maximum| {
+                MorphospaceFloat32ReportAdvisoryReviewReason::ExplicitMissingSequences {
+                    observed,
+                    maximum,
+                }
             },
         );
-        push_threshold_reason(
+        push_threshold(
             &mut reasons,
-            evidence.duplicates,
+            health.duplicate_count(),
             self.config.maximum_duplicates,
-            |observed, maximum| Float32ReportAdvisoryReviewReason::DuplicateThreshold {
+            |observed, maximum| MorphospaceFloat32ReportAdvisoryReviewReason::Duplicates {
                 observed,
                 maximum,
             },
         );
-        push_threshold_reason(
+        push_threshold(
             &mut reasons,
-            evidence.out_of_order,
+            health.out_of_order_count(),
             self.config.maximum_out_of_order,
-            |observed, maximum| Float32ReportAdvisoryReviewReason::OutOfOrderThreshold {
+            |observed, maximum| MorphospaceFloat32ReportAdvisoryReviewReason::OutOfOrder {
                 observed,
                 maximum,
             },
         );
-        push_threshold_reason(
+        push_threshold(
             &mut reasons,
-            evidence.adjusted,
-            self.config.maximum_adjusted,
-            |observed, maximum| Float32ReportAdvisoryReviewReason::AdjustedThreshold {
+            health.retained_changed_count(),
+            self.config.maximum_retained_changed,
+            |observed, maximum| MorphospaceFloat32ReportAdvisoryReviewReason::RetainedChanged {
                 observed,
                 maximum,
             },
         );
-        let observed_adjustment = f64::from_bits(evidence.largest_absolute_adjustment_bits);
-        let maximum_adjustment = f64::from_bits(self.config.maximum_absolute_adjustment_bits);
-        if observed_adjustment > maximum_adjustment {
-            reasons.push(
-                Float32ReportAdvisoryReviewReason::AbsoluteAdjustmentThreshold {
-                    observed_bits: evidence.largest_absolute_adjustment_bits,
-                    maximum_bits: self.config.maximum_absolute_adjustment_bits,
-                    sequence: evidence
-                        .largest_absolute_adjustment_sequence
-                        .expect("positive maximum has a record"),
-                },
-            );
+        if let Some(largest) = evidence.largest_adjustment {
+            if f64::from_bits(largest.absolute_adjustment_bits)
+                > f64::from_bits(self.config.maximum_absolute_adjustment_bits)
+            {
+                reasons.push(MorphospaceFloat32ReportAdvisoryReviewReason::AbsoluteAdjustment {
+                    record_index: largest.record_index,
+                    sequence: largest.sequence,
+                    signed_adjustment_bits: largest.signed_adjustment_bits,
+                    observed_absolute_bits: largest.absolute_adjustment_bits,
+                    maximum_absolute_bits: self.config.maximum_absolute_adjustment_bits,
+                });
+            }
         }
+
         if reasons.is_empty() {
-            Ok(Float32ReportAdvisoryProposal::RecommendRetain {
+            Ok(MorphospaceFloat32ReportAdvisoryProposal::RecommendRetain {
                 observation,
                 evidence,
             })
         } else {
-            Ok(Float32ReportAdvisoryProposal::RecommendReview {
+            Ok(MorphospaceFloat32ReportAdvisoryProposal::RecommendReview {
                 observation,
                 evidence,
                 reasons,
@@ -324,106 +332,88 @@ impl Float32ReportAdvisoryProposalOwner {
 }
 
 enum CollectError {
-    Bound { observed: usize },
-    Counter(Float32ReportAdvisoryCounter),
-    NonFinite { sequence: u64, bits: u64 },
+    RecordLimit {
+        actual: usize,
+    },
+    RecordCountUnrepresentable {
+        actual: usize,
+    },
+    TerminalHealthExtentMismatch {
+        records: u64,
+        health_observations: u64,
+    },
+    NonFiniteAdjustment {
+        record_index: u64,
+        sequence: u64,
+        bits: u64,
+    },
 }
 
-fn collect_evidence<O: Float32ReportAdvisoryObservation>(
-    observation: &O,
+fn collect_evidence(
+    observation: &MorphospaceFloat32ReportObservation,
     maximum_records: usize,
-) -> Result<Float32ReportAdvisoryEvidence, CollectError> {
+) -> Result<MorphospaceFloat32ReportAdvisoryEvidence, CollectError> {
     let records = observation.records();
     if records.len() > maximum_records {
-        return Err(CollectError::Bound {
-            observed: records.len(),
+        return Err(CollectError::RecordLimit {
+            actual: records.len(),
         });
     }
-    let mut evidence = Float32ReportAdvisoryEvidence {
-        record_count: 0,
-        explicit_missing: 0,
-        gaps: 0,
-        duplicates: 0,
-        out_of_order: 0,
-        adjusted: 0,
-        largest_absolute_adjustment_bits: 0.0f64.to_bits(),
-        largest_absolute_adjustment_sequence: None,
-        last_effective_timestamp_bits: None,
-        terminal_health: observation.terminal_health(),
-    };
+    let record_count = u64::try_from(records.len()).map_err(|_| {
+        CollectError::RecordCountUnrepresentable {
+            actual: records.len(),
+        }
+    })?;
+    let terminal_health = observation.terminal_health();
+    if record_count != terminal_health.observation_count() {
+        return Err(CollectError::TerminalHealthExtentMismatch {
+            records: record_count,
+            health_observations: terminal_health.observation_count(),
+        });
+    }
+
+    let mut largest_adjustment = None;
     for record in records {
-        evidence.record_count =
-            evidence
-                .record_count
-                .checked_add(1)
-                .ok_or(CollectError::Counter(
-                    Float32ReportAdvisoryCounter::RecordCount,
-                ))?;
-        match record.classification() {
-            Float32ReportObservedSequenceClassification::First
-            | Float32ReportObservedSequenceClassification::Contiguous => {}
-            Float32ReportObservedSequenceClassification::Gap { missing } => {
-                evidence.explicit_missing =
-                    evidence
-                        .explicit_missing
-                        .checked_add(missing)
-                        .ok_or(CollectError::Counter(
-                            Float32ReportAdvisoryCounter::ExplicitMissing,
-                        ))?;
-                evidence.gaps = evidence
-                    .gaps
-                    .checked_add(1)
-                    .ok_or(CollectError::Counter(Float32ReportAdvisoryCounter::Gaps))?;
-            }
-            Float32ReportObservedSequenceClassification::Duplicate => {
-                evidence.duplicates =
-                    evidence
-                        .duplicates
-                        .checked_add(1)
-                        .ok_or(CollectError::Counter(
-                            Float32ReportAdvisoryCounter::Duplicates,
-                        ))?;
-            }
-            Float32ReportObservedSequenceClassification::OutOfOrder { .. } => {
-                evidence.out_of_order =
-                    evidence
-                        .out_of_order
-                        .checked_add(1)
-                        .ok_or(CollectError::Counter(
-                            Float32ReportAdvisoryCounter::OutOfOrder,
-                        ))?;
-            }
-        }
-        if record.disposition() == Float32ReportObservedDisposition::RetainedChanged {
-            evidence.adjusted = evidence
-                .adjusted
-                .checked_add(1)
-                .ok_or(CollectError::Counter(
-                    Float32ReportAdvisoryCounter::Adjusted,
-                ))?;
-        }
-        let adjustment = f64::from_bits(record.adjustment_bits());
+        let facts = record.processed().facts();
+        let adjustment = facts.adjustment();
         if !adjustment.is_finite() {
-            return Err(CollectError::NonFinite {
+            return Err(CollectError::NonFiniteAdjustment {
+                record_index: record.index(),
                 sequence: record.sequence(),
-                bits: record.adjustment_bits(),
+                bits: adjustment.to_bits(),
             });
         }
         let absolute = adjustment.abs();
-        if absolute > f64::from_bits(evidence.largest_absolute_adjustment_bits) {
-            evidence.largest_absolute_adjustment_bits = absolute.to_bits();
-            evidence.largest_absolute_adjustment_sequence = Some(record.sequence());
+        let replace = largest_adjustment
+            .map(|current: MorphospaceFloat32ReportLargestAdjustmentEvidence| {
+                absolute > f64::from_bits(current.absolute_adjustment_bits)
+            })
+            .unwrap_or(true);
+        // Strictly greater replacement makes the earliest ordered record win exact ties.
+        if replace {
+            let effective = record.effective_timestamp();
+            largest_adjustment = Some(MorphospaceFloat32ReportLargestAdjustmentEvidence {
+                record_index: record.index(),
+                sequence: record.sequence(),
+                signed_adjustment_bits: adjustment.to_bits(),
+                absolute_adjustment_bits: absolute.to_bits(),
+                effective_timestamp_value_bits: effective.value().to_bits(),
+                effective_timestamp_source: effective.source(),
+                disposition: record.disposition(),
+            });
         }
-        evidence.last_effective_timestamp_bits = Some(record.effective_timestamp_bits());
     }
-    Ok(evidence)
+    Ok(MorphospaceFloat32ReportAdvisoryEvidence {
+        terminal_health,
+        largest_adjustment,
+    })
 }
 
-fn push_threshold_reason(
-    reasons: &mut Vec<Float32ReportAdvisoryReviewReason>,
+fn push_threshold(
+    reasons: &mut Vec<MorphospaceFloat32ReportAdvisoryReviewReason>,
     observed: u64,
     maximum: u64,
-    make: fn(u64, u64) -> Float32ReportAdvisoryReviewReason,
+    make: fn(u64, u64) -> MorphospaceFloat32ReportAdvisoryReviewReason,
 ) {
     if observed > maximum {
         reasons.push(make(observed, maximum));
@@ -433,279 +423,242 @@ fn push_threshold_reason(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::exact_sequence_loss_health::{ExactPostProcessingFact, ExactSequenceClassification};
+    use crate::morphospace_float32_report_observation::
+        MorphospaceFloat32ReportObservationOwner;
+    use crate::float32_session_report_post_processing_batch::
+        Float32SessionReportPostProcessingBatch;
+    use crate::requested_timestamp_post_processing::{
+        RequestedEffectiveTimestampSource, RequestedTimestampPostProcessing,
+        RequestedTimestampPostProcessingConfig,
+    };
+    use crate::{
+        DerivedTimestamp, DerivedTimestampKind, RawSourceTimestamp, Sample, SampleLimits,
+        TimestampedSample,
+    };
 
-    #[derive(Clone, Debug, Eq, PartialEq)]
-    struct StubRecord {
-        sequence: u64,
-        classification: Float32ReportObservedSequenceClassification,
-        disposition: Float32ReportObservedDisposition,
-        adjustment_bits: u64,
-        effective_bits: u64,
+    fn sample(timestamp: f64, value: f32, derived: bool) -> TimestampedSample<f32> {
+        TimestampedSample::new(
+            Sample::new(SampleLimits::new(1).unwrap(), 1, vec![value]).unwrap(),
+            RawSourceTimestamp::new(timestamp).unwrap(),
+            derived.then(|| {
+                DerivedTimestamp::new(DerivedTimestampKind::ClockCorrected, timestamp + 100.0)
+                    .unwrap()
+            }),
+        )
     }
-    impl Float32ReportAdvisoryObservedRecord for StubRecord {
-        fn sequence(&self) -> u64 {
-            self.sequence
-        }
-        fn classification(&self) -> Float32ReportObservedSequenceClassification {
-            self.classification
-        }
-        fn disposition(&self) -> Float32ReportObservedDisposition {
-            self.disposition
-        }
-        fn adjustment_bits(&self) -> u64 {
-            self.adjustment_bits
-        }
-        fn effective_timestamp_bits(&self) -> u64 {
-            self.effective_bits
-        }
+
+    fn build_observation(
+        sequences: Vec<u64>,
+        timestamps: Vec<f64>,
+    ) -> MorphospaceFloat32ReportObservation {
+        let maximum = timestamps.len();
+        let mut batch = Float32SessionReportPostProcessingBatch::new(
+            maximum,
+            RequestedTimestampPostProcessing::Monotonic(
+                RequestedTimestampPostProcessingConfig::new(8, 1.0, f64::MAX).unwrap(),
+            ),
+        )
+        .unwrap();
+        let records = timestamps
+            .into_iter()
+            .enumerate()
+            .map(|(index, timestamp)| sample(timestamp, index as f32, index == 0))
+            .collect();
+        MorphospaceFloat32ReportObservationOwner::new(maximum)
+            .unwrap()
+            .observe(batch.process_records(sequences, records).unwrap())
+            .unwrap()
     }
-    #[derive(Clone, Debug, Eq, PartialEq)]
-    struct StubObservation {
-        marker: Vec<u8>,
-        records: Vec<StubRecord>,
-        health: Float32ReportObservedTerminalHealth,
-    }
-    impl Float32ReportAdvisoryObservation for StubObservation {
-        type Record = StubRecord;
-        fn records(&self) -> &[Self::Record] {
-            &self.records
-        }
-        fn terminal_health(&self) -> Float32ReportObservedTerminalHealth {
-            self.health
-        }
-    }
-    fn record(
-        sequence: u64,
-        classification: Float32ReportObservedSequenceClassification,
-        disposition: Float32ReportObservedDisposition,
-        adjustment: f64,
-    ) -> StubRecord {
-        StubRecord {
-            sequence,
-            classification,
-            disposition,
-            adjustment_bits: adjustment.to_bits(),
-            effective_bits: (100.0 + sequence as f64).to_bits(),
-        }
-    }
+
     fn config(
         maximum_records: usize,
-        thresholds: u64,
+        threshold: u64,
         adjustment: f64,
-    ) -> Float32ReportAdvisoryProposalConfig {
-        Float32ReportAdvisoryProposalConfig::new(
+    ) -> MorphospaceFloat32ReportAdvisoryProposalConfig {
+        MorphospaceFloat32ReportAdvisoryProposalConfig::new(
             maximum_records,
-            thresholds,
-            thresholds,
-            thresholds,
-            thresholds,
+            threshold,
+            threshold,
+            threshold,
+            threshold,
             adjustment,
         )
         .unwrap()
     }
 
+    fn outcome_parts(
+        proposal: MorphospaceFloat32ReportAdvisoryProposal,
+    ) -> (
+        MorphospaceFloat32ReportObservation,
+        MorphospaceFloat32ReportAdvisoryEvidence,
+        Vec<MorphospaceFloat32ReportAdvisoryReviewReason>,
+    ) {
+        match proposal {
+            MorphospaceFloat32ReportAdvisoryProposal::RecommendRetain {
+                observation,
+                evidence,
+            } => (observation, evidence, Vec::new()),
+            MorphospaceFloat32ReportAdvisoryProposal::RecommendReview {
+                observation,
+                evidence,
+                reasons,
+            } => (observation, evidence, reasons),
+        }
+    }
+
     #[test]
-    fn zero_and_extreme_configuration_boundaries_are_exact() {
+    fn config_zero_extreme_and_float_edges_are_exact() {
         assert_eq!(
-            Float32ReportAdvisoryProposalConfig::new(0, 0, 0, 0, 0, 0.0),
-            Err(Float32ReportAdvisoryProposalConfigError::ZeroMaximumRecords)
+            MorphospaceFloat32ReportAdvisoryProposalConfig::new(0, 0, 0, 0, 0, 0.0),
+            Err(MorphospaceFloat32ReportAdvisoryProposalConfigError::ZeroMaximumRecords)
         );
-        assert!(Float32ReportAdvisoryProposalConfig::new(
+        assert!(MorphospaceFloat32ReportAdvisoryProposalConfig::new(
             usize::try_from(u64::MAX).unwrap_or(usize::MAX),
             u64::MAX,
             u64::MAX,
             u64::MAX,
             u64::MAX,
-            f64::MAX
+            f64::MAX,
         )
         .is_ok());
         assert!(matches!(
-            Float32ReportAdvisoryProposalConfig::new(1, 0, 0, 0, 0, f64::INFINITY),
-            Err(
-                Float32ReportAdvisoryProposalConfigError::NonFiniteMaximumAbsoluteAdjustment { .. }
-            )
+            MorphospaceFloat32ReportAdvisoryProposalConfig::new(1, 0, 0, 0, 0, f64::INFINITY),
+            Err(MorphospaceFloat32ReportAdvisoryProposalConfigError::
+                NonFiniteMaximumAbsoluteAdjustment { .. })
+        ));
+        assert!(matches!(
+            MorphospaceFloat32ReportAdvisoryProposalConfig::new(1, 0, 0, 0, 0, -f64::MIN_POSITIVE),
+            Err(MorphospaceFloat32ReportAdvisoryProposalConfigError::
+                NegativeMaximumAbsoluteAdjustment { .. })
         ));
     }
 
     #[test]
-    fn gaps_duplicates_out_of_order_adjustments_and_reason_order_are_exact() {
-        let observation = StubObservation {
-            marker: vec![7, 8, 9],
-            health: Float32ReportObservedTerminalHealth::Deadline,
-            records: vec![
-                record(
-                    4,
-                    Float32ReportObservedSequenceClassification::First,
-                    Float32ReportObservedDisposition::RetainedUnchanged,
-                    0.0,
-                ),
-                record(
-                    8,
-                    Float32ReportObservedSequenceClassification::Gap { missing: 3 },
-                    Float32ReportObservedDisposition::RetainedChanged,
-                    -2.0,
-                ),
-                record(
-                    8,
-                    Float32ReportObservedSequenceClassification::Duplicate,
-                    Float32ReportObservedDisposition::RetainedChanged,
-                    1.0,
-                ),
-                record(
-                    6,
-                    Float32ReportObservedSequenceClassification::OutOfOrder { distance: 2 },
-                    Float32ReportObservedDisposition::RetainedUnchanged,
-                    0.0,
-                ),
-            ],
-        };
-        let original = observation.clone();
-        let result = Float32ReportAdvisoryProposalOwner::new(config(4, 0, 0.5))
-            .propose(observation)
-            .unwrap();
-        let Float32ReportAdvisoryProposal::RecommendReview {
-            observation,
-            evidence,
-            reasons,
-        } = result
-        else {
-            panic!()
-        };
-        assert_eq!(observation, original);
-        assert_eq!(
-            (
-                evidence.record_count,
-                evidence.explicit_missing,
-                evidence.gaps,
-                evidence.duplicates,
-                evidence.out_of_order,
-                evidence.adjusted
+    fn actual_interface_covers_every_classification_snapshot_and_reason_order() {
+        let observation = build_observation(vec![4, 5, 8, 8, 6], vec![10.0, 11.0, 9.0, 12.0, 8.0]);
+        let pointers: Vec<_> = observation.records().iter().map(|record|
+            record.processed().sample().sample().values().as_ptr()).collect();
+        assert_eq!(observation.records().iter().map(|record| record.classification()).collect::<Vec<_>>(), vec![
+            ExactSequenceClassification::First,
+            ExactSequenceClassification::Contiguous,
+            ExactSequenceClassification::Gap { missing_sequence_count: 2 },
+            ExactSequenceClassification::Duplicate,
+            ExactSequenceClassification::OutOfOrder { behind_high_water_by: 2 },
+        ]);
+        let expected_health = observation.terminal_health();
+        let (observation, evidence, reasons) = outcome_parts(
+            MorphospaceFloat32ReportAdvisoryProposalOwner::new(config(5, 0, 0.5))
+                .propose(observation).unwrap());
+        assert_eq!(evidence.terminal_health, expected_health);
+        assert_eq!((expected_health.observation_count(), expected_health.first_count(),
+            expected_health.contiguous_count(), expected_health.gap_count(),
+            expected_health.explicit_missing_sequence_count(), expected_health.duplicate_count(),
+            expected_health.out_of_order_count()), (5, 1, 1, 1, 2, 1, 1));
+        assert_eq!((expected_health.retained_unchanged_count(),
+            expected_health.retained_changed_count()), (1, 4));
+        assert_eq!(expected_health.high_water_sequence(), Some(8));
+        assert_eq!(expected_health.last_classification(), Some(
+            ExactSequenceClassification::OutOfOrder { behind_high_water_by: 2 }));
+        assert_eq!(expected_health.last_post_processing_fact(),
+            Some(ExactPostProcessingFact::RetainedChanged));
+        assert!(matches!(reasons.as_slice(), [
+            MorphospaceFloat32ReportAdvisoryReviewReason::ExplicitMissingSequences { .. },
+            MorphospaceFloat32ReportAdvisoryReviewReason::Duplicates { .. },
+            MorphospaceFloat32ReportAdvisoryReviewReason::OutOfOrder { .. },
+            MorphospaceFloat32ReportAdvisoryReviewReason::RetainedChanged { .. },
+            MorphospaceFloat32ReportAdvisoryReviewReason::AbsoluteAdjustment { .. },
+        ]));
+        assert_eq!(observation.records().iter().map(|record|
+            record.processed().sample().sample().values().as_ptr()).collect::<Vec<_>>(), pointers);
+    }
+
+    #[test]
+    fn largest_adjustment_uses_actual_effective_fact_and_first_equal_magnitude_record() {
+        let observation = build_observation(vec![7, 7, 7], vec![10.0, 9.0, 10.0]);
+        let expected = observation.records()[1].effective_timestamp();
+        let (observation, evidence, _) = outcome_parts(
+            MorphospaceFloat32ReportAdvisoryProposalOwner::new(config(3, u64::MAX, f64::MAX))
+                .propose(observation).unwrap());
+        let largest = evidence.largest_adjustment.unwrap();
+        assert_eq!((largest.record_index, largest.sequence), (1, 7));
+        assert!(f64::from_bits(largest.signed_adjustment_bits) > 0.0);
+        assert_eq!(largest.effective_timestamp_value_bits, expected.value().to_bits());
+        assert_eq!(largest.effective_timestamp_source, expected.source());
+        assert_eq!(largest.disposition, observation.records()[1].disposition());
+        assert_eq!(expected.source(), RequestedEffectiveTimestampSource::ProjectPostProcessed);
+        assert_eq!(observation.records()[1].sequence(), observation.records()[2].sequence());
+    }
+
+    #[test]
+    fn signed_zero_and_exact_adjustment_threshold_edges_are_deterministic() {
+        let observation = build_observation(vec![0], vec![1.0]);
+        let (_, evidence, reasons) = outcome_parts(
+            MorphospaceFloat32ReportAdvisoryProposalOwner::new(config(1, 1, 0.0))
+                .propose(observation).unwrap());
+        assert!(reasons.is_empty());
+        assert_eq!(evidence.largest_adjustment.unwrap().signed_adjustment_bits, 0.0f64.to_bits());
+
+        let observation = build_observation(vec![0, 1], vec![4.0, 2.0]);
+        let adjustment = observation.records()[1].processed().facts().adjustment();
+        let (_, _, reasons) = outcome_parts(
+            MorphospaceFloat32ReportAdvisoryProposalOwner::new(config(2, 2, adjustment.abs()))
+                .propose(observation).unwrap());
+        assert!(reasons.is_empty());
+
+        let mut batch = Float32SessionReportPostProcessingBatch::new(
+            3,
+            RequestedTimestampPostProcessing::DeJitter(
+                RequestedTimestampPostProcessingConfig::new(3, f64::MIN_POSITIVE, f64::MAX)
+                    .unwrap(),
             ),
-            (4, 3, 1, 1, 1, 2)
-        );
-        assert_eq!(
-            reasons,
-            vec![
-                Float32ReportAdvisoryReviewReason::TerminalHealth {
-                    observed: Float32ReportObservedTerminalHealth::Deadline
-                },
-                Float32ReportAdvisoryReviewReason::ExplicitMissingThreshold {
-                    observed: 3,
-                    maximum: 0
-                },
-                Float32ReportAdvisoryReviewReason::DuplicateThreshold {
-                    observed: 1,
-                    maximum: 0
-                },
-                Float32ReportAdvisoryReviewReason::OutOfOrderThreshold {
-                    observed: 1,
-                    maximum: 0
-                },
-                Float32ReportAdvisoryReviewReason::AdjustedThreshold {
-                    observed: 2,
-                    maximum: 0
-                },
-                Float32ReportAdvisoryReviewReason::AbsoluteAdjustmentThreshold {
-                    observed_bits: 2.0f64.to_bits(),
-                    maximum_bits: 0.5f64.to_bits(),
-                    sequence: 8
-                },
-            ]
-        );
-    }
-
-    #[test]
-    fn exact_thresholds_retain_and_return_the_same_observation_allocation() {
-        let marker = vec![1, 2, 3, 4];
-        let pointer = marker.as_ptr();
-        let observation = StubObservation {
-            marker,
-            health: Float32ReportObservedTerminalHealth::Complete,
-            records: vec![record(
-                0,
-                Float32ReportObservedSequenceClassification::First,
-                Float32ReportObservedDisposition::RetainedChanged,
-                1.0,
-            )],
-        };
-        let result = Float32ReportAdvisoryProposalOwner::new(config(1, 1, 1.0))
-            .propose(observation)
+        )
+        .unwrap();
+        let negative = MorphospaceFloat32ReportObservationOwner::new(3)
+            .unwrap()
+            .observe(batch.process_records(
+                vec![0, 1, 2],
+                vec![sample(1.0, 0.0, false), sample(2.0, 1.0, false),
+                    sample(100.0, 2.0, false)],
+            ).unwrap())
             .unwrap();
-        let Float32ReportAdvisoryProposal::RecommendRetain {
-            observation,
-            evidence,
-        } = result
-        else {
-            panic!()
-        };
-        assert_eq!(observation.marker.as_ptr(), pointer);
-        assert_eq!(evidence.adjusted, 1);
+        let expected = negative.records()[2].processed().facts().adjustment();
+        assert!(expected < 0.0);
+        let (_, evidence, reasons) = outcome_parts(
+            MorphospaceFloat32ReportAdvisoryProposalOwner::new(config(3, 3, expected.abs()))
+                .propose(negative).unwrap());
+        assert!(reasons.is_empty());
+        assert_eq!(evidence.largest_adjustment.unwrap().signed_adjustment_bits,
+            expected.to_bits());
     }
 
     #[test]
-    fn bound_and_nonfinite_failures_preserve_observation() {
-        let observation = StubObservation {
-            marker: vec![9],
-            health: Float32ReportObservedTerminalHealth::Complete,
-            records: vec![record(
-                1,
-                Float32ReportObservedSequenceClassification::First,
-                Float32ReportObservedDisposition::RetainedUnchanged,
-                f64::NAN,
-            )],
-        };
-        let original = observation.clone();
-        assert!(
-            matches!(Float32ReportAdvisoryProposalOwner::new(config(1, 0, 0.0)).propose(observation),
-            Err(Float32ReportAdvisoryProposalError::NonFiniteAdjustment { observation, .. }) if observation == original)
-        );
+    fn record_bound_and_reason_allocation_refusals_preserve_actual_allocations() {
+        let observation = build_observation(vec![1, 3], vec![3.0, 1.0]);
+        let pointers: Vec<_> = observation.records().iter().map(|record|
+            record.processed().sample().sample().values().as_ptr()).collect();
+        let returned = MorphospaceFloat32ReportAdvisoryProposalOwner::new(config(1, 0, 0.0))
+            .propose(observation).unwrap_err().into_observation();
+        assert_eq!(returned.records().iter().map(|record|
+            record.processed().sample().sample().values().as_ptr()).collect::<Vec<_>>(), pointers);
 
-        let over_bound = StubObservation {
-            marker: vec![5],
-            health: Float32ReportObservedTerminalHealth::Complete,
-            records: vec![
-                record(
-                    0,
-                    Float32ReportObservedSequenceClassification::First,
-                    Float32ReportObservedDisposition::RetainedUnchanged,
-                    0.0,
-                ),
-                record(
-                    1,
-                    Float32ReportObservedSequenceClassification::Contiguous,
-                    Float32ReportObservedDisposition::RetainedUnchanged,
-                    0.0,
-                ),
-            ],
-        };
-        let original = over_bound.clone();
-        assert!(
-            matches!(Float32ReportAdvisoryProposalOwner::new(config(1, 0, 0.0)).propose(over_bound),
-            Err(Float32ReportAdvisoryProposalError::RecordBoundExceeded { maximum: 1, observed: 2, observation }) if observation == original)
-        );
+        let observation = build_observation(vec![1, 3], vec![3.0, 1.0]);
+        let pointers: Vec<_> = observation.records().iter().map(|record|
+            record.processed().sample().sample().values().as_ptr()).collect();
+        let returned = MorphospaceFloat32ReportAdvisoryProposalOwner::new(config(2, 0, 0.0))
+            .propose_with(observation, |_, _| Err(())).unwrap_err().into_observation();
+        assert_eq!(returned.records().iter().map(|record|
+            record.processed().sample().sample().values().as_ptr()).collect::<Vec<_>>(), pointers);
+    }
 
-        let overflow = StubObservation {
-            marker: vec![6],
-            health: Float32ReportObservedTerminalHealth::Complete,
-            records: vec![
-                record(
-                    2,
-                    Float32ReportObservedSequenceClassification::Gap { missing: u64::MAX },
-                    Float32ReportObservedDisposition::RetainedUnchanged,
-                    0.0,
-                ),
-                record(
-                    4,
-                    Float32ReportObservedSequenceClassification::Gap { missing: 1 },
-                    Float32ReportObservedDisposition::RetainedUnchanged,
-                    0.0,
-                ),
-            ],
-        };
-        let original = overflow.clone();
-        assert!(
-            matches!(Float32ReportAdvisoryProposalOwner::new(config(2, u64::MAX, f64::MAX)).propose(overflow),
-            Err(Float32ReportAdvisoryProposalError::CounterOverflow { counter: Float32ReportAdvisoryCounter::ExplicitMissing, observation }) if observation == original)
-        );
+    #[test]
+    fn authority_denials_remain_explicit() {
+        let source = include_str!("morphospace_float32_report_advisory_proposal.rs");
+        for denied in ["acceptance", "route", "lease", "revision", "authorization", "application", "audit"] {
+            assert!(source.contains(denied));
+        }
+        assert!(source.contains("no behavioral, numerical, or protocol equivalence with liblsl")
+            || include_str!("../../../docs/p5-float32-report-advisory-observation-proposal.md")
+                .contains("does not claim"));
     }
 }
