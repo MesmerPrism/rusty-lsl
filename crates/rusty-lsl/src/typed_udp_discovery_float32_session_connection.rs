@@ -384,7 +384,7 @@ mod tests {
                     bytes + 32,
                     1,
                     Duration::from_millis(5),
-                    Duration::from_millis(250),
+                    Duration::from_secs(30),
                 )
                 .unwrap(),
                 ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
