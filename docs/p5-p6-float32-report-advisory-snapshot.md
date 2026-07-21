@@ -29,7 +29,7 @@ loss or continuity, and the snapshot makes no behavioral, numerical, wire, or
 other liblsl-equivalence claim.
 
 This owner observes only. It cannot apply, accept, route, authorize, activate,
-or audit advice and adds no public/root/runtime export, feature activation,
+or audit advice and adds no public API or runtime export, feature activation,
 socket, plugin, device behavior, Makepad behavior, or Manifold stream
 authority. Focused qualification temporarily declares the private module,
 exercises actual-type success and rollback paths, and removes that declaration
