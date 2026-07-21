@@ -76,6 +76,7 @@ mod caller_requested_float32_report_advisory_evidence;
 mod caller_requested_float32_report_advisory_evidence_history;
 mod caller_requested_float32_report_post_processing;
 mod caller_requested_float32_report_post_processing_admission;
+mod caller_requested_float32_retained_comparative_snapshot_package;
 mod clock_filter_selection;
 mod clock_offset_application;
 pub mod contract;
@@ -98,6 +99,7 @@ mod morphospace_float32_advisory_report_package_delta_history;
 mod morphospace_float32_advisory_report_package_delta_proposal;
 mod morphospace_float32_comparative_advisory_evidence_delta_history;
 mod morphospace_float32_comparative_advisory_evidence_delta_proposal;
+mod morphospace_float32_comparative_advisory_evidence_snapshot_delta_history;
 mod morphospace_float32_comparative_advisory_evidence_snapshot_delta_proposal;
 mod morphospace_float32_report_advisory_proposal;
 mod morphospace_float32_report_advisory_snapshot;
@@ -643,6 +645,11 @@ mod tests {
         CallerRequestedFloat32ReportAdvisoryEvidenceOwner,
     };
     use crate::caller_requested_float32_report_advisory_evidence_history::CallerRequestedFloat32ReportAdvisoryEvidenceHistory;
+    use crate::caller_requested_float32_retained_comparative_snapshot_package::{
+        CallerRequestedFloat32RetainedComparativeSnapshotPackageBounds,
+        CallerRequestedFloat32RetainedComparativeSnapshotPackageOwner,
+        CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry,
+    };
     use crate::exact_sequence_loss_health::ExactSequenceLossHealth;
     use crate::float32_session_report_requested_post_processing::Float32SessionReportRequestedPostProcessing;
     use crate::morphospace_float32_advisory_report_package_delta_history::{
@@ -664,9 +671,14 @@ mod tests {
         MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaBounds,
         MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaProposalOwner,
     };
+    use crate::morphospace_float32_comparative_advisory_evidence_snapshot_delta_history::{
+        MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory,
+        MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistoryBounds,
+    };
     use crate::morphospace_float32_comparative_advisory_evidence_snapshot_delta_proposal::{
         MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotCount,
         MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaBounds,
+        MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaProposal,
         MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaProposalOwner,
     };
     use crate::morphospace_float32_report_advisory_snapshot::{
@@ -1654,5 +1666,152 @@ mod tests {
             .into_snapshots();
         assert_eq!(identity(&earlier), identities[0]);
         assert_eq!(identity(&later), identities[1]);
+    }
+
+    #[test]
+    fn p49_actual_snapshot_delta_history_and_retained_package_compose_in_exact_order() {
+        let proposal = || {
+            MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaProposalOwner::new(
+                MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaBounds::new(6).unwrap(),
+            )
+            .propose(p47_snapshot(1, 6_000), p47_snapshot(2, 7_000))
+            .unwrap()
+        };
+        let identity =
+            |proposal: &MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaProposal| {
+                (
+                    proposal.facts().as_ptr(),
+                    proposal.earlier().observations().as_ptr(),
+                    proposal.earlier().history().evidence()[0]
+                        .earlier()
+                        .history()
+                        .values()[0]
+                        .report()
+                        .sample()
+                        .sample()
+                        .values()
+                        .as_ptr(),
+                    proposal.later().delta_proposal().facts().as_ptr(),
+                )
+            };
+
+        let first = proposal();
+        let second = proposal();
+        let identities = [identity(&first), identity(&second)];
+        assert_eq!(first, second);
+        let history = MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory::new(
+            MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistoryBounds::new(2, 12)
+                .unwrap(),
+        )
+        .append(first)
+        .unwrap()
+        .append(second)
+        .unwrap();
+        assert_eq!(history.totals().proposal_count(), 2);
+        assert_eq!(history.totals().fact_count(), 12);
+        assert_eq!(identity(&history.proposals()[0]), identities[0]);
+        assert_eq!(identity(&history.proposals()[1]), identities[1]);
+
+        let mut proposals = history.into_proposals().into_iter();
+        let delta = proposals.next().unwrap();
+        let rejected_delta = proposals.next().unwrap();
+        assert!(proposals.next().is_none());
+        assert_eq!(identity(&delta), identities[0]);
+        assert_eq!(identity(&rejected_delta), identities[1]);
+
+        let earlier = p47_snapshot(1, 8_000);
+        let later = p47_snapshot(2, 9_000);
+        let snapshot_identities = [
+            earlier.observations().as_ptr(),
+            later.observations().as_ptr(),
+        ];
+        let snapshot_history =
+            CallerRequestedFloat32ComparativeAdvisoryEvidenceSnapshotHistory::new(
+                CallerRequestedFloat32ComparativeAdvisoryEvidenceSnapshotHistoryBounds::new(2, 11)
+                    .unwrap(),
+            )
+            .append(earlier)
+            .unwrap()
+            .append(later)
+            .unwrap();
+        let package = CallerRequestedFloat32RetainedComparativeSnapshotPackageOwner::new(
+            CallerRequestedFloat32RetainedComparativeSnapshotPackageBounds::new(2, 6, 8).unwrap(),
+        )
+        .package(snapshot_history, delta)
+        .unwrap();
+        assert_eq!(package.summary_count(), 8);
+        assert!(matches!(
+            package.summary(),
+            [
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::HistorySnapshot {
+                    snapshot_index: 0,
+                    observation_count: 5
+                },
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::HistorySnapshot {
+                    snapshot_index: 1,
+                    observation_count: 6
+                },
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::DeltaFact {
+                    fact_index: 0,
+                    ..
+                },
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::DeltaFact {
+                    fact_index: 1,
+                    ..
+                },
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::DeltaFact {
+                    fact_index: 2,
+                    ..
+                },
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::DeltaFact {
+                    fact_index: 3,
+                    ..
+                },
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::DeltaFact {
+                    fact_index: 4,
+                    ..
+                },
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry::DeltaFact {
+                    fact_index: 5,
+                    ..
+                }
+            ]
+        ));
+        assert_eq!(
+            package.history().snapshots()[0].observations().as_ptr(),
+            snapshot_identities[0]
+        );
+        assert_eq!(
+            package.history().snapshots()[1].observations().as_ptr(),
+            snapshot_identities[1]
+        );
+        assert_eq!(identity(package.delta_proposal()), identities[0]);
+
+        let (snapshot_history, delta) = package.into_parts();
+        assert_eq!(
+            snapshot_history.snapshots()[0].observations().as_ptr(),
+            snapshot_identities[0]
+        );
+        assert_eq!(identity(&delta), identities[0]);
+
+        let before = (
+            snapshot_history.totals(),
+            snapshot_history.snapshots()[0].observations().as_ptr(),
+            identity(&rejected_delta),
+        );
+        let (snapshot_history, rejected_delta) =
+            CallerRequestedFloat32RetainedComparativeSnapshotPackageOwner::new(
+                CallerRequestedFloat32RetainedComparativeSnapshotPackageBounds::new(2, 6, 7)
+                    .unwrap(),
+            )
+            .package(snapshot_history, rejected_delta)
+            .unwrap_err()
+            .into_parts();
+        assert_eq!(snapshot_history.totals(), before.0);
+        assert_eq!(
+            snapshot_history.snapshots()[0].observations().as_ptr(),
+            before.1
+        );
+        assert_eq!(identity(&rejected_delta), before.2);
     }
 }
