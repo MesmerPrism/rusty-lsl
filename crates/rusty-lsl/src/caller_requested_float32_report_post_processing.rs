@@ -3,13 +3,12 @@
 
 //! Default-inert production entrypoint for admitted Float32 report post-processing.
 
-use crate::caller_requested_float32_report_post_processing_admission::CallerRequestedFloat32ReportPostProcessingAdmission;
+use crate::caller_requested_float32_report_post_processing_admission::CallerRequestedFloat32ReportPostProcessingPlan;
 use crate::float32_session_report_post_processing_batch::{
     Float32PostProcessingBatchConfigError, Float32PostProcessingBatchError,
     Float32PostProcessingBatchOutcome, Float32SessionReportPostProcessingBatch,
 };
 use crate::requested_timestamp_post_processing::RequestedTimestampPostProcessing;
-use crate::TimestampedFloat32InletSessionReport;
 
 /// Pre-delegation or owner-preserving transactional refusal.
 #[derive(Debug)]
@@ -19,14 +18,7 @@ pub(crate) enum CallerRequestedFloat32ReportPostProcessingError {
         actual_request: RequestedTimestampPostProcessing,
         expected_maximum_records: usize,
         actual_maximum_records: usize,
-        admission: CallerRequestedFloat32ReportPostProcessingAdmission,
-        report: TimestampedFloat32InletSessionReport,
-    },
-    ExtentMismatch {
-        admitted_record_count: usize,
-        report_record_count: usize,
-        admission: CallerRequestedFloat32ReportPostProcessingAdmission,
-        report: TimestampedFloat32InletSessionReport,
+        plan: CallerRequestedFloat32ReportPostProcessingPlan,
     },
     PostProcessing(Float32PostProcessingBatchError),
 }
@@ -57,15 +49,14 @@ impl CallerRequestedFloat32ReportPostProcessing {
         self.batch.maximum_records()
     }
 
-    /// Validates the admitted identity and exact report extent before one P34 delegation.
+    /// Validates the admitted owner identity before consuming one plan in one P34 delegation.
     pub(crate) fn process_report(
         &mut self,
-        admission: CallerRequestedFloat32ReportPostProcessingAdmission,
-        report: TimestampedFloat32InletSessionReport,
+        plan: CallerRequestedFloat32ReportPostProcessingPlan,
     ) -> Result<Float32PostProcessingBatchOutcome, CallerRequestedFloat32ReportPostProcessingError>
     {
-        let actual_request = admission.request();
-        let actual_maximum_records = admission.maximum_records();
+        let actual_request = plan.request();
+        let actual_maximum_records = plan.maximum_records();
         if actual_request != self.request || actual_maximum_records != self.batch.maximum_records()
         {
             return Err(
@@ -74,26 +65,12 @@ impl CallerRequestedFloat32ReportPostProcessing {
                     actual_request,
                     expected_maximum_records: self.batch.maximum_records(),
                     actual_maximum_records,
-                    admission,
-                    report,
+                    plan,
                 },
             );
         }
 
-        let admitted_record_count = admission.record_count();
-        let report_record_count = report.record_count();
-        if admitted_record_count != report_record_count {
-            return Err(
-                CallerRequestedFloat32ReportPostProcessingError::ExtentMismatch {
-                    admitted_record_count,
-                    report_record_count,
-                    admission,
-                    report,
-                },
-            );
-        }
-
-        let (_, _, _, sequences) = admission.into_parts();
+        let (_, _, sequences, report) = plan.into_parts();
         self.batch
             .process_report(sequences, report)
             .map_err(CallerRequestedFloat32ReportPostProcessingError::PostProcessing)
