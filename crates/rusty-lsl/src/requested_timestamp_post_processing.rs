@@ -236,7 +236,7 @@ impl<T> RequestedTimestampPostProcessingError<T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub(crate) struct RequestedTimestampPostProcessor {
     request: RequestedTimestampPostProcessing,
     input_history: Vec<f64>,
