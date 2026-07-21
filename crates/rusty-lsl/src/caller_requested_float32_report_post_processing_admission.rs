@@ -39,12 +39,6 @@ pub(crate) enum CallerRequestedFloat32ReportPostProcessingAdmissionError {
         sequences: Vec<u64>,
         report: TimestampedFloat32InletSessionReport,
     },
-    AllocationRefused {
-        request: RequestedTimestampPostProcessing,
-        requested: usize,
-        sequences: Vec<u64>,
-        report: TimestampedFloat32InletSessionReport,
-    },
 }
 
 /// Owned, validation-complete input for a future processing entrypoint.
@@ -57,26 +51,32 @@ pub(crate) struct CallerRequestedFloat32ReportPostProcessingPlan {
 }
 
 impl CallerRequestedFloat32ReportPostProcessingPlan {
+    /// The caller-selected nonzero admission bound.
     pub(crate) const fn maximum_records(&self) -> usize {
         self.maximum_records
     }
 
+    /// The exact explicit caller request admitted for future processing.
     pub(crate) const fn request(&self) -> RequestedTimestampPostProcessing {
         self.request
     }
 
+    /// The completed report's exact retained record extent.
     pub(crate) fn record_count(&self) -> usize {
         self.report.record_count()
     }
 
+    /// One caller-owned sequence for each report record, in unchanged order.
     pub(crate) fn sequences(&self) -> &[u64] {
         &self.sequences
     }
 
+    /// The sole completed report retained by this plan.
     pub(crate) const fn report(&self) -> &TimestampedFloat32InletSessionReport {
         &self.report
     }
 
+    /// Consumes the plan as `(maximum, request, sequences, report)`.
     pub(crate) fn into_parts(
         self,
     ) -> (
@@ -138,7 +138,6 @@ impl CallerRequestedFloat32ReportPostProcessingAdmission {
             sequences,
             report,
             report_record_count,
-            |target, requested| target.try_reserve_exact(requested).map_err(|_| ()),
         ) {
             Ok((request, sequences, report)) => {
                 Ok(CallerRequestedFloat32ReportPostProcessingPlan {
@@ -171,12 +170,6 @@ enum AdmissionRefusal<T> {
         request: RequestedTimestampPostProcessing,
         maximum: usize,
         extent: usize,
-        sequences: Vec<u64>,
-        report: T,
-    },
-    Allocation {
-        request: RequestedTimestampPostProcessing,
-        requested: usize,
         sequences: Vec<u64>,
         report: T,
     },
@@ -220,32 +213,17 @@ impl AdmissionRefusal<TimestampedFloat32InletSessionReport> {
                 sequences,
                 report,
             },
-            Self::Allocation {
-                request,
-                requested,
-                sequences,
-                report,
-            } => CallerRequestedFloat32ReportPostProcessingAdmissionError::AllocationRefused {
-                request,
-                requested,
-                sequences,
-                report,
-            },
         }
     }
 }
 
-fn admit_owned<T, F>(
+fn admit_owned<T>(
     maximum: usize,
     request: RequestedTimestampPostProcessing,
-    mut sequences: Vec<u64>,
+    sequences: Vec<u64>,
     report: T,
     extent: usize,
-    reserve: F,
-) -> Result<(RequestedTimestampPostProcessing, Vec<u64>, T), AdmissionRefusal<T>>
-where
-    F: FnOnce(&mut Vec<u64>, usize) -> Result<(), ()>,
-{
+) -> Result<(RequestedTimestampPostProcessing, Vec<u64>, T), AdmissionRefusal<T>> {
     if extent == 0 {
         return Err(AdmissionRefusal::Empty {
             request,
@@ -271,17 +249,7 @@ where
             report,
         });
     }
-    let mut admitted = Vec::new();
-    if reserve(&mut admitted, extent).is_err() {
-        return Err(AdmissionRefusal::Allocation {
-            request,
-            requested: extent,
-            sequences,
-            report,
-        });
-    }
-    admitted.append(&mut sequences);
-    Ok((request, admitted, report))
+    Ok((request, sequences, report))
 }
 
 #[cfg(test)]
@@ -322,15 +290,9 @@ mod tests {
             (1, 2, vec![u64::MIN, u64::MAX], 2),
         ] {
             let original = sequences.clone();
-            let error = admit_owned(
-                maximum,
-                pass(),
-                sequences,
-                ReportToken(9),
-                extent,
-                |target, count| target.try_reserve_exact(count).map_err(|_| ()),
-            )
-            .unwrap_err();
+            let pointer = sequences.as_ptr();
+            let error =
+                admit_owned(maximum, pass(), sequences, ReportToken(9), extent).unwrap_err();
             let returned = match error {
                 AdmissionRefusal::Empty { sequences, .. } if kind == 0 => sequences,
                 AdmissionRefusal::Mismatch {
@@ -348,63 +310,26 @@ mod tests {
                 _ => panic!("unexpected refusal"),
             };
             assert_eq!(returned, original);
+            assert_eq!(returned.as_ptr(), pointer);
         }
     }
 
     #[test]
-    fn local_allocation_refusal_has_no_global_state_and_preserves_ownership() {
-        let sequences = vec![4, u64::MAX];
-        let pointer = sequences.as_ptr();
-        let error = admit_owned(2, pass(), sequences, ReportToken(17), 2, |_, requested| {
-            assert_eq!(requested, 2);
-            Err(())
-        })
-        .unwrap_err();
-        match error {
-            AdmissionRefusal::Allocation {
-                requested,
-                sequences,
-                report,
-                ..
-            } => {
-                assert_eq!(requested, 2);
-                assert_eq!(sequences, vec![4, u64::MAX]);
-                assert_eq!(sequences.as_ptr(), pointer);
-                assert_eq!(report, ReportToken(17));
-            }
-            _ => panic!("unexpected refusal"),
-        }
-    }
-
-    #[test]
-    fn success_owns_one_extreme_sequence_per_exact_record_without_reordering() {
+    fn success_retains_the_exact_caller_sequence_allocation() {
         let sequences = vec![u64::MIN, 1, u64::MAX];
-        let (request, admitted, report) = admit_owned(
-            3,
-            pass(),
-            sequences,
-            ReportToken(u64::MAX),
-            3,
-            |target, count| target.try_reserve_exact(count).map_err(|_| ()),
-        )
-        .unwrap();
+        let pointer = sequences.as_ptr();
+        let (request, admitted, report) =
+            admit_owned(3, pass(), sequences, ReportToken(u64::MAX), 3).unwrap();
         assert_eq!(request, pass());
         assert_eq!(admitted, vec![u64::MIN, 1, u64::MAX]);
-        assert_eq!(admitted.len(), 3);
+        assert_eq!(admitted.as_ptr(), pointer);
         assert_eq!(report, ReportToken(u64::MAX));
     }
 
     #[test]
-    fn checks_do_not_attempt_impossible_usize_allocations() {
-        let error = admit_owned(
-            usize::MAX,
-            pass(),
-            vec![7],
-            ReportToken(1),
-            usize::MAX,
-            |_, _| panic!("extent mismatch must precede allocation"),
-        )
-        .unwrap_err();
+    fn usize_max_extent_refuses_before_any_allocation_or_limit_check() {
+        let error =
+            admit_owned(usize::MAX, pass(), vec![7], ReportToken(1), usize::MAX).unwrap_err();
         assert!(
             matches!(error, AdmissionRefusal::Mismatch { sequence_count: 1, extent: usize::MAX, sequences, .. } if sequences == vec![7])
         );
