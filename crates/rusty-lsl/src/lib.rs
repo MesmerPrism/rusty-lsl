@@ -76,7 +76,9 @@ mod caller_requested_float32_report_advisory_evidence;
 mod caller_requested_float32_report_advisory_evidence_history;
 mod caller_requested_float32_report_post_processing;
 mod caller_requested_float32_report_post_processing_admission;
+mod caller_requested_float32_retained_comparative_snapshot_admission;
 mod caller_requested_float32_retained_comparative_snapshot_package;
+mod caller_requested_float32_retained_comparative_snapshot_report;
 mod clock_filter_selection;
 mod clock_offset_application;
 pub mod contract;
@@ -172,6 +174,67 @@ mod xml_element_serialization;
 mod xml_element_tree;
 mod xml_leaf_element;
 mod xml_value;
+
+use caller_requested_float32_retained_comparative_snapshot_admission::{
+    CallerRequestedFloat32RetainedComparativeSnapshotAdmission,
+    CallerRequestedFloat32RetainedComparativeSnapshotAdmissionBounds,
+    CallerRequestedFloat32RetainedComparativeSnapshotAdmissionError,
+    CallerRequestedFloat32RetainedComparativeSnapshotExtents,
+};
+use caller_requested_float32_retained_comparative_snapshot_package::CallerRequestedFloat32RetainedComparativeSnapshotPackage;
+use caller_requested_float32_retained_comparative_snapshot_report::{
+    CallerRequestedFloat32RetainedComparativeSnapshotReport,
+    CallerRequestedFloat32RetainedComparativeSnapshotReportBounds,
+    CallerRequestedFloat32RetainedComparativeSnapshotReportError,
+    CallerRequestedFloat32RetainedComparativeSnapshotReportOwner,
+};
+use morphospace_float32_comparative_advisory_evidence_snapshot_delta_history::MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory;
+
+#[derive(Debug, PartialEq)]
+enum CallerRequestedFloat32RetainedComparativeSnapshotCompositionError {
+    Admission(CallerRequestedFloat32RetainedComparativeSnapshotAdmissionError),
+    Report(CallerRequestedFloat32RetainedComparativeSnapshotReportError),
+}
+
+impl CallerRequestedFloat32RetainedComparativeSnapshotCompositionError {
+    fn into_parts(
+        self,
+    ) -> (
+        MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory,
+        CallerRequestedFloat32RetainedComparativeSnapshotPackage,
+    ) {
+        match self {
+            Self::Admission(error) => error.into_parts(),
+            Self::Report(error) => error.into_parts(),
+        }
+    }
+}
+
+/// Sole private caller route from actual P49 owners through P50 admission to a
+/// P50 report. Admission remains validation-only and grants no report,
+/// activation, application, runtime, session, transport, control, policy,
+/// liblsl-equivalence, or Manifold authority.
+fn compose_caller_requested_float32_retained_comparative_snapshot_report(
+    admission_bounds: CallerRequestedFloat32RetainedComparativeSnapshotAdmissionBounds,
+    requested_extents: CallerRequestedFloat32RetainedComparativeSnapshotExtents,
+    report_bounds: CallerRequestedFloat32RetainedComparativeSnapshotReportBounds,
+    history: MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory,
+    package: CallerRequestedFloat32RetainedComparativeSnapshotPackage,
+) -> Result<
+    CallerRequestedFloat32RetainedComparativeSnapshotReport,
+    CallerRequestedFloat32RetainedComparativeSnapshotCompositionError,
+> {
+    let plan = CallerRequestedFloat32RetainedComparativeSnapshotAdmission::new(admission_bounds)
+        .admit(requested_extents, history, package)
+        .map_err(CallerRequestedFloat32RetainedComparativeSnapshotCompositionError::Admission)?;
+    debug_assert_eq!(plan.bounds(), admission_bounds);
+    debug_assert_eq!(plan.extents(), requested_extents);
+    let _admitted_owners = (plan.history(), plan.package());
+    let (_, _, history, package) = plan.into_parts();
+    CallerRequestedFloat32RetainedComparativeSnapshotReportOwner::new(report_bounds)
+        .report(history, package)
+        .map_err(CallerRequestedFloat32RetainedComparativeSnapshotCompositionError::Report)
+}
 
 pub use all_format_bounded_chunk_session::{
     run_timestamped_double64_bounded_chunk_inlet, run_timestamped_double64_bounded_chunk_outlet,
@@ -610,7 +673,11 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
 
 #[cfg(test)]
 mod tests {
-    use super::{implementation_status, ownership_declaration, ImplementationStatus};
+    use super::{
+        compose_caller_requested_float32_retained_comparative_snapshot_report,
+        implementation_status, ownership_declaration,
+        CallerRequestedFloat32RetainedComparativeSnapshotCompositionError, ImplementationStatus,
+    };
     use crate::caller_requested_float32_advisory_report_package::{
         CallerRequestedFloat32AdvisoryReportPackage,
         CallerRequestedFloat32AdvisoryReportPackageBounds,
@@ -645,10 +712,20 @@ mod tests {
         CallerRequestedFloat32ReportAdvisoryEvidenceOwner,
     };
     use crate::caller_requested_float32_report_advisory_evidence_history::CallerRequestedFloat32ReportAdvisoryEvidenceHistory;
+    use crate::caller_requested_float32_retained_comparative_snapshot_admission::{
+        CallerRequestedFloat32RetainedComparativeSnapshotAdmissionBounds,
+        CallerRequestedFloat32RetainedComparativeSnapshotAdmissionFailure,
+        CallerRequestedFloat32RetainedComparativeSnapshotExtents,
+    };
     use crate::caller_requested_float32_retained_comparative_snapshot_package::{
+        CallerRequestedFloat32RetainedComparativeSnapshotPackage,
         CallerRequestedFloat32RetainedComparativeSnapshotPackageBounds,
         CallerRequestedFloat32RetainedComparativeSnapshotPackageOwner,
         CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry,
+    };
+    use crate::caller_requested_float32_retained_comparative_snapshot_report::{
+        CallerRequestedFloat32RetainedComparativeSnapshotReportBounds,
+        CallerRequestedFloat32RetainedComparativeSnapshotReportError,
     };
     use crate::exact_sequence_loss_health::ExactSequenceLossHealth;
     use crate::float32_session_report_requested_post_processing::Float32SessionReportRequestedPostProcessing;
@@ -874,6 +951,42 @@ mod tests {
         )
         .snapshot(history, delta)
         .unwrap()
+    }
+
+    fn p50_actual_inputs() -> (
+        MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory,
+        CallerRequestedFloat32RetainedComparativeSnapshotPackage,
+    ) {
+        let proposal = |base| {
+            MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaProposalOwner::new(
+                MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaBounds::new(6).unwrap(),
+            )
+            .propose(p47_snapshot(1, base), p47_snapshot(2, base + 1_000))
+            .unwrap()
+        };
+        let history = MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory::new(
+            MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistoryBounds::new(2, 12)
+                .unwrap(),
+        )
+        .append(proposal(10_000))
+        .unwrap()
+        .append(proposal(12_000))
+        .unwrap();
+        let snapshot_history =
+            CallerRequestedFloat32ComparativeAdvisoryEvidenceSnapshotHistory::new(
+                CallerRequestedFloat32ComparativeAdvisoryEvidenceSnapshotHistoryBounds::new(2, 11)
+                    .unwrap(),
+            )
+            .append(p47_snapshot(1, 14_000))
+            .unwrap()
+            .append(p47_snapshot(2, 16_000))
+            .unwrap();
+        let package = CallerRequestedFloat32RetainedComparativeSnapshotPackageOwner::new(
+            CallerRequestedFloat32RetainedComparativeSnapshotPackageBounds::new(2, 6, 8).unwrap(),
+        )
+        .package(snapshot_history, proposal(18_000))
+        .unwrap();
+        (history, package)
     }
 
     #[test]
@@ -1813,5 +1926,133 @@ mod tests {
             before.1
         );
         assert_eq!(identity(&rejected_delta), before.2);
+    }
+
+    #[test]
+    fn p50_canonical_admission_to_report_route_is_ordered_bounded_and_transactional() {
+        let admission_bounds = || {
+            CallerRequestedFloat32RetainedComparativeSnapshotAdmissionBounds::new(2, 12, 2, 6, 8)
+                .unwrap()
+        };
+        let requested = CallerRequestedFloat32RetainedComparativeSnapshotExtents {
+            history_proposals: 2,
+            history_facts: 12,
+            package_snapshots: 2,
+            package_delta_facts: 6,
+            package_summary_entries: 8,
+        };
+        let report_bounds = || {
+            CallerRequestedFloat32RetainedComparativeSnapshotReportBounds::new(2, 8, 10).unwrap()
+        };
+        let identity =
+            |history: &MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory,
+             package: &CallerRequestedFloat32RetainedComparativeSnapshotPackage| {
+                (
+                    history.proposals().as_ptr(),
+                    history.proposals()[0].earlier().observations().as_ptr(),
+                    history.proposals()[0].earlier().history().evidence()[0]
+                        .earlier()
+                        .history()
+                        .values()[0]
+                        .report()
+                        .sample()
+                        .sample()
+                        .values()
+                        .as_ptr(),
+                    package.summary().as_ptr(),
+                    package.history().snapshots()[0].observations().as_ptr(),
+                    package.delta_proposal().facts().as_ptr(),
+                )
+            };
+
+        let (history, package) = p50_actual_inputs();
+        let original = identity(&history, &package);
+        let report = compose_caller_requested_float32_retained_comparative_snapshot_report(
+            admission_bounds(),
+            requested,
+            report_bounds(),
+            history,
+            package,
+        )
+        .unwrap();
+        assert_eq!(report.evidence_count(), 10);
+        assert_eq!(report.evidence().len(), 10);
+        assert_eq!(
+            identity(report.delta_history(), report.comparison_package()),
+            original
+        );
+        let (history, package) = report.into_parts();
+        assert_eq!(identity(&history, &package), original);
+
+        let (history, package) = p50_actual_inputs();
+        let admission_failure_identity = identity(&history, &package);
+        let mut wrong_request = requested;
+        wrong_request.history_proposals = 1;
+        let error = compose_caller_requested_float32_retained_comparative_snapshot_report(
+            admission_bounds(),
+            wrong_request,
+            report_bounds(),
+            history,
+            package,
+        )
+        .unwrap_err();
+        assert!(matches!(
+            error,
+            CallerRequestedFloat32RetainedComparativeSnapshotCompositionError::Admission(
+                ref admission
+            ) if admission.failure()
+                == CallerRequestedFloat32RetainedComparativeSnapshotAdmissionFailure::RequestedExtentMismatch {
+                    extent: "history proposals",
+                    requested: 1,
+                    actual: 2,
+                }
+        ));
+        let (history, package) = error.into_parts();
+        assert_eq!(identity(&history, &package), admission_failure_identity);
+
+        let (history, package) = p50_actual_inputs();
+        let report_failure_identity = identity(&history, &package);
+        let error = compose_caller_requested_float32_retained_comparative_snapshot_report(
+            admission_bounds(),
+            requested,
+            CallerRequestedFloat32RetainedComparativeSnapshotReportBounds::new(2, 8, 9).unwrap(),
+            history,
+            package,
+        )
+        .unwrap_err();
+        assert!(matches!(
+            error,
+            CallerRequestedFloat32RetainedComparativeSnapshotCompositionError::Report(
+                CallerRequestedFloat32RetainedComparativeSnapshotReportError::EvidenceLimit {
+                    limit: 9,
+                    required: 10,
+                    ..
+                }
+            )
+        ));
+        let (history, package) = error.into_parts();
+        assert_eq!(identity(&history, &package), report_failure_identity);
+
+        let source = include_str!("lib.rs");
+        let route = source
+            .split("fn compose_caller_requested_float32_retained_comparative_snapshot_report")
+            .nth(1)
+            .unwrap()
+            .split("pub use all_format_bounded_chunk_session")
+            .next()
+            .unwrap();
+        assert!(route.find(".admit(").unwrap() < route.find(".report(").unwrap());
+        assert!(!source.contains(concat!(
+            "pub use caller_requested_float32_retained_comparative_snapshot_",
+            "admission"
+        )));
+        assert!(!source.contains(concat!(
+            "pub use caller_requested_float32_retained_comparative_snapshot_",
+            "report"
+        )));
+        assert!(!include_str!("runtime.rs")
+            .contains("CallerRequestedFloat32RetainedComparativeSnapshot"));
+        assert!(source.contains("Admission remains validation-only and grants no report"));
+        assert!(source.contains("liblsl-equivalence, or Manifold authority"));
     }
 }
