@@ -363,12 +363,12 @@ fn run_short_info_responder_on_socket(
 mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
+    use crate::test_network_harness::udp::SpawnedUdpResponder;
     use crate::{
         run_udp_discovery, ShortInfoQuery, ShortInfoQueryWire,
         StreamInfoObservedDocumentParseLimit, UdpDiscoveryActivation, UdpDiscoveryConfig,
         UdpDiscoveryLimits, UdpDiscoveryTermination,
     };
-    use std::thread;
 
     fn activation() -> ShortInfoResponderActivation {
         ShortInfoResponderActivation::new(test_capability(
@@ -426,6 +426,7 @@ mod tests {
         query_limits: ShortInfoQueryWireLimits,
         response_limits: ShortInfoResponseEnvelopeLimits,
         body: &ParsedStreamInfoObservedDocument<'_>,
+        cancelled: &AtomicBool,
     ) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
         let local_address = socket.local_addr().unwrap();
         run_short_info_responder_on_socket(
@@ -435,7 +436,64 @@ mod tests {
             query_limits,
             response_limits,
             body,
-            &AtomicBool::new(false),
+            cancelled,
+        )
+    }
+
+    fn spawn_unicast_responder(
+        socket: UdpSocket,
+        text: String,
+        responder_limits: ShortInfoResponderLimits,
+    ) -> SpawnedUdpResponder<Result<ShortInfoResponderRun, ShortInfoResponderError>> {
+        SpawnedUdpResponder::spawn(
+            socket,
+            Duration::from_secs(1),
+            move |socket, cancelled, entered| {
+                let parsed = ParsedStreamInfoObservedDocument::parse(
+                    StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+                    &text,
+                )
+                .unwrap();
+                entered.publish();
+                run_prebound_short_info_responder(
+                    socket,
+                    responder_limits,
+                    ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                    ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
+                    &parsed,
+                    cancelled,
+                )
+            },
+        )
+    }
+
+    fn spawn_multicast_responder(
+        text: String,
+    ) -> SpawnedUdpResponder<Result<ShortInfoResponderRun, ShortInfoResponderError>> {
+        let socket =
+            UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)).unwrap();
+        socket
+            .join_multicast_v4(&DOCUMENTED_IPV4_MULTICAST_GROUP, &Ipv4Addr::LOCALHOST)
+            .unwrap();
+        SpawnedUdpResponder::spawn(
+            socket,
+            Duration::from_secs(1),
+            move |socket, cancelled, entered| {
+                let parsed = ParsedStreamInfoObservedDocument::parse(
+                    StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
+                    &text,
+                )
+                .unwrap();
+                entered.publish();
+                run_prebound_short_info_responder(
+                    socket,
+                    limits(1024, 1),
+                    ShortInfoQueryWireLimits::new(128, 256).unwrap(),
+                    ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
+                    &parsed,
+                    cancelled,
+                )
+            },
         )
     }
 
@@ -472,20 +530,8 @@ mod tests {
             .unwrap();
         let response_port = response_socket.local_addr().unwrap().port();
         let text = body();
-        let worker = thread::spawn(move || {
-            let parsed = ParsedStreamInfoObservedDocument::parse(
-                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
-                &text,
-            )
-            .unwrap();
-            run_prebound_short_info_responder(
-                responder_socket,
-                limits(1024, 1),
-                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
-                ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
-                &parsed,
-            )
-        });
+        let worker = spawn_unicast_responder(responder_socket, text, limits(1024, 1));
+        assert_eq!(worker.local_address(), address);
         let query = ShortInfoQuery::new(
             "name='bounded'".into(),
             response_port,
@@ -503,7 +549,10 @@ mod tests {
             .unwrap()
             .starts_with("77\r\n"));
         assert_eq!(
-            worker.join().unwrap().unwrap().termination(),
+            worker
+                .complete(Duration::from_secs(1))
+                .unwrap()
+                .termination(),
             ShortInfoResponderTermination::RequestLimit
         );
         assert!(UdpSocket::bind(address).is_ok());
@@ -517,25 +566,12 @@ mod tests {
             let responder_socket = UdpSocket::bind("127.0.0.1:0").unwrap();
             let address = responder_socket.local_addr().unwrap();
             let text = body();
-            let worker = thread::spawn(move || {
-                let parsed = ParsedStreamInfoObservedDocument::parse(
-                    StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
-                    &text,
-                )
-                .unwrap();
-                run_prebound_short_info_responder(
-                    responder_socket,
-                    limits(16, 1),
-                    ShortInfoQueryWireLimits::new(128, 256).unwrap(),
-                    ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
-                    &parsed,
-                )
-            });
+            let worker = spawn_unicast_responder(responder_socket, text, limits(16, 1));
             UdpSocket::bind("127.0.0.1:0")
                 .unwrap()
                 .send_to(payload, address)
                 .unwrap();
-            let error = worker.join().unwrap().unwrap_err();
+            let error = worker.complete(Duration::from_secs(1)).unwrap_err();
             assert_eq!(
                 matches!(error, ShortInfoResponderError::DatagramLimitExceeded { .. }),
                 expected_oversize
@@ -601,22 +637,7 @@ mod tests {
             .unwrap();
         let response_port = response_socket.local_addr().unwrap().port();
         let text = body();
-        let worker = thread::spawn(move || {
-            let parsed = ParsedStreamInfoObservedDocument::parse(
-                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
-                &text,
-            )
-            .unwrap();
-            run_explicit_loopback_multicast_short_info_responder(
-                activation(),
-                Ipv4Addr::LOCALHOST,
-                limits(1024, 1),
-                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
-                ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
-                &parsed,
-                &AtomicBool::new(false),
-            )
-        });
+        let worker = spawn_multicast_responder(text);
         let query = ShortInfoQuery::new(
             "name='multicast'".into(),
             response_port,
@@ -638,31 +659,18 @@ mod tests {
             &mut bytes,
             Duration::from_secs(1),
         )
-        .expect("responder must become ready within the bounded retry window");
+        .expect("responder must answer within the bounded datagram window");
         assert!(source.ip().is_loopback());
         assert!(std::str::from_utf8(&bytes[..count])
             .unwrap()
             .starts_with("79\r\n"));
-        let run = worker.join().unwrap().unwrap();
+        let run = worker.complete(Duration::from_secs(1)).unwrap();
         assert_eq!(run.requests(), 1);
         assert_eq!(
             run.termination(),
             ShortInfoResponderTermination::RequestLimit
         );
-        let mut rebound = None;
-        for _ in 0..20 {
-            match UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)) {
-                Ok(socket) => {
-                    rebound = Some(socket);
-                    break;
-                }
-                Err(error) if error.kind() == ErrorKind::AddrInUse => {
-                    thread::sleep(Duration::from_millis(10));
-                }
-                Err(error) => panic!("unexpected cleanup probe failure: {error}"),
-            }
-        }
-        assert!(rebound.is_some());
+        assert!(UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)).is_ok());
 
         let damaged_text = body();
         let parsed = ParsedStreamInfoObservedDocument::parse(
@@ -694,22 +702,7 @@ mod tests {
             .unwrap();
         let response_port = response_socket.local_addr().unwrap().port();
         let text = body();
-        let worker = thread::spawn(move || {
-            let parsed = ParsedStreamInfoObservedDocument::parse(
-                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
-                &text,
-            )
-            .unwrap();
-            run_explicit_ipv4_multicast_short_info_responder(
-                activation(),
-                Ipv4Addr::LOCALHOST,
-                limits(1024, 1),
-                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
-                ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
-                &parsed,
-                &AtomicBool::new(false),
-            )
-        });
+        let worker = spawn_multicast_responder(text);
         let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
         let query = ShortInfoQuery::new(
             "name='explicit-interface'".into(),
@@ -730,11 +723,11 @@ mod tests {
             &mut bytes,
             Duration::from_secs(1),
         )
-        .expect("responder must become ready within the bounded retry window");
+        .expect("responder must answer within the bounded datagram window");
         assert!(std::str::from_utf8(&bytes[..count])
             .unwrap()
             .starts_with("89\r\n"));
-        let run = worker.join().unwrap().unwrap();
+        let run = worker.complete(Duration::from_secs(1)).unwrap();
         assert_eq!(run.requests(), 1);
         assert_eq!(
             run.termination(),
@@ -781,22 +774,7 @@ mod tests {
         let response_port = response_socket.local_addr().unwrap().port();
         assert_eq!(response_port.to_string().len(), 5);
         let text = body();
-        let worker = thread::spawn(move || {
-            let parsed = ParsedStreamInfoObservedDocument::parse(
-                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
-                &text,
-            )
-            .unwrap();
-            run_explicit_ipv4_multicast_short_info_responder(
-                activation(),
-                Ipv4Addr::LOCALHOST,
-                limits(1024, 1),
-                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
-                ShortInfoResponseEnvelopeLimits::new(text.len(), text.len() + 32).unwrap(),
-                &parsed,
-                &AtomicBool::new(false),
-            )
-        });
+        let worker = spawn_multicast_responder(text);
         let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
         let query_id = 10_000_000_000_000_000_001_u64;
         let query = ShortInfoQuery::new(
@@ -821,11 +799,11 @@ mod tests {
             &mut bytes,
             Duration::from_secs(1),
         )
-        .expect("responder must become ready within the bounded retry window");
+        .expect("responder must answer within the bounded datagram window");
         assert!(std::str::from_utf8(&bytes[..count])
             .unwrap()
             .starts_with("10000000000000000001\r\n"));
-        let run = worker.join().unwrap().unwrap();
+        let run = worker.complete(Duration::from_secs(1)).unwrap();
         assert_eq!(run.requests(), 1);
         assert_eq!(
             run.termination(),
@@ -908,22 +886,7 @@ mod tests {
         drop(probe);
         let text = body();
         let response_maximum = text.len() + 32;
-        let responder = thread::spawn(move || {
-            let parsed = ParsedStreamInfoObservedDocument::parse(
-                StreamInfoObservedDocumentParseLimit::new(text.len()).unwrap(),
-                &text,
-            )
-            .unwrap();
-            run_explicit_loopback_multicast_short_info_responder(
-                activation(),
-                Ipv4Addr::LOCALHOST,
-                limits(1024, 1),
-                ShortInfoQueryWireLimits::new(128, 256).unwrap(),
-                ShortInfoResponseEnvelopeLimits::new(text.len(), response_maximum).unwrap(),
-                &parsed,
-                &AtomicBool::new(false),
-            )
-        });
+        let responder = spawn_multicast_responder(text);
         let query_limits = ShortInfoQueryWireLimits::new(128, 256).unwrap();
         let query = ShortInfoQuery::new(
             "name='production-composition'".into(),
@@ -961,8 +924,8 @@ mod tests {
                 break;
             }
         }
-        let run = run.expect("responder must become ready within the bounded retry window");
-        let responder_run = responder.join().unwrap().unwrap();
+        let run = run.expect("responder must answer within the bounded datagram window");
+        let responder_run = responder.complete(Duration::from_secs(1)).unwrap();
         assert_eq!(run.termination(), UdpDiscoveryTermination::ResponseLimit);
         assert_eq!(run.responses().len(), 1);
         assert_eq!(run.responses()[0].query_id(), 83);
