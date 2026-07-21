@@ -1,0 +1,9 @@
+# P5–P6 Retained Comparative Snapshot Package
+
+This P49 candidate adds one substantive crate-private caller-requested package owner over one actual P48 `CallerRequestedFloat32ComparativeAdvisoryEvidenceSnapshotHistory` and one actual P48 `MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaProposal`. The package consumes and transactionally retains both complete owners unchanged. It neither clones nor reconstructs their P47 snapshots, nested evidence, proposals, reports, samples, or allocations, and consuming extraction returns both inputs.
+
+The package derives only a compact fixed-order exact summary. It first records every retained history snapshot in caller order with its zero-based index and existing observation count. It then records every P48 delta fact in its existing six-kind order with its zero-based index, count kind, and exact earlier and later counts. Equal counts remain equal and retain their deterministic position; the package adds no ranking or tie policy.
+
+Three explicit nonzero bounds constrain history snapshots, delta facts, and total summary entries. Configuration checks every bound's `usize` to `u64` representation. Construction checks both component bounds, checked-adds the total, checks the total bound, fallibly converts the total and every emitted index, and fallibly reserves the complete summary before emitting any entry. Every bound, arithmetic, conversion, or allocation error owns and returns the complete history and delta proposal with exact nested allocation identity. No partial package escapes.
+
+The module is private, undeclared after focused qualification, default-inert, advisory, and non-applying. It has no root or runtime export, activation or application path, or liblsl-equivalence claim. It infers no loss, continuity, causality, quality, health, compatibility, or policy and enters no Manifold, session, stream, transport, control, routing, admission, authorization, device, or oracle authority.
