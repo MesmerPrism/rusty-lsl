@@ -617,7 +617,6 @@ mod tests {
                 &AtomicBool::new(false),
             )
         });
-        thread::sleep(Duration::from_millis(20));
         let query = ShortInfoQuery::new(
             "name='multicast'".into(),
             response_port,
@@ -628,17 +627,18 @@ mod tests {
         let wire =
             ShortInfoQueryWire::encode(&query, ShortInfoQueryWireLimits::new(128, 256).unwrap())
                 .unwrap();
-        response_socket
-            .send_to(
-                wire.as_bytes(),
-                (
-                    DOCUMENTED_IPV4_MULTICAST_GROUP,
-                    DOCUMENTED_IPV4_MULTICAST_PORT,
-                ),
-            )
-            .unwrap();
         let mut bytes = [0_u8; 1024];
-        let (count, source) = response_socket.recv_from(&mut bytes).unwrap();
+        let (count, source) = receive_with_bounded_query_retries(
+            &response_socket,
+            wire.as_bytes(),
+            SocketAddr::from((
+                DOCUMENTED_IPV4_MULTICAST_GROUP,
+                DOCUMENTED_IPV4_MULTICAST_PORT,
+            )),
+            &mut bytes,
+            Duration::from_secs(1),
+        )
+        .expect("responder must become ready within the bounded retry window");
         assert!(source.ip().is_loopback());
         assert!(std::str::from_utf8(&bytes[..count])
             .unwrap()
