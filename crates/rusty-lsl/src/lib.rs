@@ -67,6 +67,7 @@ mod bounded_fixed_record_transport;
 mod bounded_float32_recovery_clock_queue_runtime;
 mod bounded_sample_queue_runtime;
 mod caller_requested_float32_advisory_report_package;
+mod caller_requested_float32_advisory_report_package_history;
 mod caller_requested_float32_report_advisory_evidence;
 mod caller_requested_float32_report_advisory_evidence_history;
 mod caller_requested_float32_report_post_processing;
@@ -89,6 +90,7 @@ mod integrated_clock_correction_runtime;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
+mod morphospace_float32_advisory_report_package_delta_proposal;
 mod morphospace_float32_report_advisory_proposal;
 mod morphospace_float32_report_advisory_snapshot;
 mod morphospace_float32_report_advisory_snapshot_history;
@@ -600,9 +602,14 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
 mod tests {
     use super::{implementation_status, ownership_declaration, ImplementationStatus};
     use crate::caller_requested_float32_advisory_report_package::{
+        CallerRequestedFloat32AdvisoryReportPackage,
         CallerRequestedFloat32AdvisoryReportPackageBounds,
         CallerRequestedFloat32AdvisoryReportPackageFact,
         CallerRequestedFloat32AdvisoryReportPackageOwner,
+    };
+    use crate::caller_requested_float32_advisory_report_package_history::{
+        CallerRequestedFloat32AdvisoryReportPackageHistory,
+        CallerRequestedFloat32AdvisoryReportPackageHistoryBounds,
     };
     use crate::caller_requested_float32_report_advisory_evidence::{
         CallerRequestedFloat32ReportAdvisoryEvidence,
@@ -612,6 +619,12 @@ mod tests {
     use crate::caller_requested_float32_report_advisory_evidence_history::CallerRequestedFloat32ReportAdvisoryEvidenceHistory;
     use crate::exact_sequence_loss_health::ExactSequenceLossHealth;
     use crate::float32_session_report_requested_post_processing::Float32SessionReportRequestedPostProcessing;
+    use crate::morphospace_float32_advisory_report_package_delta_proposal::{
+        MorphospaceFloat32AdvisoryReportPackageCount,
+        MorphospaceFloat32AdvisoryReportPackageDeltaBounds,
+        MorphospaceFloat32AdvisoryReportPackageDeltaProposalOwner,
+        MorphospaceFloat32AdvisoryReportPackageRelation,
+    };
     use crate::morphospace_float32_report_advisory_snapshot::{
         MorphospaceFloat32ReportAdvisorySnapshot, MorphospaceFloat32ReportAdvisorySnapshotBounds,
         MorphospaceFloat32ReportAdvisorySnapshotOwner,
@@ -709,6 +722,43 @@ mod tests {
             .map(|value| value.report().sample().sample().values().as_ptr())
             .chain(std::iter::once(summary_pointer(summary)))
             .collect()
+    }
+
+    fn p43_package(
+        history_value_count: usize,
+        sequence: u64,
+    ) -> CallerRequestedFloat32AdvisoryReportPackage {
+        let mut history =
+            CallerRequestedFloat32ReportAdvisoryEvidenceHistory::new(history_value_count.max(1))
+                .unwrap();
+        for offset in 0..history_value_count {
+            history = history
+                .append(p34_evidence(
+                    sequence + offset as u64,
+                    sequence as f32 + offset as f32,
+                ))
+                .unwrap();
+        }
+        CallerRequestedFloat32AdvisoryReportPackageOwner::new(
+            CallerRequestedFloat32AdvisoryReportPackageBounds::new(
+                history_value_count.max(1),
+                history_value_count.max(1),
+                2,
+                history_value_count * 2 + 2,
+            )
+            .unwrap(),
+        )
+        .package(
+            history,
+            p42_summary(sequence + history_value_count as u64, 99.0),
+        )
+        .unwrap()
+    }
+
+    fn nested_package_pointers(
+        package: &CallerRequestedFloat32AdvisoryReportPackage,
+    ) -> Vec<*const f32> {
+        package_pointers(package.history(), package.summary())
     }
 
     #[test]
@@ -911,5 +961,107 @@ mod tests {
             assert_eq!(summary.totals(), summary_totals_before);
             assert_eq!(evidence_history.values().len(), 2);
         }
+    }
+
+    #[test]
+    fn p44_package_history_and_two_package_delta_compose_in_exact_order_and_identity() {
+        let earlier = p43_package(1, 60);
+        let later = p43_package(2, 70);
+        let earlier_pointers = nested_package_pointers(&earlier);
+        let later_pointers = nested_package_pointers(&later);
+        let history = CallerRequestedFloat32AdvisoryReportPackageHistory::new(
+            CallerRequestedFloat32AdvisoryReportPackageHistoryBounds::new(2, 3, 3, 4, 10).unwrap(),
+        )
+        .append(earlier)
+        .unwrap()
+        .append(later)
+        .unwrap();
+        assert_eq!(history.totals().package_count(), 2);
+        assert_eq!(
+            nested_package_pointers(&history.packages()[0]),
+            earlier_pointers
+        );
+        assert_eq!(
+            nested_package_pointers(&history.packages()[1]),
+            later_pointers
+        );
+
+        let mut packages = history.into_packages();
+        let later = packages.pop().unwrap();
+        let earlier = packages.pop().unwrap();
+        assert!(packages.is_empty());
+        let proposal = MorphospaceFloat32AdvisoryReportPackageDeltaProposalOwner::new(
+            MorphospaceFloat32AdvisoryReportPackageDeltaBounds::new(4).unwrap(),
+        )
+        .propose(earlier, later)
+        .unwrap();
+        assert_eq!(proposal.relation_count(), 4);
+        let expected = [
+            (
+                MorphospaceFloat32AdvisoryReportPackageCount::HistoryValues,
+                1,
+                2,
+                MorphospaceFloat32AdvisoryReportPackageRelation::Increase { amount: 1 },
+            ),
+            (
+                MorphospaceFloat32AdvisoryReportPackageCount::HistoryEvidence,
+                1,
+                2,
+                MorphospaceFloat32AdvisoryReportPackageRelation::Increase { amount: 1 },
+            ),
+            (
+                MorphospaceFloat32AdvisoryReportPackageCount::SummaryFacts,
+                2,
+                2,
+                MorphospaceFloat32AdvisoryReportPackageRelation::Equal,
+            ),
+            (
+                MorphospaceFloat32AdvisoryReportPackageCount::PackageFacts,
+                4,
+                6,
+                MorphospaceFloat32AdvisoryReportPackageRelation::Increase { amount: 2 },
+            ),
+        ];
+        assert!(proposal
+            .facts()
+            .iter()
+            .zip(expected)
+            .all(|(fact, expected)| {
+                (fact.count(), fact.earlier(), fact.later(), fact.relation()) == expected
+            }));
+        let (earlier, later) = proposal.into_packages();
+        assert_eq!(nested_package_pointers(&earlier), earlier_pointers);
+        assert_eq!(nested_package_pointers(&later), later_pointers);
+    }
+
+    #[test]
+    fn p44_error_rollbacks_return_unchanged_history_and_packages() {
+        let earlier = p43_package(1, 80);
+        let later = p43_package(2, 90);
+        let earlier_pointers = nested_package_pointers(&earlier);
+        let later_pointers = nested_package_pointers(&later);
+        let history = CallerRequestedFloat32AdvisoryReportPackageHistory::new(
+            CallerRequestedFloat32AdvisoryReportPackageHistoryBounds::new(1, 3, 3, 4, 10).unwrap(),
+        )
+        .append(earlier)
+        .unwrap();
+        let totals = history.totals();
+        let (history, later) = history.append(later).unwrap_err().into_parts();
+        assert_eq!(history.totals(), totals);
+        assert_eq!(
+            nested_package_pointers(&history.packages()[0]),
+            earlier_pointers
+        );
+        assert_eq!(nested_package_pointers(&later), later_pointers);
+
+        let earlier = history.into_packages().pop().unwrap();
+        let error = MorphospaceFloat32AdvisoryReportPackageDeltaProposalOwner::new(
+            MorphospaceFloat32AdvisoryReportPackageDeltaBounds::new(3).unwrap(),
+        )
+        .propose(earlier, later)
+        .unwrap_err();
+        let (earlier, later) = error.into_packages();
+        assert_eq!(nested_package_pointers(&earlier), earlier_pointers);
+        assert_eq!(nested_package_pointers(&later), later_pointers);
     }
 }
