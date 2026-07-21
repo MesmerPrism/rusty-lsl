@@ -266,7 +266,7 @@ mod tests {
     };
 
     fn report() -> CallerRequestedFloat32RetainedComparativeSnapshotReport {
-        let (history, package) = super::super::p50_actual_inputs();
+        let (history, package) = crate::tests::p50_actual_inputs();
         CallerRequestedFloat32RetainedComparativeSnapshotReportOwner::new(
             CallerRequestedFloat32RetainedComparativeSnapshotReportBounds::new(2, 8, 10).unwrap(),
         )
@@ -358,6 +358,37 @@ mod tests {
             )
             .unwrap_err();
         assert!(matches!(error, CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageError::TotalUnrepresentable { actual: 10, .. }));
+        assert_eq!(identity(&error.into_report()), original_identity);
+
+        let original = report();
+        let original_identity = identity(&original);
+        let conversions = Cell::new(0);
+        let error = owner(2)
+            .page_with(
+                original,
+                1,
+                |_, _| Ok(()),
+                |value| {
+                    let conversion = conversions.get();
+                    conversions.set(conversion + 1);
+                    if conversion == 2 {
+                        Err(())
+                    } else {
+                        Ok(value as u64)
+                    }
+                },
+                |value| Ok(value as usize),
+                |a, b| a.checked_add(b).ok_or(()),
+            )
+            .unwrap_err();
+        assert_eq!(conversions.get(), 3);
+        assert!(matches!(
+            error,
+            CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageError::EndUnrepresentable {
+                actual: 3,
+                ..
+            }
+        ));
         assert_eq!(identity(&error.into_report()), original_identity);
 
         let original = report();

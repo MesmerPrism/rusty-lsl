@@ -39,8 +39,10 @@ impl CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds {
         if maximum_evidence_entries == 0 {
             return Err(ZeroMaximumEvidenceEntries);
         }
-        let maximum_reports_u64 = u64::try_from(maximum_reports)
-            .map_err(|_| ReportBoundUnrepresentable { requested: maximum_reports })?;
+        let maximum_reports_u64 =
+            u64::try_from(maximum_reports).map_err(|_| ReportBoundUnrepresentable {
+                requested: maximum_reports,
+            })?;
         Ok(Self {
             maximum_reports,
             maximum_reports_u64,
@@ -116,11 +118,19 @@ impl CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryAppendError {
         use CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryAppendError::*;
         match self {
             CollectionLengthOverflow { history, report }
-            | ReportLimit { history, report, .. }
-            | ReportCountUnrepresentable { history, report, .. }
+            | ReportLimit {
+                history, report, ..
+            }
+            | ReportCountUnrepresentable {
+                history, report, ..
+            }
             | EvidenceCountOverflow { history, report }
-            | EvidenceLimit { history, report, .. }
-            | Allocation { history, report, .. } => (history, report),
+            | EvidenceLimit {
+                history, report, ..
+            }
+            | Allocation {
+                history, report, ..
+            } => (history, report),
         }
     }
 }
@@ -136,9 +146,7 @@ impl CallerRequestedFloat32RetainedComparativeSnapshotReportHistory {
         }
     }
 
-    pub(crate) fn reports(
-        &self,
-    ) -> &[CallerRequestedFloat32RetainedComparativeSnapshotReport] {
+    pub(crate) fn reports(&self) -> &[CallerRequestedFloat32RetainedComparativeSnapshotReport] {
         &self.reports
     }
 
@@ -317,8 +325,7 @@ mod tests {
     fn report(seed: u64) -> CallerRequestedFloat32RetainedComparativeSnapshotReport {
         let advisory_snapshot = || {
             let stability = MorphospaceFloat32ReportWindowStabilityProposalOwner::new(
-                MorphospaceFloat32ReportWindowStabilityBounds::new(1, 1, 1, 1, 0, 0.0)
-                    .unwrap(),
+                MorphospaceFloat32ReportWindowStabilityBounds::new(1, 1, 1, 1, 0, 0.0).unwrap(),
             )
             .propose(MorphospaceFloat32ReportObservationHistory::new(1, 1).unwrap())
             .unwrap();
@@ -334,11 +341,9 @@ mod tests {
         };
         let evidence = |sequence| {
             let mut processor = Float32SessionReportRequestedPostProcessing::new(
-                RequestedTimestampPostProcessor::new(
-                    RequestedTimestampPostProcessing::Monotonic(
-                        RequestedTimestampPostProcessingConfig::new(2, 1.0, 10.0).unwrap(),
-                    ),
-                )
+                RequestedTimestampPostProcessor::new(RequestedTimestampPostProcessing::Monotonic(
+                    RequestedTimestampPostProcessingConfig::new(2, 1.0, 10.0).unwrap(),
+                ))
                 .unwrap(),
                 ExactSequenceLossHealth::new(4),
             );
@@ -346,12 +351,8 @@ mod tests {
                 .process_record(
                     sequence,
                     TimestampedSample::new(
-                        Sample::new(
-                            SampleLimits::new(1).unwrap(),
-                            1,
-                            vec![sequence as f32],
-                        )
-                        .unwrap(),
+                        Sample::new(SampleLimits::new(1).unwrap(), 1, vec![sequence as f32])
+                            .unwrap(),
                         RawSourceTimestamp::new(3.0).unwrap(),
                         None,
                     ),
@@ -400,8 +401,7 @@ mod tests {
         };
         let snapshot = |base| {
             let history = CallerRequestedFloat32ComparativeAdvisoryEvidenceHistory::new(
-                CallerRequestedFloat32ComparativeAdvisoryEvidenceHistoryBounds::new(1, 8)
-                    .unwrap(),
+                CallerRequestedFloat32ComparativeAdvisoryEvidenceHistoryBounds::new(1, 8).unwrap(),
             )
             .append(comparative(base))
             .unwrap();
@@ -424,13 +424,12 @@ mod tests {
             .propose(snapshot(base), snapshot(base + 1_000))
             .unwrap()
         };
-        let delta_history =
-            MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory::new(
-                MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistoryBounds::new(1, 6)
-                    .unwrap(),
-            )
-            .append(snapshot_delta(seed))
-            .unwrap();
+        let delta_history = MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory::new(
+            MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistoryBounds::new(1, 6)
+                .unwrap(),
+        )
+        .append(snapshot_delta(seed))
+        .unwrap();
         let retained_package = CallerRequestedFloat32RetainedComparativeSnapshotPackageOwner::new(
             CallerRequestedFloat32RetainedComparativeSnapshotPackageBounds::new(1, 6, 7).unwrap(),
         )
@@ -453,24 +452,47 @@ mod tests {
 
     fn identity(
         value: &CallerRequestedFloat32RetainedComparativeSnapshotReport,
-    ) -> (*const f32, *const crate::caller_requested_float32_retained_comparative_snapshot_report::CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence) {
+    ) -> (*const f32, *const crate::caller_requested_float32_retained_comparative_snapshot_report::CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence){
         (
-            value.delta_history().proposals()[0].earlier().history().evidence()[0]
-                .earlier().history().values()[0].report().sample().sample().values().as_ptr(),
+            value.delta_history().proposals()[0]
+                .earlier()
+                .history()
+                .evidence()[0]
+                .earlier()
+                .history()
+                .values()[0]
+                .report()
+                .sample()
+                .sample()
+                .values()
+                .as_ptr(),
             value.evidence().as_ptr(),
         )
     }
 
-    fn bounds(reports: usize, evidence: u64) -> CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds {
-        CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(reports, evidence).unwrap()
+    fn bounds(
+        reports: usize,
+        evidence: u64,
+    ) -> CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds {
+        CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(reports, evidence)
+            .unwrap()
     }
 
     #[test]
     fn zero_bounds_empty_construction_and_constructible_extremes_are_exact() {
         use CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryConfigError::*;
-        assert_eq!(CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(0, 1), Err(ZeroMaximumReports));
-        assert_eq!(CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(1, 0), Err(ZeroMaximumEvidenceEntries));
-        let history = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(bounds(usize::MAX, u64::MAX));
+        assert_eq!(
+            CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(0, 1),
+            Err(ZeroMaximumReports)
+        );
+        assert_eq!(
+            CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(1, 0),
+            Err(ZeroMaximumEvidenceEntries)
+        );
+        let history = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(bounds(
+            usize::MAX,
+            u64::MAX,
+        ));
         assert!(history.reports().is_empty());
         assert_eq!(history.totals(), Default::default());
         assert_eq!(history.totals().report_count(), 0);
@@ -483,13 +505,29 @@ mod tests {
         let middle = report(2);
         let final_report = report(1);
         let ids = [identity(&first), identity(&middle), identity(&final_report)];
-        let history = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(bounds(3, 24))
-            .append(first).unwrap().append(middle).unwrap().append(final_report).unwrap();
+        let history =
+            CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(bounds(3, 24))
+                .append(first)
+                .unwrap()
+                .append(middle)
+                .unwrap()
+                .append(final_report)
+                .unwrap();
         assert_eq!(history.totals().report_count(), 3);
         assert_eq!(history.totals().evidence_count(), 24);
-        assert_eq!(history.reports().iter().map(identity).collect::<Vec<_>>(), ids);
+        assert_eq!(
+            history.reports().iter().map(identity).collect::<Vec<_>>(),
+            ids
+        );
         assert_eq!(history.reports()[0], history.reports()[2]);
-        assert_eq!(history.into_reports().iter().map(identity).collect::<Vec<_>>(), ids);
+        assert_eq!(
+            history
+                .into_reports()
+                .iter()
+                .map(identity)
+                .collect::<Vec<_>>(),
+            ids
+        );
     }
 
     #[test]
@@ -498,8 +536,12 @@ mod tests {
         let incoming = report(20);
         let kept_id = identity(&kept);
         let incoming_id = identity(&incoming);
-        let error = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(bounds(1, 16))
-            .append(kept).unwrap().append(incoming).unwrap_err();
+        let error =
+            CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(bounds(1, 16))
+                .append(kept)
+                .unwrap()
+                .append(incoming)
+                .unwrap_err();
         assert!(matches!(error, CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryAppendError::ReportLimit { limit: 1, required: 2, .. }));
         let (history, incoming) = error.into_parts();
         assert_eq!(history.reports().len(), 1);
@@ -536,15 +578,35 @@ mod tests {
             let incoming = report(40 + failure);
             let kept_id = identity(&kept);
             let incoming_id = identity(&incoming);
-            let mut history = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(bounds(2, u64::MAX)).append(kept).unwrap();
-            if failure == 2 { history.totals.evidence_count = u64::MAX; }
-            let error = history.append_with(
-                incoming,
-                |_, _| if failure == 3 { Err(()) } else { Ok(()) },
-                |value| if failure == 1 { Err(()) } else { u64::try_from(value).map_err(|_| ()) },
-                |left, right| left.checked_add(right).ok_or(()),
-                |left, right| if failure == 0 { Err(()) } else { left.checked_add(right).ok_or(()) },
-            ).unwrap_err();
+            let mut history = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(
+                bounds(2, u64::MAX),
+            )
+            .append(kept)
+            .unwrap();
+            if failure == 2 {
+                history.totals.evidence_count = u64::MAX;
+            }
+            let error = history
+                .append_with(
+                    incoming,
+                    |_, _| if failure == 3 { Err(()) } else { Ok(()) },
+                    |value| {
+                        if failure == 1 {
+                            Err(())
+                        } else {
+                            u64::try_from(value).map_err(|_| ())
+                        }
+                    },
+                    |left, right| left.checked_add(right).ok_or(()),
+                    |left, right| {
+                        if failure == 0 {
+                            Err(())
+                        } else {
+                            left.checked_add(right).ok_or(())
+                        }
+                    },
+                )
+                .unwrap_err();
             let (history, incoming) = error.into_parts();
             assert_eq!(history.reports().len(), 1);
             assert_eq!(identity(&history.reports()[0]), kept_id);
@@ -554,10 +616,31 @@ mod tests {
 
     #[test]
     fn boundary_is_private_inert_non_authoritative_and_non_equivalent() {
-        let source = include_str!("caller_requested_float32_retained_comparative_snapshot_report_history.rs");
-        for wording in ["crate-private", "default-inert", "infers no loss", "continuity", "causality", "not liblsl-equivalent", "Manifold"] { assert!(source.contains(wording)); }
-        for operation in [concat!("fn ap", "ply("), concat!("fn act", "ivate("), concat!("fn auth", "orize(")] { assert!(!source.contains(operation)); }
-        assert!(!include_str!("runtime.rs").contains("CallerRequestedFloat32RetainedComparativeSnapshotReportHistory"));
-        assert!(!include_str!("lib.rs").contains("pub use caller_requested_float32_retained_comparative_snapshot_report_history"));
+        let source = include_str!(
+            "caller_requested_float32_retained_comparative_snapshot_report_history.rs"
+        );
+        for wording in [
+            "crate-private",
+            "default-inert",
+            "infers no loss",
+            "continuity",
+            "causality",
+            "not liblsl-equivalent",
+            "Manifold",
+        ] {
+            assert!(source.contains(wording));
+        }
+        for operation in [
+            concat!("fn ap", "ply("),
+            concat!("fn act", "ivate("),
+            concat!("fn auth", "orize("),
+        ] {
+            assert!(!source.contains(operation));
+        }
+        assert!(!include_str!("runtime.rs")
+            .contains("CallerRequestedFloat32RetainedComparativeSnapshotReportHistory"));
+        assert!(!include_str!("lib.rs").contains(
+            "pub use caller_requested_float32_retained_comparative_snapshot_report_history"
+        ));
     }
 }

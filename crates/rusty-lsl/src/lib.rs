@@ -79,6 +79,8 @@ mod caller_requested_float32_report_post_processing_admission;
 mod caller_requested_float32_retained_comparative_snapshot_admission;
 mod caller_requested_float32_retained_comparative_snapshot_package;
 mod caller_requested_float32_retained_comparative_snapshot_report;
+mod caller_requested_float32_retained_comparative_snapshot_report_evidence_page;
+mod caller_requested_float32_retained_comparative_snapshot_report_history;
 mod clock_filter_selection;
 mod clock_offset_application;
 pub mod contract;
@@ -724,6 +726,7 @@ mod tests {
         CallerRequestedFloat32RetainedComparativeSnapshotPackageSummaryEntry,
     };
     use crate::caller_requested_float32_retained_comparative_snapshot_report::{
+        CallerRequestedFloat32RetainedComparativeSnapshotReport,
         CallerRequestedFloat32RetainedComparativeSnapshotReportBounds,
         CallerRequestedFloat32RetainedComparativeSnapshotReportError,
     };
@@ -953,7 +956,7 @@ mod tests {
         .unwrap()
     }
 
-    fn p50_actual_inputs() -> (
+    pub(crate) fn p50_actual_inputs() -> (
         MorphospaceFloat32ComparativeAdvisoryEvidenceSnapshotDeltaHistory,
         CallerRequestedFloat32RetainedComparativeSnapshotPackage,
     ) {
@@ -987,6 +990,25 @@ mod tests {
         .package(snapshot_history, proposal(18_000))
         .unwrap();
         (history, package)
+    }
+
+    fn p51_actual_report() -> CallerRequestedFloat32RetainedComparativeSnapshotReport {
+        let (history, package) = p50_actual_inputs();
+        compose_caller_requested_float32_retained_comparative_snapshot_report(
+            CallerRequestedFloat32RetainedComparativeSnapshotAdmissionBounds::new(2, 12, 2, 6, 8)
+                .unwrap(),
+            CallerRequestedFloat32RetainedComparativeSnapshotExtents {
+                history_proposals: 2,
+                history_facts: 12,
+                package_snapshots: 2,
+                package_delta_facts: 6,
+                package_summary_entries: 8,
+            },
+            CallerRequestedFloat32RetainedComparativeSnapshotReportBounds::new(2, 8, 10).unwrap(),
+            history,
+            package,
+        )
+        .unwrap()
     }
 
     #[test]
@@ -2054,5 +2076,91 @@ mod tests {
             .contains("CallerRequestedFloat32RetainedComparativeSnapshot"));
         assert!(source.contains("Admission remains validation-only and grants no report"));
         assert!(source.contains("liblsl-equivalence, or Manifold authority"));
+    }
+
+    #[test]
+    fn p51_actual_reports_compose_through_history_and_deterministic_evidence_pages() {
+        use crate::caller_requested_float32_retained_comparative_snapshot_report_evidence_page::{
+            CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageBounds,
+            CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageOwner,
+        };
+        use crate::caller_requested_float32_retained_comparative_snapshot_report_history::{
+            CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
+            CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds,
+        };
+
+        let identity = |report: &CallerRequestedFloat32RetainedComparativeSnapshotReport| {
+            (
+                report.evidence().as_ptr(),
+                report.delta_history().proposals()[0]
+                    .earlier()
+                    .history()
+                    .evidence()[0]
+                    .earlier()
+                    .history()
+                    .values()[0]
+                    .report()
+                    .sample()
+                    .sample()
+                    .values()
+                    .as_ptr(),
+            )
+        };
+
+        for (start, maximum, expected_end) in [(0, 3, 3), (3, 4, 7), (7, 8, 10), (10, 4, 10)] {
+            let selected = p51_actual_report();
+            let unselected = p51_actual_report();
+            let selected_identity = identity(&selected);
+            let unselected_identity = identity(&unselected);
+            let expected_evidence = selected.evidence().to_vec();
+
+            let history = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(
+                CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(2, 20)
+                    .unwrap(),
+            )
+            .append(selected)
+            .unwrap()
+            .append(unselected)
+            .unwrap();
+            assert_eq!(history.totals().report_count(), 2);
+            assert_eq!(history.totals().evidence_count(), 20);
+            assert_eq!(identity(&history.reports()[0]), selected_identity);
+            assert_eq!(identity(&history.reports()[1]), unselected_identity);
+
+            let mut reports = history.into_reports().into_iter();
+            let selected = reports.next().unwrap();
+            let unselected = reports.next().unwrap();
+            assert!(reports.next().is_none());
+            assert_eq!(identity(&selected), selected_identity);
+            assert_eq!(identity(&unselected), unselected_identity);
+
+            let page =
+                CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageOwner::new(
+                    CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageBounds::new(
+                        maximum,
+                    )
+                    .unwrap(),
+                )
+                .page(selected, start)
+                .unwrap();
+            assert_eq!(
+                (page.start(), page.end(), page.total()),
+                (start, expected_end, 10)
+            );
+            assert_eq!(
+                page.evidence(),
+                &expected_evidence[start as usize..expected_end as usize]
+            );
+            assert_eq!(identity(page.report()), selected_identity);
+            assert_eq!(identity(&unselected), unselected_identity);
+
+            let (selected, copied_evidence) = page.into_parts();
+            assert_eq!(identity(&selected), selected_identity);
+            assert_eq!(identity(&unselected), unselected_identity);
+            assert_eq!(
+                copied_evidence,
+                expected_evidence[start as usize..expected_end as usize]
+            );
+        }
     }
 }
