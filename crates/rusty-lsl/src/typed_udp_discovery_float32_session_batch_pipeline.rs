@@ -191,6 +191,7 @@ mod tests {
     };
     use std::net::{TcpListener, UdpSocket};
     use std::sync::atomic::AtomicBool;
+    use std::sync::mpsc::sync_channel;
     use std::thread;
     use std::time::Duration;
 
@@ -333,13 +334,16 @@ mod tests {
         let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
         let destination = socket.local_addr().unwrap();
         let bytes = document.len();
+        let (ready_sender, ready_receiver) = sync_channel(0);
         let responder = thread::spawn(move || {
+            ready_sender.send(()).unwrap();
             let mut query = [0_u8; 256];
             let (_, source) = socket.recv_from(&mut query).unwrap();
             socket
                 .send_to(format!("19\r\n{document}").as_bytes(), source)
                 .unwrap();
         });
+        ready_receiver.recv().unwrap();
         let query_limits = ShortInfoQueryWireLimits::new(8, 128).unwrap();
         let query = ShortInfoQueryWire::encode(
             &ShortInfoQuery::new("selected".into(), 1, 19, query_limits).unwrap(),
@@ -430,7 +434,9 @@ mod tests {
             .collect();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let endpoint = listener.local_addr().unwrap();
+        let (ready_sender, ready_receiver) = sync_channel(0);
         let outlet = thread::spawn(move || {
+            ready_sender.send(()).unwrap();
             TimestampedFloat32OutletSession::preflight_bounded(
                 session_activation(),
                 listener,
@@ -445,6 +451,7 @@ mod tests {
             .unwrap()
             .record_count()
         });
+        ready_receiver.recv().unwrap();
         (endpoint, outlet)
     }
 
