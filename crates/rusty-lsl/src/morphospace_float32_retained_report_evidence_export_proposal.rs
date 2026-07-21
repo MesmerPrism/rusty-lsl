@@ -1,13 +1,17 @@
 // Copyright (C) 2026 Rusty LSL contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! Bounded Morphospace advisory export proposal over actual P50/P51 evidence.
+//! Bounded Morphospace advisory export proposal over completed cursor output.
 //!
-//! This crate-private, caller-requested owner retains the complete report
-//! history and every complete evidence page, including their original nested
-//! allocations. It creates only a deterministic manifest of existing `Copy`
-//! evidence in caller, report, and evidence order. Construction is fallible,
-//! bounded, transactional, and fail-closed. The result is default-inert,
+//! This crate-private owner consumes one completed P51 cursor together with
+//! the exact cursor pages retained by its caller. The cursor remains the sole
+//! report-history owner. Construction validates completion and the complete,
+//! ordered page composition before producing a deterministic manifest of
+//! existing `Copy` evidence facts. Every report, page, outer evidence vector,
+//! and nested sample allocation remains owned exactly once by the output.
+//!
+//! Construction is fallible, bounded, transactional, and fail-closed. Every
+//! error returns the unchanged cursor-owned input. The result is default-inert,
 //! advisory, and non-applying: it is not a public serialization protocol,
 //! infers no loss, continuity, or causality, claims no liblsl equivalence, and
 //! grants no Manifold, session, stream, transport, control, application,
@@ -15,8 +19,11 @@
 //! authority.
 
 use crate::caller_requested_float32_retained_comparative_snapshot_report::CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence;
-use crate::caller_requested_float32_retained_comparative_snapshot_report_evidence_page::CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage;
-use crate::caller_requested_float32_retained_comparative_snapshot_report_history::CallerRequestedFloat32RetainedComparativeSnapshotReportHistory;
+use crate::caller_requested_float32_retained_report_evidence_cursor::{
+    CallerRequestedFloat32RetainedReportEvidenceCursor,
+    CallerRequestedFloat32RetainedReportEvidenceCursorFacts,
+    CallerRequestedFloat32RetainedReportEvidenceCursorPage,
+};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum MorphospaceFloat32RetainedReportEvidenceExportProposalConfigError {
@@ -58,116 +65,175 @@ impl MorphospaceFloat32RetainedReportEvidenceExportProposalBounds {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub(crate) struct MorphospaceFloat32RetainedReportEvidenceCursorOutput {
+    cursor: CallerRequestedFloat32RetainedReportEvidenceCursor,
+    pages: Vec<CallerRequestedFloat32RetainedReportEvidenceCursorPage>,
+}
+
+impl MorphospaceFloat32RetainedReportEvidenceCursorOutput {
+    pub(crate) const fn new(
+        cursor: CallerRequestedFloat32RetainedReportEvidenceCursor,
+        pages: Vec<CallerRequestedFloat32RetainedReportEvidenceCursorPage>,
+    ) -> Self {
+        Self { cursor, pages }
+    }
+
+    pub(crate) const fn cursor(&self) -> &CallerRequestedFloat32RetainedReportEvidenceCursor {
+        &self.cursor
+    }
+
+    pub(crate) fn pages(&self) -> &[CallerRequestedFloat32RetainedReportEvidenceCursorPage] {
+        &self.pages
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        CallerRequestedFloat32RetainedReportEvidenceCursor,
+        Vec<CallerRequestedFloat32RetainedReportEvidenceCursorPage>,
+    ) {
+        (self.cursor, self.pages)
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum MorphospaceFloat32RetainedReportEvidenceExportEntry {
-    History {
-        export_index: u64,
-        report_index: u64,
-        evidence_index: u64,
-        evidence: CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence,
-    },
-    Page {
-        export_index: u64,
-        page_index: u64,
-        page_evidence_index: u64,
-        source_start: u64,
-        source_end: u64,
-        source_total: u64,
-        evidence: CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence,
-    },
+pub(crate) struct MorphospaceFloat32RetainedReportEvidenceExportEntry {
+    export_index: u64,
+    report_index: u64,
+    page_index: u64,
+    page_evidence_index: u64,
+    source_start: u64,
+    source_end: u64,
+    source_total: u64,
+    evidence: CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence,
+}
+
+impl MorphospaceFloat32RetainedReportEvidenceExportEntry {
+    pub(crate) const fn export_index(self) -> u64 {
+        self.export_index
+    }
+    pub(crate) const fn report_index(self) -> u64 {
+        self.report_index
+    }
+    pub(crate) const fn page_index(self) -> u64 {
+        self.page_index
+    }
+    pub(crate) const fn page_evidence_index(self) -> u64 {
+        self.page_evidence_index
+    }
+    pub(crate) const fn source_start(self) -> u64 {
+        self.source_start
+    }
+    pub(crate) const fn source_end(self) -> u64 {
+        self.source_end
+    }
+    pub(crate) const fn source_total(self) -> u64 {
+        self.source_total
+    }
+    pub(crate) const fn evidence(
+        self,
+    ) -> CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence {
+        self.evidence
+    }
 }
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct MorphospaceFloat32RetainedReportEvidenceExportProposal {
-    history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-    pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+    source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
+    completed_facts: CallerRequestedFloat32RetainedReportEvidenceCursorFacts,
     entries: Vec<MorphospaceFloat32RetainedReportEvidenceExportEntry>,
 }
 
 impl MorphospaceFloat32RetainedReportEvidenceExportProposal {
-    pub(crate) const fn history(
-        &self,
-    ) -> &CallerRequestedFloat32RetainedComparativeSnapshotReportHistory {
-        &self.history
+    pub(crate) const fn source(&self) -> &MorphospaceFloat32RetainedReportEvidenceCursorOutput {
+        &self.source
     }
-
-    pub(crate) fn pages(
+    pub(crate) const fn completed_facts(
         &self,
-    ) -> &[CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage] {
-        &self.pages
+    ) -> CallerRequestedFloat32RetainedReportEvidenceCursorFacts {
+        self.completed_facts
     }
-
     pub(crate) fn entries(&self) -> &[MorphospaceFloat32RetainedReportEvidenceExportEntry] {
         &self.entries
     }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
-    ) {
-        (self.history, self.pages)
+    pub(crate) fn into_source(self) -> MorphospaceFloat32RetainedReportEvidenceCursorOutput {
+        self.source
     }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum MorphospaceFloat32RetainedReportEvidenceCompositionFailure {
+    IncompleteCursor,
+    PageCountMismatch {
+        recorded: u64,
+        actual: usize,
+    },
+    PageReportMissing {
+        page_position: usize,
+        report_index: u64,
+    },
+    PageSequenceMismatch {
+        page_position: usize,
+    },
+    PageRangeInvalid {
+        page_position: usize,
+    },
+    ForeignEvidence {
+        page_position: usize,
+    },
 }
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum MorphospaceFloat32RetainedReportEvidenceExportProposalError {
+    Composition {
+        failure: MorphospaceFloat32RetainedReportEvidenceCompositionFailure,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
+    },
     ReportLimit {
         limit: usize,
         actual: usize,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     },
     PageLimit {
         limit: usize,
         actual: usize,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     },
     EvidenceCountOverflow {
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     },
     EvidenceLimit {
         limit: usize,
         required: usize,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     },
     CountUnrepresentable {
         actual: usize,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     },
     IndexUnrepresentable {
         actual: usize,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     },
     Allocation {
         requested: usize,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     },
 }
 
 impl MorphospaceFloat32RetainedReportEvidenceExportProposalError {
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
-    ) {
+    pub(crate) fn into_source(self) -> MorphospaceFloat32RetainedReportEvidenceCursorOutput {
         use MorphospaceFloat32RetainedReportEvidenceExportProposalError::*;
         match self {
-            ReportLimit { history, pages, .. }
-            | PageLimit { history, pages, .. }
-            | EvidenceCountOverflow { history, pages }
-            | EvidenceLimit { history, pages, .. }
-            | CountUnrepresentable { history, pages, .. }
-            | IndexUnrepresentable { history, pages, .. }
-            | Allocation { history, pages, .. } => (history, pages),
+            Composition { source, .. }
+            | ReportLimit { source, .. }
+            | PageLimit { source, .. }
+            | EvidenceCountOverflow { source }
+            | EvidenceLimit { source, .. }
+            | CountUnrepresentable { source, .. }
+            | IndexUnrepresentable { source, .. }
+            | Allocation { source, .. } => source,
         }
     }
 }
@@ -186,15 +252,13 @@ impl MorphospaceFloat32RetainedReportEvidenceExportProposalOwner {
 
     pub(crate) fn propose(
         &self,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
     ) -> Result<
         MorphospaceFloat32RetainedReportEvidenceExportProposal,
         MorphospaceFloat32RetainedReportEvidenceExportProposalError,
     > {
         self.propose_with(
-            history,
-            pages,
+            source,
             |entries, count| entries.try_reserve_exact(count).map_err(|_| ()),
             |value| u64::try_from(value).map_err(|_| ()),
             |left, right| left.checked_add(right).ok_or(()),
@@ -203,8 +267,7 @@ impl MorphospaceFloat32RetainedReportEvidenceExportProposalOwner {
 
     fn propose_with<R, C, A>(
         &self,
-        history: CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
-        pages: Vec<CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage>,
+        source: MorphospaceFloat32RetainedReportEvidenceCursorOutput,
         reserve: R,
         mut convert: C,
         mut add: A,
@@ -220,11 +283,21 @@ impl MorphospaceFloat32RetainedReportEvidenceExportProposalOwner {
         C: FnMut(usize) -> Result<u64, ()>,
         A: FnMut(usize, usize) -> Result<usize, ()>,
     {
-        use MorphospaceFloat32RetainedReportEvidenceExportProposalError::*;
-        macro_rules! fail { ($variant:ident { $($field:ident : $value:expr),* $(,)? }) => { return Err($variant { $($field: $value,)* history, pages }) }; }
+        use MorphospaceFloat32RetainedReportEvidenceCompositionFailure as CF;
+        use MorphospaceFloat32RetainedReportEvidenceExportProposalError as E;
+        macro_rules! fail { ($variant:ident { $($field:ident : $value:expr),* $(,)? }) => { return Err(E::$variant { $($field: $value,)* source }) }; }
 
-        let report_count = history.reports().len();
-        let page_count = pages.len();
+        let facts = source.cursor.facts();
+        if facts.current().is_some()
+            || facts.completed_evidence() != facts.total_evidence()
+            || facts.remaining_evidence() != 0
+        {
+            fail!(Composition {
+                failure: CF::IncompleteCursor
+            });
+        }
+        let report_count = source.cursor.reports().len();
+        let page_count = source.pages.len();
         if report_count > self.bounds.maximum_reports {
             fail!(ReportLimit {
                 limit: self.bounds.maximum_reports,
@@ -237,18 +310,104 @@ impl MorphospaceFloat32RetainedReportEvidenceExportProposalOwner {
                 actual: page_count
             });
         }
-        let mut required = 0usize;
-        for report in history.reports() {
-            required = match add(required, report.evidence().len()) {
-                Ok(value) => value,
-                Err(()) => fail!(EvidenceCountOverflow {}),
-            };
+        if usize::try_from(source.cursor.total_pages()).ok() != Some(page_count) {
+            fail!(Composition {
+                failure: CF::PageCountMismatch {
+                    recorded: source.cursor.total_pages(),
+                    actual: page_count
+                }
+            });
         }
-        for page in &pages {
+
+        let mut expected_report = 0usize;
+        let mut expected_page = 0u64;
+        let mut expected_start = 0u64;
+        let mut required = 0usize;
+        for (page_position, page) in source.pages.iter().enumerate() {
+            while expected_report < source.cursor.reports().len()
+                && source.cursor.reports()[expected_report]
+                    .evidence()
+                    .is_empty()
+            {
+                expected_report += 1;
+            }
+            let Some(report) = source.cursor.reports().get(expected_report) else {
+                fail!(Composition {
+                    failure: CF::PageReportMissing {
+                        page_position,
+                        report_index: page.report_index()
+                    }
+                });
+            };
+            if u64::try_from(expected_report).ok() != Some(page.report_index())
+                || page.page_index() != expected_page
+                || page.start() != expected_start
+            {
+                fail!(Composition {
+                    failure: CF::PageSequenceMismatch { page_position }
+                });
+            }
+            let Ok(start) = usize::try_from(page.start()) else {
+                fail!(Composition {
+                    failure: CF::PageRangeInvalid { page_position }
+                });
+            };
+            let Ok(end) = usize::try_from(page.end()) else {
+                fail!(Composition {
+                    failure: CF::PageRangeInvalid { page_position }
+                });
+            };
+            let Ok(total) = usize::try_from(page.total()) else {
+                fail!(Composition {
+                    failure: CF::PageRangeInvalid { page_position }
+                });
+            };
+            if start > end
+                || end > total
+                || total != report.evidence().len()
+                || end - start != page.evidence().len()
+            {
+                fail!(Composition {
+                    failure: CF::PageRangeInvalid { page_position }
+                });
+            }
+            if page.evidence() != &report.evidence()[start..end] {
+                fail!(Composition {
+                    failure: CF::ForeignEvidence { page_position }
+                });
+            }
             required = match add(required, page.evidence().len()) {
                 Ok(value) => value,
                 Err(()) => fail!(EvidenceCountOverflow {}),
             };
+            if end == total {
+                expected_report += 1;
+                expected_page = 0;
+                expected_start = 0;
+            } else {
+                expected_page = match expected_page.checked_add(1) {
+                    Some(value) => value,
+                    None => fail!(EvidenceCountOverflow {}),
+                };
+                expected_start = page.end();
+            }
+        }
+        while expected_report < source.cursor.reports().len()
+            && source.cursor.reports()[expected_report]
+                .evidence()
+                .is_empty()
+        {
+            expected_report += 1;
+        }
+        if expected_report != source.cursor.reports().len()
+            || required != usize::try_from(facts.total_evidence()).unwrap_or(usize::MAX)
+        {
+            fail!(Composition {
+                failure: CF::PageCountMismatch {
+                    recorded: source.cursor.total_pages(),
+                    actual: page_count
+                }
+            });
         }
         if required > self.bounds.maximum_evidence {
             fail!(EvidenceLimit {
@@ -259,54 +418,20 @@ impl MorphospaceFloat32RetainedReportEvidenceExportProposalOwner {
         if convert(required).is_err() {
             fail!(CountUnrepresentable { actual: required });
         }
-
-        // Preflight every index before allocation or manifest mutation.
-        let mut export_index = 0usize;
-        for (report_index, report) in history.reports().iter().enumerate() {
-            if convert(report_index).is_err() {
+        for (page_position, page) in source.pages.iter().enumerate() {
+            if convert(page_position).is_err() {
                 fail!(IndexUnrepresentable {
-                    actual: report_index
+                    actual: page_position
                 });
             }
-            for evidence_index in 0..report.evidence().len() {
-                if convert(evidence_index).is_err() {
+            for evidence_position in 0..page.evidence().len() {
+                if convert(evidence_position).is_err() {
                     fail!(IndexUnrepresentable {
-                        actual: evidence_index
+                        actual: evidence_position
                     });
                 }
-                if convert(export_index).is_err() {
-                    fail!(IndexUnrepresentable {
-                        actual: export_index
-                    });
-                }
-                export_index = match add(export_index, 1) {
-                    Ok(value) => value,
-                    Err(()) => fail!(EvidenceCountOverflow {}),
-                };
             }
         }
-        for (page_index, page) in pages.iter().enumerate() {
-            if convert(page_index).is_err() {
-                fail!(IndexUnrepresentable { actual: page_index });
-            }
-            for page_evidence_index in 0..page.evidence().len() {
-                if convert(page_evidence_index).is_err() {
-                    fail!(IndexUnrepresentable {
-                        actual: page_evidence_index
-                    });
-                }
-                if convert(export_index).is_err() {
-                    fail!(IndexUnrepresentable {
-                        actual: export_index
-                    });
-                }
-                export_index = match add(export_index, 1) {
-                    Ok(value) => value,
-                    Err(()) => fail!(EvidenceCountOverflow {}),
-                };
-            }
-        }
-
         let mut entries = Vec::new();
         if reserve(&mut entries, required).is_err() {
             fail!(Allocation {
@@ -314,36 +439,26 @@ impl MorphospaceFloat32RetainedReportEvidenceExportProposalOwner {
             });
         }
         let mut export_index = 0u64;
-        for (report_index, report) in history.reports().iter().enumerate() {
-            for (evidence_index, evidence) in report.evidence().iter().copied().enumerate() {
-                entries.push(
-                    MorphospaceFloat32RetainedReportEvidenceExportEntry::History {
-                        export_index,
-                        report_index: report_index as u64,
-                        evidence_index: evidence_index as u64,
-                        evidence,
-                    },
-                );
-                export_index += 1;
-            }
-        }
-        for (page_index, page) in pages.iter().enumerate() {
+        for page in &source.pages {
             for (page_evidence_index, evidence) in page.evidence().iter().copied().enumerate() {
-                entries.push(MorphospaceFloat32RetainedReportEvidenceExportEntry::Page {
+                entries.push(MorphospaceFloat32RetainedReportEvidenceExportEntry {
                     export_index,
-                    page_index: page_index as u64,
+                    report_index: page.report_index(),
+                    page_index: page.page_index(),
                     page_evidence_index: page_evidence_index as u64,
                     source_start: page.start(),
                     source_end: page.end(),
                     source_total: page.total(),
                     evidence,
                 });
-                export_index += 1;
+                export_index = export_index
+                    .checked_add(1)
+                    .expect("preflight admitted the complete manifest extent");
             }
         }
         Ok(MorphospaceFloat32RetainedReportEvidenceExportProposal {
-            history,
-            pages,
+            source,
+            completed_facts: facts,
             entries,
         })
     }
@@ -357,14 +472,15 @@ mod tests {
         CallerRequestedFloat32RetainedComparativeSnapshotReportBounds,
         CallerRequestedFloat32RetainedComparativeSnapshotReportOwner,
     };
-    use crate::caller_requested_float32_retained_comparative_snapshot_report_evidence_page::{
-        CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageBounds,
-        CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageOwner,
-    };
     use crate::caller_requested_float32_retained_comparative_snapshot_report_history::{
         CallerRequestedFloat32RetainedComparativeSnapshotReportHistory,
         CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds,
     };
+    use crate::caller_requested_float32_retained_report_evidence_cursor::{
+        CallerRequestedFloat32RetainedReportEvidenceCursorAdvance,
+        CallerRequestedFloat32RetainedReportEvidenceCursorBounds,
+    };
+    use std::cell::Cell;
 
     fn report() -> CallerRequestedFloat32RetainedComparativeSnapshotReport {
         let (history, package) = crate::tests::p50_actual_inputs();
@@ -374,45 +490,84 @@ mod tests {
         .report(history, package)
         .unwrap()
     }
-    fn history(count: usize) -> CallerRequestedFloat32RetainedComparativeSnapshotReportHistory {
+    fn actual_cursor(
+        count: usize,
+        page_length: usize,
+    ) -> CallerRequestedFloat32RetainedReportEvidenceCursor {
         let mut history = CallerRequestedFloat32RetainedComparativeSnapshotReportHistory::new(
             CallerRequestedFloat32RetainedComparativeSnapshotReportHistoryBounds::new(
                 count.max(1),
-                (count.max(1) * 10) as u64,
+                u64::try_from(count.max(1) * 10).unwrap(),
             )
             .unwrap(),
         );
         for _ in 0..count {
             history = history.append(report()).unwrap();
         }
-        history
-    }
-    fn page(
-        start: u64,
-        maximum: usize,
-    ) -> CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePage {
-        CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageOwner::new(
-            CallerRequestedFloat32RetainedComparativeSnapshotReportEvidencePageBounds::new(maximum)
-                .unwrap(),
+        CallerRequestedFloat32RetainedReportEvidenceCursor::new(
+            CallerRequestedFloat32RetainedReportEvidenceCursorBounds::new(page_length).unwrap(),
+            history,
         )
-        .page(report(), start)
         .unwrap()
     }
-    fn sample_pointer(
-        report: &CallerRequestedFloat32RetainedComparativeSnapshotReport,
-    ) -> *const f32 {
-        report.delta_history().proposals()[0]
-            .earlier()
-            .history()
-            .evidence()[0]
-            .earlier()
-            .history()
-            .values()[0]
-            .report()
-            .sample()
-            .sample()
-            .values()
-            .as_ptr()
+    fn actual_source(
+        count: usize,
+        page_length: usize,
+    ) -> MorphospaceFloat32RetainedReportEvidenceCursorOutput {
+        let mut cursor = actual_cursor(count, page_length);
+        let mut pages = Vec::new();
+        loop {
+            match cursor.advance().unwrap() {
+                CallerRequestedFloat32RetainedReportEvidenceCursorAdvance::Page {
+                    cursor: next,
+                    page,
+                } => {
+                    pages.push(page);
+                    cursor = next;
+                }
+                CallerRequestedFloat32RetainedReportEvidenceCursorAdvance::Complete(done) => {
+                    return MorphospaceFloat32RetainedReportEvidenceCursorOutput::new(done, pages)
+                }
+            }
+        }
+    }
+    fn identities(
+        source: &MorphospaceFloat32RetainedReportEvidenceCursorOutput,
+    ) -> Vec<(
+        *const CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence,
+        *const f32,
+    )> {
+        source
+            .cursor()
+            .reports()
+            .iter()
+            .map(|report| {
+                (
+                    report.evidence().as_ptr(),
+                    report.delta_history().proposals()[0]
+                        .earlier()
+                        .history()
+                        .evidence()[0]
+                        .earlier()
+                        .history()
+                        .values()[0]
+                        .report()
+                        .sample()
+                        .sample()
+                        .values()
+                        .as_ptr(),
+                )
+            })
+            .collect()
+    }
+    fn page_ids(
+        source: &MorphospaceFloat32RetainedReportEvidenceCursorOutput,
+    ) -> Vec<*const CallerRequestedFloat32RetainedComparativeSnapshotReportEvidence> {
+        source
+            .pages()
+            .iter()
+            .map(|page| page.evidence().as_ptr())
+            .collect()
     }
     fn owner(
         r: usize,
@@ -425,7 +580,126 @@ mod tests {
     }
 
     #[test]
-    fn zero_exact_and_one_past_bounds_are_typed() {
+    fn actual_p50_p51_cursor_output_exports_exact_order_facts_and_identity() {
+        let source = actual_source(2, 4);
+        let report_ids = identities(&source);
+        let retained_page_ids = page_ids(&source);
+        let expected: Vec<_> = source
+            .cursor()
+            .reports()
+            .iter()
+            .flat_map(|r| r.evidence().iter().copied())
+            .collect();
+        let proposal = owner(2, 6, 20).propose(source).unwrap();
+        assert_eq!(
+            (
+                proposal.completed_facts().report_count(),
+                proposal.completed_facts().total_evidence(),
+                proposal.completed_facts().completed_evidence(),
+                proposal.completed_facts().current(),
+                proposal.completed_facts().remaining_evidence()
+            ),
+            (2, 20, 20, None, 0)
+        );
+        assert_eq!(
+            proposal
+                .entries()
+                .iter()
+                .map(|e| e.evidence())
+                .collect::<Vec<_>>(),
+            expected
+        );
+        assert_eq!(
+            proposal
+                .entries()
+                .iter()
+                .map(|e| (
+                    e.export_index(),
+                    e.report_index(),
+                    e.page_index(),
+                    e.page_evidence_index(),
+                    e.source_start(),
+                    e.source_end(),
+                    e.source_total()
+                ))
+                .collect::<Vec<_>>(),
+            vec![
+                (0, 0, 0, 0, 0, 4, 10),
+                (1, 0, 0, 1, 0, 4, 10),
+                (2, 0, 0, 2, 0, 4, 10),
+                (3, 0, 0, 3, 0, 4, 10),
+                (4, 0, 1, 0, 4, 8, 10),
+                (5, 0, 1, 1, 4, 8, 10),
+                (6, 0, 1, 2, 4, 8, 10),
+                (7, 0, 1, 3, 4, 8, 10),
+                (8, 0, 2, 0, 8, 10, 10),
+                (9, 0, 2, 1, 8, 10, 10),
+                (10, 1, 0, 0, 0, 4, 10),
+                (11, 1, 0, 1, 0, 4, 10),
+                (12, 1, 0, 2, 0, 4, 10),
+                (13, 1, 0, 3, 0, 4, 10),
+                (14, 1, 1, 0, 4, 8, 10),
+                (15, 1, 1, 1, 4, 8, 10),
+                (16, 1, 1, 2, 4, 8, 10),
+                (17, 1, 1, 3, 4, 8, 10),
+                (18, 1, 2, 0, 8, 10, 10),
+                (19, 1, 2, 1, 8, 10, 10)
+            ]
+        );
+        assert_eq!(identities(proposal.source()), report_ids);
+        assert_eq!(page_ids(proposal.source()), retained_page_ids);
+        let source = proposal.into_source();
+        assert_eq!(identities(&source), report_ids);
+        assert_eq!(page_ids(&source), retained_page_ids);
+    }
+
+    #[test]
+    fn incomplete_and_damaged_compositions_return_unchanged_owner() {
+        let incomplete = {
+            let cursor = actual_cursor(1, 4);
+            let (cursor, page) = match cursor.advance().unwrap() {
+                CallerRequestedFloat32RetainedReportEvidenceCursorAdvance::Page {
+                    cursor,
+                    page,
+                } => (cursor, page),
+                _ => unreachable!(),
+            };
+            MorphospaceFloat32RetainedReportEvidenceCursorOutput::new(cursor, vec![page])
+        };
+        let ids = identities(&incomplete);
+        let pids = page_ids(&incomplete);
+        let error = owner(1, 3, 10).propose(incomplete).unwrap_err();
+        assert!(matches!(
+            error,
+            MorphospaceFloat32RetainedReportEvidenceExportProposalError::Composition { .. }
+        ));
+        let source = error.into_source();
+        assert_eq!(identities(&source), ids);
+        assert_eq!(page_ids(&source), pids);
+        for damage in 0..4 {
+            let mut source = actual_source(2, 4);
+            if damage == 0 {
+                source.pages.swap(0, 1);
+            } else if damage == 1 {
+                source.pages.remove(1);
+            } else if damage == 2 {
+                let duplicate = actual_source(1, 4).pages.into_iter().next().unwrap();
+                source.pages[1] = duplicate;
+            } else {
+                let foreign = actual_source(1, 3).pages.into_iter().next().unwrap();
+                source.pages[0] = foreign;
+            }
+            let ids = identities(&source);
+            let pids = page_ids(&source);
+            let error = owner(2, 6, 20).propose(source).unwrap_err();
+            let source = error.into_source();
+            assert_eq!(identities(&source), ids);
+            assert_eq!(page_ids(&source), pids);
+        }
+    }
+
+    #[test]
+    fn bounds_conversion_arithmetic_and_allocation_rollback_are_exact() {
         use MorphospaceFloat32RetainedReportEvidenceExportProposalConfigError::*;
         assert_eq!(
             MorphospaceFloat32RetainedReportEvidenceExportProposalBounds::new(0, 1, 1),
@@ -439,151 +713,47 @@ mod tests {
             MorphospaceFloat32RetainedReportEvidenceExportProposalBounds::new(1, 1, 0),
             Err(ZeroMaximumEvidence)
         );
-        let empty = owner(1, 1, 1).propose(history(0), Vec::new()).unwrap();
-        assert!(empty.history().reports().is_empty());
-        assert!(empty.pages().is_empty());
-        assert!(empty.entries().is_empty());
-        assert!(owner(2, 2, 25)
-            .propose(history(2), vec![page(0, 3), page(7, 2)])
-            .is_ok());
-        assert!(matches!(
-            owner(1, 2, 25).propose(history(2), vec![]),
-            Err(
-                MorphospaceFloat32RetainedReportEvidenceExportProposalError::ReportLimit {
-                    actual: 2,
-                    ..
-                }
-            )
-        ));
-        assert!(matches!(
-            owner(2, 1, 25).propose(history(1), vec![page(0, 1), page(1, 1)]),
-            Err(
-                MorphospaceFloat32RetainedReportEvidenceExportProposalError::PageLimit {
-                    actual: 2,
-                    ..
-                }
-            )
-        ));
-        assert!(matches!(
-            owner(2, 2, 24).propose(history(2), vec![page(0, 3), page(7, 2)]),
-            Err(
-                MorphospaceFloat32RetainedReportEvidenceExportProposalError::EvidenceLimit {
-                    required: 25,
-                    ..
-                }
-            )
-        ));
-    }
-
-    #[test]
-    fn multiple_reports_and_pages_preserve_order_and_allocation_identity() {
-        let history = history(2);
-        let pages = vec![page(4, 2), page(8, 2)];
-        let history_ids: Vec<_> = history.reports().iter().map(sample_pointer).collect();
-        let page_ids: Vec<_> = pages.iter().map(|p| sample_pointer(p.report())).collect();
-        let proposal = owner(2, 2, 24).propose(history, pages).unwrap();
-        assert_eq!(proposal.entries().len(), 24);
-        for (index, entry) in proposal.entries().iter().enumerate() {
-            match entry {
-                MorphospaceFloat32RetainedReportEvidenceExportEntry::History {
-                    export_index,
-                    report_index,
-                    evidence_index,
-                    ..
-                } => {
-                    assert_eq!(*export_index, index as u64);
-                    assert_eq!(*report_index, (index / 10) as u64);
-                    assert_eq!(*evidence_index, (index % 10) as u64);
-                }
-                MorphospaceFloat32RetainedReportEvidenceExportEntry::Page {
-                    export_index,
-                    page_index,
-                    page_evidence_index,
-                    source_start,
-                    ..
-                } => {
-                    assert_eq!(*export_index, index as u64);
-                    let local = index - 20;
-                    assert_eq!(*page_index, (local / 2) as u64);
-                    assert_eq!(*page_evidence_index, (local % 2) as u64);
-                    assert_eq!(*source_start, if local < 2 { 4 } else { 8 });
-                }
-            }
-        }
-        assert_eq!(
-            proposal
-                .history()
-                .reports()
-                .iter()
-                .map(sample_pointer)
-                .collect::<Vec<_>>(),
-            history_ids
-        );
-        assert_eq!(
-            proposal
-                .pages()
-                .iter()
-                .map(|p| sample_pointer(p.report()))
-                .collect::<Vec<_>>(),
-            page_ids
-        );
-        let (history, pages) = proposal.into_parts();
-        assert_eq!(
-            history
-                .reports()
-                .iter()
-                .map(sample_pointer)
-                .collect::<Vec<_>>(),
-            history_ids
-        );
-        assert_eq!(
-            pages
-                .iter()
-                .map(|p| sample_pointer(p.report()))
-                .collect::<Vec<_>>(),
-            page_ids
-        );
-    }
-
-    #[test]
-    fn overflow_conversion_allocation_and_rollback_return_complete_sources() {
-        for failure in 0..4 {
-            let history = history(1);
-            let pages = vec![page(0, 2)];
-            let history_id = sample_pointer(&history.reports()[0]);
-            let page_id = sample_pointer(pages[0].report());
-            let error = owner(1, 1, 12)
-                .propose_with(
-                    history,
-                    pages,
+        for failure in 0..6 {
+            let source = actual_source(1, 4);
+            let ids = identities(&source);
+            let pids = page_ids(&source);
+            let calls = Cell::new(0);
+            let result = if failure == 0 {
+                owner(1, 2, 10).propose(source)
+            } else if failure == 1 {
+                owner(1, 3, 9).propose(source)
+            } else {
+                owner(1, 3, 10).propose_with(
+                    source,
                     |_, requested| {
-                        if failure == 3 {
-                            assert_eq!(requested, 12);
+                        if failure == 5 {
+                            assert_eq!(requested, 10);
                             Err(())
                         } else {
                             Ok(())
                         }
                     },
                     |value| {
-                        if failure == 1 {
+                        let call = calls.get();
+                        calls.set(call + 1);
+                        if (failure == 3 && call == 0) || (failure == 4 && call == 1) {
                             Err(())
                         } else {
                             u64::try_from(value).map_err(|_| ())
                         }
                     },
                     |left, right| {
-                        if failure == 0 || (failure == 2 && right == 1) {
+                        if failure == 2 {
                             Err(())
                         } else {
                             left.checked_add(right).ok_or(())
                         }
                     },
                 )
-                .unwrap_err();
-            assert!(matches!((&error, failure), (MorphospaceFloat32RetainedReportEvidenceExportProposalError::EvidenceCountOverflow { .. }, 0 | 2) | (MorphospaceFloat32RetainedReportEvidenceExportProposalError::CountUnrepresentable { actual: 12, .. }, 1) | (MorphospaceFloat32RetainedReportEvidenceExportProposalError::Allocation { requested: 12, .. }, 3)));
-            let (history, pages) = error.into_parts();
-            assert_eq!(sample_pointer(&history.reports()[0]), history_id);
-            assert_eq!(sample_pointer(pages[0].report()), page_id);
+            };
+            let source = result.unwrap_err().into_source();
+            assert_eq!(identities(&source), ids);
+            assert_eq!(page_ids(&source), pids);
         }
     }
 
