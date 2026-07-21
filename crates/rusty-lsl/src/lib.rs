@@ -66,6 +66,7 @@ mod all_format_bounded_chunk_session;
 mod bounded_fixed_record_transport;
 mod bounded_float32_recovery_clock_queue_runtime;
 mod bounded_sample_queue_runtime;
+mod caller_requested_float32_advisory_report_package;
 mod caller_requested_float32_report_advisory_evidence;
 mod caller_requested_float32_report_advisory_evidence_history;
 mod caller_requested_float32_report_post_processing;
@@ -100,6 +101,7 @@ mod morphospace_float32_report_window_delta_proposal;
 mod morphospace_float32_report_window_stability_history;
 mod morphospace_float32_report_window_stability_proposal;
 mod morphospace_float32_retained_advisory_summary;
+mod morphospace_float32_retained_advisory_summary_history;
 mod raw_clock_exchange;
 mod requested_timestamp_post_processing;
 mod requested_timestamp_post_processing_loss_health;
@@ -597,6 +599,117 @@ pub const fn ownership_declaration() -> OwnershipDeclaration {
 #[cfg(test)]
 mod tests {
     use super::{implementation_status, ownership_declaration, ImplementationStatus};
+    use crate::caller_requested_float32_advisory_report_package::{
+        CallerRequestedFloat32AdvisoryReportPackageBounds,
+        CallerRequestedFloat32AdvisoryReportPackageFact,
+        CallerRequestedFloat32AdvisoryReportPackageOwner,
+    };
+    use crate::caller_requested_float32_report_advisory_evidence::{
+        CallerRequestedFloat32ReportAdvisoryEvidence,
+        CallerRequestedFloat32ReportAdvisoryEvidenceBounds,
+        CallerRequestedFloat32ReportAdvisoryEvidenceOwner,
+    };
+    use crate::caller_requested_float32_report_advisory_evidence_history::CallerRequestedFloat32ReportAdvisoryEvidenceHistory;
+    use crate::exact_sequence_loss_health::ExactSequenceLossHealth;
+    use crate::float32_session_report_requested_post_processing::Float32SessionReportRequestedPostProcessing;
+    use crate::morphospace_float32_report_advisory_snapshot::{
+        MorphospaceFloat32ReportAdvisorySnapshot, MorphospaceFloat32ReportAdvisorySnapshotBounds,
+        MorphospaceFloat32ReportAdvisorySnapshotOwner,
+    };
+    use crate::morphospace_float32_report_advisory_snapshot_history::MorphospaceFloat32ReportAdvisorySnapshotHistory;
+    use crate::morphospace_float32_report_observation_history::MorphospaceFloat32ReportObservationHistory;
+    use crate::morphospace_float32_report_window_delta_history::MorphospaceFloat32ReportWindowDeltaHistory;
+    use crate::morphospace_float32_report_window_stability_proposal::{
+        MorphospaceFloat32ReportWindowStabilityBounds,
+        MorphospaceFloat32ReportWindowStabilityProposalOwner,
+    };
+    use crate::morphospace_float32_retained_advisory_summary::{
+        MorphospaceFloat32RetainedAdvisorySummary, MorphospaceFloat32RetainedAdvisorySummaryBounds,
+        MorphospaceFloat32RetainedAdvisorySummaryOwner,
+    };
+    use crate::morphospace_float32_retained_advisory_summary_history::MorphospaceFloat32RetainedAdvisorySummaryHistory;
+    use crate::requested_timestamp_post_processing::{
+        RequestedTimestampPostProcessing, RequestedTimestampPostProcessingConfig,
+        RequestedTimestampPostProcessor,
+    };
+    use crate::{RawSourceTimestamp, Sample, SampleLimits, TimestampedSample};
+
+    fn p41_snapshot() -> MorphospaceFloat32ReportAdvisorySnapshot {
+        let stability = MorphospaceFloat32ReportWindowStabilityProposalOwner::new(
+            MorphospaceFloat32ReportWindowStabilityBounds::new(1, 1, 1, 1, 0, 0.0).unwrap(),
+        )
+        .propose(MorphospaceFloat32ReportObservationHistory::new(1, 1).unwrap())
+        .unwrap();
+        MorphospaceFloat32ReportAdvisorySnapshotOwner::new(
+            MorphospaceFloat32ReportAdvisorySnapshotBounds::new(1, 1, 1, 1, 1).unwrap(),
+        )
+        .snapshot(
+            MorphospaceFloat32ReportObservationHistory::new(1, 1).unwrap(),
+            MorphospaceFloat32ReportWindowDeltaHistory::new(1, 1).unwrap(),
+            stability,
+        )
+        .unwrap()
+    }
+
+    fn p34_evidence(sequence: u64, value: f32) -> CallerRequestedFloat32ReportAdvisoryEvidence {
+        let mut processor = Float32SessionReportRequestedPostProcessing::new(
+            RequestedTimestampPostProcessor::new(RequestedTimestampPostProcessing::Monotonic(
+                RequestedTimestampPostProcessingConfig::new(2, 1.0, 10.0).unwrap(),
+            ))
+            .unwrap(),
+            ExactSequenceLossHealth::new(4),
+        );
+        let report = processor
+            .process_record(
+                sequence,
+                TimestampedSample::new(
+                    Sample::new(SampleLimits::new(1).unwrap(), 1, vec![value]).unwrap(),
+                    RawSourceTimestamp::new(3.0).unwrap(),
+                    None,
+                ),
+            )
+            .unwrap();
+        CallerRequestedFloat32ReportAdvisoryEvidenceOwner::new(
+            CallerRequestedFloat32ReportAdvisoryEvidenceBounds::new(1, 1).unwrap(),
+        )
+        .compose(report, p41_snapshot())
+        .unwrap()
+    }
+
+    fn p42_summary(sequence: u64, value: f32) -> MorphospaceFloat32RetainedAdvisorySummary {
+        let retained = p34_evidence(sequence, value);
+        let snapshots = MorphospaceFloat32ReportAdvisorySnapshotHistory::new(1)
+            .unwrap()
+            .append(p41_snapshot())
+            .unwrap();
+        MorphospaceFloat32RetainedAdvisorySummaryOwner::new(
+            MorphospaceFloat32RetainedAdvisorySummaryBounds::new(1, 1, 2).unwrap(),
+        )
+        .summarize(retained, snapshots)
+        .unwrap()
+    }
+
+    fn summary_pointer(summary: &MorphospaceFloat32RetainedAdvisorySummary) -> *const f32 {
+        summary
+            .retained()
+            .report()
+            .sample()
+            .sample()
+            .values()
+            .as_ptr()
+    }
+
+    fn package_pointers(
+        history: &CallerRequestedFloat32ReportAdvisoryEvidenceHistory,
+        summary: &MorphospaceFloat32RetainedAdvisorySummary,
+    ) -> Vec<*const f32> {
+        history
+            .values()
+            .iter()
+            .map(|value| value.report().sample().sample().values().as_ptr())
+            .chain(std::iter::once(summary_pointer(summary)))
+            .collect()
+    }
 
     #[test]
     fn status_names_only_the_implemented_local_contracts() {
@@ -649,5 +762,154 @@ mod tests {
         assert!(declaration
             .owns
             .contains(&"finite caller-invoked sample recovery runtime"));
+    }
+
+    #[test]
+    fn actual_p34_p40_p41_p42_p43_owners_compose_without_identity_or_order_loss() {
+        let first = p42_summary(40, 1.0);
+        let second = p42_summary(41, 2.0);
+        let retained_pointers = [summary_pointer(&first), summary_pointer(&second)];
+        assert_ne!(retained_pointers[0], retained_pointers[1]);
+        let retained_history = MorphospaceFloat32RetainedAdvisorySummaryHistory::new(2)
+            .unwrap()
+            .append(first)
+            .unwrap()
+            .append(second)
+            .unwrap();
+        assert_eq!(
+            retained_history
+                .summaries()
+                .iter()
+                .map(summary_pointer)
+                .collect::<Vec<_>>(),
+            retained_pointers
+        );
+
+        let evidence_history = CallerRequestedFloat32ReportAdvisoryEvidenceHistory::new(2)
+            .unwrap()
+            .append(p34_evidence(42, 3.0))
+            .unwrap()
+            .append(p34_evidence(43, 4.0))
+            .unwrap();
+        let package_summary = p42_summary(44, 5.0);
+        let package_pointers_before = package_pointers(&evidence_history, &package_summary);
+        assert!(package_pointers_before
+            .iter()
+            .all(|pointer| !retained_pointers.contains(pointer)));
+        let package = CallerRequestedFloat32AdvisoryReportPackageOwner::new(
+            CallerRequestedFloat32AdvisoryReportPackageBounds::new(2, 2, 2, 6).unwrap(),
+        )
+        .package(evidence_history, package_summary)
+        .unwrap();
+        assert_eq!(
+            package_pointers(package.history(), package.summary()),
+            package_pointers_before
+        );
+        assert_eq!(package.totals().history_value_count(), 2);
+        assert_eq!(package.totals().history_evidence_count(), 2);
+        assert_eq!(package.totals().summary_fact_count(), 2);
+        assert_eq!(package.totals().package_fact_count(), 6);
+        assert!(matches!(
+            package.facts()[0],
+            CallerRequestedFloat32AdvisoryReportPackageFact::HistoryValue {
+                history_index: 0,
+                ..
+            }
+        ));
+        assert!(matches!(
+            package.facts()[1],
+            CallerRequestedFloat32AdvisoryReportPackageFact::HistoryEvidence {
+                history_index: 0,
+                evidence_index: 0,
+                ..
+            }
+        ));
+        assert!(matches!(
+            package.facts()[2],
+            CallerRequestedFloat32AdvisoryReportPackageFact::HistoryValue {
+                history_index: 1,
+                ..
+            }
+        ));
+        assert!(matches!(
+            package.facts()[3],
+            CallerRequestedFloat32AdvisoryReportPackageFact::HistoryEvidence {
+                history_index: 1,
+                evidence_index: 0,
+                ..
+            }
+        ));
+        assert!(package.facts()[4..]
+            .iter()
+            .enumerate()
+            .all(|(index, fact)| {
+                matches!(
+                    fact,
+                    CallerRequestedFloat32AdvisoryReportPackageFact::RetainedSummaryFact {
+                        summary_index,
+                        ..
+                    } if *summary_index == index as u64
+                )
+            }));
+        let (evidence_history, package_summary) = package.into_parts();
+        assert_eq!(
+            package_pointers(&evidence_history, &package_summary),
+            package_pointers_before
+        );
+        assert_eq!(
+            retained_history
+                .into_summaries()
+                .iter()
+                .map(summary_pointer)
+                .collect::<Vec<_>>(),
+            retained_pointers
+        );
+    }
+
+    #[test]
+    fn p43_history_and_package_failures_are_transactional_across_real_upstream_owners() {
+        let kept = p42_summary(50, 6.0);
+        let candidate = p42_summary(51, 7.0);
+        let kept_pointer = summary_pointer(&kept);
+        let candidate_pointer = summary_pointer(&candidate);
+        let history = MorphospaceFloat32RetainedAdvisorySummaryHistory::new(1)
+            .unwrap()
+            .append(kept)
+            .unwrap();
+        let totals_before = history.totals();
+        let (history, candidate) = history.append(candidate).unwrap_err().into_parts();
+        assert_eq!(history.totals(), totals_before);
+        assert_eq!(history.summaries().len(), 1);
+        assert_eq!(summary_pointer(&history.summaries()[0]), kept_pointer);
+        assert_eq!(summary_pointer(&candidate), candidate_pointer);
+
+        for bounds in [(1, 2, 2, 6), (2, 1, 2, 6), (2, 2, 1, 6), (2, 2, 2, 5)] {
+            let evidence_history = CallerRequestedFloat32ReportAdvisoryEvidenceHistory::new(2)
+                .unwrap()
+                .append(p34_evidence(52, 8.0))
+                .unwrap()
+                .append(p34_evidence(53, 9.0))
+                .unwrap();
+            let summary = p42_summary(54, 10.0);
+            let pointers_before = package_pointers(&evidence_history, &summary);
+            let history_totals_before = evidence_history.totals();
+            let summary_totals_before = summary.totals();
+            let error = CallerRequestedFloat32AdvisoryReportPackageOwner::new(
+                CallerRequestedFloat32AdvisoryReportPackageBounds::new(
+                    bounds.0, bounds.1, bounds.2, bounds.3,
+                )
+                .unwrap(),
+            )
+            .package(evidence_history, summary)
+            .unwrap_err();
+            let (evidence_history, summary) = error.into_parts();
+            assert_eq!(
+                package_pointers(&evidence_history, &summary),
+                pointers_before
+            );
+            assert_eq!(evidence_history.totals(), history_totals_before);
+            assert_eq!(summary.totals(), summary_totals_before);
+            assert_eq!(evidence_history.values().len(), 2);
+        }
     }
 }
