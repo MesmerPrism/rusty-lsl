@@ -68,6 +68,7 @@ mod bounded_float32_recovery_clock_queue_runtime;
 mod bounded_sample_queue_runtime;
 mod caller_requested_float32_advisory_report_package;
 mod caller_requested_float32_advisory_report_package_history;
+mod caller_requested_float32_comparative_advisory_evidence;
 mod caller_requested_float32_report_advisory_evidence;
 mod caller_requested_float32_report_advisory_evidence_history;
 mod caller_requested_float32_report_post_processing;
@@ -90,6 +91,7 @@ mod integrated_clock_correction_runtime;
 mod metadata;
 mod metadata_tree;
 mod metadata_xml_projection;
+mod morphospace_float32_advisory_report_package_delta_history;
 mod morphospace_float32_advisory_report_package_delta_proposal;
 mod morphospace_float32_report_advisory_proposal;
 mod morphospace_float32_report_advisory_snapshot;
@@ -611,6 +613,10 @@ mod tests {
         CallerRequestedFloat32AdvisoryReportPackageHistory,
         CallerRequestedFloat32AdvisoryReportPackageHistoryBounds,
     };
+    use crate::caller_requested_float32_comparative_advisory_evidence::{
+        CallerRequestedFloat32ComparativeAdvisoryEvidenceBounds,
+        CallerRequestedFloat32ComparativeAdvisoryEvidenceOwner,
+    };
     use crate::caller_requested_float32_report_advisory_evidence::{
         CallerRequestedFloat32ReportAdvisoryEvidence,
         CallerRequestedFloat32ReportAdvisoryEvidenceBounds,
@@ -619,6 +625,10 @@ mod tests {
     use crate::caller_requested_float32_report_advisory_evidence_history::CallerRequestedFloat32ReportAdvisoryEvidenceHistory;
     use crate::exact_sequence_loss_health::ExactSequenceLossHealth;
     use crate::float32_session_report_requested_post_processing::Float32SessionReportRequestedPostProcessing;
+    use crate::morphospace_float32_advisory_report_package_delta_history::{
+        MorphospaceFloat32AdvisoryReportPackageDeltaHistory,
+        MorphospaceFloat32AdvisoryReportPackageDeltaHistoryBounds,
+    };
     use crate::morphospace_float32_advisory_report_package_delta_proposal::{
         MorphospaceFloat32AdvisoryReportPackageCount,
         MorphospaceFloat32AdvisoryReportPackageDeltaBounds,
@@ -759,6 +769,15 @@ mod tests {
         package: &CallerRequestedFloat32AdvisoryReportPackage,
     ) -> Vec<*const f32> {
         package_pointers(package.history(), package.summary())
+    }
+
+    fn delta_proposal_pointers(
+        proposal: &crate::morphospace_float32_advisory_report_package_delta_proposal::MorphospaceFloat32AdvisoryReportPackageDeltaProposal,
+    ) -> (Vec<*const f32>, Vec<*const f32>) {
+        (
+            nested_package_pointers(proposal.earlier()),
+            nested_package_pointers(proposal.later()),
+        )
     }
 
     #[test]
@@ -1063,5 +1082,111 @@ mod tests {
         let (earlier, later) = error.into_packages();
         assert_eq!(nested_package_pointers(&earlier), earlier_pointers);
         assert_eq!(nested_package_pointers(&later), later_pointers);
+    }
+
+    #[test]
+    fn p45_delta_history_to_comparative_evidence_preserves_nested_identity_and_order() {
+        let proposal = MorphospaceFloat32AdvisoryReportPackageDeltaProposalOwner::new(
+            MorphospaceFloat32AdvisoryReportPackageDeltaBounds::new(4).unwrap(),
+        )
+        .propose(p43_package(1, 100), p43_package(2, 110))
+        .unwrap();
+        let proposal_pointers = delta_proposal_pointers(&proposal);
+        let proposal_facts = proposal.facts().as_ptr();
+        let history = MorphospaceFloat32AdvisoryReportPackageDeltaHistory::new(
+            MorphospaceFloat32AdvisoryReportPackageDeltaHistoryBounds::new(1, 2, 4).unwrap(),
+        )
+        .append(proposal)
+        .unwrap();
+        assert_eq!(history.totals().proposal_count(), 1);
+        assert_eq!(history.totals().package_count(), 2);
+        assert_eq!(history.totals().fact_count(), 4);
+        assert_eq!(
+            delta_proposal_pointers(&history.proposals()[0]),
+            proposal_pointers
+        );
+        assert_eq!(history.proposals()[0].facts().as_ptr(), proposal_facts);
+
+        let proposal = history.into_proposals().pop().unwrap();
+        let earlier = p43_package(1, 120);
+        let later = p43_package(2, 130);
+        let earlier_pointers = nested_package_pointers(&earlier);
+        let later_pointers = nested_package_pointers(&later);
+        let evidence = CallerRequestedFloat32ComparativeAdvisoryEvidenceOwner::new(
+            CallerRequestedFloat32ComparativeAdvisoryEvidenceBounds::new(8).unwrap(),
+        )
+        .compose(earlier, later, proposal)
+        .unwrap();
+        assert_eq!(evidence.fact_count(), 8);
+        assert_eq!(
+            nested_package_pointers(evidence.earlier()),
+            earlier_pointers
+        );
+        assert_eq!(nested_package_pointers(evidence.later()), later_pointers);
+        assert_eq!(
+            delta_proposal_pointers(evidence.delta_proposal()),
+            proposal_pointers
+        );
+        assert_eq!(evidence.delta_proposal().facts().as_ptr(), proposal_facts);
+        for (proposal_fact, pair) in evidence
+            .delta_proposal()
+            .facts()
+            .iter()
+            .zip(evidence.facts().chunks_exact(2))
+        {
+            assert_eq!(pair[0].count(), proposal_fact.count());
+            assert_eq!(pair[1].count(), proposal_fact.count());
+            assert_eq!(pair[0].proposal_value(), proposal_fact.earlier());
+            assert_eq!(pair[1].proposal_value(), proposal_fact.later());
+        }
+
+        let (earlier, later, proposal) = evidence.into_parts();
+        assert_eq!(nested_package_pointers(&earlier), earlier_pointers);
+        assert_eq!(nested_package_pointers(&later), later_pointers);
+        assert_eq!(delta_proposal_pointers(&proposal), proposal_pointers);
+        assert_eq!(proposal.facts().as_ptr(), proposal_facts);
+    }
+
+    #[test]
+    fn p45_exact_and_one_past_bounds_return_complete_unchanged_inputs() {
+        let first = MorphospaceFloat32AdvisoryReportPackageDeltaProposalOwner::new(
+            MorphospaceFloat32AdvisoryReportPackageDeltaBounds::new(4).unwrap(),
+        )
+        .propose(p43_package(1, 140), p43_package(2, 150))
+        .unwrap();
+        let second = MorphospaceFloat32AdvisoryReportPackageDeltaProposalOwner::new(
+            MorphospaceFloat32AdvisoryReportPackageDeltaBounds::new(4).unwrap(),
+        )
+        .propose(p43_package(2, 160), p43_package(1, 170))
+        .unwrap();
+        let first_pointers = delta_proposal_pointers(&first);
+        let second_pointers = delta_proposal_pointers(&second);
+        let history = MorphospaceFloat32AdvisoryReportPackageDeltaHistory::new(
+            MorphospaceFloat32AdvisoryReportPackageDeltaHistoryBounds::new(1, 2, 4).unwrap(),
+        )
+        .append(first)
+        .unwrap();
+        let totals = history.totals();
+        let (history, second) = history.append(second).unwrap_err().into_parts();
+        assert_eq!(history.totals(), totals);
+        assert_eq!(
+            delta_proposal_pointers(&history.proposals()[0]),
+            first_pointers
+        );
+        assert_eq!(delta_proposal_pointers(&second), second_pointers);
+
+        let earlier = p43_package(1, 180);
+        let later = p43_package(2, 190);
+        let earlier_pointers = nested_package_pointers(&earlier);
+        let later_pointers = nested_package_pointers(&later);
+        let (earlier, later, second) = CallerRequestedFloat32ComparativeAdvisoryEvidenceOwner::new(
+            CallerRequestedFloat32ComparativeAdvisoryEvidenceBounds::new(7).unwrap(),
+        )
+        .compose(earlier, later, second)
+        .unwrap_err()
+        .into_parts();
+        assert_eq!(nested_package_pointers(&earlier), earlier_pointers);
+        assert_eq!(nested_package_pointers(&later), later_pointers);
+        assert_eq!(delta_proposal_pointers(&second), second_pointers);
     }
 }
