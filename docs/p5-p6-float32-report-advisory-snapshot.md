@@ -7,6 +7,13 @@ inputs and returns them intact on success or every typed failure. The snapshot
 therefore retains the complete source evidence and every original Float32
 sample allocation; it does not clone, normalize, or reconstruct a report.
 
+The companion P40 stability-history owner retains complete actual P39
+stability proposals, including their actual P38 histories, in caller insertion
+order. Together the two P40 owners are qualified with exactly five focused
+actual-type tests apiece; the tests cover allocation identity, deterministic
+order, fallible bounds, conversions and overflow, complete rollback with every
+input on failure, and a caller-requested snapshot that cannot apply its advice.
+
 The caller supplies nonzero bounds for observation windows, deltas, evidence
 per delta, stability evidence, and the complete ordered evidence index. Every
 size-to-index conversion and evidence-cardinality addition is checked. The

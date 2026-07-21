@@ -479,6 +479,7 @@ mod tests {
     #[test]
     fn owner_is_crate_private_default_inert_and_denies_external_authority() {
         let source = include_str!("morphospace_float32_report_window_stability_history.rs");
+        let root = include_str!("lib.rs");
         for forbidden in [
             concat!("pub ", "struct"),
             concat!("fn ap", "ply("),
@@ -489,6 +490,9 @@ mod tests {
         ] {
             assert!(!source.contains(forbidden));
         }
+        assert!(root.contains("mod morphospace_float32_report_window_stability_history;"));
+        assert!(!root.contains("pub mod morphospace_float32_report_window_stability_history;"));
+        assert!(!root.contains("pub use morphospace_float32_report_window_stability_history"));
         assert!(
             !include_str!("runtime.rs").contains("MorphospaceFloat32ReportWindowStabilityHistory")
         );

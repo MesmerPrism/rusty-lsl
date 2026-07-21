@@ -643,6 +643,7 @@ mod tests {
     #[test]
     fn source_and_shared_surfaces_remain_non_applying_and_private() {
         let source = include_str!("morphospace_float32_report_advisory_snapshot.rs");
+        let root = include_str!("lib.rs");
         for forbidden in [
             concat!("fn ap", "ply("),
             concat!("fn ac", "cept("),
@@ -652,6 +653,9 @@ mod tests {
         ] {
             assert!(!source.contains(forbidden));
         }
+        assert!(root.contains("mod morphospace_float32_report_advisory_snapshot;"));
+        assert!(!root.contains("pub mod morphospace_float32_report_advisory_snapshot;"));
+        assert!(!root.contains("pub use morphospace_float32_report_advisory_snapshot"));
         assert!(!include_str!("runtime.rs").contains("MorphospaceFloat32ReportAdvisorySnapshot"));
     }
 }
