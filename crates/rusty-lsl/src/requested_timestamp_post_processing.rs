@@ -12,21 +12,56 @@ use crate::{DerivedTimestampKind, TimestampedSample};
 const MAX_HISTORY_SAMPLES: usize = 4_096;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) enum RequestedTimestampPostProcessing {
+pub enum RequestedTimestampPostProcessing {
     PassThrough,
     Monotonic(RequestedTimestampPostProcessingConfig),
     DeJitter(RequestedTimestampPostProcessingConfig),
 }
 
+impl RequestedTimestampPostProcessing {
+    /// Requests that the effective timestamp pass through unchanged.
+    pub const fn pass_through() -> Self {
+        Self::PassThrough
+    }
+
+    /// Requests bounded monotonic timestamp post-processing.
+    pub const fn monotonic(config: RequestedTimestampPostProcessingConfig) -> Self {
+        Self::Monotonic(config)
+    }
+
+    /// Requests bounded de-jitter timestamp post-processing.
+    pub const fn de_jitter(config: RequestedTimestampPostProcessingConfig) -> Self {
+        Self::DeJitter(config)
+    }
+
+    /// Returns the caller-requested mode kind without inferring a mode.
+    pub const fn kind(self) -> RequestedTimestampPostProcessingKind {
+        match self {
+            Self::PassThrough => RequestedTimestampPostProcessingKind::PassThrough,
+            Self::Monotonic(_) => RequestedTimestampPostProcessingKind::Monotonic,
+            Self::DeJitter(_) => RequestedTimestampPostProcessingKind::DeJitter,
+        }
+    }
+
+    /// Returns the caller-supplied bounded configuration, when the mode uses one.
+    pub const fn configuration(self) -> Option<RequestedTimestampPostProcessingConfig> {
+        match self {
+            Self::PassThrough => None,
+            Self::Monotonic(config) | Self::DeJitter(config) => Some(config),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct RequestedTimestampPostProcessingConfig {
+pub struct RequestedTimestampPostProcessingConfig {
     history_samples: usize,
     minimum_step: f64,
     maximum_adjustment: f64,
 }
 
 impl RequestedTimestampPostProcessingConfig {
-    pub(crate) fn new(
+    /// Constructs a bounded configuration for an explicitly requested stateful mode.
+    pub fn new(
         history_samples: usize,
         minimum_step: f64,
         maximum_adjustment: f64,
@@ -61,19 +96,22 @@ impl RequestedTimestampPostProcessingConfig {
         })
     }
 
-    pub(crate) const fn history_samples(self) -> usize {
+    /// Returns the maximum number of input timestamps retained by the processor.
+    pub const fn history_samples(self) -> usize {
         self.history_samples
     }
-    pub(crate) const fn minimum_step(self) -> f64 {
+    /// Returns the strictly positive minimum output step.
+    pub const fn minimum_step(self) -> f64 {
         self.minimum_step
     }
-    pub(crate) const fn maximum_adjustment(self) -> f64 {
+    /// Returns the maximum permitted absolute adjustment.
+    pub const fn maximum_adjustment(self) -> f64 {
         self.maximum_adjustment
     }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum RequestedTimestampPostProcessingConfigError {
+pub enum RequestedTimestampPostProcessingConfigError {
     HistorySamples {
         expected_min: usize,
         expected_max: usize,
@@ -91,7 +129,7 @@ pub(crate) enum RequestedTimestampPostProcessingConfigError {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum RequestedTimestampPostProcessingKind {
+pub enum RequestedTimestampPostProcessingKind {
     PassThrough,
     Monotonic,
     DeJitter,
@@ -99,35 +137,37 @@ pub(crate) enum RequestedTimestampPostProcessingKind {
 
 /// The only successful dispositions produced by this non-discarding owner.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum RequestedTimestampPostProcessingDisposition {
+pub enum RequestedTimestampPostProcessingDisposition {
     RetainedUnchanged,
     RetainedChanged,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum RequestedEffectiveTimestampSource {
+pub enum RequestedEffectiveTimestampSource {
     RawSource,
     ExistingDerived(DerivedTimestampKind),
     ProjectPostProcessed,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct RequestedEffectiveTimestamp {
+pub struct RequestedEffectiveTimestamp {
     value: f64,
     source: RequestedEffectiveTimestampSource,
 }
 
 impl RequestedEffectiveTimestamp {
-    pub(crate) const fn value(self) -> f64 {
+    /// Returns the effective timestamp value selected or produced by the requested mode.
+    pub const fn value(self) -> f64 {
         self.value
     }
-    pub(crate) const fn source(self) -> RequestedEffectiveTimestampSource {
+    /// Returns the exact source classification for the effective timestamp.
+    pub const fn source(self) -> RequestedEffectiveTimestampSource {
         self.source
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct RequestedTimestampPostProcessingFacts {
+pub struct RequestedTimestampPostProcessingFacts {
     kind: RequestedTimestampPostProcessingKind,
     input_timestamp: f64,
     effective_timestamp: RequestedEffectiveTimestamp,
@@ -138,25 +178,32 @@ pub(crate) struct RequestedTimestampPostProcessingFacts {
 }
 
 impl RequestedTimestampPostProcessingFacts {
-    pub(crate) const fn kind(&self) -> RequestedTimestampPostProcessingKind {
+    /// Returns the explicitly requested mode kind.
+    pub const fn kind(&self) -> RequestedTimestampPostProcessingKind {
         self.kind
     }
-    pub(crate) const fn input_timestamp(&self) -> f64 {
+    /// Returns the timestamp supplied to the requested algorithm.
+    pub const fn input_timestamp(&self) -> f64 {
         self.input_timestamp
     }
-    pub(crate) const fn effective_timestamp(&self) -> RequestedEffectiveTimestamp {
+    /// Returns the effective timestamp and its exact source classification.
+    pub const fn effective_timestamp(&self) -> RequestedEffectiveTimestamp {
         self.effective_timestamp
     }
-    pub(crate) const fn adjustment(&self) -> f64 {
+    /// Returns `effective_timestamp().value() - input_timestamp()`.
+    pub const fn adjustment(&self) -> f64 {
         self.adjustment
     }
-    pub(crate) const fn disposition(&self) -> RequestedTimestampPostProcessingDisposition {
+    /// Returns whether the non-discarding processor changed the effective value.
+    pub const fn disposition(&self) -> RequestedTimestampPostProcessingDisposition {
         self.disposition
     }
-    pub(crate) const fn retained_history_samples(&self) -> usize {
+    /// Returns the exact number of history samples retained after this result.
+    pub const fn retained_history_samples(&self) -> usize {
         self.retained_history_samples
     }
-    pub(crate) const fn state_advanced(&self) -> bool {
+    /// Returns whether this result advanced state in the crate-private processor.
+    pub const fn state_advanced(&self) -> bool {
         self.state_advanced
     }
 }
@@ -576,6 +623,65 @@ mod tests {
         assert!(candidate.input_history.capacity() >= 4);
     }
     use crate::{DerivedTimestamp, RawSourceTimestamp, Sample, SampleLimits};
+
+    #[test]
+    fn p60_public_mode_constructors_and_accessors_are_exact_and_non_inferential() {
+        let bounded = RequestedTimestampPostProcessingConfig::new(17, 0.125, 4.5).unwrap();
+        assert_eq!(bounded.history_samples(), 17);
+        assert_eq!(bounded.minimum_step().to_bits(), 0.125_f64.to_bits());
+        assert_eq!(bounded.maximum_adjustment().to_bits(), 4.5_f64.to_bits());
+
+        let pass_through = RequestedTimestampPostProcessing::pass_through();
+        assert_eq!(
+            pass_through.kind(),
+            RequestedTimestampPostProcessingKind::PassThrough
+        );
+        assert_eq!(pass_through.configuration(), None);
+
+        for (request, expected) in [
+            (
+                RequestedTimestampPostProcessing::monotonic(bounded),
+                RequestedTimestampPostProcessingKind::Monotonic,
+            ),
+            (
+                RequestedTimestampPostProcessing::de_jitter(bounded),
+                RequestedTimestampPostProcessingKind::DeJitter,
+            ),
+        ] {
+            assert_eq!(request.kind(), expected);
+            assert_eq!(request.configuration(), Some(bounded));
+        }
+    }
+
+    #[test]
+    fn p60_public_configuration_errors_preserve_exact_bounds_and_bits() {
+        assert_eq!(
+            RequestedTimestampPostProcessingConfig::new(1, 0.5, 1.0),
+            Err(
+                RequestedTimestampPostProcessingConfigError::HistorySamples {
+                    expected_min: 2,
+                    expected_max: 4_096,
+                    actual: 1,
+                }
+            )
+        );
+        assert_eq!(
+            RequestedTimestampPostProcessingConfig::new(2, -0.0, 1.0),
+            Err(
+                RequestedTimestampPostProcessingConfigError::InvalidMinimumStep {
+                    bits: (-0.0_f64).to_bits(),
+                }
+            )
+        );
+        assert_eq!(
+            RequestedTimestampPostProcessingConfig::new(2, 0.5, f64::NAN),
+            Err(
+                RequestedTimestampPostProcessingConfigError::InvalidMaximumAdjustment {
+                    bits: f64::NAN.to_bits(),
+                }
+            )
+        );
+    }
 
     fn sample(
         timestamp: f64,
