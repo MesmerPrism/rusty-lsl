@@ -1,5 +1,12 @@
 # Rusty LSL
 
+P58 closes the remaining Float32 discovery-execution seam and adds one
+caller-explicit, format-neutral facade over all seven concrete formats. The
+facade retains each existing typed lifecycle owner and adds no ambient
+discovery, retry, codec, session, cleanup, or activation authority. See
+`docs/p58-float32-complete-discovery-lifecycle.md` and
+`docs/p58-coherent-all-format-discovery-lifecycle.md`.
+
 P57 completes the bounded discovery-to-session seam for Double64, Int64,
 Int32, Int16, Int8, and String. Concrete root and `runtime` entry points run
 the existing explicitly activated bounded discovery owner, apply the existing

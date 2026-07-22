@@ -2,6 +2,11 @@
 
 ## Complete named discovery to multiformat session
 
+P58 completes the Float32 form of the same bounded lifecycle and projects all
+seven concrete formats through one caller-explicit facade. The facade is a
+closed dispatch edge, not a new discovery, selection, codec, session, close,
+cleanup, retry, background-work, or activation owner.
+
 P57 composes the existing bounded UDP discovery run and exact stream-name
 suggestion with the selected-response and phased session owners for Double64,
 Int64, Int32, Int16, Int8, and String. The order is fixed: explicitly

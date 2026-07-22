@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+P58 adds the final Float32 discovery-to-cleanup composition and the
+`complete_typed_udp_discovery_lifecycle` facade for caller-explicit dispatch
+across every concrete format. Preserve the facade as delegation only: concrete
+format owners retain validation, codec, session, close, and cleanup authority,
+and all discovery/session activation and cancellation remain caller-owned.
+
 P57 adds concrete root/runtime qualification for complete bounded discovery,
 exact caller-named receive-order selection, selected-response validation,
 connection, phased transfer, canonical completion, and cleanup across

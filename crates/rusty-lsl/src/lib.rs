@@ -84,6 +84,7 @@ mod caller_requested_float32_retained_comparative_snapshot_report_history;
 mod caller_requested_float32_retained_report_evidence_cursor;
 mod clock_filter_selection;
 mod clock_offset_application;
+mod complete_typed_udp_discovery_lifecycle;
 pub mod contract;
 mod descriptor_sample;
 mod documented_discovery_destination;
@@ -280,6 +281,12 @@ pub use clock_filter_selection::{
 };
 pub use clock_offset_application::{
     ClockOffset, ClockOffsetApplication, ClockOffsetApplicationError, ClockOffsetError,
+};
+pub use complete_typed_udp_discovery_lifecycle::{
+    run_complete_typed_udp_discovery_lifecycle, CompleteTypedUdpDiscoveryError,
+    CompleteTypedUdpDiscoveryFormat, CompleteTypedUdpDiscoveryOutput,
+    CompleteTypedUdpDiscoveryRequest, CompleteTypedUdpDiscoveryRequestError,
+    CompleteTypedUdpDiscoveryResult, CompleteTypedUdpDiscoverySessionRequest,
 };
 pub use descriptor_sample::{
     BoundDescriptorSample, DescriptorSampleBound, DescriptorSampleError, DescriptorSampleInput,
@@ -557,7 +564,9 @@ pub use typed_udp_discovery_float32_session_connection::{
     connect_selected_typed_udp_discovery_float32_session_inlet,
     resolve_selected_typed_udp_discovery_float32_session_inlet,
     run_selected_typed_udp_discovery_float32_session_inlet,
-    ResolvedTypedUdpDiscoveryFloat32Session, TypedUdpDiscoveryFloat32SessionConnectionError,
+    run_typed_udp_discovery_float32_session_inlet, CompletedTypedUdpDiscoveryFloat32Lifecycle,
+    ResolvedTypedUdpDiscoveryFloat32Session, TypedUdpDiscoveryFloat32CompleteLifecycleError,
+    TypedUdpDiscoveryFloat32SessionConnectionError,
 };
 pub use typed_udp_discovery_handshake::{
     run_selected_typed_udp_discovery_inlet_handshake, TypedUdpDiscoveryHandshakeError,

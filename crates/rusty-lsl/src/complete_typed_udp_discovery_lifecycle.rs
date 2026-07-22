@@ -14,7 +14,9 @@ use std::sync::atomic::AtomicBool;
 /// authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[non_exhaustive]
+#[allow(missing_docs)]
 pub enum CompleteTypedUdpDiscoveryFormat {
+    Float32,
     Int8,
     Int16,
     Int32,
@@ -25,6 +27,7 @@ pub enum CompleteTypedUdpDiscoveryFormat {
 
 /// Request rejected before discovery or session I/O begins.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
 pub enum CompleteTypedUdpDiscoveryRequestError {
     EmptyStreamName,
     ZeroChannelCount,
@@ -34,7 +37,13 @@ pub enum CompleteTypedUdpDiscoveryRequestError {
 /// Format-specific activation and bounded session limits.
 #[derive(Debug)]
 #[non_exhaustive]
+#[allow(missing_docs)]
 pub enum CompleteTypedUdpDiscoverySessionRequest {
+    Float32 {
+        activation: TimestampedFloat32SampleActivation,
+        sample_limits: TimestampedFloat32SampleLimits,
+        session_limits: TimestampedFloat32SessionLimits,
+    },
     Int8 {
         activation: FixedWidthNumericSampleActivation,
         io_limits: TimestampedInt8SessionIoLimits,
@@ -68,8 +77,10 @@ pub enum CompleteTypedUdpDiscoverySessionRequest {
 }
 
 impl CompleteTypedUdpDiscoverySessionRequest {
+    /// Returns the concrete sample format selected by this request.
     pub const fn format(&self) -> CompleteTypedUdpDiscoveryFormat {
         match self {
+            Self::Float32 { .. } => CompleteTypedUdpDiscoveryFormat::Float32,
             Self::Int8 { .. } => CompleteTypedUdpDiscoveryFormat::Int8,
             Self::Int16 { .. } => CompleteTypedUdpDiscoveryFormat::Int16,
             Self::Int32 { .. } => CompleteTypedUdpDiscoveryFormat::Int32,
@@ -96,6 +107,7 @@ pub struct CompleteTypedUdpDiscoveryRequest<'a> {
 }
 
 impl<'a> CompleteTypedUdpDiscoveryRequest<'a> {
+    /// Validates caller bounds and constructs one explicit lifecycle request.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         discovery_activation: UdpDiscoveryActivation,
@@ -126,10 +138,12 @@ impl<'a> CompleteTypedUdpDiscoveryRequest<'a> {
         })
     }
 
+    /// Returns the concrete format selected for this lifecycle.
     pub const fn format(&self) -> CompleteTypedUdpDiscoveryFormat {
         self.session.format()
     }
 
+    /// Returns the exact caller-provided stream name.
     pub const fn stream_name(&self) -> &str {
         self.stream_name
     }
@@ -155,7 +169,9 @@ fn validate_request_bounds(
 /// The unchanged concrete owner returned by the selected format lifecycle.
 #[derive(Debug)]
 #[non_exhaustive]
+#[allow(missing_docs)]
 pub enum CompleteTypedUdpDiscoveryOutput {
+    Float32(CompletedTypedUdpDiscoveryFloat32Lifecycle),
     Int8(CompletedTypedUdpDiscoveryInt8Lifecycle),
     Int16(CompletedTypedUdpDiscoveryInt16Lifecycle),
     Int32(CompletedTypedUdpDiscoveryInt32Lifecycle),
@@ -165,8 +181,10 @@ pub enum CompleteTypedUdpDiscoveryOutput {
 }
 
 impl CompleteTypedUdpDiscoveryOutput {
+    /// Returns the concrete format of this completed output.
     pub const fn format(&self) -> CompleteTypedUdpDiscoveryFormat {
         match self {
+            Self::Float32(_) => CompleteTypedUdpDiscoveryFormat::Float32,
             Self::Int8(_) => CompleteTypedUdpDiscoveryFormat::Int8,
             Self::Int16(_) => CompleteTypedUdpDiscoveryFormat::Int16,
             Self::Int32(_) => CompleteTypedUdpDiscoveryFormat::Int32,
@@ -179,6 +197,7 @@ impl CompleteTypedUdpDiscoveryOutput {
     /// Receive-order identity retained by complete owners that expose it.
     pub const fn response_index(&self) -> Option<usize> {
         match self {
+            Self::Float32(value) => Some(value.response_index()),
             Self::Int8(value) => Some(value.response_index()),
             Self::Int16(value) => Some(value.response_index()),
             Self::Int32(value) => Some(value.response_index()),
@@ -196,14 +215,17 @@ pub struct CompleteTypedUdpDiscoveryResult {
 }
 
 impl CompleteTypedUdpDiscoveryResult {
+    /// Returns the exact caller-provided stream name retained by the result.
     pub fn stream_name(&self) -> &str {
         &self.stream_name
     }
 
+    /// Borrows the unchanged concrete lifecycle output.
     pub const fn output(&self) -> &CompleteTypedUdpDiscoveryOutput {
         &self.output
     }
 
+    /// Consumes the facade result and returns its concrete lifecycle output.
     pub fn into_output(self) -> CompleteTypedUdpDiscoveryOutput {
         self.output
     }
@@ -212,7 +234,9 @@ impl CompleteTypedUdpDiscoveryResult {
 /// Stage-preserving failure from the selected concrete lifecycle.
 #[derive(Debug)]
 #[non_exhaustive]
+#[allow(missing_docs)]
 pub enum CompleteTypedUdpDiscoveryError {
+    Float32(TypedUdpDiscoveryFloat32CompleteLifecycleError),
     Int8(TypedUdpDiscoveryInt8CompleteLifecycleError),
     Int16(TypedUdpDiscoveryInt16CompleteLifecycleError),
     Int32(TypedUdpDiscoveryInt32CompleteLifecycleError),
@@ -222,8 +246,10 @@ pub enum CompleteTypedUdpDiscoveryError {
 }
 
 impl CompleteTypedUdpDiscoveryError {
+    /// Returns the concrete format whose lifecycle failed.
     pub const fn format(&self) -> CompleteTypedUdpDiscoveryFormat {
         match self {
+            Self::Float32(_) => CompleteTypedUdpDiscoveryFormat::Float32,
             Self::Int8(_) => CompleteTypedUdpDiscoveryFormat::Int8,
             Self::Int16(_) => CompleteTypedUdpDiscoveryFormat::Int16,
             Self::Int32(_) => CompleteTypedUdpDiscoveryFormat::Int32,
@@ -259,6 +285,30 @@ pub fn run_complete_typed_udp_discovery_lifecycle(
     } = request;
 
     let output = match session {
+        CompleteTypedUdpDiscoverySessionRequest::Float32 {
+            activation,
+            sample_limits,
+            session_limits,
+        } => CompleteTypedUdpDiscoveryOutput::Float32(
+            run_typed_udp_discovery_float32_session_inlet(
+                discovery_activation,
+                discovery_config,
+                query,
+                discovery_cancelled,
+                envelope_limits,
+                admission_limits,
+                stream_name,
+                activation,
+                expected_identity,
+                handshake_limits,
+                sample_limits,
+                session_limits,
+                channel_count,
+                record_count,
+                session_cancelled,
+            )
+            .map_err(CompleteTypedUdpDiscoveryError::Float32)?,
+        ),
         CompleteTypedUdpDiscoverySessionRequest::Int8 {
             activation,
             io_limits,
@@ -426,6 +476,7 @@ mod tests {
             CompleteTypedUdpDiscoveryFormat::Double64
         );
         let variants = [
+            CompleteTypedUdpDiscoveryFormat::Float32,
             CompleteTypedUdpDiscoveryFormat::Int8,
             CompleteTypedUdpDiscoveryFormat::Int16,
             CompleteTypedUdpDiscoveryFormat::Int32,
@@ -433,7 +484,7 @@ mod tests {
             CompleteTypedUdpDiscoveryFormat::Double64,
             CompleteTypedUdpDiscoveryFormat::String,
         ];
-        assert_eq!(variants.len(), 6);
+        assert_eq!(variants.len(), 7);
     }
 
     #[test]
