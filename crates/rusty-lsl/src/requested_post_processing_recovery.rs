@@ -66,11 +66,20 @@ pub enum RequestedPostProcessingRecoveryConfigError {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RequestedPostProcessingRecoveryDisposition {
     /// A sample was recovered on this one-based attempt.
-    Recovered { successful_attempt: usize },
+    Recovered {
+        /// One-based attempt on which recovery succeeded.
+        successful_attempt: usize,
+    },
     /// Retryable failures consumed this exact number of attempts.
-    Exhausted { attempts: usize },
+    Exhausted {
+        /// Exact number of consumed attempts.
+        attempts: usize,
+    },
     /// Cancellation was observed after this exact number of completed attempts.
-    Cancelled { completed_attempts: usize },
+    Cancelled {
+        /// Exact attempts completed before cancellation.
+        completed_attempts: usize,
+    },
 }
 
 impl RequestedPostProcessingRecoveryDisposition {
@@ -91,11 +100,17 @@ pub enum RequestedPostProcessingSequenceLossFact {
     /// The sample was contiguous with the prior high-water sequence.
     Contiguous,
     /// The sample advanced with this exact intervening missing extent.
-    Gap { missing_sequence_count: u64 },
+    Gap {
+        /// Exact positive intervening sequence extent.
+        missing_sequence_count: u64,
+    },
     /// The sample repeated the current high-water sequence.
     Duplicate,
     /// The sample was behind the current high-water sequence by this exact distance.
-    OutOfOrder { behind_high_water_by: u64 },
+    OutOfOrder {
+        /// Exact positive distance behind the high-water sequence.
+        behind_high_water_by: u64,
+    },
 }
 
 /// One caller-supplied completed recovery observation.
@@ -181,15 +196,29 @@ impl RequestedPostProcessingRecoverySnapshot {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RequestedPostProcessingRecoveryError {
     /// The configured observation bound was already reached.
-    ObservationLimitReached { limit: u64 },
+    ObservationLimitReached {
+        /// Configured observation limit.
+        limit: u64,
+    },
     /// A required one-based attempt count was zero.
     ZeroAttempts {
+        /// Contradictory supplied disposition.
         disposition: RequestedPostProcessingRecoveryDisposition,
     },
     /// The supplied attempt fact exceeded the configured per-observation bound.
-    AttemptLimitExceeded { limit: usize, actual: usize },
+    AttemptLimitExceeded {
+        /// Configured per-observation attempt limit.
+        limit: usize,
+        /// Supplied attempt count.
+        actual: usize,
+    },
     /// Exhaustion was claimed before every configured attempt was consumed.
-    ExhaustionBeforeAttemptLimit { required: usize, actual: usize },
+    ExhaustionBeforeAttemptLimit {
+        /// Required exact exhaustion count.
+        required: usize,
+        /// Supplied attempt count.
+        actual: usize,
+    },
     /// A non-recovered disposition contradicted sample sequence evidence.
     SequenceLossWithoutRecoveredSample,
     /// A gap claimed no missing sequence.
@@ -197,11 +226,19 @@ pub enum RequestedPostProcessingRecoveryError {
     /// An out-of-order fact claimed no distance behind the high-water sequence.
     ZeroOutOfOrderDistance,
     /// The cumulative exact missing-sequence bound would be exceeded.
-    ExplicitMissingSequenceLimitExceeded { limit: u64, required: u64 },
+    ExplicitMissingSequenceLimitExceeded {
+        /// Configured cumulative missing-sequence limit.
+        limit: u64,
+        /// Cumulative extent required by the observation.
+        required: u64,
+    },
     /// An exact counter could not represent the accepted total.
     CounterOverflow,
     /// The platform attempt count could not be represented by the public counter.
-    AttemptCountNotRepresentable { actual: usize },
+    AttemptCountNotRepresentable {
+        /// Platform attempt count that could not be represented.
+        actual: usize,
+    },
 }
 
 /// Fixed-size owner of exact recovery, cancellation, and sequence-loss observations.

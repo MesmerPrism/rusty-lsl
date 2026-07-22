@@ -57,15 +57,30 @@ pub enum RequestedPostProcessingQueueHealthConfigError {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RequestedPostProcessingQueueObservation {
     /// One processed item was accepted; `queue_len_after` is the resulting length.
-    Accepted { queue_len_after: usize },
+    Accepted {
+        /// Exact queue length after admission.
+        queue_len_after: usize,
+    },
     /// The caller explicitly dropped one item; the queue itself makes no drop decision.
-    Dropped { queue_len: usize },
+    Dropped {
+        /// Exact retained queue length.
+        queue_len: usize,
+    },
     /// Admission observed a full queue.
-    Backpressure { queue_len: usize },
+    Backpressure {
+        /// Exact full queue length.
+        queue_len: usize,
+    },
     /// Queue closure was observed at the stated retained length.
-    Closed { queue_len: usize },
+    Closed {
+        /// Exact retained queue length at closure.
+        queue_len: usize,
+    },
     /// Caller cancellation prevented admission at the stated queue length.
-    Cancelled { queue_len: usize },
+    Cancelled {
+        /// Exact retained queue length at cancellation.
+        queue_len: usize,
+    },
 }
 
 impl RequestedPostProcessingQueueObservation {
@@ -95,38 +110,47 @@ pub struct RequestedPostProcessingQueueHealthSnapshot {
 }
 
 impl RequestedPostProcessingQueueHealthSnapshot {
+    /// Returns the separately owned queue's fixed capacity.
     #[must_use]
     pub const fn capacity(self) -> usize {
         self.capacity
     }
+    /// Returns the exact admitted observation count.
     #[must_use]
     pub const fn observation_count(self) -> u64 {
         self.observation_count
     }
+    /// Returns the exact accepted count.
     #[must_use]
     pub const fn accepted_count(self) -> u64 {
         self.accepted_count
     }
+    /// Returns the exact caller-dropped count.
     #[must_use]
     pub const fn dropped_count(self) -> u64 {
         self.dropped_count
     }
+    /// Returns the exact full-queue backpressure count.
     #[must_use]
     pub const fn backpressure_count(self) -> u64 {
         self.backpressure_count
     }
+    /// Returns the exact closure count.
     #[must_use]
     pub const fn closed_count(self) -> u64 {
         self.closed_count
     }
+    /// Returns the exact cancelled-admission count.
     #[must_use]
     pub const fn cancelled_count(self) -> u64 {
         self.cancelled_count
     }
+    /// Returns the maximum exact observed queue length.
     #[must_use]
     pub const fn high_water_len(self) -> usize {
         self.high_water_len
     }
+    /// Returns the last admitted exact queue fact.
     #[must_use]
     pub const fn last_observation(self) -> Option<RequestedPostProcessingQueueObservation> {
         self.last_observation

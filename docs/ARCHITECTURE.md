@@ -1187,3 +1187,11 @@ the socket. The new layer consumes its completed run, preserves local address
 and termination, and projects each admitted response in receive order through
 LSLC-004U using caller limits. It adds only fallible bounded output allocation
 and a zero-based response index around unchanged typed projection failures.
+# P61 requested-processing recovery/queue observability
+
+The P61 facade binds an already completed P60 Float32 requested timestamp
+processing lifecycle to caller-supplied exact observations from the existing
+finite-recovery and bounded-queue owners. It stages both bounded data-only
+observers and commits their immutable health together, so a projection refusal
+cannot partially advance composed state. See
+`p61-requested-processing-recovery-queue-observability.md`.

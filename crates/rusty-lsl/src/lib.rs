@@ -86,6 +86,7 @@ mod clock_filter_selection;
 mod clock_offset_application;
 mod complete_typed_udp_discovery_float32_batch_lifecycle;
 mod complete_typed_udp_discovery_float32_requested_post_processing_lifecycle;
+mod complete_typed_udp_discovery_float32_requested_post_processing_recovery_queue_lifecycle;
 mod complete_typed_udp_discovery_lifecycle;
 pub mod contract;
 mod descriptor_sample;
@@ -124,6 +125,8 @@ mod morphospace_float32_retained_advisory_summary;
 mod morphospace_float32_retained_advisory_summary_history;
 mod morphospace_float32_retained_report_evidence_export_proposal;
 mod raw_clock_exchange;
+mod requested_post_processing_queue_health;
+mod requested_post_processing_recovery;
 mod requested_timestamp_post_processing;
 mod requested_timestamp_post_processing_loss_health;
 pub mod runtime;
@@ -299,6 +302,11 @@ pub use complete_typed_udp_discovery_float32_requested_post_processing_lifecycle
     CompleteTypedUdpDiscoveryFloat32SequenceClassification,
     CompletedTypedUdpDiscoveryFloat32RequestedPostProcessingLifecycle,
 };
+pub use complete_typed_udp_discovery_float32_requested_post_processing_recovery_queue_lifecycle::{
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingRecoveryQueueError,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingRecoveryQueueHealth,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingRecoveryQueueLifecycle,
+};
 pub use complete_typed_udp_discovery_lifecycle::{
     run_complete_typed_udp_discovery_lifecycle, CompleteTypedUdpDiscoveryError,
     CompleteTypedUdpDiscoveryFormat, CompleteTypedUdpDiscoveryOutput,
@@ -363,6 +371,17 @@ pub use metadata_xml_projection::{
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,
     RawClockExchangeFormulaStage, RawClockExchangeInputError, RawClockExchangeTimestampRole,
+};
+pub use requested_post_processing_queue_health::{
+    RequestedPostProcessingQueueHealth, RequestedPostProcessingQueueHealthConfig,
+    RequestedPostProcessingQueueHealthConfigError, RequestedPostProcessingQueueHealthError,
+    RequestedPostProcessingQueueHealthSnapshot, RequestedPostProcessingQueueObservation,
+};
+pub use requested_post_processing_recovery::{
+    RequestedPostProcessingRecoveryConfig, RequestedPostProcessingRecoveryConfigError,
+    RequestedPostProcessingRecoveryDisposition, RequestedPostProcessingRecoveryError,
+    RequestedPostProcessingRecoveryObservation, RequestedPostProcessingRecoveryObserver,
+    RequestedPostProcessingRecoverySnapshot, RequestedPostProcessingSequenceLossFact,
 };
 pub use requested_timestamp_post_processing::{
     RequestedEffectiveTimestamp, RequestedEffectiveTimestampSource,

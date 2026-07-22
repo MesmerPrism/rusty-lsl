@@ -1,5 +1,9 @@
 # Rusty LSL
 
+P61 adds public transactional observability that binds completed Float32
+caller-requested timestamp processing to exact finite-recovery/cancellation and
+bounded queue/backpressure health while preserving each runtime owner.
+
 P60 makes caller-requested timestamp modes and bounded configuration public,
 then exposes the complete Float32 discovery/session/processing lifecycle through
 safe success, health, record, and error projections. Private transactional

@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+P61 composes a borrowed completed P60 Float32 requested-processing lifecycle
+with exact finite-recovery and bounded-queue outcome observations. The new
+owner transactionally projects immutable processing, recovery, cancellation,
+backpressure, and loss health without owning or repeating discovery,
+connection, processing, recovery, queue admission, or loss classification.
+Terminal recovery bypasses processing and queue evidence; every refusal leaves
+P61 state unchanged. Activation remains explicit and default-disabled, with no
+inference, retry, background work, device, Makepad, or Manifold authority.
+
 P60 exposes caller-requested timestamp modes/configuration and safe public
 Float32 transactional lifecycle evidence without leaking private processors,
 batch owners, or mutable health state. Preserve explicit caller choice, exact
