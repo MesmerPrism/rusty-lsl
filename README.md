@@ -1,5 +1,13 @@
 # Rusty LSL
 
+P65 adds a public transactional composition between exact caller-owned
+whole-session lifecycle evidence and a caller-authored advisory proposal.
+Identity/provenance, P64 execution extent, selection, lifecycle, processing,
+terminal, cleanup, recovery, loss, and health drift refuse before either value
+is published. Unknown facts remain explicit, and the successful result is
+inert data with no applying or Manifold authority. See
+`docs/p65-stream-lifecycle-advisory-composition.md`.
+
 P64 adds a public, bounded, data-only advisory composition over the exact P63
 execution observation. Caller-bound opaque identity, budget, committed-cycle
 extent, and per-cycle facts must all match before the proposal commits; drift

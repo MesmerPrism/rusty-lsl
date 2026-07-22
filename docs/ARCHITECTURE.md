@@ -1232,3 +1232,20 @@ incomplete, or no-committed-cycle classification. It has no application edge.
 Manifold retains schema, command, admission, route, lease, revision,
 authorization, scheduling, and audit authority; all execution and activation
 owners remain unchanged and activation stays explicit and default-disabled.
+
+## P65 stream lifecycle advisory composition
+
+P65 admits one complete caller-owned whole-session fact set through the private
+bounded observation owner, then transactionally binds it to a caller-authored
+proposal. The facade compares caller and authorship provenance, byte-exact
+source/session/stream identity, opaque expected discovery/session/stream
+identity, receive-order selection, and exact P64 source, execution, budget, and
+committed extent. The subordinate observation additionally validates lifecycle
+ordering and exact processing, terminal, close, cleanup, recovery, loss, and
+health consistency.
+
+No unavailable fact becomes success or zero: owner-unexposed identity,
+not-observed recovery/health/cleanup, and unreported loss remain distinct
+typed states. Successful composition retains the exact observation facts and
+the proposal's `InertAdvisoryOnly` disposition. It has no execution or applying
+edge; existing lifecycle owners and Manifold retain all runtime authority.

@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+P65 transactionally composes caller-supplied whole-session lifecycle facts with
+one caller-authored default-inert advisory. Exact caller/native identity,
+proposal provenance, P64 source/execution/budget/extent, receive-order
+selection, lifecycle ordering, processing, terminal, close, cleanup, recovery,
+loss, and health facts must agree before composition commits. Explicit unknown
+or not-observed states remain unchanged. The result is data-only and grants no
+execution, connection, close, retry, recovery, scheduling, queue, route,
+admission, authorization, lease, audit, activation, or Manifold authority.
+
 P64 publicly composes the exact bounded P63 execution observation with a
 default-inert advisory proposal. The caller binds opaque source/execution
 identity, budget, committed-cycle extent, and exact per-cycle facts;

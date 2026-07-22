@@ -129,6 +129,11 @@ mod morphospace_float32_retained_report_evidence_export_proposal;
 mod morphospace_requested_processing_execution_advisory;
 mod morphospace_requested_processing_execution_advisory_proposal;
 mod morphospace_requested_processing_execution_observation;
+#[allow(missing_docs)]
+mod morphospace_stream_lifecycle_advisory;
+#[allow(missing_docs)]
+mod morphospace_stream_lifecycle_advisory_proposal;
+mod morphospace_stream_lifecycle_observation;
 mod raw_clock_exchange;
 mod requested_post_processing_queue_health;
 mod requested_post_processing_recovery;
@@ -397,6 +402,28 @@ pub use morphospace_requested_processing_execution_advisory::{
     MorphospaceRequestedProcessingExecutionAdvisoryProposal,
     MorphospaceRequestedProcessingExecutionAdvisoryProvenance,
     MorphospaceRequestedProcessingExecutionCycleProvenance,
+};
+pub use morphospace_stream_lifecycle_advisory::{
+    compose_morphospace_stream_lifecycle_advisory, MorphospaceStreamLifecycleAdvisory,
+    MorphospaceStreamLifecycleAdvisoryBinding, MorphospaceStreamLifecycleAdvisoryCompositionError,
+    MorphospaceStreamLifecycleCleanup, MorphospaceStreamLifecycleClose,
+    MorphospaceStreamLifecycleConnection, MorphospaceStreamLifecycleExecution,
+    MorphospaceStreamLifecycleFacts, MorphospaceStreamLifecycleHealth,
+    MorphospaceStreamLifecycleIdentity, MorphospaceStreamLifecycleIdentityEvidence,
+    MorphospaceStreamLifecycleLimits, MorphospaceStreamLifecycleLimitsError,
+    MorphospaceStreamLifecycleLoss, MorphospaceStreamLifecycleProcessing,
+    MorphospaceStreamLifecycleRecovery, MorphospaceStreamLifecycleSelection,
+    MorphospaceStreamLifecycleTerminal,
+};
+pub use morphospace_stream_lifecycle_advisory_proposal::{
+    MorphospaceStreamLifecycleAdvisoryBudgets, MorphospaceStreamLifecycleAdvisoryDisposition,
+    MorphospaceStreamLifecycleAdvisoryDraft, MorphospaceStreamLifecycleAdvisoryError,
+    MorphospaceStreamLifecycleAdvisoryProposal, MorphospaceStreamLifecycleAdvisoryRefusal,
+    MorphospaceStreamLifecycleCallerProvenance, MorphospaceStreamLifecycleExpectedIdentity,
+    MorphospaceStreamLifecycleIntent, MorphospaceStreamLifecycleObservationBinding,
+    MorphospaceStreamLifecyclePostProcessingIntent, MorphospaceStreamLifecyclePrecondition,
+    MorphospaceStreamLifecycleProposalIdentity, MorphospaceStreamLifecycleRequestedClose,
+    MorphospaceStreamLifecycleRequestedDisposition,
 };
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,
