@@ -3,16 +3,22 @@
 
 //! Default-inert production entrypoint for admitted Float32 report post-processing.
 
-use crate::caller_requested_float32_report_post_processing_admission::CallerRequestedFloat32ReportPostProcessingPlan;
+use crate::caller_requested_float32_report_post_processing_admission::{
+    CallerRequestedFloat32ReportPostProcessingAdmission,
+    CallerRequestedFloat32ReportPostProcessingAdmissionError,
+    CallerRequestedFloat32ReportPostProcessingPlan,
+};
 use crate::float32_session_report_post_processing_batch::{
     Float32PostProcessingBatchConfigError, Float32PostProcessingBatchError,
     Float32PostProcessingBatchOutcome, Float32SessionReportPostProcessingBatch,
 };
 use crate::requested_timestamp_post_processing::RequestedTimestampPostProcessing;
+use crate::TimestampedFloat32InletSessionReport;
 
 /// Pre-delegation or owner-preserving transactional refusal.
 #[derive(Debug)]
 pub(crate) enum CallerRequestedFloat32ReportPostProcessingError {
+    Admission(CallerRequestedFloat32ReportPostProcessingAdmissionError),
     AdmissionMismatch {
         expected_request: RequestedTimestampPostProcessing,
         actual_request: RequestedTimestampPostProcessing,
@@ -47,6 +53,23 @@ impl CallerRequestedFloat32ReportPostProcessing {
 
     pub(crate) const fn maximum_records(&self) -> usize {
         self.batch.maximum_records()
+    }
+
+    /// Admits one canonical report against this owner's bound, then processes it transactionally.
+    pub(crate) fn process_requested_report(
+        &mut self,
+        request: RequestedTimestampPostProcessing,
+        sequences: Vec<u64>,
+        report: TimestampedFloat32InletSessionReport,
+    ) -> Result<Float32PostProcessingBatchOutcome, CallerRequestedFloat32ReportPostProcessingError>
+    {
+        let admission =
+            CallerRequestedFloat32ReportPostProcessingAdmission::new(self.batch.maximum_records())
+                .expect("a constructed post-processing owner has a representable nonzero bound");
+        let plan = admission
+            .admit(request, sequences, report)
+            .map_err(CallerRequestedFloat32ReportPostProcessingError::Admission)?;
+        self.process_report(plan)
     }
 
     /// Validates the admitted owner identity before consuming one plan in one P34 delegation.
@@ -202,6 +225,70 @@ mod tests {
                 pointer
             );
         }
+    }
+
+    #[test]
+    fn requested_report_pipeline_admits_and_processes_the_canonical_report() {
+        let report = report(&[10.0, 11.0]);
+        let record_pointers: Vec<_> = report
+            .records()
+            .iter()
+            .map(|record| record.sample().values().as_ptr())
+            .collect();
+        let sequences = vec![40, 43];
+        let mut owner = CallerRequestedFloat32ReportPostProcessing::new(2, request()).unwrap();
+
+        let outcome = owner
+            .process_requested_report(request(), sequences, report)
+            .unwrap();
+
+        assert_eq!(
+            outcome
+                .records()
+                .iter()
+                .map(|record| record.sequence())
+                .collect::<Vec<_>>(),
+            vec![40, 43]
+        );
+        for (record, pointer) in outcome.records().iter().zip(record_pointers) {
+            assert_eq!(
+                record.processed().sample().sample().values().as_ptr(),
+                pointer
+            );
+        }
+    }
+
+    #[test]
+    fn requested_report_pipeline_admission_refusal_retains_all_inputs() {
+        let report = report(&[10.0, 11.0]);
+        let record_pointer = report.records()[0].sample().values().as_ptr();
+        let sequences = vec![40];
+        let sequence_pointer = sequences.as_ptr();
+        let mut owner = CallerRequestedFloat32ReportPostProcessing::new(2, request()).unwrap();
+
+        match owner
+            .process_requested_report(request(), sequences, report)
+            .unwrap_err()
+        {
+            CallerRequestedFloat32ReportPostProcessingError::Admission(
+                CallerRequestedFloat32ReportPostProcessingAdmissionError::SequenceExtentMismatch {
+                    request: returned_request,
+                    sequences,
+                    report,
+                    sequence_count: 1,
+                    report_record_count: 2,
+                },
+            ) => {
+                assert_eq!(returned_request, request());
+                assert_eq!(sequences.as_ptr(), sequence_pointer);
+                assert_eq!(
+                    report.records()[0].sample().values().as_ptr(),
+                    record_pointer
+                );
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
+        assert_eq!(owner.batch.health().observation_count(), 0);
     }
 
     #[test]
