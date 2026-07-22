@@ -520,7 +520,9 @@ pub use typed_short_info_response_observation::{
 };
 pub use typed_udp_discovery_double64_session_connection::{
     connect_selected_typed_udp_discovery_double64_session_inlet,
+    run_named_typed_udp_discovery_double64_session_inlet,
     run_selected_typed_udp_discovery_double64_session_inlet,
+    TypedUdpDiscoveryDouble64CompleteLifecycleError,
     TypedUdpDiscoveryDouble64SessionConnectionError,
 };
 pub use typed_udp_discovery_endpoint::{
@@ -569,8 +571,14 @@ pub use typed_udp_discovery_integer_session_connection::{
     run_selected_typed_udp_discovery_int32_session_inlet,
     run_selected_typed_udp_discovery_int64_session_inlet,
     run_selected_typed_udp_discovery_int8_session_inlet,
-    TypedUdpDiscoveryInt16SessionConnectionError, TypedUdpDiscoveryInt32SessionConnectionError,
-    TypedUdpDiscoveryInt64SessionConnectionError, TypedUdpDiscoveryInt8SessionConnectionError,
+    run_typed_udp_discovery_int16_session_inlet, run_typed_udp_discovery_int32_session_inlet,
+    run_typed_udp_discovery_int64_session_inlet, run_typed_udp_discovery_int8_session_inlet,
+    CompletedTypedUdpDiscoveryInt16Lifecycle, CompletedTypedUdpDiscoveryInt32Lifecycle,
+    CompletedTypedUdpDiscoveryInt64Lifecycle, CompletedTypedUdpDiscoveryInt8Lifecycle,
+    TypedUdpDiscoveryInt16CompleteLifecycleError, TypedUdpDiscoveryInt16SessionConnectionError,
+    TypedUdpDiscoveryInt32CompleteLifecycleError, TypedUdpDiscoveryInt32SessionConnectionError,
+    TypedUdpDiscoveryInt64CompleteLifecycleError, TypedUdpDiscoveryInt64SessionConnectionError,
+    TypedUdpDiscoveryInt8CompleteLifecycleError, TypedUdpDiscoveryInt8SessionConnectionError,
 };
 pub use typed_udp_discovery_response::{TypedUdpDiscoveryResponse, TypedUdpDiscoveryResponseError};
 pub use typed_udp_discovery_run::{
@@ -581,8 +589,9 @@ pub use typed_udp_discovery_selection::{
 };
 pub use typed_udp_discovery_string_session_connection::{
     connect_selected_typed_udp_discovery_string_session_inlet,
+    run_named_typed_udp_discovery_string_session_inlet,
     run_selected_typed_udp_discovery_string_session_inlet,
-    TypedUdpDiscoveryStringSessionConnectionError,
+    TypedUdpDiscoveryStringCompleteLifecycleError, TypedUdpDiscoveryStringSessionConnectionError,
 };
 pub use udp_discovery::{
     run_udp_discovery, UdpDiscoveryActivation, UdpDiscoveryActivationError, UdpDiscoveryConfig,

@@ -59,15 +59,24 @@ pub enum TypedUdpDiscoveryDouble64SessionConnectionError {
 /// Failure from one caller-explicit discovery, exact-name selection, and Double64 session run.
 #[derive(Debug, PartialEq)]
 pub enum TypedUdpDiscoveryDouble64CompleteLifecycleError {
+    /// Bounded discovery failed before any response could be selected.
     Discovery(TypedUdpDiscoveryRunError),
+    /// A discovered response failed typed-selection validation.
     Selection(TypedUdpDiscoverySelectionError),
+    /// No validated discovery response had the caller-requested stream name.
     NoMatchingStreamName {
+        /// Exact stream name requested by the caller.
         stream_name: String,
+        /// Completed discovery run retained for diagnosis and retry policy.
         discovery: TypedUdpDiscoveryRun,
     },
+    /// Connecting the selected Double64 response failed.
     Connection(TypedUdpDiscoveryDouble64SessionConnectionError),
+    /// The connected Double64 transfer failed.
     Transfer(TimestampedDouble64SessionTransferError),
+    /// The peer ended the transfer before the requested sample count completed.
     Incomplete(TimestampedDouble64SessionIncomplete),
+    /// The Double64 session failed during lifecycle completion or cleanup.
     Session(TimestampedDouble64SessionError),
 }
 

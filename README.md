@@ -1,5 +1,18 @@
 # Rusty LSL
 
+P57 completes the bounded discovery-to-session seam for Double64, Int64,
+Int32, Int16, Int8, and String. Concrete root and `runtime` entry points run
+the existing explicitly activated bounded discovery owner, apply the existing
+exact nonempty stream-name suggestion in receive order, validate the selected
+response, then delegate connection, phased transfer, canonical completion, and
+cleanup to the existing per-format session owners. Integer success retains the
+completed discovery run and selected index beside the canonical report;
+Double64 and String return their unchanged canonical reports while typed
+failures preserve discovery, selection/no-match, connection, transfer, and
+completion boundaries. There is no automatic or ambiguous selection, retry,
+background work, activation default, new codec, device, Makepad, or Manifold
+authority.
+
 The concrete selected-discovery Float32 session-batch facade preserves one
 caller-selected response and receive-order index through strict endpoint
 projection, the sole phased Float32 session, and its canonical completed

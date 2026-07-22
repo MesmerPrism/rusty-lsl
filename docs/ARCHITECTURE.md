@@ -1,5 +1,19 @@
 # Architecture
 
+## Complete named discovery to multiformat session
+
+P57 composes the existing bounded UDP discovery run and exact stream-name
+suggestion with the selected-response and phased session owners for Double64,
+Int64, Int32, Int16, Int8, and String. The order is fixed: explicitly
+activated discovery, first receive-order exact-name suggestion, strict endpoint
+and format/channel/identity validation, socket-free preflight, connection,
+successful-only record advancement, canonical completion, and cleanup.
+Integer outcomes retain the completed discovery and selected index with their
+canonical reports; Double64 and String preserve the same evidence in typed
+failure variants and return their existing reports on success. No generic
+strategy, hidden retry, ranking, background task, activation default, codec,
+device, Makepad, or Manifold stream authority is introduced.
+
 ## Selected discovery to Float32 session batch
 
 `typed_udp_discovery_float32_session_batch_pipeline` is a concrete composition:

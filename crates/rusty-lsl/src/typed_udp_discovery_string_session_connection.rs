@@ -58,15 +58,24 @@ pub enum TypedUdpDiscoveryStringSessionConnectionError {
 /// Failure from one caller-explicit discovery, exact-name selection, and String session run.
 #[derive(Debug, PartialEq)]
 pub enum TypedUdpDiscoveryStringCompleteLifecycleError {
+    /// Bounded discovery failed before any response could be selected.
     Discovery(TypedUdpDiscoveryRunError),
+    /// A discovered response failed typed-selection validation.
     Selection(TypedUdpDiscoverySelectionError),
+    /// No validated discovery response had the caller-requested stream name.
     NoMatchingStreamName {
+        /// Exact stream name requested by the caller.
         stream_name: String,
+        /// Completed discovery run retained for diagnosis and retry policy.
         discovery: TypedUdpDiscoveryRun,
     },
+    /// Connecting the selected String response failed.
     Connection(TypedUdpDiscoveryStringSessionConnectionError),
+    /// The connected String transfer failed.
     Transfer(TimestampedStringSessionTransferError),
+    /// The peer ended the transfer before the requested sample count completed.
     Incomplete(TimestampedStringSessionIncomplete),
+    /// The String session failed during lifecycle completion or cleanup.
     Session(TimestampedStringSessionError),
 }
 

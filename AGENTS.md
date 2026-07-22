@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+P57 adds concrete root/runtime qualification for complete bounded discovery,
+exact caller-named receive-order selection, selected-response validation,
+connection, phased transfer, canonical completion, and cleanup across
+Double64, Int64, Int32, Int16, Int8, and String. Existing discovery,
+selection, format-specific session, codec, allocation, cancellation, deadline,
+terminal-close, and cleanup owners remain sole authorities. Selection is never
+automatic or ambiguous; activation remains explicit/default-disabled, and no
+retry, background work, device, Makepad, or Manifold authority is added.
+
 The frozen selected-discovery Float32 session-batch facade adds only concrete
 root/runtime exports and public qualification for one caller-selected response
 and index. Strict endpoint projection precedes the sole phased Float32 session;
