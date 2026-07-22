@@ -84,6 +84,8 @@ mod caller_requested_float32_retained_comparative_snapshot_report_history;
 mod caller_requested_float32_retained_report_evidence_cursor;
 mod clock_filter_selection;
 mod clock_offset_application;
+mod complete_typed_udp_discovery_float32_batch_lifecycle;
+mod complete_typed_udp_discovery_float32_requested_post_processing_lifecycle;
 mod complete_typed_udp_discovery_lifecycle;
 pub mod contract;
 mod descriptor_sample;
@@ -281,6 +283,10 @@ pub use clock_filter_selection::{
 };
 pub use clock_offset_application::{
     ClockOffset, ClockOffsetApplication, ClockOffsetApplicationError, ClockOffsetError,
+};
+pub use complete_typed_udp_discovery_float32_batch_lifecycle::{
+    run_complete_typed_udp_discovery_float32_batch_lifecycle,
+    CompleteTypedUdpDiscoveryFloat32BatchError, CompleteTypedUdpDiscoveryFloat32BatchOutcome,
 };
 pub use complete_typed_udp_discovery_lifecycle::{
     run_complete_typed_udp_discovery_lifecycle, CompleteTypedUdpDiscoveryError,

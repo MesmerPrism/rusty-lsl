@@ -1,5 +1,14 @@
 # Architecture
 
+## Complete named Float32 production pipelines
+
+P59 carries exact caller-named discovery and canonical Float32 session
+completion into the public recovery/clock/queue batch and the existing
+crate-owned transactional caller-requested post-processing owner. These are
+composition edges only. Discovery, selection, session, recovery, clock, queue, processing,
+health, terminal close, cleanup, allocation, cancellation, and activation keep
+their existing sole owners and typed evidence.
+
 ## Complete named discovery to multiformat session
 
 P58 completes the Float32 form of the same bounded lifecycle and projects all

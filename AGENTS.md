@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+P59 composes exact caller-named Float32 discovery and canonical session
+completion into the existing recovery/clock/queue batch and transactional
+caller-requested post-processing owners. Preserve discovery, selection,
+stage-specific errors, retained allocations, committed health, close, cleanup,
+and explicit activation unchanged. Do not add automatic selection, inference,
+retry policy, background work, default activation, device, Makepad, or
+Manifold authority.
+
 P58 adds the final Float32 discovery-to-cleanup composition and the
 `complete_typed_udp_discovery_lifecycle` facade for caller-explicit dispatch
 across every concrete format. Preserve the facade as delegation only: concrete

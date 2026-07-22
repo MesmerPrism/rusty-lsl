@@ -1,5 +1,13 @@
 # Rusty LSL
 
+P59 extends the complete caller-named Float32 lifecycle through the public
+bounded recovery/clock/queue batch and the existing crate-owned transactional
+caller-requested report post-processing tail. Both compositions retain exact
+discovery and selection evidence, existing typed failures, committed health,
+terminal close and cleanup, and explicit default-disabled activation. See
+`docs/p59-complete-float32-batch-lifecycle.md` and
+`docs/p59-complete-float32-requested-post-processing-lifecycle.md`.
+
 P58 closes the remaining Float32 discovery-execution seam and adds one
 caller-explicit, format-neutral facade over all seven concrete formats. The
 facade retains each existing typed lifecycle owner and adds no ambient
