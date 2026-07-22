@@ -12,6 +12,7 @@ use crate::{DerivedTimestampKind, TimestampedSample};
 const MAX_HISTORY_SAMPLES: usize = 4_096;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub enum RequestedTimestampPostProcessing {
     PassThrough,
     Monotonic(RequestedTimestampPostProcessingConfig),
@@ -53,6 +54,7 @@ impl RequestedTimestampPostProcessing {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub struct RequestedTimestampPostProcessingConfig {
     history_samples: usize,
     minimum_step: f64,
@@ -111,6 +113,7 @@ impl RequestedTimestampPostProcessingConfig {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
 pub enum RequestedTimestampPostProcessingConfigError {
     HistorySamples {
         expected_min: usize,
@@ -129,6 +132,7 @@ pub enum RequestedTimestampPostProcessingConfigError {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
 pub enum RequestedTimestampPostProcessingKind {
     PassThrough,
     Monotonic,
@@ -137,12 +141,14 @@ pub enum RequestedTimestampPostProcessingKind {
 
 /// The only successful dispositions produced by this non-discarding owner.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
 pub enum RequestedTimestampPostProcessingDisposition {
     RetainedUnchanged,
     RetainedChanged,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
 pub enum RequestedEffectiveTimestampSource {
     RawSource,
     ExistingDerived(DerivedTimestampKind),
@@ -150,6 +156,7 @@ pub enum RequestedEffectiveTimestampSource {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub struct RequestedEffectiveTimestamp {
     value: f64,
     source: RequestedEffectiveTimestampSource,
@@ -167,6 +174,7 @@ impl RequestedEffectiveTimestamp {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(missing_docs)]
 pub struct RequestedTimestampPostProcessingFacts {
     kind: RequestedTimestampPostProcessingKind,
     input_timestamp: f64,

@@ -1,5 +1,11 @@
 # Rusty LSL
 
+P60 makes caller-requested timestamp modes and bounded configuration public,
+then exposes the complete Float32 discovery/session/processing lifecycle through
+safe success, health, record, and error projections. Private transactional
+owners remain private. See `docs/p60-public-requested-timestamp-contract.md`
+and `docs/p60-public-complete-requested-processing-evidence.md`.
+
 P59 extends the complete caller-named Float32 lifecycle through the public
 bounded recovery/clock/queue batch and the existing crate-owned transactional
 caller-requested report post-processing tail. Both compositions retain exact

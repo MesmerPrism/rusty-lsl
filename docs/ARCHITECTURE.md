@@ -1,5 +1,12 @@
 # Architecture
 
+## Public requested-processing boundary
+
+P60 projects caller-selected timestamp modes, bounded configuration, exact
+health, record facts, and stage-specific refusal evidence without exporting
+the private processor or transactional batch owners. The public surface is a
+read-only evidence boundary over the existing rollback-safe composition.
+
 ## Complete named Float32 production pipelines
 
 P59 carries exact caller-named discovery and canonical Float32 session

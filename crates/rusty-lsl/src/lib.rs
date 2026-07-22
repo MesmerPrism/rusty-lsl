@@ -288,6 +288,17 @@ pub use complete_typed_udp_discovery_float32_batch_lifecycle::{
     run_complete_typed_udp_discovery_float32_batch_lifecycle,
     CompleteTypedUdpDiscoveryFloat32BatchError, CompleteTypedUdpDiscoveryFloat32BatchOutcome,
 };
+pub use complete_typed_udp_discovery_float32_requested_post_processing_lifecycle::{
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessing,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingConfigError,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingError,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingErrorClassification,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingErrorStage,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingHealth,
+    CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingRecord,
+    CompleteTypedUdpDiscoveryFloat32SequenceClassification,
+    CompletedTypedUdpDiscoveryFloat32RequestedPostProcessingLifecycle,
+};
 pub use complete_typed_udp_discovery_lifecycle::{
     run_complete_typed_udp_discovery_lifecycle, CompleteTypedUdpDiscoveryError,
     CompleteTypedUdpDiscoveryFormat, CompleteTypedUdpDiscoveryOutput,
@@ -352,6 +363,12 @@ pub use metadata_xml_projection::{
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,
     RawClockExchangeFormulaStage, RawClockExchangeInputError, RawClockExchangeTimestampRole,
+};
+pub use requested_timestamp_post_processing::{
+    RequestedEffectiveTimestamp, RequestedEffectiveTimestampSource,
+    RequestedTimestampPostProcessing, RequestedTimestampPostProcessingConfig,
+    RequestedTimestampPostProcessingConfigError, RequestedTimestampPostProcessingDisposition,
+    RequestedTimestampPostProcessingFacts, RequestedTimestampPostProcessingKind,
 };
 pub use runtime_activation::{
     admit_runtime_activation, RuntimeActivationAdmission, RuntimeActivationError,

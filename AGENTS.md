@@ -1,5 +1,11 @@
 # Rusty LSL Agent Notes
 
+P60 exposes caller-requested timestamp modes/configuration and safe public
+Float32 transactional lifecycle evidence without leaking private processors,
+batch owners, or mutable health state. Preserve explicit caller choice, exact
+sequence facts, rollback-safe commits, discovery/selection evidence, and
+default-disabled activation; add no inference, retry, or parallel authority.
+
 P59 composes exact caller-named Float32 discovery and canonical session
 completion into the existing recovery/clock/queue batch and transactional
 caller-requested post-processing owners. Preserve discovery, selection,

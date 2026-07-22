@@ -1,6 +1,8 @@
 // Copyright (C) 2026 Rusty LSL contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+#![allow(missing_docs)]
+
 //! Complete caller-named Float32 discovery/session lifecycle followed by one
 //! caller-requested transactional report post-processing operation.
 
