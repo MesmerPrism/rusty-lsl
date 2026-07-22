@@ -12,8 +12,9 @@ use crate::{
     FixedWidthNumericSampleActivation, StreamHandshakeIdentity, StreamHandshakeIdentityRole,
     StreamHandshakeLimits, TimestampedDouble64ConnectedInletSession,
     TimestampedDouble64InletSession, TimestampedDouble64InletSessionReport,
-    TimestampedDouble64SessionError, TimestampedDouble64SessionIoLimits,
-    TimestampedDouble64SessionLimits, TimestampedDouble64SessionPreflightError,
+    TimestampedDouble64SessionError, TimestampedDouble64SessionIncomplete,
+    TimestampedDouble64SessionIoLimits, TimestampedDouble64SessionLimits,
+    TimestampedDouble64SessionPreflightError, TimestampedDouble64SessionTransferError,
     TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
 };
 use std::sync::atomic::AtomicBool;
@@ -50,6 +51,111 @@ pub enum TypedUdpDiscoveryDouble64SessionConnectionError {
     Preflight(TimestampedDouble64SessionPreflightError),
     /// Connect, transfer, terminal close, or cleanup failed.
     Session(TimestampedDouble64SessionError),
+}
+
+/// Connected Double64 inlet retaining the caller-selected discovery identity.
+pub struct ConnectedSelectedTypedUdpDiscoveryDouble64Session<'a> {
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    session: TimestampedDouble64ConnectedInletSession,
+}
+
+impl<'a> ConnectedSelectedTypedUdpDiscoveryDouble64Session<'a> {
+    pub const fn discovery(&self) -> &'a TypedUdpDiscoveryRun {
+        self.discovery
+    }
+    pub const fn response_index(&self) -> usize {
+        self.response_index
+    }
+    pub fn peer(&self) -> std::net::SocketAddr {
+        self.session.peer()
+    }
+    pub fn channel_count(&self) -> usize {
+        self.session.channel_count()
+    }
+    pub fn record_count(&self) -> usize {
+        self.session.record_count()
+    }
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_record_count()
+    }
+    pub fn received_records(&self) -> &[crate::TimestampedSample<f64>] {
+        self.session.received_records()
+    }
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedDouble64SessionTransferError> {
+        self.session.transfer_next(cancelled)
+    }
+    pub fn complete(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        Result<
+            CompletedSelectedTypedUdpDiscoveryDouble64Session<'a>,
+            TimestampedDouble64SessionError,
+        >,
+        TimestampedDouble64SessionIncomplete,
+    > {
+        let Self {
+            discovery,
+            response_index,
+            session,
+        } = self;
+        session.complete(cancelled).map(|result| {
+            result.map(|report| CompletedSelectedTypedUdpDiscoveryDouble64Session {
+                discovery,
+                response_index,
+                report,
+            })
+        })
+    }
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        CompletedSelectedTypedUdpDiscoveryDouble64Session<'a>,
+        TimestampedDouble64SessionError,
+    > {
+        let Self {
+            discovery,
+            response_index,
+            session,
+        } = self;
+        session
+            .finish(cancelled)
+            .map(|report| CompletedSelectedTypedUdpDiscoveryDouble64Session {
+                discovery,
+                response_index,
+                report,
+            })
+    }
+    pub fn close(self) {
+        self.session.close();
+    }
+}
+
+/// Canonically completed Double64 report retaining the caller-selected discovery identity.
+pub struct CompletedSelectedTypedUdpDiscoveryDouble64Session<'a> {
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    report: TimestampedDouble64InletSessionReport,
+}
+
+impl<'a> CompletedSelectedTypedUdpDiscoveryDouble64Session<'a> {
+    pub const fn discovery(&self) -> &'a TypedUdpDiscoveryRun {
+        self.discovery
+    }
+    pub const fn response_index(&self) -> usize {
+        self.response_index
+    }
+    pub const fn report(&self) -> &TimestampedDouble64InletSessionReport {
+        &self.report
+    }
+    pub fn into_report(self) -> TimestampedDouble64InletSessionReport {
+        self.report
+    }
 }
 
 fn contract_error(
@@ -123,8 +229,8 @@ impl<'a> TimestampedDouble64InletSession<'a> {
 /// transfer, canonical completion, allocation ownership, and report-free close. This adapter owns
 /// no discovery, ranking, retry, identity derivation, codec, cursor, lifecycle, socket, or report.
 #[allow(clippy::too_many_arguments)]
-pub fn connect_selected_typed_udp_discovery_double64_session_inlet(
-    discovery: &TypedUdpDiscoveryRun,
+pub fn connect_selected_typed_udp_discovery_double64_session_inlet<'a>(
+    discovery: &'a TypedUdpDiscoveryRun,
     response_index: usize,
     session_activation: FixedWidthNumericSampleActivation,
     expected_identity: &StreamHandshakeIdentity,
@@ -134,8 +240,10 @@ pub fn connect_selected_typed_udp_discovery_double64_session_inlet(
     channel_count: usize,
     record_count: usize,
     session_cancelled: &AtomicBool,
-) -> Result<TimestampedDouble64ConnectedInletSession, TypedUdpDiscoveryDouble64SessionConnectionError>
-{
+) -> Result<
+    ConnectedSelectedTypedUdpDiscoveryDouble64Session<'a>,
+    TypedUdpDiscoveryDouble64SessionConnectionError,
+> {
     let session = TimestampedDouble64InletSession::preflight_selected_typed_udp_discovery(
         discovery,
         response_index,
@@ -147,9 +255,14 @@ pub fn connect_selected_typed_udp_discovery_double64_session_inlet(
         channel_count,
         record_count,
     )?;
-    session
+    let session = session
         .connect(session_cancelled)
-        .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Session)
+        .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Session)?;
+    Ok(ConnectedSelectedTypedUdpDiscoveryDouble64Session {
+        discovery,
+        response_index,
+        session,
+    })
 }
 
 /// Runs the selected bounded Double64 inlet to its canonical completion report.
@@ -180,6 +293,7 @@ pub fn run_selected_typed_udp_discovery_double64_session_inlet(
         session_cancelled,
     )?
     .finish(session_cancelled)
+    .map(CompletedSelectedTypedUdpDiscoveryDouble64Session::into_report)
     .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Session)
 }
 
@@ -385,7 +499,7 @@ mod tests {
         });
         let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), channels));
         let expected_identity = identity();
-        let preflighted = TimestampedDouble64InletSession::preflight_selected_typed_udp_discovery(
+        let mut connected = connect_selected_typed_udp_discovery_double64_session_inlet(
             &discovery,
             0,
             session_activation(),
@@ -395,20 +509,25 @@ mod tests {
             TimestampedDouble64SessionLimits::new(channels, count).unwrap(),
             channels,
             count,
+            &AtomicBool::new(false),
         )
         .unwrap();
-        let mut connected = preflighted.connect(&AtomicBool::new(false)).unwrap();
         assert_eq!(discovery.responses().len(), 1);
+        assert!(std::ptr::eq(connected.discovery(), &discovery));
+        assert_eq!(connected.response_index(), 0);
         assert_eq!(connected.peer(), endpoint);
         for completed in 1..=count {
             connected.transfer_next(&AtomicBool::new(false)).unwrap();
             assert_eq!(connected.completed_record_count(), completed);
         }
-        let report = connected
+        let completed = connected
             .complete(&AtomicBool::new(false))
             .unwrap()
             .unwrap();
-        let actual_bits: Vec<Vec<u64>> = report
+        assert!(std::ptr::eq(completed.discovery(), &discovery));
+        assert_eq!(completed.response_index(), 0);
+        let actual_bits: Vec<Vec<u64>> = completed
+            .report()
             .records()
             .iter()
             .map(|record| {
@@ -422,6 +541,58 @@ mod tests {
             .collect();
         assert_eq!(actual_bits, expected_bits);
         assert_eq!(outlet.join().unwrap().record_count(), count);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p56_double64_transfer_failure_retains_selection_and_close_reuses_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let outlet = thread::spawn(move || {
+            let sent = records(2, 3);
+            TimestampedDouble64OutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                io_limits(),
+                TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+                &sent,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap()
+            .close()
+        });
+        let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), 2));
+        let mut connected = connect_selected_typed_udp_discovery_double64_session_inlet(
+            &discovery,
+            0,
+            session_activation(),
+            &identity(),
+            handshake_limits(),
+            io_limits(),
+            TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+            2,
+            3,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert!(matches!(
+            connected.transfer_next(&AtomicBool::new(true)),
+            Err(TimestampedDouble64SessionTransferError::Session(
+                TimestampedDouble64SessionError::Record {
+                    index: None,
+                    error: crate::FixedWidthNumericSampleError::Cancelled
+                }
+            ))
+        ));
+        assert!(std::ptr::eq(connected.discovery(), &discovery));
+        assert_eq!(connected.response_index(), 0);
+        assert_eq!(connected.completed_record_count(), 0);
+        assert!(connected.received_records().is_empty());
+        connected.close();
+        outlet.join().unwrap();
         TcpListener::bind(endpoint).unwrap();
     }
 

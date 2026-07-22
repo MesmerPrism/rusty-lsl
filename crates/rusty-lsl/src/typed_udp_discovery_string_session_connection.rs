@@ -12,7 +12,8 @@ use crate::{
     StreamHandshakeIdentityRole, StreamHandshakeLimits, StringSampleActivation, StringSampleLimits,
     TimestampedStringConnectedInletSession, TimestampedStringInletSession,
     TimestampedStringInletSessionReport, TimestampedStringSessionError,
-    TimestampedStringSessionLimits, TimestampedStringSessionPreflightError,
+    TimestampedStringSessionIncomplete, TimestampedStringSessionLimits,
+    TimestampedStringSessionPreflightError, TimestampedStringSessionTransferError,
     TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
 };
 use std::sync::atomic::AtomicBool;
@@ -49,6 +50,106 @@ pub enum TypedUdpDiscoveryStringSessionConnectionError {
     Preflight(TimestampedStringSessionPreflightError),
     /// Connect, transfer, terminal close, or cleanup failed.
     Session(TimestampedStringSessionError),
+}
+
+/// Connected String inlet retaining the caller-selected discovery identity.
+pub struct ConnectedSelectedTypedUdpDiscoveryStringSession<'a> {
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    session: TimestampedStringConnectedInletSession,
+}
+
+impl<'a> ConnectedSelectedTypedUdpDiscoveryStringSession<'a> {
+    pub const fn discovery(&self) -> &'a TypedUdpDiscoveryRun {
+        self.discovery
+    }
+    pub const fn response_index(&self) -> usize {
+        self.response_index
+    }
+    pub fn peer(&self) -> std::net::SocketAddr {
+        self.session.peer()
+    }
+    pub fn channel_count(&self) -> usize {
+        self.session.channel_count()
+    }
+    pub fn record_count(&self) -> usize {
+        self.session.record_count()
+    }
+    pub fn completed_record_count(&self) -> usize {
+        self.session.completed_record_count()
+    }
+    pub fn received_records(&self) -> &[crate::StringSampleRecord] {
+        self.session.received_records()
+    }
+    pub fn transfer_next(
+        &mut self,
+        cancelled: &AtomicBool,
+    ) -> Result<(), TimestampedStringSessionTransferError> {
+        self.session.transfer_next(cancelled)
+    }
+    pub fn complete(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<
+        Result<CompletedSelectedTypedUdpDiscoveryStringSession<'a>, TimestampedStringSessionError>,
+        TimestampedStringSessionIncomplete,
+    > {
+        let Self {
+            discovery,
+            response_index,
+            session,
+        } = self;
+        session.complete(cancelled).map(|result| {
+            result.map(|report| CompletedSelectedTypedUdpDiscoveryStringSession {
+                discovery,
+                response_index,
+                report,
+            })
+        })
+    }
+    pub fn finish(
+        self,
+        cancelled: &AtomicBool,
+    ) -> Result<CompletedSelectedTypedUdpDiscoveryStringSession<'a>, TimestampedStringSessionError>
+    {
+        let Self {
+            discovery,
+            response_index,
+            session,
+        } = self;
+        session
+            .finish(cancelled)
+            .map(|report| CompletedSelectedTypedUdpDiscoveryStringSession {
+                discovery,
+                response_index,
+                report,
+            })
+    }
+    pub fn close(self) {
+        self.session.close();
+    }
+}
+
+/// Canonically completed String report retaining the caller-selected discovery identity.
+pub struct CompletedSelectedTypedUdpDiscoveryStringSession<'a> {
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    report: TimestampedStringInletSessionReport,
+}
+
+impl<'a> CompletedSelectedTypedUdpDiscoveryStringSession<'a> {
+    pub const fn discovery(&self) -> &'a TypedUdpDiscoveryRun {
+        self.discovery
+    }
+    pub const fn response_index(&self) -> usize {
+        self.response_index
+    }
+    pub const fn report(&self) -> &TimestampedStringInletSessionReport {
+        &self.report
+    }
+    pub fn into_report(self) -> TimestampedStringInletSessionReport {
+        self.report
+    }
 }
 
 fn contract_error(
@@ -119,8 +220,8 @@ impl<'a> TimestampedStringInletSession<'a> {
 /// the exact 0..=129 UTF-8-byte codec, allocation ownership, damage and trailing classification,
 /// canonical completion, and report-free close.
 #[allow(clippy::too_many_arguments)]
-pub fn connect_selected_typed_udp_discovery_string_session_inlet(
-    discovery: &TypedUdpDiscoveryRun,
+pub fn connect_selected_typed_udp_discovery_string_session_inlet<'a>(
+    discovery: &'a TypedUdpDiscoveryRun,
     response_index: usize,
     session_activation: StringSampleActivation,
     expected_identity: &StreamHandshakeIdentity,
@@ -130,7 +231,10 @@ pub fn connect_selected_typed_udp_discovery_string_session_inlet(
     channel_count: usize,
     record_count: usize,
     session_cancelled: &AtomicBool,
-) -> Result<TimestampedStringConnectedInletSession, TypedUdpDiscoveryStringSessionConnectionError> {
+) -> Result<
+    ConnectedSelectedTypedUdpDiscoveryStringSession<'a>,
+    TypedUdpDiscoveryStringSessionConnectionError,
+> {
     let session = TimestampedStringInletSession::preflight_selected_typed_udp_discovery(
         discovery,
         response_index,
@@ -142,9 +246,14 @@ pub fn connect_selected_typed_udp_discovery_string_session_inlet(
         channel_count,
         record_count,
     )?;
-    session
+    let session = session
         .connect(session_cancelled)
-        .map_err(TypedUdpDiscoveryStringSessionConnectionError::Session)
+        .map_err(TypedUdpDiscoveryStringSessionConnectionError::Session)?;
+    Ok(ConnectedSelectedTypedUdpDiscoveryStringSession {
+        discovery,
+        response_index,
+        session,
+    })
 }
 
 /// Runs the selected exact 1x1 String inlet to its canonical completion report.
@@ -174,6 +283,7 @@ pub fn run_selected_typed_udp_discovery_string_session_inlet(
         session_cancelled,
     )?
     .finish(session_cancelled)
+    .map(CompletedSelectedTypedUdpDiscoveryStringSession::into_report)
     .map_err(TypedUdpDiscoveryStringSessionConnectionError::Session)
 }
 
@@ -329,32 +439,87 @@ mod tests {
             });
             let discovery = completed_discovery(document(endpoint.port()));
             let expected_identity = identity();
-            let preflighted =
-                TimestampedStringInletSession::preflight_selected_typed_udp_discovery(
-                    &discovery,
-                    0,
-                    session_activation(),
-                    &expected_identity,
-                    handshake_limits(),
-                    io_limits(),
-                    TimestampedStringSessionLimits::new(1, 1).unwrap(),
-                    1,
-                    1,
-                )
-                .unwrap();
-            let mut connected = preflighted.connect(&AtomicBool::new(false)).unwrap();
+            let mut connected = connect_selected_typed_udp_discovery_string_session_inlet(
+                &discovery,
+                0,
+                session_activation(),
+                &expected_identity,
+                handshake_limits(),
+                io_limits(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                1,
+                1,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            assert!(std::ptr::eq(connected.discovery(), &discovery));
+            assert_eq!(connected.response_index(), 0);
             connected.transfer_next(&AtomicBool::new(false)).unwrap();
             let allocation = connected.received_records()[0].value().as_ptr();
-            let report = connected
+            let completed = connected
                 .complete(&AtomicBool::new(false))
                 .unwrap()
                 .unwrap();
-            assert_eq!(report.records()[0].value(), expected);
-            assert_eq!(report.records()[0].value().as_ptr(), allocation);
+            assert!(std::ptr::eq(completed.discovery(), &discovery));
+            assert_eq!(completed.response_index(), 0);
+            assert_eq!(completed.report().records()[0].value(), expected);
+            assert_eq!(completed.report().records()[0].value().as_ptr(), allocation);
             assert_eq!(discovery.responses().len(), 1);
             outlet.join().unwrap();
             TcpListener::bind(endpoint).unwrap();
         }
+    }
+
+    #[test]
+    fn p56_string_transfer_failure_retains_selection_and_close_reuses_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let outlet = thread::spawn(move || {
+            let records = [StringSampleRecord::new(17.25, "retained".to_owned()).unwrap()];
+            TimestampedStringOutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                io_limits(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap()
+            .close()
+        });
+        let discovery = completed_discovery(document(endpoint.port()));
+        let mut connected = connect_selected_typed_udp_discovery_string_session_inlet(
+            &discovery,
+            0,
+            session_activation(),
+            &identity(),
+            handshake_limits(),
+            io_limits(),
+            TimestampedStringSessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert!(matches!(
+            connected.transfer_next(&AtomicBool::new(true)),
+            Err(TimestampedStringSessionTransferError::Session(
+                TimestampedStringSessionError::Record {
+                    index: None,
+                    error: StringSampleError::Cancelled
+                }
+            ))
+        ));
+        assert!(std::ptr::eq(connected.discovery(), &discovery));
+        assert_eq!(connected.response_index(), 0);
+        assert_eq!(connected.completed_record_count(), 0);
+        assert!(connected.received_records().is_empty());
+        connected.close();
+        outlet.join().unwrap();
+        TcpListener::bind(endpoint).unwrap();
     }
 
     #[test]
