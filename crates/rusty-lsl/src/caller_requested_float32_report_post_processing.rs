@@ -8,12 +8,86 @@ use crate::caller_requested_float32_report_post_processing_admission::{
     CallerRequestedFloat32ReportPostProcessingAdmissionError,
     CallerRequestedFloat32ReportPostProcessingPlan,
 };
+use crate::exact_sequence_loss_health::ExactSequenceLossHealthSnapshot;
 use crate::float32_session_report_post_processing_batch::{
     Float32PostProcessingBatchConfigError, Float32PostProcessingBatchError,
     Float32PostProcessingBatchOutcome, Float32SessionReportPostProcessingBatch,
 };
 use crate::requested_timestamp_post_processing::RequestedTimestampPostProcessing;
-use crate::TimestampedFloat32InletSessionReport;
+use crate::{
+    TimestampedFloat32InletSessionReport, TypedUdpDiscoveryFloat32SessionConnectionError,
+    TypedUdpDiscoveryRun,
+};
+
+/// Successful selected-discovery/session report processing result.
+#[derive(Debug)]
+pub(crate) struct SelectedCallerRequestedFloat32ReportPostProcessingOutcome<'a> {
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    processing: Float32PostProcessingBatchOutcome,
+}
+
+impl<'a> SelectedCallerRequestedFloat32ReportPostProcessingOutcome<'a> {
+    pub(crate) const fn discovery(&self) -> &'a TypedUdpDiscoveryRun {
+        self.discovery
+    }
+
+    pub(crate) const fn response_index(&self) -> usize {
+        self.response_index
+    }
+
+    pub(crate) const fn processing(&self) -> &Float32PostProcessingBatchOutcome {
+        &self.processing
+    }
+
+    /// Borrows the canonical processing result to project its exact committed health.
+    pub(crate) const fn health(&self) -> ExactSequenceLossHealthSnapshot {
+        self.processing.health()
+    }
+
+    pub(crate) fn into_processing(self) -> Float32PostProcessingBatchOutcome {
+        self.processing
+    }
+}
+
+/// Existing selected-session or transactional processing evidence.
+#[derive(Debug)]
+pub(crate) enum SelectedCallerRequestedFloat32ReportPostProcessingErrorKind {
+    Session {
+        request: RequestedTimestampPostProcessing,
+        sequences: Vec<u64>,
+        error: TypedUdpDiscoveryFloat32SessionConnectionError,
+    },
+    Processing(CallerRequestedFloat32ReportPostProcessingError),
+}
+
+/// Selected discovery identity and the unchanged failing owner evidence.
+#[derive(Debug)]
+pub(crate) struct SelectedCallerRequestedFloat32ReportPostProcessingError<'a> {
+    discovery: &'a TypedUdpDiscoveryRun,
+    response_index: usize,
+    kind: SelectedCallerRequestedFloat32ReportPostProcessingErrorKind,
+}
+
+impl<'a> SelectedCallerRequestedFloat32ReportPostProcessingError<'a> {
+    pub(crate) const fn discovery(&self) -> &'a TypedUdpDiscoveryRun {
+        self.discovery
+    }
+
+    pub(crate) const fn response_index(&self) -> usize {
+        self.response_index
+    }
+
+    pub(crate) const fn kind(
+        &self,
+    ) -> &SelectedCallerRequestedFloat32ReportPostProcessingErrorKind {
+        &self.kind
+    }
+
+    pub(crate) fn into_kind(self) -> SelectedCallerRequestedFloat32ReportPostProcessingErrorKind {
+        self.kind
+    }
+}
 
 /// Pre-delegation or owner-preserving transactional refusal.
 #[derive(Debug)]
@@ -53,6 +127,62 @@ impl CallerRequestedFloat32ReportPostProcessing {
 
     pub(crate) const fn maximum_records(&self) -> usize {
         self.batch.maximum_records()
+    }
+
+    /// Borrows this owner to project its exact committed health without moving evidence.
+    pub(crate) const fn health(&self) -> ExactSequenceLossHealthSnapshot {
+        self.batch.health()
+    }
+
+    /// Processes only a canonically completed caller-selected session report.
+    ///
+    /// Discovery and its caller-selected index remain borrowed and unchanged. A session failure
+    /// bypasses admission and processing; a completed report enters the existing transactional
+    /// owner with the caller's explicit request and sequences.
+    pub(crate) fn process_selected_session_report<'a>(
+        &mut self,
+        discovery: &'a TypedUdpDiscoveryRun,
+        response_index: usize,
+        request: RequestedTimestampPostProcessing,
+        sequences: Vec<u64>,
+        session: Result<
+            TimestampedFloat32InletSessionReport,
+            TypedUdpDiscoveryFloat32SessionConnectionError,
+        >,
+    ) -> Result<
+        SelectedCallerRequestedFloat32ReportPostProcessingOutcome<'a>,
+        SelectedCallerRequestedFloat32ReportPostProcessingError<'a>,
+    > {
+        let report = match session {
+            Ok(report) => report,
+            Err(error) => {
+                return Err(SelectedCallerRequestedFloat32ReportPostProcessingError {
+                    discovery,
+                    response_index,
+                    kind: SelectedCallerRequestedFloat32ReportPostProcessingErrorKind::Session {
+                        request,
+                        sequences,
+                        error,
+                    },
+                });
+            }
+        };
+        let processing = self
+            .process_requested_report(request, sequences, report)
+            .map_err(
+                |error| SelectedCallerRequestedFloat32ReportPostProcessingError {
+                    discovery,
+                    response_index,
+                    kind: SelectedCallerRequestedFloat32ReportPostProcessingErrorKind::Processing(
+                        error,
+                    ),
+                },
+            )?;
+        Ok(SelectedCallerRequestedFloat32ReportPostProcessingOutcome {
+            discovery,
+            response_index,
+            processing,
+        })
     }
 
     /// Admits one canonical report against this owner's bound, then processes it transactionally.
@@ -107,13 +237,18 @@ mod tests {
     use crate::requested_timestamp_post_processing::RequestedTimestampPostProcessingConfig;
     use crate::runtime_activation::test_capability;
     use crate::{
-        RawSourceTimestamp, RuntimeModule, Sample, SampleLimits, StreamHandshakeActivation,
-        StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32InletSession,
+        run_typed_udp_discovery, MetadataTreeLimits, RawSourceTimestamp, RuntimeModule, Sample,
+        SampleLimits, ShortInfoQuery, ShortInfoQueryWire, ShortInfoQueryWireLimits,
+        ShortInfoResponseEnvelopeLimits, StreamDescriptorLimits, StreamHandshakeActivation,
+        StreamHandshakeIdentity, StreamHandshakeLimits, StreamInfoObservedAdmissionLimits,
+        StreamInfoVolatileFieldLimits, TimestampedFloat32InletSession,
         TimestampedFloat32OutletSession, TimestampedFloat32SampleActivation,
-        TimestampedFloat32SampleLimits, TimestampedSample,
+        TimestampedFloat32SampleLimits, TimestampedSample, TypedUdpDiscoveryEndpointError,
+        UdpDiscoveryActivation, UdpDiscoveryConfig, UdpDiscoveryLimits,
     };
-    use std::net::TcpListener;
+    use std::net::{TcpListener, UdpSocket};
     use std::sync::atomic::AtomicBool;
+    use std::sync::mpsc::sync_channel;
     use std::thread;
     use std::time::Duration;
 
@@ -196,6 +331,210 @@ mod tests {
             .unwrap()
             .admit(request(), sequences, report(timestamps))
             .unwrap()
+    }
+
+    fn discovery() -> TypedUdpDiscoveryRun {
+        let fields = [
+            ("name", "selected"),
+            ("type", "independent"),
+            ("channel_count", "1"),
+            ("channel_format", "float32"),
+            ("source_id", "p55-source"),
+            ("nominal_srate", "100.0000000000000"),
+            ("version", "110"),
+            ("created_at", "1"),
+            ("uid", "35353535-2222-4333-8444-555555555555"),
+            ("session_id", "p55-session"),
+            ("hostname", "p55-host"),
+            ("v4address", "127.0.0.1"),
+            ("v4data_port", "43001"),
+            ("v4service_port", "43002"),
+            ("v6address", "2001:db8::10"),
+            ("v6data_port", "43003"),
+            ("v6service_port", "43004"),
+        ];
+        let mut document = String::from("<?xml version=\"1.0\"?>\n<info>\n");
+        for (name, value) in fields {
+            document.push_str(&format!("\t<{name}>{value}</{name}>\n"));
+        }
+        document.push_str("\t<desc />\n</info>\n");
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = socket.local_addr().unwrap();
+        let bytes = document.len();
+        let (ready_sender, ready_receiver) = sync_channel(0);
+        let responder = thread::spawn(move || {
+            ready_sender.send(()).unwrap();
+            let mut query = [0_u8; 256];
+            let (_, source) = socket.recv_from(&mut query).unwrap();
+            socket
+                .send_to(format!("19\r\n{document}").as_bytes(), source)
+                .unwrap();
+        });
+        ready_receiver.recv().unwrap();
+        let query_limits = ShortInfoQueryWireLimits::new(8, 128).unwrap();
+        let query = ShortInfoQueryWire::encode(
+            &ShortInfoQuery::new("selected".into(), 1, 19, query_limits).unwrap(),
+            query_limits,
+        )
+        .unwrap();
+        let run = run_typed_udp_discovery(
+            UdpDiscoveryActivation::new(test_capability(RuntimeModule::UdpDiscovery)).unwrap(),
+            UdpDiscoveryConfig::new(
+                "127.0.0.1:0".parse().unwrap(),
+                destination,
+                UdpDiscoveryLimits::new(
+                    bytes + 32,
+                    1,
+                    Duration::from_millis(5),
+                    Duration::from_secs(2),
+                )
+                .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            ),
+            &query,
+            &AtomicBool::new(false),
+            ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            StreamInfoObservedAdmissionLimits::new(
+                StreamDescriptorLimits::new(64, 64, 64, 8).unwrap(),
+                MetadataTreeLimits::new(1, 1, 1, 8, 8).unwrap(),
+                StreamInfoVolatileFieldLimits::new(64, 64, 64).unwrap(),
+            ),
+        )
+        .unwrap();
+        responder.join().unwrap();
+        run
+    }
+
+    #[test]
+    fn p55r_selected_success_preserves_context_order_bits_allocations_and_health() {
+        let discovery = discovery();
+        let report = report(&[f64::from_bits(0x4024_0000_0000_0001), 11.0]);
+        let pointers: Vec<_> = report
+            .records()
+            .iter()
+            .map(|record| record.sample().values().as_ptr())
+            .collect();
+        let mut owner = CallerRequestedFloat32ReportPostProcessing::new(2, request()).unwrap();
+        let outcome = owner
+            .process_selected_session_report(
+                &discovery,
+                0,
+                request(),
+                vec![u64::MIN, u64::MAX],
+                Ok(report),
+            )
+            .unwrap();
+
+        assert!(std::ptr::eq(outcome.discovery(), &discovery));
+        assert_eq!(outcome.response_index(), 0);
+        assert_eq!(outcome.health(), owner.health());
+        for ((record, pointer), sequence) in outcome
+            .processing()
+            .records()
+            .iter()
+            .zip(pointers)
+            .zip([u64::MIN, u64::MAX])
+        {
+            assert_eq!(record.sequence(), sequence);
+            assert_eq!(
+                record.processed().sample().sample().values().as_ptr(),
+                pointer
+            );
+        }
+        let processing = outcome.into_processing();
+        assert_eq!(
+            processing.records()[0]
+                .processed()
+                .facts()
+                .effective_timestamp()
+                .value()
+                .to_bits(),
+            0x4024_0000_0000_0001
+        );
+    }
+
+    #[test]
+    fn p55r_session_and_processing_mismatch_retain_context_inputs_and_rollback() {
+        let discovery = discovery();
+        let mut owner = CallerRequestedFloat32ReportPostProcessing::new(2, request()).unwrap();
+        let before = owner.health();
+        let session_error = TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint(
+            TypedUdpDiscoveryEndpointError::ResponseUnavailable {
+                index: 7,
+                response_count: 1,
+            },
+        );
+        let sequences = vec![91];
+        let sequence_pointer = sequences.as_ptr();
+        let error = owner
+            .process_selected_session_report(
+                &discovery,
+                7,
+                request(),
+                sequences,
+                Err(session_error),
+            )
+            .unwrap_err();
+        assert!(std::ptr::eq(error.discovery(), &discovery));
+        assert_eq!(error.response_index(), 7);
+        assert!(matches!(
+            error.into_kind(),
+            SelectedCallerRequestedFloat32ReportPostProcessingErrorKind::Session {
+                request: returned_request,
+                sequences,
+                error: TypedUdpDiscoveryFloat32SessionConnectionError::Endpoint(
+                    TypedUdpDiscoveryEndpointError::ResponseUnavailable { index: 7, .. }
+                ),
+            } if returned_request == request() && sequences.as_ptr() == sequence_pointer
+        ));
+        assert_eq!(owner.health(), before);
+
+        let mismatched_report = report(&[10.0, 11.0]);
+        let record_pointer = mismatched_report.records()[0].sample().values().as_ptr();
+        let mismatched_sequences = vec![91];
+        let mismatched_sequence_pointer = mismatched_sequences.as_ptr();
+        let error = owner
+            .process_selected_session_report(
+                &discovery,
+                0,
+                request(),
+                mismatched_sequences,
+                Ok(mismatched_report),
+            )
+            .unwrap_err();
+        assert!(matches!(
+            error.kind(),
+            SelectedCallerRequestedFloat32ReportPostProcessingErrorKind::Processing(
+                CallerRequestedFloat32ReportPostProcessingError::Admission(
+                    CallerRequestedFloat32ReportPostProcessingAdmissionError::SequenceExtentMismatch {
+                        sequences,
+                        report,
+                        ..
+                    }
+                )
+            ) if sequences.as_ptr() == mismatched_sequence_pointer
+                && report.records()[0].sample().values().as_ptr() == record_pointer
+        ));
+        assert_eq!(owner.health(), before);
+
+        let error = owner
+            .process_selected_session_report(
+                &discovery,
+                0,
+                request(),
+                vec![20, 21],
+                Ok(report(&[10.0, 10.0])),
+            )
+            .unwrap_err();
+        assert!(matches!(
+            error.kind(),
+            SelectedCallerRequestedFloat32ReportPostProcessingErrorKind::Processing(
+                CallerRequestedFloat32ReportPostProcessingError::PostProcessing(
+                    Float32PostProcessingBatchError::Record { index: 1, .. }
+                )
+            )
+        ));
+        assert_eq!(owner.health(), before);
     }
 
     #[test]
