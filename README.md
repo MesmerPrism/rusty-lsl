@@ -665,3 +665,10 @@ P62 exposes one bounded production composition for already completed Float32
 requested processing: caller-classified finite recovery, caller-owned queue
 admission, a stable exact execution report, and transactional P61 health. See
 [`docs/p62-complete-requested-processing-execution.md`](docs/p62-complete-requested-processing-execution.md).
+
+P63 adds finite caller-budgeted execution batching and immutable supervision of
+bounded, same-execution P62 report snapshots. The complete P63 data-only
+composition validates exactly one independent report series for every committed
+batch cycle; it does not merge distinct cycles or add retry, scheduling, queue,
+recovery, clock, loss, or activation authority. See
+[`docs/p63-complete-requested-processing-execution-batch.md`](docs/p63-complete-requested-processing-execution-batch.md).

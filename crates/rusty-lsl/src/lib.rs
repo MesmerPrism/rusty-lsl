@@ -85,6 +85,7 @@ mod caller_requested_float32_retained_report_evidence_cursor;
 mod clock_filter_selection;
 mod clock_offset_application;
 mod complete_requested_processing_recovery_queue_execution;
+mod complete_requested_processing_recovery_queue_execution_batch;
 mod complete_typed_udp_discovery_float32_batch_lifecycle;
 mod complete_typed_udp_discovery_float32_requested_post_processing_lifecycle;
 mod complete_typed_udp_discovery_float32_requested_post_processing_recovery_queue_lifecycle;
@@ -129,7 +130,9 @@ mod raw_clock_exchange;
 mod requested_post_processing_queue_health;
 mod requested_post_processing_recovery;
 mod requested_processing_recovery_queue_execution;
+mod requested_processing_recovery_queue_execution_batch;
 mod requested_processing_recovery_queue_execution_report;
+mod requested_processing_recovery_queue_supervision;
 mod requested_timestamp_post_processing;
 mod requested_timestamp_post_processing_loss_health;
 pub mod runtime;
@@ -295,6 +298,11 @@ pub use complete_requested_processing_recovery_queue_execution::{
     CompleteRequestedProcessingRecoveryQueueExecution,
     CompleteRequestedProcessingRecoveryQueueExecutionError,
 };
+pub use complete_requested_processing_recovery_queue_execution_batch::{
+    complete_requested_processing_recovery_queue_execution_batch,
+    CompleteRequestedProcessingRecoveryQueueExecutionBatch,
+    CompleteRequestedProcessingRecoveryQueueExecutionBatchError,
+};
 pub use complete_typed_udp_discovery_float32_batch_lifecycle::{
     run_complete_typed_udp_discovery_float32_batch_lifecycle,
     CompleteTypedUdpDiscoveryFloat32BatchError, CompleteTypedUdpDiscoveryFloat32BatchOutcome,
@@ -397,10 +405,23 @@ pub use requested_processing_recovery_queue_execution::{
     RequestedProcessingRecoveryQueueExecutionOutcome,
     RequestedProcessingRecoveryQueueRecordOutcome, RequestedProcessingRecoveryQueueTermination,
 };
+pub use requested_processing_recovery_queue_execution_batch::{
+    run_requested_processing_recovery_queue_execution_batch,
+    RequestedProcessingRecoveryQueueExecutionBatchBudget,
+    RequestedProcessingRecoveryQueueExecutionBatchConfigError,
+    RequestedProcessingRecoveryQueueExecutionBatchError,
+    RequestedProcessingRecoveryQueueExecutionBatchOutcome,
+    RequestedProcessingRecoveryQueueExecutionBatchStopped,
+};
 pub use requested_processing_recovery_queue_execution_report::{
     RequestedProcessingExecutionHealth, RequestedProcessingExecutionReportError,
     RequestedProcessingExecutionReportLimits, RequestedProcessingExecutionStage,
     RequestedProcessingExecutionTermination, RequestedProcessingRecoveryQueueExecutionReport,
+};
+pub use requested_processing_recovery_queue_supervision::{
+    RequestedProcessingRecoveryQueueSupervision, RequestedProcessingSupervisionError,
+    RequestedProcessingSupervisionLimits, RequestedProcessingSupervisionLossFacts,
+    RequestedProcessingSupervisionOwnerFacts, RequestedProcessingSupervisionTerminations,
 };
 pub use requested_timestamp_post_processing::{
     RequestedEffectiveTimestamp, RequestedEffectiveTimestampSource,

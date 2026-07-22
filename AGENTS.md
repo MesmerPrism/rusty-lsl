@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+P63 adds a finite caller-budgeted P62 execution batch, immutable bounded
+supervision of exact same-execution report snapshots, and one transactional
+composition requiring exactly one supervision series per committed cycle.
+Distinct cycles are never treated as snapshots of one execution. The caller
+retains report-to-cycle association, execution, recovery, queue, clock,
+scheduling, cancellation, and activation authority; absent loss facts remain
+explicitly unavailable, and activation remains explicit and default-disabled.
+
 P62 wires the completed P60 requested-processing evidence through the existing
 finite-recovery and bounded-queue execution owners, transactionally constructs
 the stable bounded execution report, and commits only exact representable P61

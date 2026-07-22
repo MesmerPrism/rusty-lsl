@@ -185,16 +185,28 @@ pub use crate::{
 };
 
 pub use crate::{
+    complete_requested_processing_recovery_queue_execution_batch,
     run_complete_requested_processing_recovery_queue_execution,
     run_requested_processing_recovery_queue_execution,
+    run_requested_processing_recovery_queue_execution_batch,
     CompleteRequestedProcessingRecoveryQueueExecution,
+    CompleteRequestedProcessingRecoveryQueueExecutionBatch,
+    CompleteRequestedProcessingRecoveryQueueExecutionBatchError,
     CompleteRequestedProcessingRecoveryQueueExecutionError, RequestedProcessingExecutionHealth,
     RequestedProcessingExecutionReportError, RequestedProcessingExecutionReportLimits,
     RequestedProcessingExecutionStage, RequestedProcessingExecutionTermination,
+    RequestedProcessingRecoveryQueueExecutionBatchBudget,
+    RequestedProcessingRecoveryQueueExecutionBatchConfigError,
+    RequestedProcessingRecoveryQueueExecutionBatchError,
+    RequestedProcessingRecoveryQueueExecutionBatchOutcome,
+    RequestedProcessingRecoveryQueueExecutionBatchStopped,
     RequestedProcessingRecoveryQueueExecutionError,
     RequestedProcessingRecoveryQueueExecutionOutcome,
     RequestedProcessingRecoveryQueueExecutionReport, RequestedProcessingRecoveryQueueRecordOutcome,
-    RequestedProcessingRecoveryQueueTermination,
+    RequestedProcessingRecoveryQueueSupervision, RequestedProcessingRecoveryQueueTermination,
+    RequestedProcessingSupervisionError, RequestedProcessingSupervisionLimits,
+    RequestedProcessingSupervisionLossFacts, RequestedProcessingSupervisionOwnerFacts,
+    RequestedProcessingSupervisionTerminations,
 };
 
 pub use crate::{

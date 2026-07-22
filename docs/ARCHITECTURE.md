@@ -1204,3 +1204,16 @@ observations on a clone and commits them atomically. The caller supplies exact
 queue-length observations; P62 does not inspect storage or infer queue state.
 Unrepresentable recovery setup and poisoned-queue failures retain their owner
 errors without fabricating a report or changing P61 health.
+
+## P63 complete requested-processing execution batch
+
+P63 separates two bounded data contracts. The execution-batch owner invokes a
+caller-supplied P62 cycle executor under an exact nonzero cycle budget and stops
+at the first unchanged P62 refusal. The supervision owner transactionally
+validates immutable reports that describe one execution extent. The complete
+composition pairs each committed cycle with exactly one independently validated
+same-execution report series; it never combines reports from distinct cycles.
+
+The caller remains the report-to-cycle association authority. P63 does not
+execute supervision, infer loss or queue state, retry, schedule, acquire clocks,
+choose recovery or queue policy, or activate runtime capability.
