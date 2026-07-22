@@ -8,14 +8,17 @@ use crate::typed_udp_discovery_session_contract::{
     TypedUdpDiscoverySessionContractMismatch,
 };
 use crate::{
-    propose_typed_udp_discovery_ipv4_service_endpoint, ChannelFormat,
-    FixedWidthNumericSampleActivation, StreamHandshakeIdentity, StreamHandshakeIdentityRole,
-    StreamHandshakeLimits, TimestampedDouble64ConnectedInletSession,
-    TimestampedDouble64InletSession, TimestampedDouble64InletSessionReport,
-    TimestampedDouble64SessionError, TimestampedDouble64SessionIncomplete,
-    TimestampedDouble64SessionIoLimits, TimestampedDouble64SessionLimits,
-    TimestampedDouble64SessionPreflightError, TimestampedDouble64SessionTransferError,
-    TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
+    propose_typed_udp_discovery_ipv4_service_endpoint, run_typed_udp_discovery,
+    suggest_typed_udp_discovery_response, ChannelFormat, FixedWidthNumericSampleActivation,
+    ShortInfoQueryWire, ShortInfoResponseEnvelopeLimits, StreamHandshakeIdentity,
+    StreamHandshakeIdentityRole, StreamHandshakeLimits, StreamInfoObservedAdmissionLimits,
+    TimestampedDouble64ConnectedInletSession, TimestampedDouble64InletSession,
+    TimestampedDouble64InletSessionReport, TimestampedDouble64SessionError,
+    TimestampedDouble64SessionIncomplete, TimestampedDouble64SessionIoLimits,
+    TimestampedDouble64SessionLimits, TimestampedDouble64SessionPreflightError,
+    TimestampedDouble64SessionTransferError, TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
+    TypedUdpDiscoveryRunError, TypedUdpDiscoverySelectionError, UdpDiscoveryActivation,
+    UdpDiscoveryConfig,
 };
 use std::sync::atomic::AtomicBool;
 
@@ -50,6 +53,21 @@ pub enum TypedUdpDiscoveryDouble64SessionConnectionError {
     /// The selected endpoint or requested shape failed bounded session preflight.
     Preflight(TimestampedDouble64SessionPreflightError),
     /// Connect, transfer, terminal close, or cleanup failed.
+    Session(TimestampedDouble64SessionError),
+}
+
+/// Failure from one caller-explicit discovery, exact-name selection, and Double64 session run.
+#[derive(Debug, PartialEq)]
+pub enum TypedUdpDiscoveryDouble64CompleteLifecycleError {
+    Discovery(TypedUdpDiscoveryRunError),
+    Selection(TypedUdpDiscoverySelectionError),
+    NoMatchingStreamName {
+        stream_name: String,
+        discovery: TypedUdpDiscoveryRun,
+    },
+    Connection(TypedUdpDiscoveryDouble64SessionConnectionError),
+    Transfer(TimestampedDouble64SessionTransferError),
+    Incomplete(TimestampedDouble64SessionIncomplete),
     Session(TimestampedDouble64SessionError),
 }
 
@@ -297,6 +315,73 @@ pub fn run_selected_typed_udp_discovery_double64_session_inlet(
     .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Session)
 }
 
+/// Runs bounded typed discovery, exact-name suggestion, and the selected Double64 session.
+#[allow(clippy::too_many_arguments)]
+pub fn run_named_typed_udp_discovery_double64_session_inlet(
+    discovery_activation: UdpDiscoveryActivation,
+    discovery_config: UdpDiscoveryConfig,
+    query: &ShortInfoQueryWire,
+    discovery_cancelled: &AtomicBool,
+    envelope_limits: ShortInfoResponseEnvelopeLimits,
+    admission_limits: StreamInfoObservedAdmissionLimits,
+    stream_name: &str,
+    session_activation: FixedWidthNumericSampleActivation,
+    expected_identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: TimestampedDouble64SessionIoLimits,
+    session_limits: TimestampedDouble64SessionLimits,
+    channel_count: usize,
+    record_count: usize,
+    session_cancelled: &AtomicBool,
+) -> Result<TimestampedDouble64InletSessionReport, TypedUdpDiscoveryDouble64CompleteLifecycleError>
+{
+    let discovery = run_typed_udp_discovery(
+        discovery_activation,
+        discovery_config,
+        query,
+        discovery_cancelled,
+        envelope_limits,
+        admission_limits,
+    )
+    .map_err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Discovery)?;
+    let response_index = match suggest_typed_udp_discovery_response(&discovery, stream_name)
+        .map_err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Selection)?
+    {
+        Some(index) => index,
+        None => {
+            return Err(
+                TypedUdpDiscoveryDouble64CompleteLifecycleError::NoMatchingStreamName {
+                    stream_name: stream_name.to_owned(),
+                    discovery,
+                },
+            );
+        }
+    };
+    let mut connected = connect_selected_typed_udp_discovery_double64_session_inlet(
+        &discovery,
+        response_index,
+        session_activation,
+        expected_identity,
+        handshake_limits,
+        io_limits,
+        session_limits,
+        channel_count,
+        record_count,
+        session_cancelled,
+    )
+    .map_err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Connection)?;
+    while connected.completed_record_count() < connected.record_count() {
+        connected
+            .transfer_next(session_cancelled)
+            .map_err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Transfer)?;
+    }
+    connected
+        .complete(session_cancelled)
+        .map_err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Incomplete)?
+        .map(CompletedSelectedTypedUdpDiscoveryDouble64Session::into_report)
+        .map_err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Session)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -425,6 +510,58 @@ mod tests {
         .unwrap();
         responder.join().unwrap();
         run
+    }
+
+    fn run_named(
+        document: String,
+        stream_name: &str,
+        channels: usize,
+        count: usize,
+        session_cancelled: &AtomicBool,
+    ) -> Result<
+        TimestampedDouble64InletSessionReport,
+        TypedUdpDiscoveryDouble64CompleteLifecycleError,
+    > {
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = socket.local_addr().unwrap();
+        let bytes = document.len();
+        let responder = thread::spawn(move || {
+            let mut query = [0_u8; 256];
+            let (_, source) = socket.recv_from(&mut query).unwrap();
+            socket
+                .send_to(format!("20\r\n{document}").as_bytes(), source)
+                .unwrap();
+        });
+        let result = run_named_typed_udp_discovery_double64_session_inlet(
+            discovery_activation(),
+            UdpDiscoveryConfig::new(
+                "127.0.0.1:0".parse().unwrap(),
+                destination,
+                UdpDiscoveryLimits::new(
+                    bytes + 32,
+                    1,
+                    Duration::from_millis(5),
+                    Duration::from_millis(250),
+                )
+                .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            ),
+            &query(),
+            &AtomicBool::new(false),
+            ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            admission_limits(),
+            stream_name,
+            session_activation(),
+            &identity(),
+            handshake_limits(),
+            io_limits(),
+            TimestampedDouble64SessionLimits::new(channels, count).unwrap(),
+            channels,
+            count,
+            session_cancelled,
+        );
+        responder.join().unwrap();
+        result
     }
 
     fn records(channels: usize, count: usize) -> Vec<TimestampedSample<f64>> {
@@ -714,5 +851,93 @@ mod tests {
                 }
             );
         }
+    }
+
+    #[test]
+    fn p57_named_discovery_completes_double64_bits_and_reuses_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let sent = records(2, 3);
+        let expected: Vec<Vec<u64>> = sent
+            .iter()
+            .map(|record| {
+                record
+                    .sample()
+                    .values()
+                    .iter()
+                    .map(|value| value.to_bits())
+                    .collect()
+            })
+            .collect();
+        let outlet = thread::spawn(move || {
+            TimestampedDouble64OutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                io_limits(),
+                TimestampedDouble64SessionLimits::new(2, 3).unwrap(),
+                &sent,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let report = run_named(
+            document("127.0.0.1", endpoint.port(), 2),
+            "selected",
+            2,
+            3,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        let actual: Vec<Vec<u64>> = report
+            .records()
+            .iter()
+            .map(|record| {
+                record
+                    .sample()
+                    .values()
+                    .iter()
+                    .map(|value| value.to_bits())
+                    .collect()
+            })
+            .collect();
+        assert_eq!(actual, expected);
+        assert_eq!(outlet.join().unwrap().record_count(), 3);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p57_double64_empty_name_no_match_and_session_cancellation_are_typed() {
+        assert!(matches!(
+            run_named(
+                document("127.0.0.1", 9, 1),
+                "",
+                1,
+                1,
+                &AtomicBool::new(false)
+            ),
+            Err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Selection(
+                TypedUdpDiscoverySelectionError::EmptyStreamName
+            ))
+        ));
+        assert!(matches!(
+            run_named(document("127.0.0.1", 9, 1), "absent", 1, 1, &AtomicBool::new(false)),
+            Err(TypedUdpDiscoveryDouble64CompleteLifecycleError::NoMatchingStreamName { stream_name, .. })
+                if stream_name == "absent"
+        ));
+        assert!(matches!(
+            run_named(
+                document("127.0.0.1", 9, 1),
+                "selected",
+                1,
+                1,
+                &AtomicBool::new(true)
+            ),
+            Err(TypedUdpDiscoveryDouble64CompleteLifecycleError::Connection(
+                TypedUdpDiscoveryDouble64SessionConnectionError::Session(_)
+            ))
+        ));
     }
 }

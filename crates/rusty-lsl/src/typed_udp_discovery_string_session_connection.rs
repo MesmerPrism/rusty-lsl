@@ -8,13 +8,16 @@ use crate::typed_udp_discovery_session_contract::{
     TypedUdpDiscoverySessionContractMismatch,
 };
 use crate::{
-    propose_typed_udp_discovery_ipv4_service_endpoint, ChannelFormat, StreamHandshakeIdentity,
-    StreamHandshakeIdentityRole, StreamHandshakeLimits, StringSampleActivation, StringSampleLimits,
-    TimestampedStringConnectedInletSession, TimestampedStringInletSession,
+    propose_typed_udp_discovery_ipv4_service_endpoint, run_typed_udp_discovery,
+    suggest_typed_udp_discovery_response, ChannelFormat, ShortInfoQueryWire,
+    ShortInfoResponseEnvelopeLimits, StreamHandshakeIdentity, StreamHandshakeIdentityRole,
+    StreamHandshakeLimits, StreamInfoObservedAdmissionLimits, StringSampleActivation,
+    StringSampleLimits, TimestampedStringConnectedInletSession, TimestampedStringInletSession,
     TimestampedStringInletSessionReport, TimestampedStringSessionError,
     TimestampedStringSessionIncomplete, TimestampedStringSessionLimits,
     TimestampedStringSessionPreflightError, TimestampedStringSessionTransferError,
-    TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
+    TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun, TypedUdpDiscoveryRunError,
+    TypedUdpDiscoverySelectionError, UdpDiscoveryActivation, UdpDiscoveryConfig,
 };
 use std::sync::atomic::AtomicBool;
 
@@ -49,6 +52,21 @@ pub enum TypedUdpDiscoveryStringSessionConnectionError {
     /// The selected endpoint or exact 1x1 shape failed socket-free preflight.
     Preflight(TimestampedStringSessionPreflightError),
     /// Connect, transfer, terminal close, or cleanup failed.
+    Session(TimestampedStringSessionError),
+}
+
+/// Failure from one caller-explicit discovery, exact-name selection, and String session run.
+#[derive(Debug, PartialEq)]
+pub enum TypedUdpDiscoveryStringCompleteLifecycleError {
+    Discovery(TypedUdpDiscoveryRunError),
+    Selection(TypedUdpDiscoverySelectionError),
+    NoMatchingStreamName {
+        stream_name: String,
+        discovery: TypedUdpDiscoveryRun,
+    },
+    Connection(TypedUdpDiscoveryStringSessionConnectionError),
+    Transfer(TimestampedStringSessionTransferError),
+    Incomplete(TimestampedStringSessionIncomplete),
     Session(TimestampedStringSessionError),
 }
 
@@ -287,6 +305,72 @@ pub fn run_selected_typed_udp_discovery_string_session_inlet(
     .map_err(TypedUdpDiscoveryStringSessionConnectionError::Session)
 }
 
+/// Runs bounded typed discovery, exact-name suggestion, and the selected String session.
+#[allow(clippy::too_many_arguments)]
+pub fn run_named_typed_udp_discovery_string_session_inlet(
+    discovery_activation: UdpDiscoveryActivation,
+    discovery_config: UdpDiscoveryConfig,
+    query: &ShortInfoQueryWire,
+    discovery_cancelled: &AtomicBool,
+    envelope_limits: ShortInfoResponseEnvelopeLimits,
+    admission_limits: StreamInfoObservedAdmissionLimits,
+    stream_name: &str,
+    session_activation: StringSampleActivation,
+    expected_identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    io_limits: StringSampleLimits,
+    session_limits: TimestampedStringSessionLimits,
+    channel_count: usize,
+    record_count: usize,
+    session_cancelled: &AtomicBool,
+) -> Result<TimestampedStringInletSessionReport, TypedUdpDiscoveryStringCompleteLifecycleError> {
+    let discovery = run_typed_udp_discovery(
+        discovery_activation,
+        discovery_config,
+        query,
+        discovery_cancelled,
+        envelope_limits,
+        admission_limits,
+    )
+    .map_err(TypedUdpDiscoveryStringCompleteLifecycleError::Discovery)?;
+    let response_index = match suggest_typed_udp_discovery_response(&discovery, stream_name)
+        .map_err(TypedUdpDiscoveryStringCompleteLifecycleError::Selection)?
+    {
+        Some(index) => index,
+        None => {
+            return Err(
+                TypedUdpDiscoveryStringCompleteLifecycleError::NoMatchingStreamName {
+                    stream_name: stream_name.to_owned(),
+                    discovery,
+                },
+            );
+        }
+    };
+    let mut connected = connect_selected_typed_udp_discovery_string_session_inlet(
+        &discovery,
+        response_index,
+        session_activation,
+        expected_identity,
+        handshake_limits,
+        io_limits,
+        session_limits,
+        channel_count,
+        record_count,
+        session_cancelled,
+    )
+    .map_err(TypedUdpDiscoveryStringCompleteLifecycleError::Connection)?;
+    while connected.completed_record_count() < connected.record_count() {
+        connected
+            .transfer_next(session_cancelled)
+            .map_err(TypedUdpDiscoveryStringCompleteLifecycleError::Transfer)?;
+    }
+    connected
+        .complete(session_cancelled)
+        .map_err(TypedUdpDiscoveryStringCompleteLifecycleError::Incomplete)?
+        .map(CompletedSelectedTypedUdpDiscoveryStringSession::into_report)
+        .map_err(TypedUdpDiscoveryStringCompleteLifecycleError::Session)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -414,6 +498,54 @@ mod tests {
         .unwrap();
         responder.join().unwrap();
         run
+    }
+
+    fn run_named(
+        document: String,
+        stream_name: &str,
+        session_cancelled: &AtomicBool,
+    ) -> Result<TimestampedStringInletSessionReport, TypedUdpDiscoveryStringCompleteLifecycleError>
+    {
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = socket.local_addr().unwrap();
+        let bytes = document.len();
+        let responder = thread::spawn(move || {
+            let mut query = [0_u8; 256];
+            let (_, source) = socket.recv_from(&mut query).unwrap();
+            socket
+                .send_to(format!("20\r\n{document}").as_bytes(), source)
+                .unwrap();
+        });
+        let result = run_named_typed_udp_discovery_string_session_inlet(
+            discovery_activation(),
+            UdpDiscoveryConfig::new(
+                "127.0.0.1:0".parse().unwrap(),
+                destination,
+                UdpDiscoveryLimits::new(
+                    bytes + 32,
+                    1,
+                    Duration::from_millis(5),
+                    Duration::from_millis(250),
+                )
+                .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            ),
+            &query(),
+            &AtomicBool::new(false),
+            ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            admission_limits(),
+            stream_name,
+            session_activation(),
+            &identity(),
+            handshake_limits(),
+            io_limits(),
+            TimestampedStringSessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+            session_cancelled,
+        );
+        responder.join().unwrap();
+        result
     }
 
     #[test]
@@ -639,5 +771,58 @@ mod tests {
                 actual: "host-x".to_owned(),
             }
         );
+    }
+
+    #[test]
+    fn p57_named_discovery_completes_string_envelope_and_reuses_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let expected = "x".repeat(129);
+        let sent = expected.clone();
+        let outlet = thread::spawn(move || {
+            let records = [StringSampleRecord::new(31.5, sent).unwrap()];
+            TimestampedStringOutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                io_limits(),
+                TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let report = run_named(
+            document(endpoint.port()),
+            "selected",
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(report.records()[0].value(), expected);
+        assert_eq!(outlet.join().unwrap().record_count(), 1);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p57_string_empty_name_no_match_and_session_cancellation_are_typed() {
+        assert!(matches!(
+            run_named(document(9), "", &AtomicBool::new(false)),
+            Err(TypedUdpDiscoveryStringCompleteLifecycleError::Selection(
+                TypedUdpDiscoverySelectionError::EmptyStreamName
+            ))
+        ));
+        assert!(matches!(
+            run_named(document(9), "absent", &AtomicBool::new(false)),
+            Err(TypedUdpDiscoveryStringCompleteLifecycleError::NoMatchingStreamName { stream_name, .. })
+                if stream_name == "absent"
+        ));
+        assert!(matches!(
+            run_named(document(9), "selected", &AtomicBool::new(true)),
+            Err(TypedUdpDiscoveryStringCompleteLifecycleError::Connection(
+                TypedUdpDiscoveryStringSessionConnectionError::Session(_)
+            ))
+        ));
     }
 }
