@@ -24,7 +24,7 @@ use std::sync::atomic::AtomicBool;
 
 /// Successful complete lifecycle evidence and its committed processing result.
 #[derive(Debug)]
-pub struct CompletedTypedUdpDiscoveryFloat32RequestedPostProcessingLifecycle {
+pub(crate) struct CompletedTypedUdpDiscoveryFloat32RequestedPostProcessingLifecycle {
     discovery: TypedUdpDiscoveryRun,
     response_index: usize,
     processing: Float32PostProcessingBatchOutcome,
@@ -65,7 +65,7 @@ impl CompletedTypedUdpDiscoveryFloat32RequestedPostProcessingLifecycle {
 
 /// Stage-specific failure preserving caller inputs and existing owner evidence.
 #[derive(Debug)]
-pub enum CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingError {
+pub(crate) enum CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingError {
     /// Discovery, selection, connection, transfer, completion, or cleanup failed.
     Lifecycle {
         /// Exact caller-requested processing mode, not consumed by processing.
@@ -88,7 +88,7 @@ pub enum CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingError {
 
 /// Sole composition owner retaining the existing transactional processing owner.
 #[derive(Debug, PartialEq)]
-pub struct CompleteTypedUdpDiscoveryFloat32RequestedPostProcessing {
+pub(crate) struct CompleteTypedUdpDiscoveryFloat32RequestedPostProcessing {
     processing: CallerRequestedFloat32ReportPostProcessing,
 }
 
