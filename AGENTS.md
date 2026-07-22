@@ -1,5 +1,13 @@
 # Rusty LSL Agent Notes
 
+P62 wires the completed P60 requested-processing evidence through the existing
+finite-recovery and bounded-queue execution owners, transactionally constructs
+the stable bounded execution report, and commits only exact representable P61
+observations. Queue length remains a caller-observed fact; report or P61 refusal
+leaves P61 health unchanged. The composition adds no discovery, processing,
+recovery, queue, clock, storage, cancellation, scheduling, device, Makepad, or
+Manifold authority, and activation remains explicit and default-disabled.
+
 P61 composes a borrowed completed P60 Float32 requested-processing lifecycle
 with exact finite-recovery and bounded-queue outcome observations. The new
 owner transactionally projects immutable processing, recovery, cancellation,

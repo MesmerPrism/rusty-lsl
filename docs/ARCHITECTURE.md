@@ -1195,3 +1195,12 @@ finite-recovery and bounded-queue owners. It stages both bounded data-only
 observers and commits their immutable health together, so a projection refusal
 cannot partially advance composed state. See
 `p61-requested-processing-recovery-queue-observability.md`.
+## P62 complete requested-processing execution
+
+P62 is a synchronous orchestration layer over existing owners. It borrows the
+completed P60 lifecycle, delegates attempts to finite recovery and admission to
+the bounded queue, derives the stable execution report, then stages P61
+observations on a clone and commits them atomically. The caller supplies exact
+queue-length observations; P62 does not inspect storage or infer queue state.
+Unrepresentable recovery setup and poisoned-queue failures retain their owner
+errors without fabricating a report or changing P61 health.

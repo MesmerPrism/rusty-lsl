@@ -661,3 +661,7 @@ LSLC-004V exposes one caller-explicit `run_typed_udp_discovery` composition.
 It uses the existing capability-gated bounded UDP call and typed projection,
 preserving run termination, local/source addresses, receive order, and indexed
 typed errors without adding discovery policy, compatibility breadth, or authority.
+P62 exposes one bounded production composition for already completed Float32
+requested processing: caller-classified finite recovery, caller-owned queue
+admission, a stable exact execution report, and transactional P61 health. See
+[`docs/p62-complete-requested-processing-execution.md`](docs/p62-complete-requested-processing-execution.md).

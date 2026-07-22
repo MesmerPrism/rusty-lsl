@@ -1,10 +1,9 @@
 # P62 requested-processing execution report
 
 P62 defines a stable public, bounded, CPU/data-only report contract for an
-already attempted requested-processing/recovery/queue execution. The module is
-intentionally unwired in this lane. A later integrator may construct the report
-only from exact evidence already supplied by the batch, finite-recovery,
-requested-processing, and bounded-queue owners.
+already attempted requested-processing/recovery/queue execution. The P62
+composition constructs the report only from exact evidence already supplied by
+the batch, finite-recovery, requested-processing, and bounded-queue owners.
 
 `RequestedProcessingExecutionReportLimits` fixes nonzero execution, recovery
 attempt, and queue-capacity bounds. One immutable
@@ -41,7 +40,7 @@ loss classification, monitoring, background work, activation, device work, or
 policy selection. It adds no Makepad, Morphospace, Manifold, or integration
 authority.
 
-Focused standalone `rustc --test` coverage checks complete extent, each
+Focused crate coverage checks complete extent, each
 recovery terminal class, cancellation/deadline stage boundaries, queue
 backpressure and closure, exact health projection, and fail-closed rejection of
 contradictory or unbounded facts.

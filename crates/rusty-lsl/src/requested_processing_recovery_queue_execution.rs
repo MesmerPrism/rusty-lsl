@@ -22,6 +22,8 @@ pub struct RequestedProcessingRecoveryQueueRecordOutcome {
     pub sequence: u64,
     /// Ordered states returned by the finite-recovery owner.
     pub states: Vec<FiniteSampleRecoveryState>,
+    /// Exact caller-observed queue length immediately after admission.
+    pub queue_len_after: usize,
 }
 
 /// Successful execution, retaining a borrow of the exact completed P60 evidence.
@@ -100,6 +102,8 @@ pub enum RequestedProcessingRecoveryQueueExecutionError<'a> {
         error: BoundedSampleQueuePushError,
         /// Ordered recovery states for the rejected current record.
         states: Vec<FiniteSampleRecoveryState>,
+        /// Exact caller-observed queue length at refusal.
+        queue_len: usize,
         /// Exact already-queued prefix.
         queued: Vec<RequestedProcessingRecoveryQueueRecordOutcome>,
         /// Unchanged completed requested-processing evidence.
@@ -124,6 +128,7 @@ enum ExecutionCoreError {
         index: usize,
         error: BoundedSampleQueuePushError,
         states: Vec<FiniteSampleRecoveryState>,
+        queue_len: usize,
         queued: Vec<RequestedProcessingRecoveryQueueRecordOutcome>,
     },
 }
@@ -136,11 +141,41 @@ fn execute_records<'a, R, A>(
     queue_wait: BoundedSampleQueueWait,
     recovery_cancelled: &AtomicBool,
     queue_cancelled: &AtomicBool,
-    mut attempt: A,
+    attempt: A,
 ) -> Result<Vec<RequestedProcessingRecoveryQueueRecordOutcome>, ExecutionCoreError>
 where
     R: Iterator<Item = (usize, u64, &'a TimestampedSample<f32>)>,
     A: FnMut(usize, usize) -> Result<(), RecoveryAttemptFailure>,
+{
+    execute_records_observed(
+        records,
+        recovery_activation,
+        recovery_policy,
+        queue,
+        queue_wait,
+        recovery_cancelled,
+        queue_cancelled,
+        attempt,
+        || 0,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn execute_records_observed<'a, R, A, Q>(
+    records: R,
+    recovery_activation: FiniteSampleRecoveryActivation,
+    recovery_policy: FiniteSampleRecoveryPolicy,
+    queue: &BoundedSampleQueue,
+    queue_wait: BoundedSampleQueueWait,
+    recovery_cancelled: &AtomicBool,
+    queue_cancelled: &AtomicBool,
+    mut attempt: A,
+    mut observe_queue_len: Q,
+) -> Result<Vec<RequestedProcessingRecoveryQueueRecordOutcome>, ExecutionCoreError>
+where
+    R: Iterator<Item = (usize, u64, &'a TimestampedSample<f32>)>,
+    A: FnMut(usize, usize) -> Result<(), RecoveryAttemptFailure>,
+    Q: FnMut() -> usize,
 {
     let mut records = records.peekable();
     if records.peek().is_none() {
@@ -206,6 +241,7 @@ where
                 index,
                 error,
                 states,
+                queue_len: observe_queue_len(),
                 queued,
             });
         }
@@ -213,6 +249,7 @@ where
             index,
             sequence,
             states,
+            queue_len_after: observe_queue_len(),
         });
     }
     Ok(queued)
@@ -226,7 +263,7 @@ where
 /// always borrowed and returned as evidence; this adapter owns no storage, scheduling, clock,
 /// transport, retry policy, or queue policy.
 #[allow(clippy::too_many_arguments)]
-pub fn run_requested_processing_recovery_queue_execution<'a, A>(
+pub fn run_requested_processing_recovery_queue_execution<'a, A, Q>(
     completed: &'a CompletedTypedUdpDiscoveryFloat32RequestedPostProcessingLifecycle,
     recovery_activation: FiniteSampleRecoveryActivation,
     recovery_policy: FiniteSampleRecoveryPolicy,
@@ -235,12 +272,14 @@ pub fn run_requested_processing_recovery_queue_execution<'a, A>(
     recovery_cancelled: &AtomicBool,
     queue_cancelled: &AtomicBool,
     attempt: A,
+    observe_queue_len: Q,
 ) -> Result<
     RequestedProcessingRecoveryQueueExecutionOutcome<'a>,
     RequestedProcessingRecoveryQueueExecutionError<'a>,
 >
 where
     A: FnMut(usize, usize) -> Result<(), RecoveryAttemptFailure>,
+    Q: FnMut() -> usize,
 {
     let records = (0..completed.record_count()).map(|index| {
         let record: CompleteTypedUdpDiscoveryFloat32RequestedPostProcessingRecord<'_> = completed
@@ -248,7 +287,7 @@ where
             .expect("record_count bounds the immutable completed lifecycle");
         (index, record.sequence(), record.sample())
     });
-    execute_records(
+    execute_records_observed(
         records,
         recovery_activation,
         recovery_policy,
@@ -257,6 +296,7 @@ where
         recovery_cancelled,
         queue_cancelled,
         attempt,
+        observe_queue_len,
     )
     .map(|queued| RequestedProcessingRecoveryQueueExecutionOutcome { completed, queued })
     .map_err(|error| match error {
@@ -287,11 +327,13 @@ where
             index,
             error,
             states,
+            queue_len,
             queued,
         } => RequestedProcessingRecoveryQueueExecutionError::Queue {
             index,
             error,
             states,
+            queue_len,
             queued,
             completed,
         },

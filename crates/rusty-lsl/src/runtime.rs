@@ -185,6 +185,19 @@ pub use crate::{
 };
 
 pub use crate::{
+    run_complete_requested_processing_recovery_queue_execution,
+    run_requested_processing_recovery_queue_execution,
+    CompleteRequestedProcessingRecoveryQueueExecution,
+    CompleteRequestedProcessingRecoveryQueueExecutionError, RequestedProcessingExecutionHealth,
+    RequestedProcessingExecutionReportError, RequestedProcessingExecutionReportLimits,
+    RequestedProcessingExecutionStage, RequestedProcessingExecutionTermination,
+    RequestedProcessingRecoveryQueueExecutionError,
+    RequestedProcessingRecoveryQueueExecutionOutcome,
+    RequestedProcessingRecoveryQueueExecutionReport, RequestedProcessingRecoveryQueueRecordOutcome,
+    RequestedProcessingRecoveryQueueTermination,
+};
+
+pub use crate::{
     run_float32_inlet_session_report_batch_recovery_clock_queue,
     run_float32_inlet_session_report_recovery_clock_queue, Float32SessionBatchHealth,
     Float32SessionBatchHealthClassification, Float32SessionReportAcquisitionTermination,
