@@ -383,6 +383,166 @@ integer_discovery_session_adapter!(
     "Int8"
 );
 
+macro_rules! integer_complete_discovery_lifecycle {
+    (
+        $error:ident, $completed:ident, $run_complete:ident, $run_selected:ident,
+        $connection_error:ident, $report:ident, $io_limits:ident, $limits:ident,
+        $label:literal
+    ) => {
+        #[doc = concat!("Failure from bounded discovery, exact-name selection, or the selected ", $label, " session.")]
+        #[derive(Debug, PartialEq)]
+        pub enum $error {
+            /// The existing bounded typed discovery owner failed unchanged.
+            Discovery(crate::TypedUdpDiscoveryRunError),
+            /// The existing exact-name selection owner rejected caller input.
+            Selection {
+                /// Completed discovery evidence retained across local selection rejection.
+                discovery: TypedUdpDiscoveryRun,
+                /// Existing exact-name selection failure.
+                error: crate::TypedUdpDiscoverySelectionError,
+            },
+            /// No accepted response had the caller's exact stream name.
+            NoMatchingStreamName {
+                /// Completed discovery evidence, including cancellation termination.
+                discovery: TypedUdpDiscoveryRun,
+            },
+            /// The selected response or existing concrete session owner failed.
+            Session($connection_error),
+        }
+
+        #[doc = concat!("Completed discovery-to-selection-to-", $label, " session evidence.")]
+        #[derive(Debug)]
+        pub struct $completed {
+            discovery: TypedUdpDiscoveryRun,
+            response_index: usize,
+            report: crate::$report,
+        }
+
+        impl $completed {
+            /// Borrows the unchanged completed discovery run.
+            pub const fn discovery(&self) -> &TypedUdpDiscoveryRun {
+                &self.discovery
+            }
+
+            /// Returns the exact receive-order response selected by name.
+            pub const fn response_index(&self) -> usize {
+                self.response_index
+            }
+
+            /// Borrows the unchanged canonical inlet-session report.
+            pub const fn report(&self) -> &crate::$report {
+                &self.report
+            }
+
+            /// Recovers the completed discovery run and canonical report without copying.
+            pub fn into_parts(self) -> (TypedUdpDiscoveryRun, usize, crate::$report) {
+                (self.discovery, self.response_index, self.report)
+            }
+        }
+
+        #[doc = concat!("Runs bounded typed discovery, exact-name selection, and one bounded ", $label, " inlet to canonical completion.")]
+        ///
+        /// Selection is caller-explicit and exact. The existing discovery, selection,
+        /// selected-response, preflight, connect, phased-transfer, and completion owners retain
+        /// their limits, cancellation, activation, identity, socket, and cleanup authority.
+        #[allow(clippy::too_many_arguments)]
+        pub fn $run_complete(
+            discovery_activation: crate::UdpDiscoveryActivation,
+            discovery_config: crate::UdpDiscoveryConfig,
+            query: &crate::ShortInfoQueryWire,
+            discovery_cancelled: &AtomicBool,
+            envelope_limits: crate::ShortInfoResponseEnvelopeLimits,
+            admission_limits: crate::StreamInfoObservedAdmissionLimits,
+            stream_name: &str,
+            session_activation: FixedWidthNumericSampleActivation,
+            expected_identity: &StreamHandshakeIdentity,
+            handshake_limits: StreamHandshakeLimits,
+            io_limits: crate::$io_limits,
+            session_limits: crate::$limits,
+            channel_count: usize,
+            record_count: usize,
+            session_cancelled: &AtomicBool,
+        ) -> Result<$completed, $error> {
+            let discovery = crate::run_typed_udp_discovery(
+                discovery_activation,
+                discovery_config,
+                query,
+                discovery_cancelled,
+                envelope_limits,
+                admission_limits,
+            )
+            .map_err($error::Discovery)?;
+            let response_index = match crate::suggest_typed_udp_discovery_response(
+                &discovery,
+                stream_name,
+            ) {
+                Ok(Some(index)) => index,
+                Ok(None) => return Err($error::NoMatchingStreamName { discovery }),
+                Err(error) => return Err($error::Selection { discovery, error }),
+            };
+            let report = $run_selected(
+                &discovery,
+                response_index,
+                session_activation,
+                expected_identity,
+                handshake_limits,
+                io_limits,
+                session_limits,
+                channel_count,
+                record_count,
+                session_cancelled,
+            )
+            .map_err($error::Session)?;
+            Ok($completed { discovery, response_index, report })
+        }
+    };
+}
+
+integer_complete_discovery_lifecycle!(
+    TypedUdpDiscoveryInt64CompleteLifecycleError,
+    CompletedTypedUdpDiscoveryInt64Lifecycle,
+    run_typed_udp_discovery_int64_session_inlet,
+    run_selected_typed_udp_discovery_int64_session_inlet,
+    TypedUdpDiscoveryInt64SessionConnectionError,
+    TimestampedInt64InletSessionReport,
+    TimestampedInt64SessionIoLimits,
+    TimestampedInt64SessionLimits,
+    "Int64"
+);
+integer_complete_discovery_lifecycle!(
+    TypedUdpDiscoveryInt32CompleteLifecycleError,
+    CompletedTypedUdpDiscoveryInt32Lifecycle,
+    run_typed_udp_discovery_int32_session_inlet,
+    run_selected_typed_udp_discovery_int32_session_inlet,
+    TypedUdpDiscoveryInt32SessionConnectionError,
+    TimestampedInt32InletSessionReport,
+    TimestampedInt32SessionIoLimits,
+    TimestampedInt32SessionLimits,
+    "Int32"
+);
+integer_complete_discovery_lifecycle!(
+    TypedUdpDiscoveryInt16CompleteLifecycleError,
+    CompletedTypedUdpDiscoveryInt16Lifecycle,
+    run_typed_udp_discovery_int16_session_inlet,
+    run_selected_typed_udp_discovery_int16_session_inlet,
+    TypedUdpDiscoveryInt16SessionConnectionError,
+    TimestampedInt16InletSessionReport,
+    TimestampedInt16SessionIoLimits,
+    TimestampedInt16SessionLimits,
+    "Int16"
+);
+integer_complete_discovery_lifecycle!(
+    TypedUdpDiscoveryInt8CompleteLifecycleError,
+    CompletedTypedUdpDiscoveryInt8Lifecycle,
+    run_typed_udp_discovery_int8_session_inlet,
+    run_selected_typed_udp_discovery_int8_session_inlet,
+    TypedUdpDiscoveryInt8SessionConnectionError,
+    TimestampedInt8InletSessionReport,
+    TimestampedInt8SessionIoLimits,
+    TimestampedInt8SessionLimits,
+    "Int8"
+);
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -505,6 +665,248 @@ mod tests {
         .unwrap();
         responder.join().unwrap();
         run
+    }
+
+    fn discovery_config(
+        destination: std::net::SocketAddr,
+        document_bytes: usize,
+    ) -> UdpDiscoveryConfig {
+        UdpDiscoveryConfig::new(
+            "127.0.0.1:0".parse().unwrap(),
+            destination,
+            UdpDiscoveryLimits::new(
+                document_bytes + 32,
+                1,
+                Duration::from_millis(5),
+                Duration::from_millis(250),
+            )
+            .unwrap(),
+            ShortInfoResponseEnvelopeLimits::new(document_bytes, document_bytes + 32).unwrap(),
+        )
+    }
+
+    macro_rules! assert_complete_integer_lifecycle {
+        ($value:ty, $format:literal, $outlet:ident, $run:ident, $io:ident, $limits:ident) => {{
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let endpoint = listener.local_addr().unwrap();
+            let records = vec![
+                TimestampedSample::new(
+                    Sample::new(
+                        SampleLimits::new(2).unwrap(),
+                        2,
+                        vec![17 as $value, -18 as $value],
+                    )
+                    .unwrap(),
+                    RawSourceTimestamp::new(51.0).unwrap(),
+                    None,
+                ),
+                TimestampedSample::new(
+                    Sample::new(
+                        SampleLimits::new(2).unwrap(),
+                        2,
+                        vec![27 as $value, -28 as $value],
+                    )
+                    .unwrap(),
+                    RawSourceTimestamp::new(52.0).unwrap(),
+                    None,
+                ),
+                TimestampedSample::new(
+                    Sample::new(
+                        SampleLimits::new(2).unwrap(),
+                        2,
+                        vec![37 as $value, -38 as $value],
+                    )
+                    .unwrap(),
+                    RawSourceTimestamp::new(53.0).unwrap(),
+                    None,
+                ),
+            ];
+            let expected = records.clone();
+            let outlet = thread::spawn(move || {
+                crate::$outlet::preflight_bounded(
+                    session_activation(),
+                    listener,
+                    &identity(),
+                    handshake_limits(),
+                    crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                    crate::$limits::new(2, 3).unwrap(),
+                    &records,
+                )
+                .unwrap()
+                .finish(&AtomicBool::new(false))
+                .unwrap()
+            });
+
+            let document = document("127.0.0.1", endpoint.port(), 2, $format);
+            let document_bytes = document.len();
+            let udp = UdpSocket::bind("127.0.0.1:0").unwrap();
+            let destination = udp.local_addr().unwrap();
+            let responder = thread::spawn(move || {
+                let mut query = [0_u8; 256];
+                let (_, source) = udp.recv_from(&mut query).unwrap();
+                udp.send_to(format!("23\r\n{document}").as_bytes(), source)
+                    .unwrap();
+            });
+            let completed = $run(
+                discovery_activation(),
+                discovery_config(destination, document_bytes),
+                &query(),
+                &AtomicBool::new(false),
+                ShortInfoResponseEnvelopeLimits::new(document_bytes, document_bytes + 32).unwrap(),
+                admission_limits(),
+                "selected",
+                session_activation(),
+                &identity(),
+                handshake_limits(),
+                crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
+                crate::$limits::new(2, 3).unwrap(),
+                2,
+                3,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            responder.join().unwrap();
+            assert_eq!(completed.response_index(), 0);
+            assert_eq!(completed.discovery().responses().len(), 1);
+            assert_eq!(completed.report().records(), expected.as_slice());
+            let (discovery, index, report) = completed.into_parts();
+            assert_eq!(discovery.responses().len(), 1);
+            assert_eq!(index, 0);
+            assert_eq!(report.records(), expected.as_slice());
+            assert_eq!(outlet.join().unwrap().record_count(), 3);
+            TcpListener::bind(endpoint).unwrap();
+        }};
+    }
+
+    #[test]
+    fn p57_complete_discovery_selection_and_session_for_all_integer_widths() {
+        assert_complete_integer_lifecycle!(
+            i8,
+            "int8",
+            TimestampedInt8OutletSession,
+            run_typed_udp_discovery_int8_session_inlet,
+            TimestampedInt8SessionIoLimits,
+            TimestampedInt8SessionLimits
+        );
+        assert_complete_integer_lifecycle!(
+            i16,
+            "int16",
+            TimestampedInt16OutletSession,
+            run_typed_udp_discovery_int16_session_inlet,
+            TimestampedInt16SessionIoLimits,
+            TimestampedInt16SessionLimits
+        );
+        assert_complete_integer_lifecycle!(
+            i32,
+            "int32",
+            TimestampedInt32OutletSession,
+            run_typed_udp_discovery_int32_session_inlet,
+            TimestampedInt32SessionIoLimits,
+            TimestampedInt32SessionLimits
+        );
+        assert_complete_integer_lifecycle!(
+            i64,
+            "int64",
+            TimestampedInt64OutletSession,
+            run_typed_udp_discovery_int64_session_inlet,
+            TimestampedInt64SessionIoLimits,
+            TimestampedInt64SessionLimits
+        );
+    }
+
+    fn run_int32_selection_case(
+        stream_name: &str,
+        cancelled: &AtomicBool,
+        destination: std::net::SocketAddr,
+        document_bytes: usize,
+    ) -> Result<
+        CompletedTypedUdpDiscoveryInt32Lifecycle,
+        TypedUdpDiscoveryInt32CompleteLifecycleError,
+    > {
+        run_typed_udp_discovery_int32_session_inlet(
+            discovery_activation(),
+            discovery_config(destination, document_bytes),
+            &query(),
+            cancelled,
+            ShortInfoResponseEnvelopeLimits::new(document_bytes, document_bytes + 32).unwrap(),
+            admission_limits(),
+            stream_name,
+            session_activation(),
+            &identity(),
+            handshake_limits(),
+            crate::TimestampedInt32SessionIoLimits::new(
+                Duration::from_millis(5),
+                Duration::from_secs(1),
+            )
+            .unwrap(),
+            crate::TimestampedInt32SessionLimits::new(1, 1).unwrap(),
+            1,
+            1,
+            &AtomicBool::new(false),
+        )
+    }
+
+    #[test]
+    fn p57_empty_and_nonmatching_names_are_typed_before_tcp_and_retain_discovery() {
+        for (stream_name, empty) in [("", true), ("different", false)] {
+            let body = document("127.0.0.1", 9, 1, "int32");
+            let document_bytes = body.len();
+            let udp = UdpSocket::bind("127.0.0.1:0").unwrap();
+            let destination = udp.local_addr().unwrap();
+            let responder = thread::spawn(move || {
+                let mut query = [0_u8; 256];
+                let (_, source) = udp.recv_from(&mut query).unwrap();
+                udp.send_to(format!("23\r\n{body}").as_bytes(), source)
+                    .unwrap();
+            });
+            let error = run_int32_selection_case(
+                stream_name,
+                &AtomicBool::new(false),
+                destination,
+                document_bytes,
+            )
+            .unwrap_err();
+            responder.join().unwrap();
+            match error {
+                TypedUdpDiscoveryInt32CompleteLifecycleError::Selection { discovery, error } => {
+                    assert!(empty);
+                    assert_eq!(
+                        error,
+                        crate::TypedUdpDiscoverySelectionError::EmptyStreamName
+                    );
+                    assert_eq!(discovery.responses().len(), 1);
+                }
+                TypedUdpDiscoveryInt32CompleteLifecycleError::NoMatchingStreamName {
+                    discovery,
+                } => {
+                    assert!(!empty);
+                    assert_eq!(discovery.responses().len(), 1);
+                }
+                other => panic!("unexpected selection result: {other:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn p57_discovery_cancellation_is_retained_without_tcp_or_background_work() {
+        let body = document("127.0.0.1", 9, 1, "int32");
+        let error = run_int32_selection_case(
+            "selected",
+            &AtomicBool::new(true),
+            "127.0.0.1:9".parse().unwrap(),
+            body.len(),
+        )
+        .unwrap_err();
+        match error {
+            TypedUdpDiscoveryInt32CompleteLifecycleError::NoMatchingStreamName { discovery } => {
+                assert_eq!(
+                    discovery.termination(),
+                    crate::UdpDiscoveryTermination::Cancelled
+                );
+                assert!(discovery.responses().is_empty());
+            }
+            other => panic!("unexpected cancellation result: {other:?}"),
+        }
     }
 
     macro_rules! assert_integer_shapes {
