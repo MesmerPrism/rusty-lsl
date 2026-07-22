@@ -9,13 +9,17 @@ use crate::typed_udp_discovery_session_contract::{
 };
 use crate::ChannelFormat;
 use crate::{
-    propose_typed_udp_discovery_ipv4_service_endpoint, StreamHandshakeIdentity,
-    StreamHandshakeIdentityRole, StreamHandshakeLimits, TimestampedFloat32ConnectedInletSession,
+    propose_typed_udp_discovery_ipv4_service_endpoint, run_typed_udp_discovery,
+    suggest_typed_udp_discovery_response, ShortInfoQueryWire, ShortInfoResponseEnvelopeLimits,
+    StreamHandshakeIdentity, StreamHandshakeIdentityRole, StreamHandshakeLimits,
+    StreamInfoObservedAdmissionLimits, TimestampedFloat32ConnectedInletSession,
     TimestampedFloat32InletSession, TimestampedFloat32InletSessionReport,
     TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits,
     TimestampedFloat32SessionError, TimestampedFloat32SessionIncomplete,
     TimestampedFloat32SessionLimits, TimestampedFloat32SessionPreflightError,
     TimestampedFloat32SessionTransferError, TypedUdpDiscoveryEndpointError, TypedUdpDiscoveryRun,
+    TypedUdpDiscoveryRunError, TypedUdpDiscoverySelectionError, UdpDiscoveryActivation,
+    UdpDiscoveryConfig,
 };
 use std::sync::atomic::AtomicBool;
 
@@ -51,6 +55,99 @@ pub enum TypedUdpDiscoveryFloat32SessionConnectionError {
     Preflight(TimestampedFloat32SessionPreflightError),
     /// The sole session owner failed after preflight.
     Session(TimestampedFloat32SessionError),
+}
+
+/// Typed stage failure from one complete caller-explicit Float32 discovery lifecycle.
+#[derive(Debug, PartialEq)]
+pub enum TypedUdpDiscoveryFloat32CompleteLifecycleError {
+    /// Bounded typed discovery failed before a completed run existed.
+    Discovery(TypedUdpDiscoveryRunError),
+    /// Exact-name selection rejected caller input; the completed run is retained.
+    Selection {
+        /// Completed bounded discovery evidence.
+        discovery: TypedUdpDiscoveryRun,
+        /// Existing exact-name selection failure.
+        error: TypedUdpDiscoverySelectionError,
+    },
+    /// No validated response had the exact caller-provided name.
+    NoMatchingStreamName {
+        /// Exact caller-provided stream name.
+        stream_name: String,
+        /// Completed bounded discovery evidence, including an empty run.
+        discovery: TypedUdpDiscoveryRun,
+    },
+    /// Selected-response validation, preflight, or connection failed.
+    Connection {
+        /// Completed bounded discovery evidence.
+        discovery: TypedUdpDiscoveryRun,
+        /// Exact receive-order response selected by name.
+        response_index: usize,
+        /// Existing selected-response/session connection failure.
+        error: TypedUdpDiscoveryFloat32SessionConnectionError,
+    },
+    /// Phased record transfer failed and the connected owner was closed.
+    Transfer {
+        /// Completed bounded discovery evidence.
+        discovery: TypedUdpDiscoveryRun,
+        /// Exact receive-order response selected by name.
+        response_index: usize,
+        /// Existing phased-transfer failure.
+        error: TimestampedFloat32SessionTransferError,
+    },
+    /// Canonical completion was attempted before the requested extent was reached.
+    Incomplete {
+        /// Completed bounded discovery evidence.
+        discovery: TypedUdpDiscoveryRun,
+        /// Exact receive-order response selected by name.
+        response_index: usize,
+        /// Existing incomplete-session evidence.
+        error: TimestampedFloat32SessionIncomplete,
+    },
+    /// Terminal close or canonical session completion failed.
+    Session {
+        /// Completed bounded discovery evidence.
+        discovery: TypedUdpDiscoveryRun,
+        /// Exact receive-order response selected by name.
+        response_index: usize,
+        /// Existing session failure.
+        error: TimestampedFloat32SessionError,
+    },
+}
+
+/// Successful discovery, exact selection, and canonical Float32 session evidence.
+#[derive(Debug)]
+pub struct CompletedTypedUdpDiscoveryFloat32Lifecycle {
+    discovery: TypedUdpDiscoveryRun,
+    response_index: usize,
+    report: TimestampedFloat32InletSessionReport,
+}
+
+impl CompletedTypedUdpDiscoveryFloat32Lifecycle {
+    /// Borrows the unchanged completed discovery run.
+    pub const fn discovery(&self) -> &TypedUdpDiscoveryRun {
+        &self.discovery
+    }
+
+    /// Returns the exact receive-order response selected by name.
+    pub const fn response_index(&self) -> usize {
+        self.response_index
+    }
+
+    /// Borrows the unchanged canonical inlet-session report.
+    pub const fn report(&self) -> &TimestampedFloat32InletSessionReport {
+        &self.report
+    }
+
+    /// Recovers all owned completion evidence without copying.
+    pub fn into_parts(
+        self,
+    ) -> (
+        TypedUdpDiscoveryRun,
+        usize,
+        TimestampedFloat32InletSessionReport,
+    ) {
+        (self.discovery, self.response_index, self.report)
+    }
 }
 
 impl From<TypedUdpDiscoverySessionContractMismatch<'_>>
@@ -399,6 +496,114 @@ pub fn run_selected_typed_udp_discovery_float32_session_inlet(
     .map_err(TypedUdpDiscoveryFloat32SessionConnectionError::Session)
 }
 
+/// Runs bounded typed discovery, exact-name selection, and one bounded Float32 inlet to completion.
+///
+/// Every policy choice is caller-provided. The existing bounded discovery, exact-name selection,
+/// selected-response contract, phased Float32 session, allocation, terminal-close, and cleanup
+/// owners remain authoritative. This composition adds no fallback, retry, automatic selection,
+/// activation, background work, codec, session engine, or cleanup path.
+#[allow(clippy::too_many_arguments)]
+pub fn run_typed_udp_discovery_float32_session_inlet(
+    discovery_activation: UdpDiscoveryActivation,
+    discovery_config: UdpDiscoveryConfig,
+    query: &ShortInfoQueryWire,
+    discovery_cancelled: &AtomicBool,
+    envelope_limits: ShortInfoResponseEnvelopeLimits,
+    admission_limits: StreamInfoObservedAdmissionLimits,
+    stream_name: &str,
+    session_activation: TimestampedFloat32SampleActivation,
+    expected_identity: &StreamHandshakeIdentity,
+    handshake_limits: StreamHandshakeLimits,
+    sample_limits: TimestampedFloat32SampleLimits,
+    session_limits: TimestampedFloat32SessionLimits,
+    channel_count: usize,
+    record_count: usize,
+    session_cancelled: &AtomicBool,
+) -> Result<
+    CompletedTypedUdpDiscoveryFloat32Lifecycle,
+    TypedUdpDiscoveryFloat32CompleteLifecycleError,
+> {
+    let discovery = run_typed_udp_discovery(
+        discovery_activation,
+        discovery_config,
+        query,
+        discovery_cancelled,
+        envelope_limits,
+        admission_limits,
+    )
+    .map_err(TypedUdpDiscoveryFloat32CompleteLifecycleError::Discovery)?;
+    let response_index = match suggest_typed_udp_discovery_response(&discovery, stream_name) {
+        Ok(Some(index)) => index,
+        Ok(None) => {
+            return Err(
+                TypedUdpDiscoveryFloat32CompleteLifecycleError::NoMatchingStreamName {
+                    stream_name: stream_name.to_owned(),
+                    discovery,
+                },
+            );
+        }
+        Err(error) => {
+            return Err(TypedUdpDiscoveryFloat32CompleteLifecycleError::Selection {
+                discovery,
+                error,
+            });
+        }
+    };
+    let mut connected = match connect_selected_typed_udp_discovery_float32_session_inlet(
+        &discovery,
+        response_index,
+        session_activation,
+        expected_identity,
+        handshake_limits,
+        sample_limits,
+        session_limits,
+        channel_count,
+        record_count,
+        session_cancelled,
+    ) {
+        Ok(connected) => connected,
+        Err(error) => {
+            return Err(TypedUdpDiscoveryFloat32CompleteLifecycleError::Connection {
+                discovery,
+                response_index,
+                error,
+            });
+        }
+    };
+    while connected.completed_record_count() < connected.record_count() {
+        if let Err(error) = connected.transfer_next(session_cancelled) {
+            connected.close();
+            return Err(TypedUdpDiscoveryFloat32CompleteLifecycleError::Transfer {
+                discovery,
+                response_index,
+                error,
+            });
+        }
+    }
+    let report = match connected.complete(session_cancelled) {
+        Err(error) => {
+            return Err(TypedUdpDiscoveryFloat32CompleteLifecycleError::Incomplete {
+                discovery,
+                response_index,
+                error,
+            });
+        }
+        Ok(Err(error)) => {
+            return Err(TypedUdpDiscoveryFloat32CompleteLifecycleError::Session {
+                discovery,
+                response_index,
+                error,
+            });
+        }
+        Ok(Ok(completed)) => completed.into_report(),
+    };
+    Ok(CompletedTypedUdpDiscoveryFloat32Lifecycle {
+        discovery,
+        response_index,
+        report,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -573,12 +778,274 @@ mod tests {
         run
     }
 
+    fn run_complete_lifecycle(
+        document: String,
+        stream_name: &str,
+        session_cancelled: &AtomicBool,
+    ) -> Result<
+        CompletedTypedUdpDiscoveryFloat32Lifecycle,
+        TypedUdpDiscoveryFloat32CompleteLifecycleError,
+    > {
+        let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = socket.local_addr().unwrap();
+        let bytes = document.len();
+        let responder = thread::spawn(move || {
+            let mut query = [0_u8; 256];
+            let (_, source) = socket.recv_from(&mut query).unwrap();
+            socket
+                .send_to(format!("19\r\n{document}").as_bytes(), source)
+                .unwrap();
+        });
+        let result = run_typed_udp_discovery_float32_session_inlet(
+            discovery_activation(),
+            UdpDiscoveryConfig::new(
+                "127.0.0.1:0".parse().unwrap(),
+                destination,
+                UdpDiscoveryLimits::new(
+                    bytes + 32,
+                    1,
+                    Duration::from_millis(5),
+                    Duration::from_millis(250),
+                )
+                .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            ),
+            &query(),
+            &AtomicBool::new(false),
+            ShortInfoResponseEnvelopeLimits::new(bytes, bytes + 32).unwrap(),
+            admission_limits(),
+            stream_name,
+            session_activation(),
+            &identity("11111111-2222-4333-8444-555555555555"),
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+            2,
+            2,
+            session_cancelled,
+        );
+        responder.join().unwrap();
+        result
+    }
+
     fn record(timestamp: f64, values: [f32; 2]) -> TimestampedSample<f32> {
         TimestampedSample::new(
             Sample::new(SampleLimits::new(2).unwrap(), 2, values.to_vec()).unwrap(),
             RawSourceTimestamp::new(timestamp).unwrap(),
             None,
         )
+    }
+
+    fn response_name(response: &crate::TypedUdpDiscoveryResponse) -> &str {
+        response
+            .observation()
+            .fields()
+            .definition()
+            .descriptor()
+            .name()
+    }
+
+    #[test]
+    fn p58_complete_lifecycle_preserves_exact_bits_selection_and_reuses_port() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let expected = [
+            record(
+                11.25,
+                [f32::from_bits(0x3fc0_0001), f32::from_bits(0xc020_0001)],
+            ),
+            record(
+                12.5,
+                [f32::from_bits(0x4050_0001), f32::from_bits(0xc098_0001)],
+            ),
+        ];
+        let expected_bits: Vec<Vec<u32>> = expected
+            .iter()
+            .map(|record| {
+                record
+                    .sample()
+                    .values()
+                    .iter()
+                    .map(|value| value.to_bits())
+                    .collect()
+            })
+            .collect();
+        let outlet = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &identity("11111111-2222-4333-8444-555555555555"),
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+                &expected,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let completed = run_complete_lifecycle(
+            document("127.0.0.1", endpoint.port()),
+            "selected",
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(completed.response_index(), 0);
+        assert_eq!(
+            response_name(&completed.discovery().responses()[0]),
+            "selected"
+        );
+        assert_eq!(completed.report().peer(), endpoint);
+        let actual_bits: Vec<Vec<u32>> = completed
+            .report()
+            .records()
+            .iter()
+            .map(|record| {
+                record
+                    .sample()
+                    .values()
+                    .iter()
+                    .map(|value| value.to_bits())
+                    .collect()
+            })
+            .collect();
+        assert_eq!(actual_bits, expected_bits);
+        assert_eq!(outlet.join().unwrap().record_count(), 2);
+        drop(completed);
+        TcpListener::bind(endpoint).unwrap();
+    }
+
+    #[test]
+    fn p58_no_exact_name_retains_completed_discovery() {
+        let error =
+            run_complete_lifecycle(document("127.0.0.1", 9), "absent", &AtomicBool::new(false))
+                .unwrap_err();
+        match error {
+            TypedUdpDiscoveryFloat32CompleteLifecycleError::NoMatchingStreamName {
+                stream_name,
+                discovery,
+            } => {
+                assert_eq!(stream_name, "absent");
+                assert_eq!(discovery.responses().len(), 1);
+                assert_eq!(response_name(&discovery.responses()[0]), "selected");
+            }
+            other => panic!("unexpected stage failure: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p58_empty_discovery_retains_deadline_termination() {
+        let sink = UdpSocket::bind("127.0.0.1:0").unwrap();
+        let destination = sink.local_addr().unwrap();
+        let error = run_typed_udp_discovery_float32_session_inlet(
+            discovery_activation(),
+            UdpDiscoveryConfig::new(
+                "127.0.0.1:0".parse().unwrap(),
+                destination,
+                UdpDiscoveryLimits::new(
+                    1024,
+                    1,
+                    Duration::from_millis(5),
+                    Duration::from_millis(20),
+                )
+                .unwrap(),
+                ShortInfoResponseEnvelopeLimits::new(1, 1024).unwrap(),
+            ),
+            &query(),
+            &AtomicBool::new(false),
+            ShortInfoResponseEnvelopeLimits::new(1, 1024).unwrap(),
+            admission_limits(),
+            "selected",
+            session_activation(),
+            &identity("11111111-2222-4333-8444-555555555555"),
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+            2,
+            2,
+            &AtomicBool::new(false),
+        )
+        .unwrap_err();
+        match error {
+            TypedUdpDiscoveryFloat32CompleteLifecycleError::NoMatchingStreamName {
+                discovery,
+                ..
+            } => {
+                assert!(discovery.responses().is_empty());
+                assert_eq!(
+                    discovery.termination(),
+                    crate::UdpDiscoveryTermination::Deadline
+                );
+            }
+            other => panic!("unexpected stage failure: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p58_session_cancellation_retains_selected_identity() {
+        let error =
+            run_complete_lifecycle(document("127.0.0.1", 9), "selected", &AtomicBool::new(true))
+                .unwrap_err();
+        match error {
+            TypedUdpDiscoveryFloat32CompleteLifecycleError::Connection {
+                discovery,
+                response_index,
+                error:
+                    TypedUdpDiscoveryFloat32SessionConnectionError::Session(
+                        TimestampedFloat32SessionError::Handshake(StreamHandshakeError::Cancelled),
+                    ),
+            } => {
+                assert_eq!(response_index, 0);
+                assert_eq!(
+                    response_name(&discovery.responses()[response_index]),
+                    "selected"
+                );
+            }
+            other => panic!("unexpected stage failure: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p58_transfer_failure_retains_selected_identity_and_cleans_up() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let endpoint = listener.local_addr().unwrap();
+        let outlet = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight_bounded(
+                session_activation(),
+                listener,
+                &identity("11111111-2222-4333-8444-555555555555"),
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 2).unwrap(),
+                &[record(11.25, [1.5, -2.5]), record(12.5, [3.25, -4.75])],
+            )
+            .unwrap()
+            .accept(&AtomicBool::new(false))
+            .unwrap()
+            .close()
+        });
+        let error = run_complete_lifecycle(
+            document("127.0.0.1", endpoint.port()),
+            "selected",
+            &AtomicBool::new(false),
+        )
+        .unwrap_err();
+        match error {
+            TypedUdpDiscoveryFloat32CompleteLifecycleError::Transfer {
+                discovery,
+                response_index,
+                ..
+            } => {
+                assert_eq!(response_index, 0);
+                assert_eq!(
+                    response_name(&discovery.responses()[response_index]),
+                    "selected"
+                );
+            }
+            other => panic!("unexpected stage failure: {other:?}"),
+        }
+        outlet.join().unwrap();
+        TcpListener::bind(endpoint).unwrap();
     }
 
     #[test]
