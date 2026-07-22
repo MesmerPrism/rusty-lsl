@@ -1,5 +1,12 @@
 # Rusty LSL
 
+P64 adds a public, bounded, data-only advisory composition over the exact P63
+execution observation. Caller-bound opaque identity, budget, committed-cycle
+extent, and per-cycle facts must all match before the proposal commits; drift
+returns no partial proposal. The descriptive classification neither requests
+nor causes behavior. See
+`docs/p64-requested-processing-execution-advisory.md`.
+
 P61 adds public transactional observability that binds completed Float32
 caller-requested timestamp processing to exact finite-recovery/cancellation and
 bounded queue/backpressure health while preserving each runtime owner.

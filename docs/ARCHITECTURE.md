@@ -1217,3 +1217,18 @@ same-execution report series; it never combines reports from distinct cycles.
 The caller remains the report-to-cycle association authority. P63 does not
 execute supervision, infer loss or queue state, retry, schedule, acquire clocks,
 choose recovery or queue policy, or activate runtime capability.
+
+## P64 requested-processing execution advisory
+
+P64 first derives the exact bounded observation of a completed or stopped P63
+batch. A public transactional facade then compares that observation with
+caller-owned provenance: opaque source and execution identities, the finite
+budget, committed-cycle count, and exact per-cycle report/progress facts. Any
+identity, extent, or fact drift refuses without returning a partial proposal.
+
+The committed proposal retains the observation and exposes only its exact
+identity, budget, committed-cycle count, and a descriptive complete,
+incomplete, or no-committed-cycle classification. It has no application edge.
+Manifold retains schema, command, admission, route, lease, revision,
+authorization, scheduling, and audit authority; all execution and activation
+owners remain unchanged and activation stays explicit and default-disabled.

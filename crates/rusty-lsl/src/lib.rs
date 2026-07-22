@@ -126,6 +126,9 @@ mod morphospace_float32_report_window_stability_proposal;
 mod morphospace_float32_retained_advisory_summary;
 mod morphospace_float32_retained_advisory_summary_history;
 mod morphospace_float32_retained_report_evidence_export_proposal;
+mod morphospace_requested_processing_execution_advisory;
+mod morphospace_requested_processing_execution_advisory_proposal;
+mod morphospace_requested_processing_execution_observation;
 mod raw_clock_exchange;
 mod requested_post_processing_queue_health;
 mod requested_post_processing_recovery;
@@ -383,6 +386,17 @@ pub use metadata_tree::{
 pub use metadata_xml_projection::{
     project_metadata_tree_to_xml_element_tree, MetadataXmlProjectionError,
     MetadataXmlProjectionLimits,
+};
+pub use morphospace_requested_processing_execution_advisory::{
+    propose_complete_requested_processing_execution_advisory,
+    propose_stopped_requested_processing_execution_advisory,
+    MorphospaceRequestedProcessingExecutionAdvisoryClassification,
+    MorphospaceRequestedProcessingExecutionAdvisoryError,
+    MorphospaceRequestedProcessingExecutionAdvisoryLimits,
+    MorphospaceRequestedProcessingExecutionAdvisoryLimitsError,
+    MorphospaceRequestedProcessingExecutionAdvisoryProposal,
+    MorphospaceRequestedProcessingExecutionAdvisoryProvenance,
+    MorphospaceRequestedProcessingExecutionCycleProvenance,
 };
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,

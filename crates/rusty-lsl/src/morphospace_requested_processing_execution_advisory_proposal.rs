@@ -13,6 +13,18 @@ use crate::{
     RequestedProcessingSupervisionTerminations,
 };
 
+pub(crate) fn classify_requested_processing_execution_cycle(
+    total: usize,
+    completed: usize,
+    remaining: usize,
+    current: Option<usize>,
+) -> Option<bool> {
+    let extent_consistent = completed.checked_add(remaining) == Some(total);
+    let complete = remaining == 0 && current.is_none();
+    let incomplete = remaining != 0 && current == Some(completed);
+    (extent_consistent && (complete || incomplete)).then_some(complete)
+}
+
 /// Exact opaque identity supplied and retained by the caller.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) struct MorphospaceRequestedProcessingExecutionSourceIdentity {
@@ -257,23 +269,19 @@ impl MorphospaceRequestedProcessingExecutionAdvisoryProposalOwner {
             if value.total_execution_count() > self.bounds.maximum_execution_extent {
                 return Err(MorphospaceRequestedProcessingExecutionAdvisoryError::ExecutionExtentExpansion { cycle, limit: self.bounds.maximum_execution_extent, actual: value.total_execution_count(), source });
             }
-            let extent_consistent = value
-                .last_completed_execution_count()
-                .checked_add(value.last_remaining_execution_count())
-                == Some(value.total_execution_count());
-            let complete = value.last_remaining_execution_count() == 0
-                && value.last_current_execution_index().is_none();
-            let incomplete = value.last_remaining_execution_count() != 0
-                && value.last_current_execution_index()
-                    == Some(value.last_completed_execution_count());
-            if !extent_consistent || !(complete || incomplete) {
+            let Some(complete) = classify_requested_processing_execution_cycle(
+                value.total_execution_count(),
+                value.last_completed_execution_count(),
+                value.last_remaining_execution_count(),
+                value.last_current_execution_index(),
+            ) else {
                 return Err(
                     MorphospaceRequestedProcessingExecutionAdvisoryError::EvidenceContradiction {
                         cycle,
                         source,
                     },
                 );
-            }
+            };
             all_complete &= complete;
             evidence.push(MorphospaceRequestedProcessingExecutionCycleEvidence {
                 cycle,

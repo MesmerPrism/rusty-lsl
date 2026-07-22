@@ -1,5 +1,14 @@
 # Rusty LSL Agent Notes
 
+P64 publicly composes the exact bounded P63 execution observation with a
+default-inert advisory proposal. The caller binds opaque source/execution
+identity, budget, committed-cycle extent, and exact per-cycle facts;
+identity, extent, or fact drift refuses transactionally. The proposal is
+data-only and grants no Manifold schema, command, admission, route, lease,
+revision, authorization, scheduling, or audit authority, and adds no
+execution, retry, recovery policy, queue, clock, discovery, socket,
+background work, or default activation.
+
 P63 adds a finite caller-budgeted P62 execution batch, immutable bounded
 supervision of exact same-execution report snapshots, and one transactional
 composition requiring exactly one supervision series per committed cycle.
