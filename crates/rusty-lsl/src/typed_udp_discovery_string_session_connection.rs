@@ -73,6 +73,43 @@ fn contract_error(
     }
 }
 
+impl<'a> TimestampedStringInletSession<'a> {
+    /// Resolves one caller-selected discovery response into socket-free String preflight.
+    #[allow(clippy::too_many_arguments)]
+    pub fn preflight_selected_typed_udp_discovery(
+        discovery: &TypedUdpDiscoveryRun,
+        response_index: usize,
+        session_activation: StringSampleActivation,
+        expected_identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        io_limits: StringSampleLimits,
+        session_limits: TimestampedStringSessionLimits,
+        channel_count: usize,
+        record_count: usize,
+    ) -> Result<Self, TypedUdpDiscoveryStringSessionConnectionError> {
+        let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
+            .map_err(TypedUdpDiscoveryStringSessionConnectionError::Endpoint)?;
+        validate_selected_typed_udp_discovery_session_contract(
+            &discovery.responses()[response_index],
+            ChannelFormat::String,
+            channel_count,
+            expected_identity,
+        )
+        .map_err(contract_error)?;
+        Self::preflight_bounded(
+            session_activation,
+            endpoint.into(),
+            expected_identity,
+            handshake_limits,
+            io_limits,
+            session_limits,
+            channel_count,
+            record_count,
+        )
+        .map_err(TypedUdpDiscoveryStringSessionConnectionError::Preflight)
+    }
+}
+
 /// Projects one caller-selected completed discovery response and connects the 1x1 String inlet.
 ///
 /// The caller retains discovery execution, receive-order selection, expected identity, limits,
@@ -94,26 +131,17 @@ pub fn connect_selected_typed_udp_discovery_string_session_inlet(
     record_count: usize,
     session_cancelled: &AtomicBool,
 ) -> Result<TimestampedStringConnectedInletSession, TypedUdpDiscoveryStringSessionConnectionError> {
-    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
-        .map_err(TypedUdpDiscoveryStringSessionConnectionError::Endpoint)?;
-    validate_selected_typed_udp_discovery_session_contract(
-        &discovery.responses()[response_index],
-        ChannelFormat::String,
-        channel_count,
-        expected_identity,
-    )
-    .map_err(contract_error)?;
-    let session = TimestampedStringInletSession::preflight_bounded(
+    let session = TimestampedStringInletSession::preflight_selected_typed_udp_discovery(
+        discovery,
+        response_index,
         session_activation,
-        endpoint.into(),
         expected_identity,
         handshake_limits,
         io_limits,
         session_limits,
         channel_count,
         record_count,
-    )
-    .map_err(TypedUdpDiscoveryStringSessionConnectionError::Preflight)?;
+    )?;
     session
         .connect(session_cancelled)
         .map_err(TypedUdpDiscoveryStringSessionConnectionError::Session)
@@ -300,19 +328,21 @@ mod tests {
                 .unwrap()
             });
             let discovery = completed_discovery(document(endpoint.port()));
-            let mut connected = connect_selected_typed_udp_discovery_string_session_inlet(
-                &discovery,
-                0,
-                session_activation(),
-                &identity(),
-                handshake_limits(),
-                io_limits(),
-                TimestampedStringSessionLimits::new(1, 1).unwrap(),
-                1,
-                1,
-                &AtomicBool::new(false),
-            )
-            .unwrap();
+            let expected_identity = identity();
+            let preflighted =
+                TimestampedStringInletSession::preflight_selected_typed_udp_discovery(
+                    &discovery,
+                    0,
+                    session_activation(),
+                    &expected_identity,
+                    handshake_limits(),
+                    io_limits(),
+                    TimestampedStringSessionLimits::new(1, 1).unwrap(),
+                    1,
+                    1,
+                )
+                .unwrap();
+            let mut connected = preflighted.connect(&AtomicBool::new(false)).unwrap();
             connected.transfer_next(&AtomicBool::new(false)).unwrap();
             let allocation = connected.received_records()[0].value().as_ptr();
             let report = connected

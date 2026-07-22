@@ -54,6 +54,49 @@ macro_rules! integer_discovery_session_adapter {
             Session(crate::$session_error),
         }
 
+        impl<'a> crate::$inlet<'a> {
+            #[doc = concat!("Resolves one caller-selected discovery response into socket-free ", $label, " preflight.")]
+            #[allow(clippy::too_many_arguments)]
+            pub fn preflight_selected_typed_udp_discovery(
+                discovery: &TypedUdpDiscoveryRun,
+                response_index: usize,
+                session_activation: FixedWidthNumericSampleActivation,
+                expected_identity: &'a StreamHandshakeIdentity,
+                handshake_limits: StreamHandshakeLimits,
+                io_limits: crate::$io_limits,
+                session_limits: crate::$limits,
+                channel_count: usize,
+                record_count: usize,
+            ) -> Result<Self, $error> {
+                let endpoint =
+                    propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
+                        .map_err($error::Endpoint)?;
+                validate_selected_typed_udp_discovery_session_contract(
+                    &discovery.responses()[response_index],
+                    ChannelFormat::$format,
+                    channel_count,
+                    expected_identity,
+                )
+                .map_err(|mismatch| match mismatch {
+                    TypedUdpDiscoverySessionContractMismatch::Format { expected, actual } =>
+                        $error::FormatMismatch { expected, actual },
+                    TypedUdpDiscoverySessionContractMismatch::ChannelCount { expected, actual } =>
+                        $error::ChannelCountMismatch { expected, actual },
+                    TypedUdpDiscoverySessionContractMismatch::Identity { role, expected, actual } =>
+                        $error::IdentityMismatch {
+                            role,
+                            expected: expected.to_owned(),
+                            actual: actual.to_owned(),
+                        },
+                })?;
+                Self::preflight_bounded(
+                    session_activation, endpoint.into(), expected_identity, handshake_limits,
+                    io_limits, session_limits, channel_count, record_count,
+                )
+                .map_err($error::Preflight)
+            }
+        }
+
         #[doc = concat!("Projects one caller-selected completed discovery response and connects one bounded ", $label, " inlet.")]
         ///
         /// The caller retains discovery execution, receive-order selection, expected identity,
@@ -74,38 +117,17 @@ macro_rules! integer_discovery_session_adapter {
             record_count: usize,
             session_cancelled: &AtomicBool,
         ) -> Result<crate::$connected, $error> {
-            let endpoint =
-                propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
-                    .map_err($error::Endpoint)?;
-            validate_selected_typed_udp_discovery_session_contract(
-                &discovery.responses()[response_index],
-                ChannelFormat::$format,
-                channel_count,
-                expected_identity,
-            )
-            .map_err(|mismatch| match mismatch {
-                TypedUdpDiscoverySessionContractMismatch::Format { expected, actual } =>
-                    $error::FormatMismatch { expected, actual },
-                TypedUdpDiscoverySessionContractMismatch::ChannelCount { expected, actual } =>
-                    $error::ChannelCountMismatch { expected, actual },
-                TypedUdpDiscoverySessionContractMismatch::Identity { role, expected, actual } =>
-                    $error::IdentityMismatch {
-                        role,
-                        expected: expected.to_owned(),
-                        actual: actual.to_owned(),
-                    },
-            })?;
-            let session = crate::$inlet::preflight_bounded(
+            let session = crate::$inlet::preflight_selected_typed_udp_discovery(
+                discovery,
+                response_index,
                 session_activation,
-                endpoint.into(),
                 expected_identity,
                 handshake_limits,
                 io_limits,
                 session_limits,
                 channel_count,
                 record_count,
-            )
-            .map_err($error::Preflight)?;
+            )?;
             session.connect(session_cancelled).map_err($error::Session)
         }
 
@@ -316,7 +338,7 @@ mod tests {
     }
 
     macro_rules! assert_integer_shapes {
-        ($value:ty, $format:literal, $outlet:ident, $connect:ident, $io:ident, $limits:ident) => {{
+        ($value:ty, $format:literal, $outlet:ident, $inlet:ident, $connect:ident, $io:ident, $limits:ident) => {{
             for (channels, count) in [(1, 1), (2, 3)] {
                 let listener = TcpListener::bind("127.0.0.1:0").unwrap();
                 let endpoint = listener.local_addr().unwrap();
@@ -350,19 +372,20 @@ mod tests {
                 });
                 let discovery =
                     completed_discovery(document("127.0.0.1", endpoint.port(), channels, $format));
-                let mut connected = $connect(
+                let expected_identity = identity();
+                let preflighted = crate::$inlet::preflight_selected_typed_udp_discovery(
                     &discovery,
                     0,
                     session_activation(),
-                    &identity(),
+                    &expected_identity,
                     handshake_limits(),
                     crate::$io::new(Duration::from_millis(5), Duration::from_secs(1)).unwrap(),
                     crate::$limits::new(channels, count).unwrap(),
                     channels,
                     count,
-                    &AtomicBool::new(false),
                 )
                 .unwrap();
+                let mut connected = preflighted.connect(&AtomicBool::new(false)).unwrap();
                 assert_eq!(discovery.responses().len(), 1);
                 assert_eq!(connected.peer(), endpoint);
                 for completed in 1..=count {
@@ -445,6 +468,7 @@ mod tests {
             i32,
             "int32",
             TimestampedInt32OutletSession,
+            TimestampedInt32InletSession,
             connect_selected_typed_udp_discovery_int32_session_inlet,
             TimestampedInt32SessionIoLimits,
             TimestampedInt32SessionLimits
@@ -453,6 +477,7 @@ mod tests {
             i16,
             "int16",
             TimestampedInt16OutletSession,
+            TimestampedInt16InletSession,
             connect_selected_typed_udp_discovery_int16_session_inlet,
             TimestampedInt16SessionIoLimits,
             TimestampedInt16SessionLimits
@@ -461,6 +486,7 @@ mod tests {
             i8,
             "int8",
             TimestampedInt8OutletSession,
+            TimestampedInt8InletSession,
             connect_selected_typed_udp_discovery_int8_session_inlet,
             TimestampedInt8SessionIoLimits,
             TimestampedInt8SessionLimits
@@ -473,6 +499,7 @@ mod tests {
             i64,
             "int64",
             TimestampedInt64OutletSession,
+            TimestampedInt64InletSession,
             connect_selected_typed_udp_discovery_int64_session_inlet,
             TimestampedInt64SessionIoLimits,
             TimestampedInt64SessionLimits

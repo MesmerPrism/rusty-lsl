@@ -77,6 +77,43 @@ fn contract_error(
     }
 }
 
+impl<'a> TimestampedDouble64InletSession<'a> {
+    /// Resolves one caller-selected discovery response into socket-free Double64 preflight.
+    #[allow(clippy::too_many_arguments)]
+    pub fn preflight_selected_typed_udp_discovery(
+        discovery: &TypedUdpDiscoveryRun,
+        response_index: usize,
+        session_activation: FixedWidthNumericSampleActivation,
+        expected_identity: &'a StreamHandshakeIdentity,
+        handshake_limits: StreamHandshakeLimits,
+        io_limits: TimestampedDouble64SessionIoLimits,
+        session_limits: TimestampedDouble64SessionLimits,
+        channel_count: usize,
+        record_count: usize,
+    ) -> Result<Self, TypedUdpDiscoveryDouble64SessionConnectionError> {
+        let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
+            .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Endpoint)?;
+        validate_selected_typed_udp_discovery_session_contract(
+            &discovery.responses()[response_index],
+            ChannelFormat::Double64,
+            channel_count,
+            expected_identity,
+        )
+        .map_err(contract_error)?;
+        Self::preflight_bounded(
+            session_activation,
+            endpoint.into(),
+            expected_identity,
+            handshake_limits,
+            io_limits,
+            session_limits,
+            channel_count,
+            record_count,
+        )
+        .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Preflight)
+    }
+}
+
 /// Projects one caller-selected completed discovery response and connects one bounded inlet.
 ///
 /// The caller retains the completed discovery run, receive-order selection, expected identity,
@@ -99,26 +136,17 @@ pub fn connect_selected_typed_udp_discovery_double64_session_inlet(
     session_cancelled: &AtomicBool,
 ) -> Result<TimestampedDouble64ConnectedInletSession, TypedUdpDiscoveryDouble64SessionConnectionError>
 {
-    let endpoint = propose_typed_udp_discovery_ipv4_service_endpoint(discovery, response_index)
-        .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Endpoint)?;
-    validate_selected_typed_udp_discovery_session_contract(
-        &discovery.responses()[response_index],
-        ChannelFormat::Double64,
-        channel_count,
-        expected_identity,
-    )
-    .map_err(contract_error)?;
-    let session = TimestampedDouble64InletSession::preflight_bounded(
+    let session = TimestampedDouble64InletSession::preflight_selected_typed_udp_discovery(
+        discovery,
+        response_index,
         session_activation,
-        endpoint.into(),
         expected_identity,
         handshake_limits,
         io_limits,
         session_limits,
         channel_count,
         record_count,
-    )
-    .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Preflight)?;
+    )?;
     session
         .connect(session_cancelled)
         .map_err(TypedUdpDiscoveryDouble64SessionConnectionError::Session)
@@ -356,19 +384,20 @@ mod tests {
             .unwrap()
         });
         let discovery = completed_discovery(document("127.0.0.1", endpoint.port(), channels));
-        let mut connected = connect_selected_typed_udp_discovery_double64_session_inlet(
+        let expected_identity = identity();
+        let preflighted = TimestampedDouble64InletSession::preflight_selected_typed_udp_discovery(
             &discovery,
             0,
             session_activation(),
-            &identity(),
+            &expected_identity,
             handshake_limits(),
             io_limits(),
             TimestampedDouble64SessionLimits::new(channels, count).unwrap(),
             channels,
             count,
-            &AtomicBool::new(false),
         )
         .unwrap();
+        let mut connected = preflighted.connect(&AtomicBool::new(false)).unwrap();
         assert_eq!(discovery.responses().len(), 1);
         assert_eq!(connected.peer(), endpoint);
         for completed in 1..=count {
