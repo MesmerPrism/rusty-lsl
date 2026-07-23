@@ -1,5 +1,14 @@
 # Compatibility
 
+## Current P67/P68 boundary
+
+The current candidate combines bounded caller-explicit discovery, transport,
+recovery/clock/queue composition, and separate host/Quest IPv4-loopback
+qualifications. Those facts do not compose into official interoperability,
+non-loopback, cross-host, or host-to-Quest qualification. P68 changes only
+Rust 1.80, CI/history/PowerShell correctness, and release-review routing; it
+adds no compatibility observation or runtime behavior.
+
 ## Production priority policy
 
 Compatibility evidence is required when it validates the native production

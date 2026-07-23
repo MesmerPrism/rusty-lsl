@@ -1,5 +1,17 @@
 # Rusty LSL
 
+P68 is a release-gap correction only. It restores declared Rust 1.80
+compilation without changing floating-point bits, makes CI use complete Git
+history under `pwsh`, and requires an executing CI/Deep release review before
+handoff. P67 remains an unpublished feature-branch candidate: version `0.0.0`,
+`publish = false`, default-disabled activation, and no public-main, official
+oracle, non-loopback, host-to-Quest, release, tag, or registry claim.
+
+The first-hop chronology is under material pressure. P68 does not risk a broad
+mechanical rewrite; the next documentation-only maintenance unit should move
+P56-P67 narrative into `docs/history/` and retain a compact capability,
+transport, recovery, and release-boundary router here.
+
 P65 adds a public transactional composition between exact caller-owned
 whole-session lifecycle evidence and a caller-authored advisory proposal.
 Identity/provenance, P64 execution extent, selection, lifecycle, processing,

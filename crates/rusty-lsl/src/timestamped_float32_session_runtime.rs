@@ -902,10 +902,12 @@ pub enum TimestampedDouble64SessionError {
 struct Double64;
 
 impl Double64 {
-    const INITIALIZATION_TIMESTAMP_BITS: u64 = 123_456.789f64.to_bits();
+    // Literal IEEE-754 encodings keep the fixture bit-identical while
+    // remaining const-stable on the declared Rust 1.80 MSRV.
+    const INITIALIZATION_TIMESTAMP_BITS: u64 = 0x40fe_240c_9fbe_76c9;
     const INITIALIZATION_VALUE_BITS: [[u64; 2]; 2] = [
-        [16_777_221.0f64.to_bits(), (-16_777_222.0f64).to_bits()],
-        [16_777_219.0f64.to_bits(), (-16_777_220.0f64).to_bits()],
+        [0x4170_0000_5000_0000, 0xc170_0000_6000_0000],
+        [0x4170_0000_3000_0000, 0xc170_0000_4000_0000],
     ];
 
     fn record_bytes(channels: usize) -> Result<usize, FixedWidthNumericSampleError> {

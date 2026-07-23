@@ -1,5 +1,16 @@
 # Rusty LSL Agent Notes
 
+P68 is limited to MSRV/CI/release-handoff truth. It changes no runtime scope,
+activation, official-oracle, non-loopback, device, Manifold, Makepad, public
+main, version, tag, release, or registry authority. Release review must use
+PowerShell 7.6+ through `pwsh` and the executing gate documented in
+`docs/RELEASE_CANDIDATE.md`; static readiness remains non-executing.
+
+This first-hop file retains excessive accepted-unit history. A bounded
+documentation-only successor should archive the P56-P67 narratives under
+`docs/history/`, preserve current authority/non-scope/validation rules here,
+and extend `tools/check_documentation_router.py` to bind the extraction.
+
 P65 transactionally composes caller-supplied whole-session lifecycle facts with
 one caller-authored default-inert advisory. Exact caller/native identity,
 proposal provenance, P64 source/execution/budget/extent, receive-order

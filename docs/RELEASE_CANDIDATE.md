@@ -52,6 +52,10 @@ A passing feature-branch candidate is reviewable evidence only. It does not
 integrate public main and does not version, tag, release, or publish anything.
 Those actions remain a separate, specifically authorized public-main
 integration and release boundary. The authorized integrator must separately
-review the candidate, run the validation profile appropriate to that boundary,
-choose and approve a version, and explicitly authorize any merge, tag, release,
-or registry publication.
+run `pwsh -NoProfile -File ./tools/Review-ReleaseCandidate.ps1`. That executing
+review runs the public API target and CI profile under Rust 1.80, then Deep and
+this static readiness gate, and binds the exact commit, tree, toolchain, and
+profiles. Only that review may support a release-boundary handoff; this static
+script remains non-executing evidence. The integrator must still choose and
+approve a version and explicitly authorize any merge, tag, release, or
+registry publication.

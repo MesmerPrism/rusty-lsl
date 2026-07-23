@@ -1,7 +1,7 @@
 {
   "$schema": "https://github.com/MesmerPrism/rusty-lsl/tools/validation-policy.schema.json",
   "schema": "rusty.lsl.validation_policy.v1",
-  "revision": 1,
+  "revision": 2,
   "authority": "tools/validation-policy.json",
   "historical_index": "tools/validation-historical-gates.json",
   "profiles": {
@@ -17,6 +17,7 @@
       "current-closure",
       "public-boundary",
       "documentation-router",
+      "release-review-contract",
       "lslc-003o-observation",
       "lslc-003p-runtime",
       "lslc-003q-observation",
@@ -50,6 +51,7 @@
       "current-closure",
       "public-boundary",
       "documentation-router",
+      "release-review-contract",
       "lslc-003o-observation",
       "lslc-003p-runtime",
       "lslc-003q-observation",
@@ -87,6 +89,7 @@
       "current-closure",
       "public-boundary",
       "documentation-router",
+      "release-review-contract",
       "lslc-003o-observation",
       "lslc-003p-runtime",
       "lslc-003q-observation",
@@ -337,6 +340,42 @@
       "environment": {
         "network": "forbidden",
         "timeout_seconds": 120
+      }
+    },
+    {
+      "id": "release-review-contract",
+      "owner": "rusty-lsl-release-review",
+      "state": "current",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tools/Review-ReleaseCandidate.ps1",
+        "-SelfTestOnly"
+      ],
+      "depends_on": [
+        "documentation-router"
+      ],
+      "change_categories": [
+        "validation",
+        "documentation"
+      ],
+      "affected_paths": [
+        ".github/workflows/ci.yml",
+        "docs/RELEASE_CANDIDATE.md",
+        "tools/Review-ReleaseCandidate.ps1",
+        "tools/Test-ReleaseCandidateReadiness.ps1",
+        "tools/validation-policy.json"
+      ],
+      "proves": [
+        "release handoff routes through an executing Rust 1.80 CI and Deep review gate while static readiness remains non-executing"
+      ],
+      "does_not_prove": [
+        "that the executing release review has run, public-main integration, versioning, tagging, release, registry publication, device behavior, or interoperability"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 60
       }
     },
     {

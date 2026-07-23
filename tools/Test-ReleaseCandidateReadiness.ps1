@@ -57,6 +57,11 @@ function Test-Policy([hashtable]$Policy) {
             Require ($ids -contains $gateId) "profile $profile references unknown gate $gateId"
         }
     }
+    Require ($Policy.profiles["ci"] -contains "pinned-rust-180-clippy") "CI profile lacks the declared Rust 1.80 gate"
+    Require ($Policy.profiles["deep"] -contains "pinned-rust-180-clippy") "Deep profile lacks the declared Rust 1.80 gate"
+    foreach ($profile in @("standard", "deep", "ci")) {
+        Require ($Policy.profiles[$profile] -contains "release-review-contract") "$profile profile lacks the release-review contract"
+    }
 }
 
 function Test-Document([string]$Name, [string]$Text, [string[]]$RequiredPatterns) {
@@ -143,6 +148,7 @@ $requiredPaths = @(
     "docs/SUPPLY_CHAIN.md",
     "docs/VALIDATION.md",
     "tools/Test-ReleaseCandidateReadiness.ps1",
+    "tools/Review-ReleaseCandidate.ps1",
     "tools/dispatch_validation.py",
     "tools/validation-policy.json"
 )

@@ -695,6 +695,17 @@ the policy-owned `ci` profile directly. Gates declare stable IDs, owners,
 dependencies, change scope, claims, limitations, environment, and timeouts.
 Receipts record executions but never select policy.
 
+Release-boundary review uses PowerShell 7.6 or newer:
+
+```text
+pwsh -NoProfile -File ./tools/Review-ReleaseCandidate.ps1
+```
+
+The review executes the public API target and CI profile under the declared
+Rust 1.80 toolchain, then Deep and the non-executing static readiness gate.
+Its final output binds exact commit, tree, toolchain, and profiles. Static
+readiness alone cannot establish release-handoff readiness.
+
 LSLC-003O observation evidence is checked through the policy-owned
 `lslc-003o-observation` gate. Its focused direct route is:
 
