@@ -127,7 +127,7 @@ Require (@(Invoke-Git @("status", "--porcelain=v1", "--untracked-files=all")).Co
 $branch = (@(Invoke-Git @("symbolic-ref", "--quiet", "--short", "HEAD")))[0].Trim()
 Require ($branch.StartsWith("codex/")) "candidate must remain on an isolated codex/* feature branch"
 Require ($branch -notin @("main", "master", "public-main")) "candidate must not be public main"
-$parents = ((@(Invoke-Git @("show", "-s", "--format=%P", "HEAD")))[0].Trim() -split '\s+' | Where-Object { $_ })
+$parents = @((@(Invoke-Git @("show", "-s", "--format=%P", "HEAD")))[0].Trim() -split '\s+' | Where-Object { $_ })
 Require ($parents.Count -eq 1) "candidate HEAD must have exactly one parent"
 
 $requiredPaths = @(
