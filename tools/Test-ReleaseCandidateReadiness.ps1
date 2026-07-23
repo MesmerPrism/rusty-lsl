@@ -177,8 +177,8 @@ Test-Document "docs/ARCHITECTURE.md" (Get-Content "docs/ARCHITECTURE.md" -Raw) @
     'explicit activation'
 )
 Test-Document "docs/COMPATIBILITY.md" (Get-Content "docs/COMPATIBILITY.md" -Raw) @(
-    'Compatibility status',
-    'not implemented and not claimed'
+    '^# Compatibility\s*$',
+    '[Nn]ot implemented and not claimed'
 )
 Test-Document "docs/LSL-PRODUCTION-ROADMAP.md" (Get-Content "docs/LSL-PRODUCTION-ROADMAP.md" -Raw) @(
     'P8: stable promotion, public-main integration review, and versioned release readiness',
