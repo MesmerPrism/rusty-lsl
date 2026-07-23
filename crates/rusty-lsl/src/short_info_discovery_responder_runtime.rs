@@ -204,6 +204,35 @@ pub fn run_short_info_responder(
     )
 }
 
+/// Runs one bounded response loop on a caller-owned, already-bound UDP socket.
+///
+/// This entry point performs no bind. It derives the effective local address
+/// from the supplied socket before entering the same cancellation, deadline,
+/// request-limit, query-validation, response, and cleanup path used by
+/// [`run_short_info_responder`].
+pub fn run_prebound_short_info_responder(
+    _activation: ShortInfoResponderActivation,
+    socket: UdpSocket,
+    limits: ShortInfoResponderLimits,
+    query_limits: ShortInfoQueryWireLimits,
+    response_limits: ShortInfoResponseEnvelopeLimits,
+    body: &ParsedStreamInfoObservedDocument<'_>,
+    cancelled: &AtomicBool,
+) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
+    let local_address = socket
+        .local_addr()
+        .map_err(|e| ShortInfoResponderError::LocalAddress(e.kind()))?;
+    run_short_info_responder_on_socket(
+        socket,
+        local_address,
+        limits,
+        query_limits,
+        response_limits,
+        body,
+        cancelled,
+    )
+}
+
 /// Runs the existing bounded responder on the exact documented IPv4 multicast
 /// destination and one caller-explicit loopback interface.
 pub fn run_explicit_loopback_multicast_short_info_responder(
@@ -420,26 +449,6 @@ mod tests {
         socket.local_addr().unwrap()
     }
 
-    fn run_prebound_short_info_responder(
-        socket: UdpSocket,
-        limits: ShortInfoResponderLimits,
-        query_limits: ShortInfoQueryWireLimits,
-        response_limits: ShortInfoResponseEnvelopeLimits,
-        body: &ParsedStreamInfoObservedDocument<'_>,
-        cancelled: &AtomicBool,
-    ) -> Result<ShortInfoResponderRun, ShortInfoResponderError> {
-        let local_address = socket.local_addr().unwrap();
-        run_short_info_responder_on_socket(
-            socket,
-            local_address,
-            limits,
-            query_limits,
-            response_limits,
-            body,
-            cancelled,
-        )
-    }
-
     fn spawn_unicast_responder(
         socket: UdpSocket,
         text: String,
@@ -456,6 +465,7 @@ mod tests {
                 .unwrap();
                 entered.publish();
                 run_prebound_short_info_responder(
+                    activation(),
                     socket,
                     responder_limits,
                     ShortInfoQueryWireLimits::new(128, 256).unwrap(),
@@ -486,6 +496,7 @@ mod tests {
                 .unwrap();
                 entered.publish();
                 run_prebound_short_info_responder(
+                    activation(),
                     socket,
                     limits(1024, 1),
                     ShortInfoQueryWireLimits::new(128, 256).unwrap(),

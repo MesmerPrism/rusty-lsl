@@ -478,11 +478,12 @@ pub use runtime_activation::{
 pub use sample::{Sample, SampleBound, SampleError, SampleLimits};
 pub use short_info_discovery_responder_runtime::{
     run_explicit_ipv4_multicast_short_info_responder,
-    run_explicit_loopback_multicast_short_info_responder, run_short_info_responder,
-    ShortInfoResponderActivation, ShortInfoResponderActivationError, ShortInfoResponderError,
-    ShortInfoResponderLimitError, ShortInfoResponderLimits, ShortInfoResponderRun,
-    ShortInfoResponderTermination, DOCUMENTED_IPV4_MULTICAST_GROUP, DOCUMENTED_IPV4_MULTICAST_PORT,
-    SHORT_INFO_RESPONDER_EFFECTIVE_MARKER, SHORT_INFO_RESPONDER_FEATURE_ID,
+    run_explicit_loopback_multicast_short_info_responder, run_prebound_short_info_responder,
+    run_short_info_responder, ShortInfoResponderActivation, ShortInfoResponderActivationError,
+    ShortInfoResponderError, ShortInfoResponderLimitError, ShortInfoResponderLimits,
+    ShortInfoResponderRun, ShortInfoResponderTermination, DOCUMENTED_IPV4_MULTICAST_GROUP,
+    DOCUMENTED_IPV4_MULTICAST_PORT, SHORT_INFO_RESPONDER_EFFECTIVE_MARKER,
+    SHORT_INFO_RESPONDER_FEATURE_ID,
 };
 pub use short_info_query_wire::{
     ParsedShortInfoQuery, ShortInfoQuery, ShortInfoQueryEncodeError, ShortInfoQueryParseError,
