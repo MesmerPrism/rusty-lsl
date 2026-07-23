@@ -170,7 +170,7 @@ foreach ($gate in $policy.gates) {
 
 Test-Document "README.md" (Get-Content "README.md" -Raw) @(
     'default-disabled',
-    'production roadmap'
+    'Production Roadmap'
 )
 Test-Document "docs/ARCHITECTURE.md" (Get-Content "docs/ARCHITECTURE.md" -Raw) @(
     'single coherent public outlet/inlet session',
