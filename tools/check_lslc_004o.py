@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import copy, hashlib, json
+import copy, hashlib, json, subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 FIXTURE=ROOT/"fixtures/compatibility/lslc-004o-official-resolver-production-responder-observation.json"
@@ -22,8 +22,17 @@ for route,value in [(("official","pylsl"),"1.18.1"),(("scope","group"),"239.255.
     try: validate(x)
     except (AssertionError,KeyError,TypeError): continue
     raise SystemExit(f"damaged fixture accepted: {route}")
-source=(ROOT/"crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs").read_bytes()
-assert hashlib.sha256(source.split(b"#[cfg(test)]",1)[0]).hexdigest()==d["source"]["responder_production_prefix_sha256"]
+source_path="crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs"
+source=(ROOT/source_path).read_bytes()
+historical_tree=subprocess.check_output(
+    ["git", "-C", str(ROOT), "rev-parse", f'{d["source"]["rusty_lsl_commit"]}^{{tree}}'],
+    text=True,
+).strip()
+assert historical_tree==d["source"]["rusty_lsl_tree"]
+historical_source=subprocess.check_output(
+    ["git", "-C", str(ROOT), "show", f'{d["source"]["rusty_lsl_commit"]}:{source_path}']
+)
+assert hashlib.sha256(historical_source.split(b"#[cfg(test)]",1)[0]).hexdigest()==d["source"]["responder_production_prefix_sha256"]
 text=source.decode("utf-8")
 for marker in ("lslc_004o_private_active_interface_production_responder","RLSL_LSLC_004O_INTERFACE","run_explicit_ipv4_multicast_short_info_responder","ShortInfoResponderTermination::RequestLimit"):
     assert marker in text

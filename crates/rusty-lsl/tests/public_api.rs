@@ -1315,3 +1315,6 @@ fn p6_explicit_loopback_host_lifecycle_qualification() {
 
 #[path = "stable_public_api.rs"]
 mod stable_public_api_candidate;
+
+#[path = "prebound_quest_composition.rs"]
+mod prebound_quest_composition;

@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,8 +33,17 @@ for route, value in [
     try: validate(damaged)
     except (AssertionError,KeyError,TypeError): continue
     raise SystemExit(f"damaged fixture accepted: {route}")
-source=(ROOT/"crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs").read_bytes()
-production=source.split(b"#[cfg(test)]",1)[0]
+source_path="crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs"
+source=(ROOT/source_path).read_bytes()
+historical_tree=subprocess.check_output(
+    ["git", "-C", str(ROOT), "rev-parse", f'{data["source"]["rusty_lsl_commit"]}^{{tree}}'],
+    text=True,
+).strip()
+assert historical_tree==data["source"]["rusty_lsl_tree"]
+historical_source=subprocess.check_output(
+    ["git", "-C", str(ROOT), "show", f'{data["source"]["rusty_lsl_commit"]}:{source_path}']
+)
+production=historical_source.split(b"#[cfg(test)]",1)[0]
 assert hashlib.sha256(production).hexdigest()==data["source"]["responder_production_prefix_sha256"]
 text=source.decode("utf-8")
 for marker in ("lslc_004m_observed_official_query_structure_reaches_unchanged_responder","session_id='default'","10_000_000_000_000_000_001_u64","DOCUMENTED_IPV4_MULTICAST_GROUP","ShortInfoResponderTermination::RequestLimit"):
