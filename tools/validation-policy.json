@@ -1693,12 +1693,8 @@
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
       "command": [
-        "powershell",
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "tools/check_lslc_003k.ps1"
+        "python",
+        "tools/check_current_rust_180.py"
       ],
       "depends_on": [],
       "change_categories": [
@@ -1708,13 +1704,14 @@
       ],
       "affected_paths": [
         "crates/",
+        "tools/check_current_rust_180.py",
         "tools/clippy-baseline-rust-1.80.json"
       ],
       "proves": [
-        "pinned Rust 1.80 Clippy diagnostic multiset equals the accepted baseline"
+        "the current public API target and complete current Clippy target graph compile under the exact declared Rust 1.80 toolchain"
       ],
       "does_not_prove": [
-        "warning-free code or later-toolchain cleanliness"
+        "warning-count stability, runtime behavior beyond the public API test, or newer toolchains; immutable LSLC-003K warning-baseline evidence remains historical"
       ],
       "environment": {
         "network": "forbidden",

@@ -706,6 +706,12 @@ Rust 1.80 toolchain, then Deep and the non-executing static readiness gate.
 Its final output binds exact commit, tree, toolchain, and profiles. Static
 readiness alone cannot establish release-handoff readiness.
 
+The current `pinned-rust-180-clippy` role executes
+`tools/check_current_rust_180.py`: exact Rust 1.80 identity, the public API
+target, and the complete current Clippy target graph. The older LSLC-003K
+669-warning snapshot remains immutable historical evidence and is not a valid
+current-target warning inventory.
+
 LSLC-003O observation evidence is checked through the policy-owned
 `lslc-003o-observation` gate. Its focused direct route is:
 
