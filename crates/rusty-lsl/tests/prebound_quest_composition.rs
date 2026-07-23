@@ -1,9 +1,11 @@
 use rusty_lsl::{
-    admit_runtime_activation, run_prebound_short_info_responder, ParsedShortInfoResponseEnvelope,
-    ParsedStreamInfoObservedDocument, RuntimeActivationSelection, RuntimeModule, ShortInfoQuery,
-    ShortInfoQueryWire, ShortInfoQueryWireLimits, ShortInfoResponderActivation,
-    ShortInfoResponderLimits, ShortInfoResponderTermination, ShortInfoResponseEnvelopeLimits,
-    StreamInfoObservedDocumentParseLimit, ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+    admit_runtime_activation, run_prebound_short_info_responder, MetadataTreeLimits,
+    ParsedShortInfoResponseEnvelope, ParsedStreamInfoObservedDocument, RuntimeActivationSelection,
+    RuntimeModule, ShortInfoQuery, ShortInfoQueryWire, ShortInfoQueryWireLimits,
+    ShortInfoResponderActivation, ShortInfoResponderLimits, ShortInfoResponderTermination,
+    ShortInfoResponseEnvelopeLimits, StreamDescriptorLimits, StreamInfoObservedAdmissionLimits,
+    StreamInfoObservedDocumentParseLimit, StreamInfoObservedFields, StreamInfoVolatileFieldLimits,
+    ACCEPTED_FEATURE_LOCK_FINGERPRINT,
 };
 use std::net::{Ipv4Addr, UdpSocket};
 use std::sync::atomic::AtomicBool;
@@ -14,7 +16,7 @@ const SELF_PROBE_QUERY_ID: u64 = 70_000_010;
 
 fn quest_xml(service_port: u16) -> String {
     format!(
-        "<?xml version=\"1.0\"?>\n<info>\n\t<name>p70-quest-outlet</name>\n\t<type>qualification</type>\n\t<channel_count>1</channel_count>\n\t<channel_format>float32</channel_format>\n\t<source_id>p70-quest-source</source_id>\n\t<nominal_srate>0</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>1.0</created_at>\n\t<uid>70000000-2222-4333-8444-555555555570</uid>\n\t<session_id>p70</session_id>\n\t<hostname>quest</hostname>\n\t<v4address>192.0.2.70</v4address>\n\t<v4data_port>{service_port}</v4data_port>\n\t<v4service_port>{service_port}</v4service_port>\n\t<v6address></v6address>\n\t<v6data_port>0</v6data_port>\n\t<v6service_port>0</v6service_port>\n\t<desc />\n</info>\n"
+        "<?xml version=\"1.0\"?>\n<info>\n\t<name>p70-quest-outlet</name>\n\t<type>qualification</type>\n\t<channel_count>1</channel_count>\n\t<channel_format>float32</channel_format>\n\t<source_id>p70-quest-source</source_id>\n\t<nominal_srate>0.000000000000000</nominal_srate>\n\t<version>1.100000000000000</version>\n\t<created_at>1.0</created_at>\n\t<uid>70000000-2222-4333-8444-555555555570</uid>\n\t<session_id>p70</session_id>\n\t<hostname>quest</hostname>\n\t<v4address>192.0.2.70</v4address>\n\t<v4data_port>{service_port}</v4data_port>\n\t<v4service_port>{service_port}</v4service_port>\n\t<v6address></v6address>\n\t<v6data_port>0</v6data_port>\n\t<v6service_port>0</v6service_port>\n\t<desc />\n</info>\n"
     )
 }
 
@@ -110,6 +112,19 @@ fn exact_quest_prebound_self_probe_completes_one_response_and_bounded_join() {
     let parsed = ParsedShortInfoResponseEnvelope::parse(text, response_limits).unwrap();
     assert_eq!(parsed.query_id(), SELF_PROBE_QUERY_ID);
     assert_eq!(parsed.body().source(), xml);
+    StreamInfoObservedFields::admit(
+        StreamInfoObservedAdmissionLimits::new(
+            StreamDescriptorLimits::new(64, 64, 64, 64).unwrap(),
+            MetadataTreeLimits::new(1, 1, 1, 4, 1).unwrap(),
+            StreamInfoVolatileFieldLimits::new(64, 64, 64).unwrap(),
+        ),
+        ParsedStreamInfoObservedDocument::parse(
+            StreamInfoObservedDocumentParseLimit::new(parsed.body().source().len()).unwrap(),
+            parsed.body().source(),
+        )
+        .unwrap(),
+    )
+    .unwrap();
 
     let run = responder.join().expect("responder thread").unwrap();
     assert_eq!(run.local_address(), responder_address);
