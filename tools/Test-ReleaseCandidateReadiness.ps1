@@ -120,11 +120,11 @@ function Invoke-Git([string[]]$Arguments) {
     return @($output)
 }
 
-$topLevel = (Invoke-Git @("rev-parse", "--show-toplevel"))[0].Trim()
+$topLevel = (@(Invoke-Git @("rev-parse", "--show-toplevel")))[0].Trim()
 Require ([IO.Path]::GetFullPath($topLevel) -eq $repoRoot) "script is not running from its repository root"
-Require ((Invoke-Git @("status", "--porcelain=v1", "--untracked-files=all")).Count -eq 0) "worktree is not clean"
+Require (@(Invoke-Git @("status", "--porcelain=v1", "--untracked-files=all")).Count -eq 0) "worktree is not clean"
 
-$branch = (Invoke-Git @("symbolic-ref", "--quiet", "--short", "HEAD"))[0].Trim()
+$branch = (@(Invoke-Git @("symbolic-ref", "--quiet", "--short", "HEAD")))[0].Trim()
 Require ($branch.StartsWith("codex/")) "candidate must remain on an isolated codex/* feature branch"
 Require ($branch -notin @("main", "master", "public-main")) "candidate must not be public main"
 $parents = ((Invoke-Git @("show", "-s", "--format=%P", "HEAD"))[0].Trim() -split '\s+' | Where-Object { $_ })
@@ -199,8 +199,8 @@ Test-Document "docs/RELEASE_CANDIDATE.md" (Get-Content "docs/RELEASE_CANDIDATE.m
     'specifically authorized'
 )
 
-$head = (Invoke-Git @("rev-parse", "HEAD"))[0].Trim()
-$tree = (Invoke-Git @("rev-parse", "HEAD^{tree}"))[0].Trim()
+$head = (@(Invoke-Git @("rev-parse", "HEAD")))[0].Trim()
+$tree = (@(Invoke-Git @("rev-parse", "HEAD^{tree}")))[0].Trim()
 Write-Output "PASS RLSL-P8 release-candidate readiness"
 Write-Output "branch=$branch"
 Write-Output "commit=$head"
