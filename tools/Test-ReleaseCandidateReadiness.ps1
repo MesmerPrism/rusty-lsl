@@ -194,8 +194,8 @@ Test-Document "docs/VALIDATION.md" (Get-Content "docs/VALIDATION.md" -Raw) @(
 )
 Test-Document "docs/RELEASE_CANDIDATE.md" (Get-Content "docs/RELEASE_CANDIDATE.md" -Raw) @(
     'Test-ReleaseCandidateReadiness\.ps1',
-    'does not integrate public main',
-    'does not version, tag, release, or publish',
+    'does not\s+integrate public main',
+    'does not\s+version, tag, release, or publish',
     'specifically authorized'
 )
 
