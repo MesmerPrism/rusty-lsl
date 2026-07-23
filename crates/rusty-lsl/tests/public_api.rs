@@ -1312,3 +1312,6 @@ fn p6_explicit_loopback_host_lifecycle_qualification() {
 
     println!("P6_HOST_RESULT={{\"schema_version\":1,\"selected_response_index\":0,\"record_count\":2,\"cleanup\":true}}");
 }
+
+#[path = "stable_public_api.rs"]
+mod stable_public_api_candidate;
