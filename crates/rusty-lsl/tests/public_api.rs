@@ -301,8 +301,8 @@ fn p4_session_batch_boundary_is_concrete_fail_closed_and_current_revision() {
     let _: Option<rusty_lsl::runtime::Float32SessionReportBatchError> = root_error;
     let root_termination: Option<rusty_lsl::Float32SessionReportBatchTermination> = None;
     let _: Option<rusty_lsl::runtime::Float32SessionReportBatchTermination> = root_termination;
-    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 34);
-    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 35);
+    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 35);
 }
 
 #[test]
@@ -345,8 +345,8 @@ fn p32_selected_discovery_float32_session_batch_pipeline_is_concrete_on_both_fac
     let _error_health = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::health;
     let _error_into_kind = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::into_kind;
 
-    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 34);
-    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 35);
+    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 35);
 }
 
 #[test]
@@ -458,8 +458,8 @@ fn p31_all_format_bounded_chunk_sessions_are_concrete_on_both_facades() {
         run_timestamped_string_bounded_chunk_inlet
     );
 
-    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 34);
-    assert_eq!(runtime::ACCEPTED_FEATURE_LOCK_REVISION, 34);
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 35);
+    assert_eq!(runtime::ACCEPTED_FEATURE_LOCK_REVISION, 35);
 }
 
 #[test]
