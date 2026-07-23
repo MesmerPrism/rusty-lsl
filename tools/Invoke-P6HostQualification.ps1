@@ -22,7 +22,7 @@ $tree = Invoke-Git @('rev-parse', 'HEAD^{tree}')
 $statusBefore = Invoke-Git @('status', '--porcelain=v1', '--untracked-files=all')
 if ($statusBefore.Length -ne 0) { throw 'Qualification requires a clean worktree.' }
 
-& cargo test --manifest-path (Join-Path $repositoryRoot 'Cargo.toml') -p rusty-lsl --test p6_host_qualification -- --exact p6_explicit_loopback_host_lifecycle_qualification --nocapture
+& cargo test --manifest-path (Join-Path $repositoryRoot 'Cargo.toml') -p rusty-lsl --test public_api -- --exact p6_explicit_loopback_host_lifecycle_qualification --nocapture
 if ($LASTEXITCODE -ne 0) { throw 'Focused P6 host qualification test failed.' }
 
 $commitAfter = Invoke-Git @('rev-parse', 'HEAD')
@@ -40,7 +40,7 @@ $receipt = [ordered]@{
     git = [ordered]@{ commit = $commit; tree = $tree; clean = $true }
     test = [ordered]@{
         package = 'rusty-lsl'
-        target = 'p6_host_qualification'
+        target = 'public_api'
         name = 'p6_explicit_loopback_host_lifecycle_qualification'
     }
     evidence = [ordered]@{

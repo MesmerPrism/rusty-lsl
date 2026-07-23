@@ -10,6 +10,12 @@ Run from any directory with PowerShell 7 or newer:
 pwsh -NoProfile -File ./tools/Invoke-P6HostQualification.ps1 -OutputDirectory ./artifacts/p6-host
 ```
 
+The focused Cargo command targets the repository's established `public_api` integration test:
+
+```powershell
+cargo test -p rusty-lsl --test public_api -- --exact p6_explicit_loopback_host_lifecycle_qualification --nocapture
+```
+
 The route fails closed unless the worktree is clean. It binds the result to the unchanged Git commit and tree before and after the focused test, sets `PYTHONDONTWRITEBYTECODE=1`, and writes the sole versioned JSON receipt to `p6-host-qualification-v1.json` beneath the caller-supplied output directory. The output directory should be outside the worktree (or already ignored), because creating an untracked output inside the worktree correctly violates the cleanliness requirement.
 
 This is reusable local-host lifecycle evidence. It does not establish official runtime or oracle equivalence, device behavior, cross-network behavior, automatic selection/retry/policy, or Manifold authority.
