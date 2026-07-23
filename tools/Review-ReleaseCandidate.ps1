@@ -10,6 +10,7 @@ if ($PSVersionTable.PSEdition -ne "Core" -or $PSVersionTable.PSVersion -lt [vers
 
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 Set-Location -LiteralPath $repoRoot
+$env:PYTHONDONTWRITEBYTECODE = "1"
 
 function Invoke-Checked([string]$Label, [scriptblock]$Command) {
     Write-Output "RELEASE-REVIEW $Label"
