@@ -1,0 +1,33 @@
+{
+  "schema": "rusty.lsl.lslc_003c.activation_fixture.v1",
+  "accepted_lock": {
+    "revision": 14,
+    "fingerprint": "787827cfe80bd7ff856a304a4f1389070db264d8726a744cd967bbd0948c2c0c"
+  },
+  "valid": {
+    "consumer_id": "synthetic-consumer",
+    "selected_modules": [
+      "stream-handshake",
+      "timestamped-float32-sample",
+      "bounded-sample-queue",
+      "finite-sample-recovery"
+    ],
+    "outcome": "accepted-with-module-nominal-capabilities-and-consumer-receipt"
+  },
+  "damaged": [
+    "stale-lock-fingerprint",
+    "unknown-module",
+    "duplicate-module",
+    "effective-marker-mismatch",
+    "missing-declared-dependency",
+    "empty-consumer-id",
+    "oversized-consumer-id"
+  ],
+  "nonclaims": [
+    "runtime effect execution",
+    "existing runtime facade composition",
+    "device behavior",
+    "adapter readiness",
+    "Manifold authority"
+  ]
+}

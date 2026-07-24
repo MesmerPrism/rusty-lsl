@@ -1,5 +1,152 @@
 # Compatibility
 
+## Current P67/P68 boundary
+
+The current candidate combines bounded caller-explicit discovery, transport,
+recovery/clock/queue composition, and separate host/Quest IPv4-loopback
+qualifications. Those facts do not compose into official interoperability,
+non-loopback, cross-host, or host-to-Quest qualification. P68 changes only
+Rust 1.80, CI/history/PowerShell correctness, and release-review routing; it
+adds no compatibility observation or runtime behavior.
+
+## Production priority policy
+
+Compatibility evidence is required when it validates the native production
+runtime: canonical discovery and stream-info behavior, session handshake,
+sample/chunk exchange, clocks, recovery, cleanup, and representative host or
+Quest operation. Each claim remains bounded to its named evidence.
+
+Speculative wrappers, unused platforms, broad ecosystem permutations, and
+scalar-boundary expansion are secondary. A compatibility-only micro-unit must
+close a concrete blocker for the active production slice or supply evidence
+that slice explicitly requires; it must not displace coherent production
+behavior.
+
+## LSLC-005S
+
+One serial-scoped Quest 3S run built exact clean Rusty LSL for
+`aarch64-linux-android` and executed the accepted one-channel, two-record
+Float32 chunk runtime entirely in Rust over IPv4 loopback. Both ordered
+timestamp/value bit pairs were retained, the listener port rebound immediately,
+the bounded package/system fatal count was zero, and run-owned cleanup completed.
+
+This is device conformance for the existing exact two-record runtime. It is
+separate from official-oracle, sanitized derivation, Rust-host, and Android-Java
+evidence and proves no arbitrary chunks, non-loopback behavior, broad
+compatibility, production activation, or Manifold authority.
+
+## LSLC-005L
+
+One serial-scoped Quest 3S run built the exact clean Rusty LSL revision for
+`aarch64-linux-android` and executed the accepted one-channel, one-record
+Float32 outlet/inlet runtime entirely in Rust over IPv4 loopback. Exact `-0.0`
+timestamp bits and the independently selected Float32 NaN payload bits were
+retained, the listener port rebound immediately, the bounded package/system
+fatal count was zero, and run-owned cleanup completed.
+
+This is Rust-on-Quest device conformance for the already accepted bounded
+runtime. It is separate from official-oracle, sanitized derivation, Rust-host,
+and Android-Java evidence and proves no non-loopback behavior, other shapes or
+formats, broad compatibility, production activation, or Manifold authority.
+
+LSLC-005D composes existing candidate runtime contracts but adds no observation
+or interoperability evidence. It does not widen the one selected response,
+one Float32 record, IPv4, or pinned evidence claims.
+
+## LSLC-005C clock-correction composition scope
+
+This is synthetic owner composition only. It adds no observation of official
+clock behavior, automatic clock policy, new clock domain, device evidence, or
+broad interoperability claim; all earlier evidence lanes retain their labels.
+
+## LSLC-005B finite recovery composition scope
+
+Synthetic loopback proves one caller-classified retry followed by exact-bit queue
+admission, plus queue cancellation retaining the recovered record and state trace.
+This is local candidate behavior, not automatic loss detection, rediscovery,
+official/device recovery, long-running operation, or ecosystem compatibility.
+
+## LSLC-005A selected discovery Float32 queue scope
+
+One synthetic IPv4-loopback record passes from the accepted selected-response
+Float32 inlet into an already activated bounded queue with exact raw timestamp and
+value bits. Queue cancellation returns the unchanged received record. This is local
+composition evidence only, not added format/count, official, device, recovery,
+performance, or ecosystem compatibility.
+
+## LSLC-004Z
+
+Synthetic loopback composes one independently authored accepted typed discovery
+response with the existing capability-gated one-record Float32 inlet. It
+preserves one timestamp and value, rejects an unavailable selection before TCP
+I/O, and closes owned sockets. This is local composition evidence, not a new
+official-oracle, active-interface, cross-platform, chunk, recovery, or broad
+compatibility claim.
+
+LSLC-004Y proves only synthetic finite loopback composition of already accepted
+typed discovery endpoint state with the existing inlet handshake. It is not an
+official endpoint, non-loopback, recovery, arbitrary stream, or ecosystem claim.
+
+LSLC-004X is strict local endpoint-text policy over already accepted typed state.
+It is not observed liblsl behavior and proves no reachability, connection,
+interoperability, device behavior, routing, admission, or authority.
+
+LSLC-004W is local candidate selection policy and is not observed liblsl behavior or
+evidence of discovery, endpoint, connection, platform, device, or ecosystem compatibility.
+
+## LSLC-003Q bounded String observation
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 runs passed both finite
+IPv4-loopback directions for one channel and one 13-byte ASCII/UTF-8 caller
+value. The official outlet emitted two identical initialization records whose
+String value is `10`, then the caller timestamp and value; each observed String
+used length form 1 with the exact UTF-8 byte count. The reverse official inlet
+pulled the exact timestamp and value. Damage, empty/oversized values, multiple
+records/channels, non-loopback behavior, implementation, and activation remain
+unobserved or outside scope.
+
+## LSLC-003P bounded runtime breadth
+
+LSLC-003P implements local finite loopback behavior for the exact LSLC-003O
+matrix: four fixed-width formats, two homogeneous channels, two initialization
+records, and three ordered caller records. Tests preserve timestamp/value bits,
+channel and record order, typed failures, and cleanup. This is not evidence for
+arbitrary counts, String/int64, non-loopback networking, activation, or broad
+compatibility.
+
+## LSLC-003O bounded multichannel record-sequence observation
+
+Two repeat runs against pinned `pylsl 1.18.2`, library 117, protocol 110 pass
+in both IPv4-loopback directions for `double64`, `int32`, `int16`, and `int8`.
+Each case has exactly two homogeneous channels, two initialization records,
+and three ordered caller records. Marker, exact record width, initialization
+timestamp and per-channel values, channel order, caller timestamps, caller
+values, record order, repeat identity, and bounded socket cleanup pass.
+
+This is observation evidence only. Truncation, extra-record, malformed-record,
+cancellation, reconnect policy, String/int64, variable-width data, empty
+chunks, multicast, non-loopback operation, clock/queue/recovery behavior,
+production implementation, activation, devices, broad ecosystem compatibility,
+and Manifold authority remain unobserved or outside scope.
+
+LSLC-002Q is the first official-endpoint behavioral evidence for the accepted
+Rust discovery client. Two finite IPv4 loopback-unicast cases reached the
+pinned official protocol-110 responder and passed the existing envelope,
+document-shape, and separate typed-document admissions unchanged. The result
+is directional and bounded: it does not test an official client against a Rust
+responder, multicast or interfaces, non-loopback reachability, multiple hosts,
+outlet/inlet samples, or ecosystem-wide interoperability.
+
+LSLC-002P proves only a Rust-to-Rust synthetic loopback query/response path and
+bounded negative behavior for the exact local contracts already accepted. It
+does not exercise an official endpoint, multicast discovery, multiple
+interfaces, another ecosystem implementation, or a real network. Therefore it
+establishes runtime mechanics and cleanup, not LSL interoperability,
+reachability, response correlation, or currentness.
+
+LSLC-002I is specification evidence only. Its port and destination strings are
+neither observed behavior nor an implemented candidate contract.
+
 LSLC-002E observed two synthetic loopback short-info responses from the pinned
 official protocol-110 endpoint. Both shared `decimal query id + CRLF + observed
 document`, and both bodies passed LSLC-002A/002B. This is bounded black-box
@@ -363,6 +510,51 @@ candidate result remains `not-observed` with null evidence.
 
 ## Oracle isolation
 
+## LSLC-002O explicit offset application candidate
+
+Finite addition implements only the documented simplest mapping when a caller
+explicitly supplies an offset. It proves no offset selection, clock accuracy,
+history, drift correction, automatic post-processing, or interoperability.
+
+
+## LSLC-002N minimum-RTT candidate
+
+Minimum finite RTT selection follows the pinned documentation. Selecting the
+first equal minimum is explicit local candidate policy. Neither behavior proves
+exchange collection, timing, accuracy, official filtering parity, runtime, or
+interoperability.
+
+
+## LSLC-002M raw exchange formula candidate
+
+The candidate implements only the two documented formulas over caller-supplied
+finite values. Passing arithmetic cases prove no timestamp origin, packet
+exchange, clock accuracy, minimum-RTT filtering, correction, runtime, or
+interoperability.
+
+
+## LSLC-002L clock-offset documentation evidence
+
+The pinned formulas and selection wording are specification evidence, not an
+implemented numeric or packet contract. They prove no precision, clock domain,
+exchange behavior, accuracy, correction policy, runtime, or interoperability.
+
+
+## LSLC-002K local discovery-query proposal
+
+Combining two accepted local values proves only allocation and data
+preservation. It does not prove that a spelling is a valid address, that any
+destination should be selected, or that a packet can be sent or answered.
+
+
+## LSLC-002J documented destination candidate
+
+LSLC-002J is a local data candidate derived only from the provenance-locked
+LSLC-002I public documentation facts. Exact spelling equality proves no address
+validity, destination policy, packet exchange, reachability, official endpoint
+behavior, or ecosystem interoperability.
+
+
 Official liblsl may be invoked only by explicit compatibility tooling. It must
 not enter the default dependency graph, production binaries, generated source,
 or implementation logic. Oracle input and normalized output may become
@@ -416,3 +608,349 @@ and seven format symbols. The accepted XML observations, runtime placeholders,
 description hierarchy, and full-document `candidate_result` remain unchanged.
 This evidence proves neither XML or numeric lexical representation nor broader
 official-liblsl, wire, runtime, or ecosystem compatibility.
+# LSLC-002R official loopback stream handshake observation
+
+Two pinned official outlet/inlet pairs completed one bounded connection setup
+each under an explicit private IPv4-loopback-only configuration. The observed
+roles are resolution, connection open, full-info admission, explicit close,
+and child-process cleanup. One regular float32 stream and one irregular string
+stream retained their synthetic channel count, format, and rate class. Bounded
+connection readback showed only loopback-established TCP connections. No
+sample API was called.
+
+This is behavioral evidence for planning a later independently authored Rust
+vertical slice. It is not a public wire transcript and grants no Rust
+listener, connector, encoder, parser, outlet, inlet, sample, clock, queue,
+retry, recovery, non-loopback, performance, ecosystem, device, or Manifold
+claim.
+## LSLC-002S bounded stream-handshake runtime
+
+Two private IPv4-loopback black-box probes separately observed an official
+inlet request and official outlet response. Public evidence retains only fixed
+role order, termination, pinned binary provenance, and private-artifact hashes.
+The Rust loopback pair then exercises the independently authored bounded slice;
+it is not a claim of sample interoperability or ecosystem-wide compatibility.
+## LSLC-002T timestamped Float32 sample evidence
+
+A private pinned-official IPv4-loopback probe sent exactly one explicit finite
+timestamp and one single-channel `float32` value after the accepted handshake.
+Public evidence retains only the record roles, scalar types, byte-order class,
+exact recovery outcomes, and private-artifact hashes. The Rust loopback result
+does not claim other formats, chunks, clocks, or broad interoperability.
+## LSLC-002U timedata framing and integrated runtime
+
+Private pinned-official IPv4-loopback probes observed the bounded timedata
+request batch and a separate official response. Public evidence exposes only
+framing roles, the observed eight-request batch count, scalar roles, provenance
+hashes, and nonclaims. The independent Rust loopback composes acquisition and
+mapping without claiming non-loopback or clock-quality interoperability.
+## LSLC-002V operational queue claim
+
+One accepted loopback timestamped Float32 record composes through the bounded
+FIFO with exact timestamp and value bits. This is local operational evidence,
+not an ecosystem performance, retry, recovery, or additional-format claim.
+## LSLC-002W finite recovery claim
+
+Synthetic fault coverage demonstrates one caller-labelled transient failure
+then exact-bit recovery into the accepted bounded queue. It does not claim
+automatic ecosystem reconnection or packet replay.
+## LSLC-002X two-direction official sample failure
+
+Two finite black-box cases used the accepted Rust runtime and pinned official
+public APIs. Official outlet to Rust inlet completed the handshake, after
+which Rust returned a record whose timestamp and Float32 value did not match
+the explicit pushed values; the failure stage is post-handshake initialization
+admission. Rust outlet to official inlet admitted one discovery response and
+reached the Rust streamfeed listener, which returned typed identity mismatch
+before its response; the official inlet then reported stream loss. Neither
+case establishes sample interoperability.
+## LSLC-002Y two-direction Float32 correction
+
+The correction consumes the two LSLC-002X failure stages: bounded official
+request admission now accepts the dynamic finite performance value, and the
+data path consumes/emits the two observed initialization records before the
+caller record. Fresh pinned-official IPv4-loopback runs pass in both directions
+with exact explicit timestamp and Float32 value bits. This remains one format,
+one channel, one caller record, and loopback only.
+# LSLC-002Z reverse discovery observation
+
+A pinned `pylsl 1.18.2` / library 117 / protocol 110 public client resolved
+one independently authored Rust response in an IPv4-loopback-only run. This
+proves only that bounded direction and does not claim multicast, non-loopback,
+or ecosystem-wide compatibility.
+# LSLC-003A fixed-width matrix
+
+Pinned official-outlet observations pass width/order/timestamp/value checks for
+`double64`, `int32`, `int16`, and `int8`, with format-specific initialization.
+The reverse Float32-derived initialization pattern fails for all five selected
+formats. The public binding cannot construct `int64` outlets on this platform.
+# LSLC-003B
+
+Pinned official loopback reruns pass in both directions for `double64`,
+`int32`, `int16`, and `int8`; timestamps and values are preserved exactly.
+
+## LSLC-003T
+
+LSLC-003T implements only the LSLC-003Q observation envelope: marker two,
+timestamp, one-byte length form, and 1..=127 UTF-8 payload bytes for one channel
+and one caller record on finite IPv4 loopback. This is not a broad String,
+wire, endpoint, or ecosystem compatibility claim.
+
+## LSLC-003U
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for a mixed-width 9-byte UTF-8 value and an exact
+127-byte value. This evidence does not cover empty or larger values, additional
+channels or records, other length forms, non-loopback use, or broad compatibility.
+
+## LSLC-003V
+
+The unchanged Rust runtime passes synthetic loopback for the exact two LSLC-003U
+value classes with timestamp preservation and socket cleanup. This is local
+conformance evidence, not an additional official-oracle or breadth claim.
+
+## LSLC-003W
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for exactly one empty String caller record. The
+official-outlet record retained marker two and timestamp 1234.5 and used the
+already observed one-byte length form with length zero. This evidence adds no
+runtime support and does not cover additional channels or records, other
+length forms, non-loopback use, devices, or broad compatibility.
+
+## LSLC-003X
+
+The independently authored Rust runtime now composes the LSLC-003W-observed
+empty value with the existing LSLC-003T capability-gated finite loopback path.
+Synthetic validation preserves timestamp, zero payload bytes, and socket
+cleanup. This is not evidence for additional channels, records, length forms,
+non-loopback behavior, or broad compatibility.
+
+## LSLC-003Y
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for one independently authored exact-128-byte
+ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
+and used length form one with length 128. This evidence adds no runtime support
+or broader value, count, length-form, network, device, or authority claim.
+
+## LSLC-004H
+
+Two serialized private Rust repeats on one caller-explicit active private IPv4
+interface of one Windows desktop host passed the exact-group composition: the
+accepted production requester sent one query and received one response from an
+independently authored joined responder. Each repeat also passed pre-I/O
+cancellation, a no-response deadline at the same multicast destination,
+membership leave, and port rebind cleanup. This does not exercise the guarded
+production responder on a non-loopback interface and proves no portable policy,
+cross-host reachability, official endpoint, device behavior, or authority.
+
+## LSLC-004D
+
+One synthetic Windows loopback test composes the unchanged requester with one
+peer joined to the LSLC-004C-observed group. It checks one query, one bounded
+response, explicit bind, existing cancellation/deadline owner tests, and
+membership/socket cleanup. This is not official-endpoint evidence, portable
+retry policy, responder support, non-loopback support, or cross-platform proof.
+
+## LSLC-004E
+
+Synthetic single-platform conformance passes for one explicitly activated
+joined-loopback responder at the LSLC-004C-observed group: one query, one
+response, exact response identifier, non-loopback rejection, and port cleanup.
+This does not establish other interfaces, groups, address families, retries,
+cross-platform behavior, official-endpoint conformance, or routing authority.
+
+## LSLC-004F
+
+One synthetic production-to-production loopback exchange passes at the exact
+documented group with one query, one response, matching identifier, finite
+termination, and cleanup. This is not Quest, official-endpoint, non-loopback,
+cross-platform, retry, routing, or broad compatibility evidence.
+
+## LSLC-004G
+
+One bounded two-device Quest 3S run passed explicit-interface join, drop, and
+rejoin at exactly 239.255.172.215:16571. An independently running peer received
+one multicast short-info query and returned one synthetic response, which the
+requester received within its deadline. A separate cancellation role closed
+owned resources; the target-package fatal window was empty and target packages,
+run-owned staging, properties, forwards, and reverses were clean afterward.
+
+This proves only one Horizon OS/Android API 34 build, one infrastructure Wi-Fi
+network, two Quest 3S devices, and the public independently authored harness.
+It does not prove official liblsl behavior, other devices, networks,
+interfaces, groups, address families, retry policy, production activation, or
+Manifold admission/routing authority.
+
+## LSLC-004B
+
+The independently authored capability-gated runtime now accepts the exact
+LSLC-004A-observed 129-byte value while retaining all zero-through-128 cases.
+Synthetic loopback preserves timestamp, value, and socket cleanup; 130 bytes
+reject. This adds no claim for other shapes, length forms, networks, devices,
+or broad compatibility.
+
+## LSLC-004C
+
+Two pinned repeats on one Windows desktop host passed membership join,
+loopback receive, drop and rejoin for `239.255.172.215:16571`. One bounded
+official resolver call produced three received multicast query datagrams per
+repeat; one private multicast query produced one matching official response
+per repeat. Counts and timings are observations, not a portable retry policy.
+No other group, family, interface, platform, runtime, or authority is claimed.
+
+## LSLC-003Z
+
+The independently authored capability-gated runtime now accepts the exact
+LSLC-003Y-observed 128-byte value while retaining all zero-through-127 cases.
+Synthetic loopback preserves timestamp, value, and socket cleanup; 129 bytes
+reject. This adds no claim for other shapes, length forms, networks, devices,
+or broad compatibility.
+
+## LSLC-004A
+
+Two pinned pylsl 1.18.2/liblsl 1.17/protocol-110 repeats passed in both finite
+IPv4-loopback directions for one independently authored exact-129-byte
+ASCII/UTF-8 value. The caller record retained marker two and timestamp 1234.5
+and used length form one with length 129. This evidence adds no runtime support
+or broader value, count, length-form, network, device, or authority claim.
+
+## LSLC-004J
+
+Two private serialized repeats on one caller-explicit active IPv4 interface of
+one Windows host passed production requester-to-responder composition at exact
+239.255.172.215:16571. Each repeat carried one query and one response under a
+finite deadline and released the requester socket, responder socket, and group
+membership. Portable focused tests also preserve the loopback wrapper and
+reject unspecified, multicast, and broadcast interface values before I/O.
+
+This is not official-endpoint, cross-host, cross-platform, Quest/device, IPv6,
+interface-selection, retry-policy, routing, admission, or broad compatibility
+evidence. The private interface, endpoints, driver, raw output, diagnostics,
+environment, and machine identity are excluded.
+
+## LSLC-004K
+
+Two private serialized repeats with pylsl 1.18.2/liblsl 1.17/protocol 110 on
+one caller-explicit active IPv4 interface of one Windows host each produced one
+exact-group short-info query. An independently authored bounded responder sent
+one matching response, and the official resolver returned the matching source
+within the finite deadline. Membership and socket cleanup passed.
+
+The ambient pylsl 1.18.1 installation is version drift and is excluded. This
+does not execute or validate the production responder, an official outlet,
+cross-host reachability, other platforms or interfaces, retry policy, devices,
+or Manifold routing/admission authority.
+
+## LSLC-004N
+
+Two fresh serialized pylsl 1.18.2/liblsl 1.17/protocol-110 black-box repeats
+captured the official query before any response. Both were 65 bytes and had the
+same published SHA-256. Each was UTF-8/ASCII with three CRLF-terminated lines:
+the `LSL:shortinfo` role, the default-session predicate, then one five-digit
+reply-port token and one twenty-digit query-correlation token separated by one
+space. The token values remain private.
+
+Complete-byte equality is evidence only for these two repeats on one Windows
+host and active interface. It does not establish portable or long-term query
+stability, production responder conformance, cross-host behavior, devices, or
+Manifold authority.
+
+## LSLC-004M
+
+A portable test presents the LSLC-004N three-line, 65-byte short-info query
+grammar to the unchanged exact-group responder using independently selected
+five-digit reply routing and twenty-digit query correlation values. One query
+produces one bounded response, request-limit termination, and membership/socket
+cleanup; existing deadline and cancellation owners remain current.
+
+This is structural conformance, not replay of the private observed datagram or
+its values. It does not execute an official endpoint, active non-loopback or
+cross-host path, interface policy, devices, or Manifold authority.
+
+## LSLC-004O
+
+Two serialized pylsl 1.18.2/liblsl 1.17/protocol-110 resolver calls on one
+Windows host reached the unchanged Rusty LSL responder at exact
+239.255.172.215:16571 through one caller-explicit active IPv4 interface. Each
+repeat handled one query, sent one production response, returned one matching
+source, completed finitely, and released membership and sockets.
+
+Three failed harness attempts are retained privately. This evidence is limited
+to one host, platform, interface, and exact group; it adds no default selection,
+retry, IPv6, cross-host/device, broad compatibility, or Manifold authority.
+
+## LSLC-004P
+
+Two serialized pylsl 1.18.2/liblsl 1.17/protocol-110 outlets on one Windows
+host responded to the unchanged Rusty LSL explicit-destination requester at
+239.255.172.215:16571 through one bounded active IPv4 interface path. Each
+repeat sent one exact requester datagram, admitted one matching-source response,
+reached the response bound, and released the caller-selected socket.
+
+The raw response, correlation values, endpoints, interface identity, and
+diagnostics remain private and hash-bound. This does not establish requester
+interface-selection policy, multicast portability, default selection, retries,
+cross-host/device behavior, broad compatibility, or Manifold authority.
+## LSLC-004R
+
+Two serialized pinned pylsl 1.18.2/liblsl 1.17/protocol-110 outlets responded
+to the accepted short-info request on one caller-explicit active IPv4 interface
+at `239.255.172.215:16571`. Each response was captured before production
+parsing, correlated to its private request/source, completed within 3000 ms,
+and released its socket for rebind. The two 732-byte datagrams and 711-byte XML
+documents have distinct exact hashes while the decimal-id/CRLF envelope and
+ordered `info` child-role structure agree. This supports only two-repeat length
+and minimum-structure evidence on one Windows host. It does not establish
+stable response bytes or values, production parsing, portable interface or
+retry policy, devices, broad compatibility, routing, admission, or authority.
+
+## LSLC-004S
+
+One test-only loopback peer constructs fresh field and correlation values while
+matching only LSLC-004R's public 732-byte response, 711-byte canonical document,
+19-digit/CRLF envelope, and ordered roles. The unchanged requester/parser
+admits and retains the response and source, correlates the query, terminates at
+one response, preserves deadline and pre-send cancellation, and releases the
+caller bind. Envelope, length, role/order, and terminal-LF damage rejects.
+This is structural conformance, not official-byte stability or broader runtime,
+network, device, compatibility, routing, admission, or authority evidence.
+
+## LSLC-004T
+
+One independently authored 732-byte response is admitted and retained by the
+unchanged caller-explicit loopback requester, reparsed by the existing bounded
+envelope/document parser, and consumed by the existing typed short-info
+observation. The 19-digit query identifier, independent stream name, one-channel
+count, and response source remain exact; response-limit termination and bind
+cleanup pass. A noncanonical channel count still returns the existing typed
+`InvalidChannelCount` delegation. Existing LSLC-004S deadline, cancellation,
+and structure-damage behavior remains pinned. No broader behavior follows.
+
+## LSLC-004U
+
+One local projection preserves source, query ID, typed name/count, and recovery
+of typed parts. Invalid UTF-8, envelope damage, and noncanonical typed values
+delegate existing errors. It adds no wire/runtime behavior or compatibility breadth.
+
+## LSLC-004V
+
+One synthetic Rust loopback response passes from the existing explicitly
+activated bounded UDP call into the existing typed short-info observation.
+The result preserves response-limit termination, the observed local and peer
+addresses, query identifier, stream name, channel count, and receive order.
+Noncanonical channel count rejects at response index zero, and pre-I/O
+cancellation returns an empty cancelled run. This is local composition
+evidence, not another official observation, active-interface claim, Android
+Java result, Rust-on-Quest result, retry policy, or broad compatibility.
+# Float32 two-record chunk integration candidate
+
+Lane-local sanitized pinned-official evidence covers exactly one one-channel
+Float32 caller chunk containing two explicitly timestamped records in both
+finite IPv4-loopback directions. Both repeats preserved record order and exact
+timestamp/value bits. The official chunk emission used the already accepted
+13-byte record shape consecutively; no additional chunk envelope was observed.
+The accompanying independently authored candidate is not canonically accepted
+or published and does not generalize counts, formats, buffering, network scope,
+devices, compatibility breadth, or authority.

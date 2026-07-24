@@ -1,0 +1,11 @@
+# LSLC-002G Standard validation
+
+Result: pass, refreshed at `293fd8f55653d024d1cd01faab8684905066dc12`.
+
+- 211 Rust tests passed, including the named second-CRLF regression.
+- Focused LSLC-002F/002G gates passed.
+- Full owner, public-boundary, inert-lock, and source-only gates passed.
+- Portable workflow contracts passed after correcting the initially rejected unknown change category to the accepted `validation-routing` category.
+- Published LSLC-002F history and behavior remain unchanged.
+
+This evidence proves only the additive validation and ownership/status correction. It does not prove correlation, networking, endpoint behavior, currentness, interoperability, activation, device behavior, or Manifold authority.

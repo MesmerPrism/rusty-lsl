@@ -1,0 +1,32 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-004m-blocked-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004m-official-query-production-responder-conformance",
+  "created_at": "2026-07-17T00:57:24Z",
+  "tier": "standard",
+  "result": "blocked",
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"bfa32df2aa31143f6b33f3f1fe05be7df8fe180b","head_revision":"086cf6f4d2d92a3ad6190fef7cd0d57e25b7ecf5","branch":"codex/rlsl-autonomous"}],
+  "changed_paths": [
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-004m-official-query-production-responder-conformance.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004m-begin-blocked-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004m-blocked-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"}
+  ],
+  "artifacts": [{"artifact_id":"lslc-004k-sanitized-observation","kind":"compatibility-evidence","path":"../../fixtures/compatibility/lslc-004k-active-interface-official-resolver-observation.json","sha256":"f636e433babce2070eb05768343136512d209b80fb4f905445727de2840145d1"}],
+  "criteria": [
+    {"acceptance_id":"exact-official-query-production-conformance","status":"blocked","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004m.ps1","evidence_refs":["lslc-004k-sanitized-observation"]},
+    {"acceptance_id":"production-and-finite-preservation","status":"blocked","command":"python ./tools/check_lslc_004m.py","evidence_refs":["lslc-004k-sanitized-observation"]},
+    {"acceptance_id":"policy-authority-closure","status":"blocked","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004k-sanitized-observation"]}
+  ],
+  "gates": [
+    {"gate_id":"validation-source-only","status":"blocked","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004m.ps1","evidence_refs":["lslc-004k-sanitized-observation"]},
+    {"gate_id":"validation-source-owner","status":"blocked","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004k-sanitized-observation"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-004k-sanitized-observation"]},
+    {"gate_id":"instruction-synchronization","status":"blocked","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-004k-sanitized-observation"]}
+  ],
+  "device_validation": null,
+  "blockers": [{"blocker_id":"lslc-004m-query-shape-not-addressable","condition":"The accepted LSLC-004K public fixture binds whole private attempt records but contains no exact query-byte hash or addressable sanitized query-structure fields, and the retained private raw observation capsule was not found at its durable paths.","resume_when":"A separately reviewed observation/evidence-derivation unit obtains the retained or newly repeated pinned-official query and publishes only an addressable sanitized exact query-shape hash under the existing public/private boundary."}]
+}

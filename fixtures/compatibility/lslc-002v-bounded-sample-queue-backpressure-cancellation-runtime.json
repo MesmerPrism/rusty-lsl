@@ -1,0 +1,10 @@
+{
+  "schema":"rusty.lsl.lslc_002v.bounded_sample_queue_runtime.v1",
+  "unit":"LSLC-002V",
+  "basis":"independently-authored accepted timestamped Float32 sample runtime",
+  "queue":{"ownership":"caller-owned","capacity":"explicit-nonzero","ordering":"FIFO","allocation":"fallible-before-exposure"},
+  "backpressure":{"try_push":"full-retains-sample","try_pop":"empty","blocking":"finite-wait-slice-and-total-deadline"},
+  "termination":{"cancellation":"explicit-atomic-flag","close":"wake-all-and-drain-buffered","owned_worker":false},
+  "composition":{"records":1,"channels":1,"format":"Float32","timestamp_bits":"exact","value_bits":"exact","loopback":"IPv4-only"},
+  "claims":{"retry":false,"recovery":false,"additional_formats":false,"device_behavior":false,"manifold_authority":false}
+}

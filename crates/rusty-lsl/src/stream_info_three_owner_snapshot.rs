@@ -166,12 +166,15 @@ impl StreamInfoThreeOwnerSnapshot {
 mod tests {
     use super::*;
     use crate::{
+        StreamInfoImplementationVersionAcquisitionError,
         StreamInfoImplementationVersionEvidenceLimit, StreamInfoImplementationVersionProvider,
-        StreamInfoImplementationVersionProviderOutput, StreamInfoRuntimeEvidenceLimit,
-        StreamInfoRuntimeProvider, StreamInfoRuntimeProviderOutput, StreamInfoRuntimeValues,
+        StreamInfoImplementationVersionProviderOutput, StreamInfoRuntimeAcquisitionError,
+        StreamInfoRuntimeEvidenceLimit, StreamInfoRuntimeProvider, StreamInfoRuntimeProviderOutput,
+        StreamInfoRuntimeValues, StreamInfoTransportAcquisitionError,
         StreamInfoTransportEvidenceLimit, StreamInfoTransportProvider,
         StreamInfoTransportProviderOutput, StreamInfoTransportValues, StreamInfoVolatileFieldError,
     };
+    use std::{cell::RefCell, rc::Rc};
 
     struct ImplementationProvider(Option<StreamInfoImplementationVersionProviderOutput>);
     impl StreamInfoImplementationVersionProvider for ImplementationProvider {
@@ -395,5 +398,261 @@ mod tests {
             snapshot.fields().field(StreamInfoVolatileFieldRole::Uid),
             "uid"
         );
+    }
+
+    #[test]
+    fn lslc_005q_caller_selected_acquisition_order_is_observed_once_per_owner() {
+        struct OrderedImplementationProvider(Rc<RefCell<Vec<&'static str>>>);
+        impl StreamInfoImplementationVersionProvider for OrderedImplementationProvider {
+            type Error = ();
+            fn acquire(
+                &mut self,
+            ) -> Result<StreamInfoImplementationVersionProviderOutput, Self::Error> {
+                self.0.borrow_mut().push("implementation");
+                Ok(StreamInfoImplementationVersionProviderOutput::new(
+                    StreamInfoImplementationVersionWitness::new(
+                        StreamInfoImplementationVersionEvidenceLimit::new(32).unwrap(),
+                        "implementation-owner".into(),
+                        1,
+                        11,
+                    )
+                    .unwrap(),
+                    "version".into(),
+                ))
+            }
+        }
+        struct OrderedRuntimeProvider(Rc<RefCell<Vec<&'static str>>>);
+        impl StreamInfoRuntimeProvider for OrderedRuntimeProvider {
+            type Error = ();
+            fn acquire(&mut self) -> Result<StreamInfoRuntimeProviderOutput, Self::Error> {
+                self.0.borrow_mut().push("runtime");
+                Ok(StreamInfoRuntimeProviderOutput::new(
+                    StreamInfoRuntimeWitness::new(
+                        StreamInfoRuntimeEvidenceLimit::new(32).unwrap(),
+                        "runtime-owner".into(),
+                        2,
+                        22,
+                    )
+                    .unwrap(),
+                    StreamInfoRuntimeValues::new(
+                        "created".into(),
+                        "uid".into(),
+                        "session".into(),
+                        "host".into(),
+                    ),
+                ))
+            }
+        }
+        struct OrderedTransportProvider(Rc<RefCell<Vec<&'static str>>>);
+        impl StreamInfoTransportProvider for OrderedTransportProvider {
+            type Error = ();
+            fn acquire(&mut self) -> Result<StreamInfoTransportProviderOutput, Self::Error> {
+                self.0.borrow_mut().push("transport");
+                Ok(StreamInfoTransportProviderOutput::new(
+                    StreamInfoTransportWitness::new(
+                        StreamInfoTransportEvidenceLimit::new(32).unwrap(),
+                        "transport-owner".into(),
+                        3,
+                        33,
+                    )
+                    .unwrap(),
+                    StreamInfoTransportValues::new(
+                        "v4".into(),
+                        "v4data".into(),
+                        "v4service".into(),
+                        "v6".into(),
+                        "v6data".into(),
+                        "v6service".into(),
+                    ),
+                ))
+            }
+        }
+
+        let order = Rc::new(RefCell::new(Vec::new()));
+        let mut transport_provider = OrderedTransportProvider(Rc::clone(&order));
+        let mut implementation_provider = OrderedImplementationProvider(Rc::clone(&order));
+        let mut runtime_provider = OrderedRuntimeProvider(Rc::clone(&order));
+        let transport_expected = StreamInfoTransportWitness::new(
+            StreamInfoTransportEvidenceLimit::new(32).unwrap(),
+            "transport-owner".into(),
+            3,
+            33,
+        )
+        .unwrap();
+        let implementation_expected = StreamInfoImplementationVersionWitness::new(
+            StreamInfoImplementationVersionEvidenceLimit::new(32).unwrap(),
+            "implementation-owner".into(),
+            1,
+            11,
+        )
+        .unwrap();
+        let runtime_expected = StreamInfoRuntimeWitness::new(
+            StreamInfoRuntimeEvidenceLimit::new(32).unwrap(),
+            "runtime-owner".into(),
+            2,
+            22,
+        )
+        .unwrap();
+
+        let transport = StreamInfoTransportAcquisition::acquire(
+            &mut transport_provider,
+            &transport_expected,
+            limits(32),
+        )
+        .unwrap();
+        let implementation = StreamInfoImplementationVersionAcquisition::acquire(
+            &mut implementation_provider,
+            &implementation_expected,
+            limits(32),
+        )
+        .unwrap();
+        let runtime = StreamInfoRuntimeAcquisition::acquire(
+            &mut runtime_provider,
+            &runtime_expected,
+            limits(32),
+        )
+        .unwrap();
+        let accepted =
+            StreamInfoThreeOwnerSnapshot::new(limits(32), implementation, runtime, transport)
+                .unwrap();
+
+        assert_eq!(
+            order.borrow().as_slice(),
+            ["transport", "implementation", "runtime"]
+        );
+        assert_eq!(accepted.evidence().implementation().revision(), 11);
+        assert_eq!(accepted.evidence().runtime().revision(), 22);
+        assert_eq!(accepted.evidence().transport().revision(), 33);
+    }
+
+    #[test]
+    fn lslc_005q_provider_errors_remain_typed_by_their_separate_owner() {
+        let mut implementation = ImplementationProvider(None);
+        let mut runtime = RuntimeProvider(None);
+        let mut transport = TransportProvider(None);
+        let implementation_expected = StreamInfoImplementationVersionWitness::new(
+            StreamInfoImplementationVersionEvidenceLimit::new(32).unwrap(),
+            "implementation-owner".into(),
+            1,
+            11,
+        )
+        .unwrap();
+        let runtime_expected = StreamInfoRuntimeWitness::new(
+            StreamInfoRuntimeEvidenceLimit::new(32).unwrap(),
+            "runtime-owner".into(),
+            2,
+            22,
+        )
+        .unwrap();
+        let transport_expected = StreamInfoTransportWitness::new(
+            StreamInfoTransportEvidenceLimit::new(32).unwrap(),
+            "transport-owner".into(),
+            3,
+            33,
+        )
+        .unwrap();
+
+        assert_eq!(
+            StreamInfoImplementationVersionAcquisition::acquire(
+                &mut implementation,
+                &implementation_expected,
+                limits(32),
+            ),
+            Err(StreamInfoImplementationVersionAcquisitionError::Provider(()))
+        );
+        assert_eq!(
+            StreamInfoRuntimeAcquisition::acquire(&mut runtime, &runtime_expected, limits(32)),
+            Err(StreamInfoRuntimeAcquisitionError::Provider(()))
+        );
+        assert_eq!(
+            StreamInfoTransportAcquisition::acquire(
+                &mut transport,
+                &transport_expected,
+                limits(32),
+            ),
+            Err(StreamInfoTransportAcquisitionError::Provider(()))
+        );
+    }
+
+    #[test]
+    fn lslc_005q_evidence_and_snapshot_allocations_survive_both_consuming_layers() {
+        let (implementation, runtime, transport, value_pointers) = acquisitions();
+        let evidence_pointers = [
+            implementation.witness().provider_identity().as_ptr(),
+            runtime.witness().provider_identity().as_ptr(),
+            transport.witness().provider_identity().as_ptr(),
+        ];
+        let accepted =
+            StreamInfoThreeOwnerSnapshot::new(limits(32), implementation, runtime, transport)
+                .unwrap();
+        let (evidence, snapshot) = accepted.into_parts();
+        let (implementation, runtime, transport) = evidence.into_parts();
+
+        assert_eq!(
+            implementation.provider_identity().as_ptr(),
+            evidence_pointers[0]
+        );
+        assert_eq!(runtime.provider_identity().as_ptr(), evidence_pointers[1]);
+        assert_eq!(transport.provider_identity().as_ptr(), evidence_pointers[2]);
+        for (role, pointer) in crate::StreamInfoVolatileFields::roles()
+            .iter()
+            .copied()
+            .zip(value_pointers)
+        {
+            assert_eq!(snapshot.fields().field(role).as_ptr(), pointer);
+        }
+    }
+
+    #[test]
+    fn lslc_005q_repeated_composition_is_deterministic_and_never_cross_matches_owners() {
+        for _ in 0..16 {
+            let (implementation, runtime, transport, _) = acquisitions();
+            let accepted =
+                StreamInfoThreeOwnerSnapshot::new(limits(32), implementation, runtime, transport)
+                    .unwrap();
+            assert_eq!(
+                (
+                    accepted.evidence().implementation().provider_identity(),
+                    accepted.evidence().implementation().epoch(),
+                    accepted.evidence().implementation().revision(),
+                ),
+                ("implementation-owner", 1, 11)
+            );
+            assert_eq!(
+                (
+                    accepted.evidence().runtime().provider_identity(),
+                    accepted.evidence().runtime().epoch(),
+                    accepted.evidence().runtime().revision(),
+                ),
+                ("runtime-owner", 2, 22)
+            );
+            assert_eq!(
+                (
+                    accepted.evidence().transport().provider_identity(),
+                    accepted.evidence().transport().epoch(),
+                    accepted.evidence().transport().revision(),
+                ),
+                ("transport-owner", 3, 33)
+            );
+            assert_eq!(
+                crate::StreamInfoVolatileFields::roles()
+                    .iter()
+                    .map(|role| accepted.snapshot().fields().field(*role))
+                    .collect::<Vec<_>>(),
+                [
+                    "version",
+                    "created",
+                    "uid",
+                    "session",
+                    "host",
+                    "v4",
+                    "v4data",
+                    "v4service",
+                    "v6",
+                    "v6data",
+                    "v6service",
+                ]
+            );
+        }
     }
 }

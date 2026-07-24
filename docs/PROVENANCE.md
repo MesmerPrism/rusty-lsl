@@ -1,5 +1,59 @@
 # Provenance
 
+## LSLC-003Q private observation provenance
+
+The independently authored private driver and configuration are bound by
+SHA-256 `90c5ed742ac555ef8e2695702f236cf9b9b60b2a77748c0ee2474a32c07c3bf1`
+and `41d41bb8b3df2c4988ffac7b6b80cef79dac462289a908de532a7b04b0cc681c`.
+Two successful raw results remain private at hashes
+`8f9d6258574ff9765a47cf6ade6da353c8086d377ff28df208851e4beb2961d6`
+and `db901839eeaa78f924ecf501167f609323427304fffd29b8b8a59a8e2bb9ba03`.
+The pinned official binary hash is
+`8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff`.
+Raw bytes, endpoints, diagnostics, and the exploratory probe remain private;
+official and rLSL source were not inspected.
+
+## LSLC-003P
+
+The implementation is independently authored from the accepted LSLC-003B
+runtime and LSLC-003O sanitized black-box observations. Official source and
+rLSL source were not inspected or used. Private drivers, raw records,
+endpoints, and diagnostics remain outside the repository.
+
+## LSLC-003O private observation provenance
+
+The public fixture binds the independently authored driver, configuration,
+pinned official binary, and two pinned raw result files by SHA-256. Two prior
+successful behavioral runs under package version 1.18.1 are retained privately
+and classified as non-acceptance evidence because they did not match the
+accepted 1.18.2 oracle package. Official implementation source was not read.
+Raw records, request/response bytes, documents, endpoints, identifiers,
+diagnostics, environment paths, binaries, caches, and harness details remain
+private.
+
+## LSLC-002Q official responder observation
+
+The independently authored external driver exercised the accepted LSLC-002P
+Rust client against the same pinned official PyPI Windows AMD64 `pylsl 1.18.2`
+wheel, library version 117, protocol version 110, and native DLL digest already
+recorded by LSLC-002E. Only documented `StreamInfo` and `StreamOutlet` APIs
+were invoked; implementation source was not inspected. The public fixture
+binds the private orchestration driver, Rust driver, and raw observation by
+SHA-256. The initial private compile-only harness failure is retained as failed
+attempt evidence. Raw packets, XML, endpoint/runtime values, diagnostics,
+binaries, environments, and caches remain external.
+
+LSLC-002L binds `docs/info/time_synchronization.rst` at public revision
+`f012f8cfe8894cab0529be77dd83c91d6d95537d` and exact UTF-8 SHA-256
+`35bacbc81477d7e08554e42c6fa25382622954adecded9ab2101bf2061fc883e`.
+Only documentation specification facts are reduced; implementation links in
+the document were not followed and no black-box observation was performed.
+
+LSLC-002I reuses the pinned official network-connectivity document and exact
+UTF-8 SHA-256 already admitted by LSLC-002C/D, extracting only displayed
+default-settings UDP port and destination spellings. No implementation source
+or black-box endpoint was inspected.
+
 ## LSLC-002E response observation
 
 The observation used the official PyPI Windows AMD64 `pylsl 1.18.2` wheel
@@ -432,3 +486,224 @@ static role order and seven format spellings; no liblsl, rLSL, wrapper,
 application, generated, protocol, build, vendored, or test source supplied an
 implementation input. The overlay contains semantic values only, not captured
 endpoint bytes or volatile runtime data.
+# LSLC-002R black-box provenance
+
+The observation uses the exact pinned `pylsl 1.18.2` Windows AMD64 wheel,
+public library version 117, protocol version 110, and previously recorded
+wheel/native-library digests. The loopback configuration is derived only from
+the pinned official public `docs/info/lslapicfg.rst` document at revision
+`f012f8cfe8894cab0529be77dd83c91d6d95537d`; no implementation source was
+inspected or translated.
+
+The independently authored private driver, configuration, and raw observation
+are bound by SHA-256 in the sanitized fixture. Raw XML, connection rows,
+endpoint and runtime values, native diagnostics, binary/environment/cache
+paths, and failed attempts stay outside Git. Their digests establish exact
+provenance without publishing their contents.
+## LSLC-002S black-box framing provenance
+
+The pinned `pylsl 1.18.2` Windows AMD64 wheel, public library/protocol versions,
+and loaded native-library digest match the accepted LSLC-002R endpoint. Driver
+and raw-output SHA-256 values bind two private active probes. No implementation
+source was inspected, and raw request/response bytes, XML, identifiers,
+endpoints, diagnostics, binaries, environments, caches, and local paths are
+not committed.
+## LSLC-002T sample-record provenance
+
+The endpoint provenance remains the pinned LSLC-002R/S official package and
+native binary. A separately hashed private active probe used documented outlet
+and sample APIs with one explicit timestamp/value input. No implementation
+source was inspected. Raw handshake/sample bytes, XML, identifiers, endpoints,
+diagnostics, binaries, environments, caches, and local paths are not committed.
+## LSLC-002U clock framing provenance
+
+Two private active probes used the pinned official endpoint and documented
+time-correction surface: one synthetic service captured requests; one
+independently authored request obtained an official response. Driver and raw
+outputs are bound by SHA-256. No implementation source was inspected, and raw
+bytes, numeric clock values, XML, identifiers, endpoints, diagnostics,
+environments, caches, and local paths are not committed.
+## LSLC-002X official Float32 interoperability observation
+
+The observation pins the same official `pylsl 1.18.2` Windows AMD64 wheel,
+library version 117, wheel digest, and native-library digest as LSLC-002S/T.
+The public fixture binds independently authored private Rust/Python driver,
+binary, and raw-result SHA-256 values. No official implementation source was
+inspected. Raw bytes, XML, endpoints, diagnostics, environments, binaries, and
+caches remain outside the repository.
+## LSLC-002Y correction and rerun evidence
+
+LSLC-002Y uses only accepted public-safe LSLC-002S/T/X role evidence and fresh
+black-box reruns through the pinned official public APIs. The fixture binds
+private driver, rebuilt Rust binary, and raw-result hashes. Official source was
+not inspected; raw bytes, XML, endpoints, diagnostics, environments, binaries,
+and caches remain private.
+# LSLC-002Z private observation provenance
+
+The public fixture binds SHA-256 values for the independently authored public-
+API observation driver, Rust driver, raw private result, and private binary.
+Raw packets, XML, endpoints, diagnostics, binaries, environments, and caches
+remain outside the repository. No official implementation source was read.
+# LSLC-003A provenance
+
+The sanitized matrix binds the independently authored private driver,
+configuration, and raw result by SHA-256. Exact packets, documents, endpoints,
+diagnostics, binaries, environments, caches, and harness details remain private.
+No official implementation source was inspected.
+# LSLC-003B
+
+Public evidence binds private drivers, raw outcome, and binary by SHA-256. Raw
+packets, documents, endpoints, diagnostics, environments, and caches stay private.
+
+## LSLC-003T
+
+LSLC-003T is independently authored from the sanitized LSLC-003Q black-box
+observation and LSLC-003S activation contract. Official liblsl and rLSL source
+were not implementation inputs; private drivers, raw records, endpoints, and
+machine identities remain outside the repository.
+
+## LSLC-003U
+
+The public fixture contains only independently authored value classifications,
+dimensions, exact framing outcomes, and SHA-256 bindings. Drivers, raw results,
+endpoints, diagnostics, machine identities, and four successful but unpinned
+pylsl 1.18.1 drift runs remain private and are excluded from acceptance.
+
+## LSLC-003W
+
+The public fixture contains only the empty-value classification, exact bounded
+framing outcomes, and SHA-256 bindings for the independently authored private
+driver, configuration, pinned official binary, and two raw attempts. The
+driver, raw records, endpoints, diagnostics, environment, and machine identity
+remain private. No official implementation source was inspected.
+
+## LSLC-003Y
+
+The public fixture contains only the exact-128-byte classification, dimensions,
+framing outcomes, and SHA-256 bindings for the independently authored private
+driver, configuration, pinned official binary, value, record, and two raw
+attempts. Value text, drivers, raw results, endpoints, diagnostics, environment,
+machine identity, and two pylsl 1.18.1 drift runs remain private and excluded.
+
+## LSLC-004H
+
+The private observer was independently authored against Rusty LSL's public API
+and Rust `std::net::UdpSocket`; no liblsl or rLSL source was used. The fixture
+binds the accepted commit/tree, requester/responder source hashes, private
+driver source/binary hashes, and append-only attempt-record hash. Raw records,
+interface and endpoint details, diagnostics, environment, machine identity,
+driver, and binary remain private. Two failed attempts are preserved.
+
+## LSLC-004C
+
+The public fixture retains only the documented group/port, sanitized explicit-
+loopback and single-platform classifications, bounded counts/timing ceilings,
+outcomes, limitations, and SHA-256 bindings. Drivers, raw packets, endpoints,
+interface identifiers, diagnostics, environment, and machine identity remain
+private. No official implementation source was inspected.
+
+## LSLC-004A
+
+The public fixture contains only the exact-129-byte classification, dimensions,
+framing outcomes, and SHA-256 bindings for the independently authored private
+driver, configuration, pinned official binary, value, record, and two raw
+attempts. Value text, drivers, raw results, endpoints, diagnostics, environment,
+machine identity, and two pylsl 1.18.1 drift runs remain private and excluded.
+## LSLC-004K active-interface official resolver observation
+
+The oracle is pinned pylsl 1.18.2 with liblsl 1.17 and protocol 110. The
+independently authored private driver, generated configuration, raw queries,
+response, interface and endpoint details, diagnostics, environment, and
+machine identity remain outside the repository. The public fixture binds the
+driver, configuration, both raw attempts, attempt record, and unchanged public
+source baseline by SHA-256. The driver is compatibility evidence, not source
+input or a production dependency.
+
+## LSLC-004N pinned query datagram observation
+
+The oracle is an installed pinned pylsl 1.18.2/liblsl 1.17/protocol-110 binary
+used only as a black-box endpoint. The capture and structural parser were
+independently authored without inspecting or copying wrapper or liblsl source.
+Public evidence binds the private driver, two raw attempt records, and aggregate
+capsule by SHA-256. Raw datagrams, reply-routing/correlation values, interface
+and endpoints, paths, diagnostics, environment, and machine identity remain
+private.
+
+## LSLC-004M structural conformance
+
+The test is independently authored from LSLC-004N's public-safe grammar and
+exact datagram hash. Its routing and correlation values are independently
+selected; no private raw datagram or observed value is copied. The checker
+hashes the production prefix before `#[cfg(test)]` to prove production bytes
+remain unchanged.
+
+## LSLC-004O official-to-production observation
+
+The pinned official binary remains a black-box endpoint. An independently
+authored private orchestrator drives one ignored Rust owner harness that calls
+the accepted production responder with an explicit private interface. Public
+evidence binds the unchanged production prefix, driver, two successful records,
+three failures, and aggregate capsule by SHA-256. Raw output, interface,
+endpoints, query correlation, commands, diagnostics, environment, and machine
+identity remain private.
+
+## LSLC-004P official-outlet observation
+
+The pinned official outlet remains a black-box endpoint. An independently
+authored private orchestrator starts it and invokes one ignored Rust owner
+harness that calls the accepted requester with caller-explicit bind and
+destination values. Public evidence binds the accepted requester blob, two
+requester datagram hashes, driver, successful records, aggregate capsule, and
+one preserved failed derivation attempt. Raw responses, routing/correlation
+values, interface/endpoints, diagnostics, environment, and identity stay private.
+## LSLC-004R pinned response datagram observation
+
+An independently authored private UDP capture sent the already accepted public
+short-info request shape to two separately constructed pinned official outlets
+and captured each reply before any Rust production parser. Public evidence
+contains exact response/document hashes and lengths, independently parsed
+minimum envelope/XML structure, official pins, repeat limits, and hashes binding
+the private driver, attempts, and capsule. Raw datagrams, field values, request
+correlations, source identifiers, endpoints, interface details, diagnostics,
+paths, environment, and machine identity remain private. No external
+implementation source was inspected or translated, and no private value is a
+portable fixture or production input.
+
+## LSLC-004S independent response conformance
+
+Every response field, correlation value, address-shaped string, port-shaped
+string, and padding byte in the test is independently authored. Only the public
+LSLC-004R lengths, envelope syntax, canonical XML declaration/root, and ordered
+role names are used as inputs. The checker pins the entire pre-unit production
+source blob and reconstructs it byte-for-byte before the test-only suffix. No
+private capture, endpoint, identifier, or external implementation source was
+used or copied.
+
+## LSLC-004T typed composition provenance
+
+The test reuses only independently authored LSLC-004S test construction and
+selects a valid nominal-rate spelling independently while preserving the public
+711-byte document bound through independent padding. The checker byte-compares
+and hashes the complete production portion before `cfg(test)` against the
+accepted pre-unit blob. No oracle byte/value or external source is used.
+
+## LSLC-004U local projection provenance
+
+The module is independently authored from existing public Rusty LSL contracts.
+The accepted UDP blob stays exact; test values are independent and public-safe.
+
+## LSLC-004V typed discovery-run provenance
+
+The composition is independently authored solely from the accepted public
+Rusty LSL UDP and typed-projection contracts. Its loopback response values are
+independent and public-safe. It performs no official-oracle, Android Java,
+Quest, or external implementation intake, and both accepted owner blobs remain exact.
+# Float32 two-record chunk candidate provenance
+
+The pinned pylsl 1.18.2 / liblsl 1.17 / protocol-110 endpoint was used only
+through public black-box APIs. A lane-private independently authored driver
+performed two bounded repeats in both loopback directions. Raw records,
+headers, endpoints, dynamic identities, diagnostics, paths, and environment
+details remain private; the public fixture retains only sanitized dimensions,
+semantics, outcomes, and SHA-256 bindings. Failed derivation attempts are
+preserved privately. No official implementation source was inspected or used.

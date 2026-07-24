@@ -1,0 +1,119 @@
+{
+    "schema":  "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+    "project_id":  "rusty-lsl",
+    "unit_id":  "rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime",
+    "action":  "RecordValidation",
+    "timestamp":  "2026-07-16T19:57:31.5023958Z",
+    "executed":  true,
+    "transition":  "validation-pass",
+    "status_before":  "validating",
+    "status_after":  "validating",
+    "current_unit_before":  "rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime",
+    "current_unit_after":  "rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime",
+    "preservation":  {
+                         "git_mutation_performed":  false,
+                         "device_mutation_performed":  false,
+                         "force_push_allowed":  false,
+                         "repository_states":  [
+                                                   {
+                                                       "repo_id":  "rusty-lsl",
+                                                       "available":  true,
+                                                       "is_git":  true,
+                                                       "head":  "a6ac18bb2c35ba5c26130be50943774fe036aff9",
+                                                       "branch":  "codex/rlsl-autonomous",
+                                                       "upstream":  "origin/codex/rlsl-autonomous",
+                                                       "dirty":  true,
+                                                       "tracked_changes":  0,
+                                                       "untracked_changes":  2,
+                                                       "ahead":  6,
+                                                       "behind":  0,
+                                                       "diverged":  false,
+                                                       "relation":  "ahead"
+                                                   }
+                                               ]
+                     },
+    "validation_matrix":  [
+                              {
+                                  "order":  1,
+                                  "gate_id":  "validation-runtime-loopback",
+                                  "kind":  "command",
+                                  "profile_id":  "runtime-loopback",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004e.ps1",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  2,
+                                  "gate_id":  "validation-source-owner",
+                                  "kind":  "command",
+                                  "profile_id":  "source-owner",
+                                  "command":  "python ./tools/dispatch_validation.py --profile standard",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  3,
+                                  "gate_id":  "validation-workflow",
+                                  "kind":  "command",
+                                  "profile_id":  "workflow",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File \u003cwork-environment-root\u003e/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot \u003cproject-root\u003e/morphospace",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  4,
+                                  "gate_id":  "instruction-synchronization",
+                                  "kind":  "instruction",
+                                  "profile_id":  "instruction-sync",
+                                  "command":  "Verify every declared instruction surface is complete and validated.",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  5,
+                                  "gate_id":  "device-validation",
+                                  "kind":  "device",
+                                  "profile_id":  "device",
+                                  "command":  "Do not run live device operations for this unit.",
+                                  "disposition":  "forbidden",
+                                  "serials":  [
+
+                                              ]
+                              }
+                          ],
+    "graph_scope":  {
+                        "change_categories":  [
+                                                  "compatibility",
+                                                  "documentation",
+                                                  "implementation",
+                                                  "validation"
+                                              ],
+                        "repositories":  [
+                                             {
+                                                 "repo_id":  "rusty-lsl",
+                                                 "allowed_paths":  [
+                                                                       "AGENTS.md",
+                                                                       "crates/rusty-lsl/src/lib.rs",
+                                                                       "crates/rusty-lsl/src/short_info_discovery_responder_runtime.rs",
+                                                                       "crates/rusty-lsl/src/udp_discovery.rs",
+                                                                       "docs/ARCHITECTURE.md",
+                                                                       "docs/COMPATIBILITY.md",
+                                                                       "docs/VALIDATION.md",
+                                                                       "fixtures/compatibility/lslc-004e-explicit-loopback-multicast-responder-runtime.json",
+                                                                       "fixtures/compatibility/README.md",
+                                                                       "morphospace/iteration-events.jsonl",
+                                                                       "morphospace/iteration-units/rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime.json",
+                                                                       "morphospace/receipts/",
+                                                                       "morphospace/workspace.state.json",
+                                                                       "README.md",
+                                                                       "tools/check_lslc_004e.ps1",
+                                                                       "tools/check_lslc_004e.py",
+                                                                       "tools/validation-policy.json"
+                                                                   ]
+                                             }
+                                         ],
+                        "read_only_dependencies":  [
+
+                                                   ],
+                        "exclusion":  "Do not scan repositories or paths outside this list."
+                    },
+    "adoption_receipt":  null,
+    "push_plan":  null,
+    "event_id":  "rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime-validation-pass-0506"
+}

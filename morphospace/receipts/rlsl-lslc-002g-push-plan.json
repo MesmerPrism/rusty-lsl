@@ -1,0 +1,126 @@
+{
+    "schema":  "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+    "project_id":  "rusty-lsl",
+    "unit_id":  "rlsl-lslc-002g-short-info-response-envelope-validation-correction",
+    "action":  "PreparePush",
+    "timestamp":  "2026-07-14T16:00:41.8390521Z",
+    "executed":  true,
+    "transition":  "push-bundle-prepared",
+    "status_before":  "accepted",
+    "status_after":  "accepted",
+    "current_unit_before":  null,
+    "current_unit_after":  null,
+    "preservation":  {
+                         "git_mutation_performed":  false,
+                         "device_mutation_performed":  false,
+                         "force_push_allowed":  false,
+                         "repository_states":  [
+                                                   {
+                                                       "repo_id":  "rusty-lsl",
+                                                       "available":  true,
+                                                       "is_git":  true,
+                                                       "head":  "1650174ffa2f206d5fd6a1b0736c1a199fdd848d",
+                                                       "branch":  "codex/rlsl-autonomous",
+                                                       "upstream":  "origin/codex/rlsl-autonomous",
+                                                       "dirty":  false,
+                                                       "tracked_changes":  0,
+                                                       "untracked_changes":  0,
+                                                       "ahead":  7,
+                                                       "behind":  0,
+                                                       "diverged":  false,
+                                                       "relation":  "ahead"
+                                                   }
+                                               ]
+                     },
+    "validation_matrix":  [
+                              {
+                                  "order":  1,
+                                  "gate_id":  "validation-source-only",
+                                  "kind":  "command",
+                                  "profile_id":  "source-only",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  2,
+                                  "gate_id":  "validation-workflow",
+                                  "kind":  "command",
+                                  "profile_id":  "workflow",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File \u003cwork-environment-root\u003e/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot \u003cproject-root\u003e/morphospace",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  3,
+                                  "gate_id":  "instruction-synchronization",
+                                  "kind":  "instruction",
+                                  "profile_id":  "instruction-sync",
+                                  "command":  "Verify every declared instruction surface is complete and validated.",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  4,
+                                  "gate_id":  "device-validation",
+                                  "kind":  "device",
+                                  "profile_id":  "device",
+                                  "command":  "Do not run live device operations for this unit.",
+                                  "disposition":  "forbidden",
+                                  "serials":  [
+
+                                              ]
+                              }
+                          ],
+    "graph_scope":  {
+                        "change_categories":  [
+                                                  "implementation",
+                                                  "validation",
+                                                  "validation-routing"
+                                              ],
+                        "repositories":  [
+                                             {
+                                                 "repo_id":  "rusty-lsl",
+                                                 "allowed_paths":  [
+                                                                       "AGENTS.md",
+                                                                       "crates/rusty-lsl/src/lib.rs",
+                                                                       "crates/rusty-lsl/src/short_info_response_envelope.rs",
+                                                                       "docs/VALIDATION.md",
+                                                                       "morphospace/",
+                                                                       "README.md",
+                                                                       "tools/check_lslc_002f.ps1",
+                                                                       "tools/check_lslc_002g.ps1"
+                                                                   ]
+                                             }
+                                         ],
+                        "read_only_dependencies":  [
+
+                                                   ],
+                        "exclusion":  "Do not scan repositories or paths outside this list."
+                    },
+    "adoption_receipt":  null,
+    "push_plan":  {
+                      "schema":  "rusty.morphospace.workflow.push_bundle_plan.v1",
+                      "bundle_id":  "rlsl-lslc-002g-short-info-response-envelope-validation-correction-push-bundle",
+                      "project_id":  "rusty-lsl",
+                      "unit_ids":  [
+                                       "rlsl-lslc-002g-short-info-response-envelope-validation-correction"
+                                   ],
+                      "prepared_at":  "2026-07-14T16:00:41.8390521Z",
+                      "dependency_order":  [
+                                               "rusty-lsl"
+                                           ],
+                      "repositories":  [
+                                           {
+                                               "repo_id":  "rusty-lsl",
+                                               "branch":  "codex/rlsl-autonomous",
+                                               "commit":  "1650174ffa2f206d5fd6a1b0736c1a199fdd848d",
+                                               "upstream":  "origin/codex/rlsl-autonomous",
+                                               "ahead":  7,
+                                               "behind":  0
+                                           }
+                                       ],
+                      "source_first":  true,
+                      "planning_last":  true,
+                      "execution":  "not-performed",
+                      "force_push_allowed":  false
+                  },
+    "event_id":  "rlsl-lslc-002g-short-info-response-envelope-validation-correction-push-prepared-0221"
+}

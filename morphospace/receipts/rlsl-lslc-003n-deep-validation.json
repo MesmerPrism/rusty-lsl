@@ -1,0 +1,67 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-003n-deep-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-003n-validation-policy-authority",
+  "created_at": "2026-07-16T08:53:34Z",
+  "tier": "deep",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "68db7ce0f92ef9cab633d0b54c35744a7814db53",
+      "head_revision": "7e3faea6625164bc8e0a550a96bf3177c3469f6e",
+      "branch": "codex/rlsl-autonomous"
+    }
+  ],
+  "changed_paths": [
+    { "repo_id": "rusty-lsl", "path": ".github/workflows/ci.yml" },
+    { "repo_id": "rusty-lsl", "path": "AGENTS.md" },
+    { "repo_id": "rusty-lsl", "path": "README.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/VALIDATION.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/adr/LSLC-003N-VALIDATION-POLICY-AUTHORITY.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/history/VALIDATION-THROUGH-LSLC-003M.md" },
+    { "repo_id": "rusty-lsl", "path": "docs/validation/VALIDATION-AUTHORITY-INVENTORY.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-events.jsonl" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/iteration-units/rlsl-lslc-003n-validation-policy-authority.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-003n-begin-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-003n-claim.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-003n-deep-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-003n-deep-validation.md" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-003n-ready.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/receipts/rlsl-lslc-003n-record-validation.json" },
+    { "repo_id": "rusty-lsl", "path": "morphospace/workspace.state.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_all.ps1" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_cargo_shape.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/check_documentation_router.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/dispatch_current_gates.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/dispatch_validation.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/test_validation_policy.py" },
+    { "repo_id": "rusty-lsl", "path": "tools/validation-archive-binding.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/validation-historical-gates.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/validation-policy.json" },
+    { "repo_id": "rusty-lsl", "path": "tools/validation-policy.schema.json" }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-003n-deep-log",
+      "kind": "validation-log",
+      "path": "rlsl-lslc-003n-deep-validation.md",
+      "sha256": "5c9a2d91835dea117d3033ecb981989806c67368eab753151c8a1f249d8c8b2c"
+    }
+  ],
+  "criteria": [
+    { "acceptance_id": "complete-semantic-inventory-and-equivalence", "status": "pass", "command": "python ./tools/test_validation_policy.py", "evidence_refs": ["lslc-003n-deep-log"] },
+    { "acceptance_id": "single-current-policy-authority", "status": "pass", "command": "python ./tools/test_validation_policy.py", "evidence_refs": ["lslc-003n-deep-log"] },
+    { "acceptance_id": "damaged-drift-and-archive-rejection", "status": "pass", "command": "python ./tools/test_validation_policy.py", "evidence_refs": ["lslc-003n-deep-log"] },
+    { "acceptance_id": "complete-current-and-historical-validation", "status": "pass", "command": "python ./tools/dispatch_validation.py --profile deep", "evidence_refs": ["lslc-003n-deep-log"] },
+    { "acceptance_id": "project-workflow-and-public-boundary", "status": "pass", "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace", "evidence_refs": ["lslc-003n-deep-log"] }
+  ],
+  "gates": [
+    { "gate_id": "validation-source-owner", "status": "pass", "command": "python ./tools/dispatch_validation.py --profile deep", "evidence_refs": ["lslc-003n-deep-log"] },
+    { "gate_id": "validation-workflow", "status": "pass", "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace", "evidence_refs": ["lslc-003n-deep-log"] },
+    { "gate_id": "instruction-synchronization", "status": "pass", "command": "Verify every declared instruction surface is complete and validated.", "evidence_refs": ["lslc-003n-deep-log"] }
+  ],
+  "device_validation": null
+}

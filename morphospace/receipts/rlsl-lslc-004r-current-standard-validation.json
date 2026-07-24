@@ -1,0 +1,43 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-004r-current-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004r-official-outlet-response-datagram-observation",
+  "created_at": "2026-07-17T05:50:00Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "2bc67eb0c8c0a7b00f7fdf1f440ec423ad6b0866",
+      "head_revision": "3389198b492ef07285fb090e661d7bf2cd9db12f",
+      "branch": "codex/rlsl-autonomous"
+    }
+  ],
+  "changed_paths": [
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-004r-official-outlet-response-datagram-observation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004r-current-standard-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"}
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-004r-sanitized-response-observation",
+      "kind": "compatibility-evidence",
+      "path": "../../fixtures/compatibility/lslc-004r-official-outlet-response-datagram-observation.json",
+      "sha256": "d70247f42f26d0fb1d5b40d2a66811366431d9861f723719b311014e9c859aaa"
+    }
+  ],
+  "criteria": [
+    {"acceptance_id":"two-response-datagram-observations","status":"pass","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004r.ps1","evidence_refs":["lslc-004r-sanitized-response-observation"]},
+    {"acceptance_id":"standard-closure","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004r-sanitized-response-observation"]}
+  ],
+  "gates": [
+    {"gate_id":"validation-source-only","status":"pass","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004r.ps1","evidence_refs":["lslc-004r-sanitized-response-observation"]},
+    {"gate_id":"validation-source-owner","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004r-sanitized-response-observation"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-004r-sanitized-response-observation"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-004r-sanitized-response-observation"]}
+  ],
+  "device_validation": null
+}

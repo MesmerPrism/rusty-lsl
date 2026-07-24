@@ -1,0 +1,62 @@
+{
+  "schema": "rusty.lsl.quest_ipv4_multicast_device_conformance.v1",
+  "unit_id": "rlsl-lslc-004g-quest-ipv4-multicast-device-conformance",
+  "source_heads": {
+    "rusty_lsl_claimed": "edcbc31f86b7f54754cff66859acc2b15b426b35",
+    "rusty_quest_harness": "d09b02307b6f8d960c94799644f1939054f7e1e1"
+  },
+  "platform": {
+    "device_family": "Quest 3S",
+    "device_count": 2,
+    "android_api": 34,
+    "interface_selection": "caller-explicit IPv4 Wi-Fi interface"
+  },
+  "envelope": {
+    "group": "239.255.172.215",
+    "port": 16571,
+    "query_count": 1,
+    "response_count": 1,
+    "finite_deadline": true,
+    "same_process": false,
+    "same_device": false
+  },
+  "results": {
+    "join": "pass",
+    "drop": "pass",
+    "rejoin": "pass",
+    "peer_query_received": "pass",
+    "peer_response_received": "pass",
+    "explicit_cancellation": "pass",
+    "socket_cleanup": "pass",
+    "multicast_lock_cleanup": "pass",
+    "target_package_fatals": 0,
+    "target_packages_removed": true,
+    "run_owned_forwards_after": 0,
+    "run_owned_reverses_after": 0,
+    "run_owned_properties_restored": true,
+    "run_owned_staging_removed": true
+  },
+  "hashes": {
+    "private_run_capsule_sha256": "d361bd8c5a83c6df5c0b4297e591fe19ac18eafa1f5e28c74b86bb95d077a6e0",
+    "private_summary_sha256": "f01b1f66a3756f89353645eebf9a8f5e0bbeda1b57a905bdf5be61a2118aedaa",
+    "private_cleanup_sha256": "f921abeff91e2d6b5c452d3839c56f2acf3791e09ce461cf941840aa5c840a8a",
+    "private_responder_result_sha256": "de62847737978c52815ead78b20b4568886d5f89585c0cc1c6bdb8ec8cafbd5e",
+    "private_requester_result_sha256": "efa30abdddb15c3cf8a352addb1f675c417c9935b32a865f483ac5a4c2820abb",
+    "private_cancellation_result_sha256": "b1458102985ec4ce9d7d46a272c901a2aef4f668b9660d7ebe230f882ce7935c",
+    "private_apk_sha256": "281fb3d19f63cb513dd0545925c91e107dda98fd8fc3f6e7800a6644f052bcee"
+  },
+  "preserved_failures": [
+    "The first otherwise passing device attempt had an invalid logcat time argument and no fatal-window receipt.",
+    "The second otherwise passing device attempt had a host cleanup-receipt boolean spelling error after target-package uninstall."
+  ],
+  "private_exclusions": [
+    "serials", "local paths", "APK", "package identity", "raw logs",
+    "raw endpoints", "device diagnostics", "environment", "machine identity"
+  ],
+  "limitations": [
+    "Two Quest 3S devices on one infrastructure Wi-Fi network and one Horizon OS build.",
+    "Does not prove other Android or Quest models, networks, interfaces, address families, groups, retry policies, official endpoint compatibility, or production activation.",
+    "The public harness response is independently authored synthetic conformance data, not an official liblsl response.",
+    "Rusty LSL compatibility ownership remains separate from Quest packaging and from Manifold admission, routing, identity, and authority."
+  ]
+}

@@ -1,5 +1,44 @@
 # STRM-000 compatibility fixtures
 
+`lslc-003q-bounded-string-record-observation.json` contains only the sanitized
+one-channel, one-record String framing outcomes, private artifact hashes,
+negative classifications, and nonclaims from two pinned black-box repeats.
+
+`lslc-003p-bounded-multichannel-record-sequence-runtime.json` records the
+sanitized closed implementation envelope and nonclaims for the LSLC-003P
+two-channel, three-record fixed-width numeric runtime.
+
+`lslc-003o-multichannel-numeric-record-sequence-observation.json` contains
+only sanitized two-channel, three-record, two-direction outcomes for four
+pinned-official numeric formats, exact typed initialization values, bounded
+nonclaims, and private-artifact hashes. Raw records, requests, endpoints,
+diagnostics, binaries, environments, caches, and harness details remain private.
+
+`lslc-003j-current-gate-role-audit.json` records the bounded role split between
+eighteen immutable pinned historical gates and the single live forward checker,
+plus the resolver-owned revision-13 closure. It proves no device behavior,
+runtime breadth, protocol change, or authority.
+
+`lslc-003e-bounded-fixed-record-transport-core.json` records only the
+crate-private exact-record transfer seam and LSLC-003E's blocked outcome.
+`lslc-003f-dependency-closed-bounded-record-transport-correction.json` binds
+the corrected descriptor/lock/activation closure and preserved facade parity.
+Neither fixture adds a format, chunk, adapter, device, or Manifold claim.
+
+`lslc-002r-official-loopback-stream-handshake-observation.json` contains only
+sanitized official outlet/inlet connection-setup roles, bounds, typed outcomes,
+and provenance hashes. Raw packets, XML, connection rows, endpoints,
+identifiers, diagnostics, binaries, environments, caches, and failed-attempt
+payloads remain external.
+
+`lslc-002l-clock-offset-public-documentation-evidence.json` records only pinned
+official clock-offset documentation facts. It contains no packet capture,
+clock sample, observation, candidate algorithm, or runtime result.
+
+`lslc-002i-default-discovery-destination-evidence.json` contains only pinned
+official-documentation specification facts. Parsing, selection, observation,
+sockets, runtime discovery, and interoperability remain unclaimed.
+
 `lslc-002e-short-info-response-observation.json` contains only sanitized
 black-box framing facts and provenance hashes. It contains no raw response,
 XML document, endpoint value, native diagnostic, or machine path.
@@ -220,3 +259,214 @@ allocation ownership, historical preservation, and inert-closure checks. Its
 overlay proves no reverse, decoding, round-trip, document, serialization, LSL
 mapping, endpoint, protocol, wire, runtime, ecosystem, compatibility, or
 official-liblsl behavior.
+`lslc-002s-bounded-stream-handshake-runtime.json` binds sanitized request and
+response framing roles plus independently authored bounded Rust loopback
+runtime outcomes. Raw wire artifacts remain private.
+`lslc-002t-bounded-timestamped-float32-sample-runtime.json` binds the sanitized
+one-record timestamp/value observation and independent bounded Rust outcome.
+Raw wire artifacts remain private.
+`lslc-002u-integrated-clock-correction-runtime.json` binds sanitized timedata
+roles and the independent bounded acquisition/selection/mapping outcome. Raw
+clock packets and values remain private.
+`lslc-002v-bounded-sample-queue-backpressure-cancellation-runtime.json`
+records only sanitized bounded queue and accepted loopback composition claims.
+`lslc-002w-finite-sample-recovery-runtime.json` records only sanitized finite
+recovery bounds, queue composition, and strict nonclaims.
+`lslc-002x-official-loopback-float32-sample-interoperability-observation.json`
+records only sanitized two-direction official-loopback failure stages and
+pinned hashes; raw evidence remains private.
+`lslc-002y-official-float32-stream-initialization-compatibility-correction.json`
+records the evidence-bounded correction and sanitized two-direction exact-bit
+rerun outcomes; raw artifacts remain private.
+# LSLC-002Z
+
+`lslc-002z-bounded-short-info-discovery-responder-interoperability.json`
+contains only sanitized typed outcomes and hashes for the bounded official-
+client IPv4-loopback observation. Raw runtime artifacts remain private.
+# LSLC-003A
+
+The fixed-width sample matrix contains sanitized per-format/direction outcomes
+and provenance hashes only; all raw black-box artifacts remain private.
+# LSLC-003B
+
+The runtime-family fixture contains only sanitized outcomes and hashes.
+
+# LSLC-003C
+
+The activation fixture binds the accepted public lock fingerprint/revision,
+one synthetic dependency-closed selection, typed damaged cases, and exact
+nonclaims. It contains no runtime, endpoint, device, or private evidence.
+
+# LSLC-003D
+
+The dependency-composition fixture mirrors the resolved public lock graph and
+records only capability composition, unchanged-runtime, and boundary claims.
+
+## LSLC-003T
+
+`lslc-003t-bounded-string-record-runtime.json` records the sanitized closed
+runtime bounds, capability prerequisites, valid cases, damaged cases, and
+nonclaims for the LSLC-003Q/003S-bound String implementation.
+
+## LSLC-003U
+
+`lslc-003u-string-utf8-boundary-observation.json` contains only sanitized
+mixed-width and exact-127-byte pinned observation evidence, hashes, bounds,
+private-evidence exclusions, and nonclaims.
+
+## LSLC-004H
+
+`lslc-004h-active-interface-rust-multicast-observation.json` contains only
+sanitized exact-source, two-repeat active-interface Rust socket outcomes,
+private-artifact hashes, preserved-failure count, limitations, and nonclaims.
+Interface and endpoint details, raw records, driver, binary, diagnostics,
+environment, and machine identity remain private.
+
+`lslc-004d-ipv4-multicast-discovery-runtime-conformance.json` binds only the
+synthetic joined-loopback composition, exact group and port, one query and one
+response, finite lifecycle invariants, accepted production-prefix hash,
+single-platform limitation, and nonclaims.
+
+`lslc-004e-explicit-loopback-multicast-responder-runtime.json` binds the exact
+group, port, explicit loopback interface, responder capability, one
+query/response, finite cleanup, single-platform limit, and nonclaims.
+
+`lslc-004f-exact-multicast-discovery-composition-conformance.json` binds both
+accepted production-prefix hashes, the exact one-query/one-response loopback
+composition, cleanup, and nonclaims.
+
+## LSLC-004B
+
+`lslc-004b-exact-129-string-record-runtime.json` binds the exact-129
+observation to the closed capability-gated runtime, zero-through-129 byte
+bounds, typed 130-byte rejection, effects, provenance, and nonclaims.
+
+## LSLC-004C
+
+`lslc-004c-ipv4-multicast-discovery-observation.json` contains only sanitized
+single-group IPv4 multicast outcomes, bounded counts/timing ceilings,
+membership cleanup, platform limitations, hashes, and nonclaims.
+
+`lslc-004g-quest-ipv4-multicast-device-conformance.json` contains only
+sanitized exact-head two-Quest outcomes, private-artifact hashes, preserved
+failed-attempt classifications, cleanup results, limitations, and authority
+nonclaims. Serials, raw logs, paths, APKs, package identity, endpoints, and
+device diagnostics remain private.
+
+## LSLC-004A
+
+`lslc-004a-exact-129-string-observation.json` contains only sanitized exact-
+129-byte pinned observation evidence, framing outcomes, hashes, bounds,
+private-evidence exclusions, and nonclaims.
+
+## LSLC-003Z
+
+`lslc-003z-exact-128-string-record-runtime.json` binds the exact-128
+observation to the closed capability-gated runtime, zero-through-128 byte
+bounds, typed 129-byte rejection, effects, provenance, and nonclaims.
+
+## LSLC-003V
+
+`lslc-003v-string-utf8-boundary-runtime-conformance.json` binds the two observed
+value hashes to test-only synthetic runtime conformance and the unchanged
+production-prefix invariant.
+
+## LSLC-003W
+
+`lslc-003w-empty-string-record-observation.json` contains only sanitized
+empty-String pinned observation evidence, exact framing outcomes, hashes,
+bounds, private-evidence exclusions, and nonclaims.
+
+## LSLC-003X
+
+`lslc-003x-empty-string-record-runtime.json` binds the LSLC-003W empty
+observation to the existing capability-gated runtime, exact zero-through-127
+byte bounds, one-byte length form, effects, provenance, and nonclaims.
+
+## LSLC-003Y
+
+`lslc-003y-exact-128-string-observation.json` contains only sanitized exact-
+128-byte pinned observation evidence, framing outcomes, hashes, bounds,
+private-evidence exclusions, and nonclaims.
+
+## LSLC-004J
+
+`lslc-004j-explicit-ipv4-interface-multicast-responder.json` binds the exact
+group and caller-explicit concrete-interface runtime to its accepted source,
+two sanitized active-interface repeats, loopback preservation, nonconcrete
+rejection, private-artifact hashes, platform limitations, and authority
+nonclaims. Interface and endpoint details, driver, raw output, diagnostics,
+environment, and machine identity remain private.
+
+## LSLC-004K
+
+`lslc-004k-active-interface-official-resolver-observation.json` contains only
+sanitized pinned-official active-interface query/response outcomes, exact
+group and finite dimensions, public-source and private-artifact hashes,
+cleanup, single-platform limitations, exclusions, and authority nonclaims.
+
+## LSLC-004N
+
+`lslc-004n-official-query-datagram-observation.json` contains per-attempt exact
+datagram hashes and lengths, minimal sanitized three-line query grammar,
+two-repeat equality limits, pinned versions, finite cleanup, private-capsule
+hashes, exclusions, and authority nonclaims. Raw bytes and private routing and
+correlation values remain outside the repository.
+
+## LSLC-004M
+
+`lslc-004m-official-query-production-responder-conformance.json` binds the
+LSLC-004N exact datagram identity and public grammar to one test-only bounded
+query/response through the unchanged responder, with independent private-field
+values, cleanup, production-prefix hash, limitations, and nonclaims.
+
+## LSLC-004O
+
+`lslc-004o-official-resolver-production-responder-observation.json` binds two
+sanitized pinned-official-to-unchanged-production active-interface repeats,
+exact dimensions, matching resolution, finite cleanup, private artifact and
+failure hashes, single-platform limitations, exclusions, and nonclaims.
+
+## LSLC-004P
+
+`lslc-004p-official-outlet-production-requester-observation.json` binds two
+sanitized pinned-official-outlet-to-unchanged-requester active-interface
+repeats, requester datagram hashes, matching response admission, finite cleanup,
+private capsule hashes, single-platform limitations, exclusions, and nonclaims.
+
+## LSLC-004R
+
+`lslc-004r-official-outlet-response-datagram-observation.json` binds two
+serialized pinned-official pre-parser response captures with exact datagram and
+document hashes and lengths, minimum sanitized envelope/XML structure, explicit
+dynamic-byte limitations, cleanup, private-capsule hashes, and nonclaims. Raw
+bytes, values, endpoints, identifiers, interface details, and diagnostics stay
+outside the repository.
+
+## LSLC-004S
+
+`lslc-004s-official-response-production-requester-conformance.json` binds the
+LSLC-004R public lengths and role grammar to one independently authored,
+test-only response through the unchanged requester/parser. It records bounded
+retention, correlation, termination, cleanup, damaged cases, exact production
+prefix identity, limitations, and nonclaims without oracle bytes or values.
+
+## LSLC-004T
+
+`lslc-004t-requester-typed-observation-conformance.json` binds one independently
+authored retained UDP response through the existing parsed envelope and typed
+observation/admission layers. It records exact production-prefix identity,
+typed preservation, unchanged damaged delegation, inherited bounded behavior,
+limitations, and nonclaims.
+
+## LSLC-004U
+
+`lslc-004u-typed-udp-response-projection.json` binds the unchanged UDP blob to
+the caller-bounded projection, delegated errors, public API, and nonclaims.
+
+## LSLC-004V
+
+`lslc-004v-typed-udp-discovery-run.json` binds the unchanged UDP and local
+projection owners to one synthetic loopback typed-run composition. It records
+only caller bounds, preserved run/source/order state, indexed damage,
+pre-I/O cancellation, lane separation, and explicit nonclaims.

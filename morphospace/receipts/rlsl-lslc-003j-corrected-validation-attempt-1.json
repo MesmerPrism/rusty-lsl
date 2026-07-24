@@ -1,0 +1,12 @@
+{
+  "schema": "rusty.lsl.lslc_003j.validation_attempt.v1",
+  "unit_id": "rlsl-lslc-003j-current-gate-role-closure-recovery",
+  "head": "faa6ea6e1466ded4b1b2723cba24d77073373fe1",
+  "result": "fail",
+  "record_validation_executed": false,
+  "failed_gate": "historical lslc-003d replay",
+  "failed_test": "short_info_discovery_responder_runtime::tests::lslc_002z_valid_query_returns_matching_envelope_and_releases_port",
+  "observed": "261 tests passed before the immutable pinned runtime assertion failed; dispatch stopped before later historical/current gates.",
+  "cleanup": {"git_worktree_remove_succeeded":true,"registry_entry_absent":true,"directory_absent":true},
+  "next": "Replay the exact historical pin in isolation; retain this failure regardless of retry outcome."
+}

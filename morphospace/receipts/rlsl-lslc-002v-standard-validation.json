@@ -1,0 +1,31 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema":"rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id":"rlsl-lslc-002v-standard-validation","project_id":"rusty-lsl","unit_id":"rlsl-lslc-002v-bounded-sample-queue-backpressure-cancellation-runtime",
+  "created_at":"2026-07-15T05:18:00Z","tier":"standard","result":"pass",
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"d22f74cbbcb71ebfcbaf184c548a04189b329453","head_revision":"5b79669261fe1b868e6b44dbef788fa758100cfd","branch":"codex/rlsl-autonomous"}],
+  "changed_paths":[
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},{"repo_id":"rusty-lsl","path":"README.md"},
+    {"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/bounded_sample_queue_runtime.rs"},{"repo_id":"rusty-lsl","path":"crates/rusty-lsl/src/lib.rs"},
+    {"repo_id":"rusty-lsl","path":"docs/ARCHITECTURE.md"},{"repo_id":"rusty-lsl","path":"docs/COMPATIBILITY.md"},{"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"fixtures/compatibility/README.md"},{"repo_id":"rusty-lsl","path":"fixtures/compatibility/lslc-002v-bounded-sample-queue-backpressure-cancellation-runtime.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/feature.lock.json"},{"repo_id":"rusty-lsl","path":"morphospace/features/bounded-sample-queue.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-002v-bounded-sample-queue-backpressure-cancellation-runtime.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/project.spec.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002v-standard-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-002v-standard-validation.md"},{"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_002v.ps1"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_002v.py"}
+  ],
+  "artifacts":[{"artifact_id":"lslc-002v-standard-log","kind":"validation-log","path":"rlsl-lslc-002v-standard-validation.md","sha256":"fb2dec2dfdaa831f424906a3ca05efff885bd52a0f1d396753f377bb0aa0a999"}],
+  "criteria":[
+    {"acceptance_id":"bounded-fifo-backpressure","status":"pass","command":"cargo test --workspace --all-targets --offline --locked lslc_002v","evidence_refs":["lslc-002v-standard-log"]},
+    {"acceptance_id":"finite-blocking-cancellation-close","status":"pass","command":"cargo test --workspace --all-targets --offline --locked lslc_002v","evidence_refs":["lslc-002v-standard-log"]},
+    {"acceptance_id":"accepted-sample-runtime-composition","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002v.ps1","evidence_refs":["lslc-002v-standard-log"]},
+    {"acceptance_id":"authority-boundary","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-002v-standard-log"]}
+  ],
+  "gates":[
+    {"gate_id":"validation-runtime-loopback","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_002v.ps1","evidence_refs":["lslc-002v-standard-log"]},
+    {"gate_id":"validation-source-owner","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-002v-standard-log"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-002v-standard-log"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-002v-standard-log"]}
+  ],
+  "device_validation":null
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "rusty.lsl.current_gates.v1",
+  "revision": 1,
+  "expected_checker_ids": [
+    "lslc-002q", "lslc-002r", "lslc-002s", "lslc-002t", "lslc-002u",
+    "lslc-002v", "lslc-002w", "lslc-002x", "lslc-002y", "lslc-002z",
+    "lslc-003a", "lslc-003b", "lslc-003c", "lslc-003d", "lslc-003e",
+    "lslc-003f", "lslc-003g", "lslc-003h"
+  ],
+  "gates": [
+    {"order": 1, "checker_id": "lslc-002q", "path": "tools/check_lslc_002q.ps1"},
+    {"order": 2, "checker_id": "lslc-002r", "path": "tools/check_lslc_002r.ps1"},
+    {"order": 3, "checker_id": "lslc-002s", "path": "tools/check_lslc_002s.ps1"},
+    {"order": 4, "checker_id": "lslc-002t", "path": "tools/check_lslc_002t.ps1"},
+    {"order": 5, "checker_id": "lslc-002u", "path": "tools/check_lslc_002u.ps1"},
+    {"order": 6, "checker_id": "lslc-002v", "path": "tools/check_lslc_002v.ps1"},
+    {"order": 7, "checker_id": "lslc-002w", "path": "tools/check_lslc_002w.ps1"},
+    {"order": 8, "checker_id": "lslc-002x", "path": "tools/check_lslc_002x.ps1"},
+    {"order": 9, "checker_id": "lslc-002y", "path": "tools/check_lslc_002y.ps1"},
+    {"order": 10, "checker_id": "lslc-002z", "path": "tools/check_lslc_002z.ps1"},
+    {"order": 11, "checker_id": "lslc-003a", "path": "tools/check_lslc_003a.ps1"},
+    {"order": 12, "checker_id": "lslc-003b", "path": "tools/check_lslc_003b.ps1"},
+    {"order": 13, "checker_id": "lslc-003c", "path": "tools/check_lslc_003c.ps1"},
+    {"order": 14, "checker_id": "lslc-003d", "path": "tools/check_lslc_003d.ps1"},
+    {"order": 15, "checker_id": "lslc-003e", "path": "tools/check_lslc_003e.ps1"},
+    {"order": 16, "checker_id": "lslc-003f", "path": "tools/check_lslc_003f.ps1"},
+    {"order": 17, "checker_id": "lslc-003g", "path": "tools/check_lslc_003g.ps1"},
+    {"order": 18, "checker_id": "lslc-003h", "path": "tools/check_lslc_003h.ps1"}
+  ]
+}

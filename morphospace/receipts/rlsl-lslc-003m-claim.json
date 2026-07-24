@@ -1,0 +1,103 @@
+{
+    "schema":  "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+    "project_id":  "rusty-lsl",
+    "unit_id":  "rlsl-lslc-003m-readme-current-capability-router",
+    "action":  "Claim",
+    "timestamp":  "2026-07-16T05:14:20.0136441Z",
+    "executed":  true,
+    "transition":  "ready-to-active",
+    "status_before":  "ready",
+    "status_after":  "active",
+    "current_unit_before":  null,
+    "current_unit_after":  "rlsl-lslc-003m-readme-current-capability-router",
+    "preservation":  {
+                         "git_mutation_performed":  false,
+                         "device_mutation_performed":  false,
+                         "force_push_allowed":  false,
+                         "repository_states":  [
+                                                   {
+                                                       "repo_id":  "rusty-lsl",
+                                                       "available":  true,
+                                                       "is_git":  true,
+                                                       "head":  "a2813b7d4e7cdf0766188ea471db78ec1963101e",
+                                                       "branch":  "codex/rlsl-autonomous",
+                                                       "upstream":  "origin/codex/rlsl-autonomous",
+                                                       "dirty":  false,
+                                                       "tracked_changes":  0,
+                                                       "untracked_changes":  0,
+                                                       "ahead":  2,
+                                                       "behind":  0,
+                                                       "diverged":  false,
+                                                       "relation":  "ahead"
+                                                   }
+                                               ]
+                     },
+    "validation_matrix":  [
+                              {
+                                  "order":  1,
+                                  "gate_id":  "validation-source-owner",
+                                  "kind":  "command",
+                                  "profile_id":  "source-owner",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  2,
+                                  "gate_id":  "validation-workflow",
+                                  "kind":  "command",
+                                  "profile_id":  "workflow",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File \u003cwork-environment-root\u003e/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot \u003cproject-root\u003e/morphospace",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  3,
+                                  "gate_id":  "instruction-synchronization",
+                                  "kind":  "instruction",
+                                  "profile_id":  "instruction-sync",
+                                  "command":  "Verify every declared instruction surface is complete and validated.",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  4,
+                                  "gate_id":  "device-validation",
+                                  "kind":  "device",
+                                  "profile_id":  "device",
+                                  "command":  "Do not run live device operations for this unit.",
+                                  "disposition":  "forbidden",
+                                  "serials":  [
+
+                                              ]
+                              }
+                          ],
+    "graph_scope":  {
+                        "change_categories":  [
+                                                  "documentation",
+                                                  "public-private-boundary",
+                                                  "state-machine",
+                                                  "validation"
+                                              ],
+                        "repositories":  [
+                                             {
+                                                 "repo_id":  "rusty-lsl",
+                                                 "allowed_paths":  [
+                                                                       "docs/history/README-THROUGH-LSLC-003L.md",
+                                                                       "morphospace/iteration-events.jsonl",
+                                                                       "morphospace/iteration-units/rlsl-lslc-003m-readme-current-capability-router.json",
+                                                                       "morphospace/receipts/",
+                                                                       "morphospace/workspace.state.json",
+                                                                       "README.md",
+                                                                       "tools/check_lslc_003m.ps1",
+                                                                       "tools/check_lslc_003m.py",
+                                                                       "tools/test_lslc_003m.py"
+                                                                   ]
+                                             }
+                                         ],
+                        "read_only_dependencies":  [
+
+                                                   ],
+                        "exclusion":  "Do not scan repositories or paths outside this list."
+                    },
+    "adoption_receipt":  null,
+    "push_plan":  null,
+    "event_id":  "rlsl-lslc-003m-readme-current-capability-router-claimed-0406"
+}

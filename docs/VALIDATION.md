@@ -1,569 +1,905 @@
 # Validation
 
-Run `./tools/check_lslc_002e.ps1` to validate the LSLC-002E provenance lock,
-two-case bounded framing matrix, exact typed LSLC-002A/002B binding result,
-raw-private boundary, and observation-only nonclaims.
+The P32 public qualification names the concrete selected-discovery Float32
+session-batch function, outcome, error, and stage-kind types at both facades,
+including their borrowed discovery/index, batch/error, and exact-health access:
 
-## LSLC-002D focused gate
+```text
+cargo test -p rusty-lsl --test public_api p32_selected_discovery_float32_session_batch_pipeline_is_concrete_on_both_facades -- --exact --test-threads=1
+```
 
-`tools/check_lslc_002d.ps1` binds the unchanged public source revision/digest,
-the 65-byte arithmetic and RST-indentation distinction, rejected 002C head,
-CRLF-only source shape, and exact line-ending damaged matrix. Rust tests cover
-LF-only, mixed, missing CR, extra CR/LF, truncation, bounds, and decimals. This
-is local candidate evidence only, not networking or interoperability proof.
+The path-disjoint facade candidate cannot compile until the production module
+is composed. After composition, focused production tests must establish frozen
+selection/endpoint/session/batch precedence, exact bits/order and actual report
+extent, owner-preserving cancellation/error paths, single queue allocation
+transfer, borrowed exact health, cleanup/reuse, legacy regression, and unchanged
+explicit default-disabled revision 34. This qualifies no new lifecycle, policy,
+allocation, activation, device, oracle, Makepad, or Manifold authority.
 
-## LSLC-002C focused gate
+The P31 facade qualification in `tests/public_api.rs` names only the seven
+concrete bounded-chunk function, error, and consuming report families. It checks
+that every family is reachable with identical types at the crate root and
+through `runtime`, and that accepted activation revision 34 remains visible.
+The focused command is:
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-.\tools\check_lslc_002c.ps1`. The gate checks the provenance binding, fixture
-families, four focused Rust tests, bounded query and payload surfaces,
-canonical decimal rejection, borrowed-source preservation, exact final-LF
-closure, and absence of networking or unsafe source markers. It proves only
-the local query payload contract, not query semantics, response behavior,
-endpoint meaning, discovery, networking, currentness, interoperability, or
-authority.
+```text
+cargo test -p rusty-lsl --test public_api p31_all_format_bounded_chunk_sessions_are_concrete_on_both_facades
+```
 
-## LSLC-002B focused gate
+In the isolated facade lane this command is expected to stop at missing frozen
+core symbols until the disjoint core lane is composed. That failure qualifies
+neither runtime behavior nor integration; formatting, diff checks, and any
+independently runnable public qualification remain required. Canonical Standard
+validation and publication occur only after composition.
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_002b.ps1` for closed lexical admission, entity decoding,
-existing-contract delegation, damaged fixtures, and inert closure.
+The frozen Int64 selected-discovery facade is qualified by focused P30r host
+tests for both accepted shapes, endpoint and selected-response precedence, the
+canonical run report, and type-identical concrete root/`runtime` exports:
 
-Run the LSLC-002A focused source-only gate with
-`.\tools\check_lslc_002a.ps1`. It binds the public-safe valid, damaged,
-truncated, oversized, non-canonical, malformed-closing, and character-data
-fixtures; executes the six focused Rust tests; rejects transient `Vec`/format
-allocation and generic-substring end-tag scanning; checks exact first-byte
-errors; and verifies documentation plus inert public-boundary routing.
+```text
+cargo test -p rusty-lsl p30r_ -- --test-threads=1
+cargo test -p rusty-lsl --test public_api p30r_selected_discovery_int64_surface_is_public_on_both_facades
+```
 
-The gate proves only the bounded canonical borrowed shape contract. It proves
-no general XML parsing, semantic field conversion, endpoint/wire
-interoperability, discovery, transport, runtime, networking, device, feature,
-dependency, or authority behavior.
+P29 codec, damage, cancellation, deadline, cleanup, and immediate-reuse tests
+remain the format owner's regression evidence. Acceptance also runs the
+all-format session tests, the complete public API target, current revision-34
+activation closure, formatting and diff hygiene, the bounded Quick profile,
+and exactly one serialized Standard profile. Focused tests and Quick are
+supporting evidence; the serialized Standard profile is the aggregate owner
+gate.
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001z.ps1` for the LSLC-001Z accepted N/X input, P/Q/R
-composition, separate-witness retention, exact document, delegated rejection,
-and inert ambient-surface checks.
+The frozen native Int64 bounded-session milestone requires host-synthetic
+qualification of signed 64-bit little-endian transfer for only the 1x1 and 2x3
+shapes. Evidence must cover `i64::MIN`, `i64::MAX`, negative, zero, and positive
+values; exact timestamp bits, channel/record order, successful-only cursor
+advancement, consuming completion, and retained inlet allocation ownership.
+Damage cases must distinguish indexed eight-byte truncation from trailing
+bytes and prove rejection without false progress. Pre-cancellation, active
+cancellation, deadline, report-free close/drop, cleanup, repeated teardown,
+and immediate port reuse remain required, together with concrete crate-root and
+`runtime` public-facade checks and all existing-format regression.
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001x.ps1` for the LSLC-001X accepted-input, three-witness,
-allocation-preservation, complete-S, delegated-rejection, cross-owner-inference,
-and ambient-surface checks.
+The evidence qualifies only the sealed crate-private Int64 codec beneath the
+sole crate-private format-neutral lifecycle. It does not qualify arbitrary
+shapes, another width or format, a public generic codec/strategy/lifecycle,
+discovery or selection, retry/recovery, clocks or queues, devices, an oracle,
+official or non-loopback compatibility, automatic policy, background work,
+commands, or Manifold authority. Activation must remain explicit and
+default-disabled, and qualification must not mutate activation, workflow,
+planning, or validation-policy state. The existing policy-owned quick and
+serialized Standard profiles remain the aggregate gates; no validation-router
+gate name, token, profile inventory, or `does_not_prove` text is changed here.
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001v.ps1` for the LSLC-001V shared-witness, one-call,
-fixed-order transport bound, allocation, lane-only, and ambient network-surface
-checks.
+The observable batch-health milestone requires focused host evidence that a
+borrowed successful outcome and every owner-preserving batch error produce one
+immutable Float32 snapshot without moving or duplicating retained allocations.
+Qualification covers exact total/completed/remaining accounting, presence of
+the current index only for indexed errors, and all nine classifications:
+`complete`, `empty-report`, `cancelled`, `deadline`, `terminal`, `exhausted`,
+`recovery-error`, `pipeline-error`, and `invariant`. Cases must demonstrate
+outer batch-result precedence, then nested termination precedence, then count
+derivation from exact retained lengths; cancellation, deadline, terminal,
+exhausted, recovery, clock, and queue evidence remains in its existing owner.
+Legacy report-batch regression and the concrete public boundary remain
+required.
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001u.ps1` for the LSLC-001U shared-witness, one-call,
-fixed-order bound, allocation, lane-only, and ambient-acquisition checks.
+These checks establish deterministic completion and loss/termination facts,
+not estimated packet loss, health thresholds, monitoring policy, background
+monitoring, automatic recovery or queue policy, another format, device/oracle
+behavior, activation, or Manifold authority. Revision 33 remains explicit and
+default-disabled; this documentation lane does not change its bytes or any
+workflow/planning state.
 
-Run the LSLC-001T focused source-only gate with
-`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001t.ps1`.
-It checks three Rust tests, one-call acquisition, separate owner evidence,
-exact-match rejection, version bounds, S-lane projection, documentation, and
-inert dependency/feature/authority closure.
+The frozen P4 session-batch milestone broadens only the existing concrete
+Float32 completed-session-report recovery/clock/queue composition. Its public
+boundary is checked at the crate root and `runtime` facade by:
 
-Run the focused LSLC-001S gate with
-`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001s.ps1`.
-It checks six Rust cases, immutable O delegation, disjoint lanes, fail-closed
-shape errors, documentation, and inert acquisition/runtime closure.
+```text
+cargo test -p rusty-lsl --test public_api p4_session_batch_boundary_is_concrete_fail_closed_and_revision_33
+```
 
-## LSLC-001R focused gate
+This compile-time facade qualification references the exact concrete batch
+function, batch outcome, record outcome, error, and termination symbols. It
+proves that their crate-root and `runtime` names are type-identical and that
+activation remains revision 33, explicit, and default-disabled.
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-.\tools\check_lslc_001r.ps1`. The gate binds H/G/Q artifacts, proves the G
-source remains unchanged, executes four focused Rust tests including all seven
-normalized cases and the unobserved-empty-container rejection, and protects
-the inert dependency, feature, runtime, and public-boundary surfaces.
+The canonical integrator must qualify the broadened implementation against this
+matrix before acceptance:
 
-## LSLC-001Q focused gate
+| Dimension | Required composed evidence |
+| --- | --- |
+| Exact retained extent | The completed report's actual `record_count()` is the batch extent. One-, two-, and three-record cases are fixtures, not a universal maximum; no separate over-bound report claim is made. |
+| Ownership | Successful allocations transfer to the caller queue without duplication. Rejection retains indexed completed outcomes plus the current record where applicable and the untouched suffix. |
+| Indexed evidence | The zero-based failing index agrees with the completed prefix; the current/suffix ownership follows the concrete error variant and remains in original report order. |
+| Precedence | Report shape precedes per-record recovery cancellation/deadline/terminal; those precede clock cancellation/error; those precede queue cancellation/close/wait. |
+| Cleanup / reuse | Every success, typed failure, cancellation, deadline, queue-close, and backpressure path drops run-owned state and preserves immediate reuse under the existing lifecycle and bounded queue tests. |
+| Legacy | The existing one-record facade remains available and continues to use the same sole recovery/clock/queue owners. |
+| Activation / current | Revision 33 stays explicit and default-disabled with no new capability; current source/lock/consumer closure is regenerated only by the canonical integrator. |
+| Serialized Standard | Run exactly one serialized Standard through the repository dispatcher after ordered composition; its receipt is evidence, not policy authority. |
+| Workflow / publication | Run the current policy-owned workflow, instruction, source-first/planning-last, clean-tree, private-content, and publication gates; qualification lanes do not edit planning, activation, publication, or canonical state. |
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-.\tools\check_lslc_001q.ps1`. The gate binds accepted H/N/P evidence, checks
-the exact structural and allocation-order invariants, executes four focused
-Rust tests including all seven cases, protects inert dependency and feature
-surfaces, and checks public boundary routing.
+This milestone adds no generic public strategy, automatic recovery or
+rediscovery policy, clock provider/domain choice, queue policy, parallel or
+background work, other format, device/oracle claim, or Manifold authority.
 
-## LSLC-001P focused gate
+The selected-resolution milestone is qualified host-synthetically across all
+six concrete adapters with exact format, channel-shape, UID, hostname, source
+ID, session ID, precedence, ownership, cleanup, and public-boundary checks:
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001p.ps1`. It binds accepted B/C/E/H/O evidence, checks
-twelve-node/order/allocation invariants, executes four focused Rust tests, and
-preserves provider, document, runtime, feature, device, and authority closure.
+```text
+cargo test -p rusty-lsl selected_resolution -- --test-threads=1
+```
 
-## LSLC-001O focused gate
+Existing lifecycle and format regressions plus one serialized Standard remain
+required. Accepted device and oracle evidence is reused only under its prior
+claims; this milestone requires no rerun.
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001o.ps1`. The gate binds the accepted A/H/N artifacts,
-checks the fixed eleven-role order and three disjoint classes, executes all five
-focused Rust tests, validates the local overlay and stale-status reconciliation,
-and preserves dependency, feature, publication, provider, representation,
-runtime, device, and authority closure.
+Focused caller-selected discovery-to-phased-String qualification is:
 
-## LSLC-001N focused gate
+```text
+cargo test -p rusty-lsl p24_ -- --test-threads=1
+```
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-.\tools\check_lslc_001n.ps1`. The gate checks explicit `desc` admission,
-checked offset and allocation order, immutable dependency bindings, all five
-focused Rust tests and seven candidate cases, documentation, protected
-surfaces, and the inert dependency/feature/publication closure.
+Host-synthetic cases cover exact 1x1 boundary values, retained caller discovery
+and received allocation ownership, endpoint-to-preflight-to-session precedence,
+typed damage/trailing propagation, canonical completion, cleanup, and concrete
+root/runtime exports. String/all-format, activation/current closure, formatting,
+diff hygiene, and sufficiently bounded serialized Standard remain required.
 
-## LSLC-001M focused gate
+Focused phased integer qualification is:
 
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-.\tools\check_lslc_001m.ps1`. The gate binds accepted dependency artifacts,
-checks the seven-node and fallible-allocation source invariants, executes all
-five focused Rust tests, verifies the seven exact candidate static values and
-compact serializations, checks documentation and protected surfaces, and
-confirms the empty dependency/feature/publication closure.
+```text
+cargo test -p rusty-lsl p22_ -- --test-threads=1
+```
 
-## LSLC-001J shallow-checkout protected-surface correction
+The host-synthetic cases cover Int32, Int16, and Int8 over the accepted 2x3
+shape, exact timestamp/value/order preservation, canonical cursor advancement,
+pre-I/O overrun, retained inlet allocation identity, exact consuming reports,
+cleanup, immediate port reuse, and concrete root/runtime exports. Existing
+integer legacy, all-format, public API, activation-closure, and serialized
+Standard gates remain required. Because this candidate changes an
+activation-bound shared source file, its exact candidate-local descriptor/lock
+closure is regenerated separately; Standard current-closure remains canonical
+integrator work rather than acceptance evidence manufactured by this candidate.
 
-The focused LSLC-001H gate no longer requires historical revision `9650de4`.
-It requires the exact 21-entry binary protected-tree manifest at current
-`HEAD`, SHA-256
-`ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1`,
-then independently requires no staged or unstaged protected changes and no
-untracked protected paths. Git command or repository setup failures reject.
+Focused phased String qualification is:
 
-Deterministic tests use removable local file clones outside the source
-worktree. They prove that the overlaid checker passes in a one-commit shallow
-clone with `9650de4` absent, while tracked worktree content, staged index
-content, ordinary and ignored untracked protected paths, and an exact committed
-manifest mutation each reject at the intended boundary. They make no network,
-fetch, unshallow, oracle, device, or source-worktree mutation.
-The branch-independent clone route also passes when its source checkout is
-detached, matching the GitHub Actions execution shape.
+```text
+cargo test -p rusty-lsl p21 -- --test-threads=1
+```
 
-Runs `29276386135` and `29278122366` remain distinct failed pre-fix attempts.
-The latter had already passed all 134 Rust tests and LSLC-001A through
-LSLC-001G before encountering the missing-history failure. A passing corrected
-gate proves only the pinned source-tree and checkout-state validation boundary;
-it does not prove implementation semantics, candidate XML, protocol, wire,
-runtime, dependency, platform, compatibility, publication, or authority
+The host-synthetic cases cover the exact 0-byte, 1-byte, 128-byte, and
+multibyte UTF-8 values, caller-driven cursor advancement, retained inlet
+allocation identity, pre-I/O overrun, premature completion, canonical reports,
+report-free close, cleanup, immediate port reuse, and concrete root/runtime
+exports. Existing String, all-format, public API, activation-closure, and
+serialized Standard gates remain required. Because this candidate changes an
+activation-bound shared source file, its exact candidate-local descriptor/lock
+closure is regenerated separately; Standard current-closure remains canonical
+integrator work rather than acceptance evidence manufactured by this candidate.
+
+Focused caller-selected discovery-to-phased-Double64 qualification is:
+
+```text
+cargo test -p rusty-lsl p20 -- --test-threads=1
+```
+
+The host-synthetic cases cover both accepted 1x1 and 2x3 shapes, retained
+caller discovery, explicit receive-order rejection before TCP I/O, strict
+shape rejection before TCP I/O, phased cursor advancement, exact Double64 bit
+preservation, canonical completion, cleanup/port reuse, and concrete root and
+runtime exports. Existing Double64, discovery, activation-closure, and
+serialized Standard gates remain required. This adds no automatic discovery,
+ranking, retry, shape, report, error, lifecycle, socket, codec, generic
+strategy, oracle, device, release, Makepad, Manifold, or activation claim.
+
+Focused phased Double64 qualification is:
+
+```text
+cargo test -p rusty-lsl p19_ -- --test-threads=1
+```
+
+The host-synthetic cases cover the evidenced two-channel/three-record shape,
+exact timestamp/value bits, canonical cursor advancement, retained inlet
+allocation identity, overrun rejection before extra I/O, premature completion,
+report-free close, cleanup, immediate port reuse, and concrete root/runtime
+public exports. Existing `p2_double64`, fixed-width legacy, activation-closure,
+and serialized Standard checks remain required. This adds no shape, generic
+strategy, discovery, oracle, device, activation, compatibility, or authority
+claim.
+
+Focused caller-selected discovery-to-phased-connection qualification is:
+
+```text
+cargo test -p rusty-lsl p18 -- --test-threads=1
+```
+
+It covers the concrete public root/runtime facades, retained caller discovery,
+zero-record connected state, caller-driven exact transfer and completion,
+report-free close, cleanup, and immediate port reuse. The unchanged LSLC-007D
+cases retain endpoint/preflight/session error precedence, cancellation,
+identity failure, and whole-session behavior. No activation-bound source bytes
+change, and no oracle, device, automatic selection, retry, or authority claim
+is added.
+
+Focused phased bounded Float32 shape qualification is:
+
+```text
+cargo test -p rusty-lsl p17_ -- --test-threads=1
+```
+
+It covers multi-channel exact bits/order, successful-only cursor advancement,
+inlet allocation preservation, premature completion, pre-I/O overrun, indexed
+damage, trailing bytes, cancellation/deadline separation, close/drop cleanup,
+immediate port reuse, legacy one-shot continuity, and concrete public sealing.
+Standard remains the aggregate owner gate; this adds no oracle or device claim.
+
+LSLC-007R preserves
+`morphospace/receipts/rlsl-lslc-003m-standard-validation.json` byte-for-byte at
+SHA-256 `d979a92da01cf3b7c46844335c8612cb4d0aeacf64201b9f9e9a40997ac15d5b`.
+Git history proves the same canonical Git blob before, at, and after LSLC-004L commit
+`6766af28c45b078cb4af97a0104b4d5eb01b0278`; the displaced checker value names
+only a CRLF-transformed checkout, not a repository blob. The public-boundary
+policy test reads HEAD bytes directly, so checkout line-ending policy cannot
+change evidence identity. Serialized Standard guards this correction without
+rerunning or rewriting historical evidence.
+
+The phased Float32 transfer candidate maps H01-H20 through the focused chunk
+and session tests, `public_api`, activation-closure checks, and the serialized
+Standard owner profile. Host-synthetic coverage includes exact bits/order,
+allocation-preserving inlet projection, phased finish and report-free close,
+typed damage/cancellation/deadline inheritance, cleanup, and immediate port
+reuse. Workflow/publication and any acceptance decision remain separate owners.
+
+LSLC-007P host-synthetic H01-H16 qualification covers public/private ownership,
+socket-free preflight, explicit accept facts, exact one- and multi-record bits,
+legacy delegation, report-free close, cancellation/deadline/damage inheritance,
+drop cleanup, twelve-cycle deterministic reuse, activation non-widening, and
+the complete serialized Standard regression. Official and device evidence is
+reused only for its unchanged prior claims and is not rerun.
+
+LSLC-007O host-synthetic validation covers phased Float32 connect/finish and
+connect/close ownership, cancellation and deadline classification, exact sample
+bits and allocations, legacy finish equivalence, cleanup, and immediate exact
+address reuse. Accepted device and oracle evidence is reused unchanged.
+
+LSLC-007N qualification maps H01-H24 to fresh facade ownership, exact shape,
+bits/order/allocation, indexed and trailing damage, cancellation/deadline,
+cleanup/reuse, legacy/session/all-format/public regressions, and maps A01-A05
+to exact revision-26 default-disabled activation and source closure. Serialized
+Standard and workflow/publication gates are mandatory; accepted oracle and
+device evidence is reused without rerun.
+
+LSLC-007M qualification covers every accepted concrete shape and rejection
+precedence, exact numeric bits and String UTF-8/allocation ownership,
+indexed/trailing damage, cancellation/deadline/cleanup and port reuse, legacy
+and public API regression, exact activation closure, serialized Standard, and
+workflow/publication gates. Accepted official and device evidence is reused;
+there is no oracle or device rerun.
+
+LSLC-007L focused host qualification covers the closed String session facade's
+exact 0/1/128/129-byte and multibyte UTF-8 boundaries, allocation-preserving
+reports, socket-free shape/value rejection, indexed/trailing error projection,
+cleanup, and port reuse. The inherited String runtime suite covers malformed
+initialization/framing, cancellation, deadline, teardown, and legacy behavior.
+Acceptance also runs all-format/public regression, exact default-disabled
+activation closure, serialized Standard, and the workflow-owner gates.
+
+LSLC-007K focused qualification covers both accepted integer shapes, exact
+timestamp bits and signed values for Int32/Int16/Int8, consuming reports,
+cleanup/port reuse, legacy fixed-width damage and lifecycle regressions,
+all-format sessions, public exports, activation closure, and serialized
+Standard. Existing sanitized official evidence is reused; no oracle or device
+rerun is required.
+
+LSLC-007J validates exactly-one completed-report admission, unchanged report
+retention on count/cancellation/deadline/setup paths, inherited clock/queue
+sample ownership, the nine P4 regressions, session/all-format compatibility,
+24 public API tests, revision-22 default-disabled source closure, serialized
+Standard, workflow, instruction, and publication gates. No oracle or device
+rerun is required.
+
+LSLC-007I validation covers the crate-private format-neutral session owner
+through the shared session, fixed-width numeric, String boundary/damage, and
+public API gates. Revision 21 rebinds only the existing Float32, fixed-width
+numeric, and String owner source identities; activation remains explicit and
+default-disabled with no neutral-session capability. Serialized Standard,
+workflow, instruction, and publication gates remain mandatory. Existing
+official evidence is sufficient and is not rerun.
+
+LSLC-007H validation covers the discovery-independent P4 pipeline through the
+existing nine recovery/clock/queue lifecycle cases, 23 public API tests,
+session and all-format non-regression, the unchanged revision-20
+default-disabled activation closure, serialized Standard, workflow,
+instruction, and publication gates. No oracle or device rerun is required.
+
+LSLC-007G validation covers the bounded String session path, exact 0–129-byte
+and UTF-8/damage behavior, numeric and public-API non-regression, revision-20
+default-disabled activation closure, serialized Standard, workflow,
+instruction, and publication gates. Existing official String evidence is not
+rerun.
+
+## Production-roadmap gates
+
+Validation follows the active vertical production slice. Focused checks prove
+the new lifecycle or engine boundary; serialized Standard remains required at
+each accepted/published checkpoint and must run through the coordinator-owned
+serialized validation runner. Deep and device evidence are used only when the
+declared unit requires their broader authority.
+
+Compatibility-only work is capped: it must close an explicit active-runtime
+acceptance gap and remain smaller than the production unit it supports.
+Documentation, soak, scalar-boundary, or speculative ecosystem coverage cannot
+substitute for a required production-behavior successor.
+
+LSLC-007F focuses integer convergence beneath the sole session lifecycle:
+
+```text
+cargo test -p rusty-lsl p2_integer_session -- --test-threads=1
+cargo test -p rusty-lsl fixed_width_numeric_sample_runtime::tests -- --test-threads=1
+cargo test -p rusty-lsl --test public_api -- --test-threads=1
+```
+
+Historical `lslc_003b` and `lslc_003p` checks plus Float32 and Double64 focused
+regressions remain required. This host-synthetic evidence adds no pinned-
+official, device, cross-host, or arbitrary-shape claim. Current activation
+closure and serialized Standard remain mandatory.
+
+LSLC-007E focuses the sole-lifecycle Double64 seam and legacy adapters:
+
+```text
+cargo test -p rusty-lsl p2_double64 -- --test-threads=1
+cargo test -p rusty-lsl fixed_width_numeric_sample_runtime::tests -- --test-threads=1
+cargo test -p rusty-lsl --test public_api -- --test-threads=1
+```
+
+The host evidence covers exact Double64 handshake/initialization/value bits,
+only the one-by-one and two-by-three shapes, typed failures, cleanup, port
+reuse, and adapter parity. It does not establish pinned-official, cross-host,
+Quest, or arbitrary-shape compatibility. Current activation closure and
+serialized Standard remain mandatory.
+
+LSLC-007D focuses the caller-selected discovery-response to session adapter:
+
+```text
+cargo test -p rusty-lsl typed_udp_discovery_float32_session_connection -- --test-threads=1
+cargo test -p rusty-lsl --test public_api discovery_to_bounded_float32_session -- --test-threads=1
+```
+
+The host-only evidence covers endpoint-before-preflight-before-session error
+ownership, exact records, cancellation, identity failure, cleanup, and port
+reuse. It does not add official, cross-host, Quest, or broad compatibility
+evidence. Current closure and serialized Standard remain required.
+
+LSLC-007C focuses the bounded homogeneous Float32 session shape, sole-codec
+ownership, legacy adapters, and deterministic zero-remaining terminal deadline:
+
+```text
+cargo test -p rusty-lsl timestamped_float32 -- --test-threads=1
+cargo test -p rusty-lsl p2_ -- --test-threads=1
+cargo test -p rusty-lsl --test public_api p2_ -- --test-threads=1
+```
+
+These host-only gates add no compatibility breadth. Current activation closure
+and serialized Standard remain required before acceptance.
+
+LSLC-006E focused recovery, clock-correction, and queue error-precedence
+conformance:
+
+```text
+cargo test -p rusty-lsl typed_udp_discovery_float32_recovery_clock_correction_queue::tests -- --test-threads=1
+```
+
+It proves recovery cancellation precedes classification, clock work, and queue
+admission, and that clock cancellation retains the exact recovered record and
+recovery states before queue admission. It is host-only test evidence and
+changes no production behavior, policy, compatibility claim, device behavior,
+or Manifold authority. Serialized Standard remains the aggregate owner gate.
+
+LSLC-006D focused two-record Float32 chunk ownership conformance:
+
+```text
+cargo test -p rusty-lsl timestamped_float32_two_record_chunk_runtime::tests -- --test-threads=1
+```
+
+It proves ordered nontrivial exact timestamp/value bits, separate terminal,
+deadline, and cancellation outcomes, cleanup, and immediate port reuse. It is
+host-only test evidence and changes no production behavior, chunk breadth,
+compatibility claim, device behavior, or Manifold authority. Serialized
+Standard remains the aggregate owner gate.
+
+LSLC-006C focused UDP discovery response-ownership and exact closure conformance:
+
+```text
+cargo test -p rusty-lsl udp_discovery::tests -- --test-threads=1
+python ./tools/check_lslc_004u.py
+python ./tools/check_lslc_004v.py
+```
+
+It proves receive-order preservation, exact source/query identity, consuming
+response allocation ownership, pre-cancellation precedence, immediate reuse
+of the caller-selected port, and exact LSLC-004U/004V closure over the updated
+test-bearing module. It is host-only test evidence and changes no production
+discovery behavior, compatibility claim, device behavior, or Manifold
+authority. Serialized Standard remains the aggregate owner gate.
+
+LSLC-006A focused runtime-activation receipt-authority conformance:
+
+```text
+cargo test -p rusty-lsl runtime_activation::tests -- --test-threads=1
+```
+
+It proves canonical receipt identity across caller selection order, exact lock
+and consumer binding, capability-marker agreement, and typed rejection without
+partial authority. It is host-only test evidence and changes no production
+activation behavior, compatibility claim, device behavior, or Manifold
+authority. Serialized Standard remains the aggregate owner gate.
+
+LSLC-005Z runs the unchanged LSLC-005Y assertion under the permitted
+integration-test target:
+
+```text
+cargo test -p rusty-lsl --test public_api lslc_005z_runtime_acquisition_parts_preserve_borrowed_witness_and_all_four_value_allocations -- --exact --test-threads=1
+```
+
+The standalone LSLC-005Y target is removed. The assertion still proves only
+that an accepted runtime acquisition exposes its exact witness and four values
+to a borrower and returns the same witness and original value allocations when
+consumed. Standard remains the aggregate owner gate and this test proves no
+production behavior, provider policy, I/O, compatibility, device, or Manifold
 behavior.
 
-## LSLC-001I portable driver-source correction
-
-The LSLC-001H focused gate reads the two bound driver sources from the current
-working tree and compares their canonical LF SHA-256 values with the unchanged
-provenance bindings. Complete LF and byte-equivalent complete CRLF sources are
-accepted. Mixed LF/CRLF, lone carriage returns, and non-line-ending mutations
-are rejected by deterministic in-memory checks for both drivers. Only CRLF
-pairs are canonicalized; no other byte is decoded, trimmed, or normalized.
-
-GitHub Actions run `29276386135` is the preserved failed pre-fix integration
-attempt that exposed complete CRLF checkout materialization. A passing gate
-proves only checkout-portable validation of the two bound text sources. It does
-not rerun the oracle or change/prove any observation, capture, candidate XML,
-protocol, wire, runtime, dependency, platform, or authority behavior.
-
-## LSLC-001H oracle observation gate
-
-Run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_lslc_001h.ps1
-```
-
-The focused gate verifies all historical fixture digests, the frozen corpus
-binding, case coverage and bounds, two-capture identity, exact public XML and
-normalization records, oracle/package/library identities, public-boundary
-scans, typed failure coverage, external-artifact exclusion, inert production
-closure, documentation routing, and main-account-only skill closure. It does
-not rerun the external oracle.
-
-To acquire and capture the pinned oracle separately:
-
-```powershell
-pwsh -NoProfile -File .\tools\oracle\Invoke-Lslc001hOracle.ps1 -Mode Capture
-```
-
-That command writes only below its explicit external root.
-
-## LSLC-001G focused gate
-
-Run:
+LSLC-005X focused coverage is:
 
 ```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001g.ps1
+cargo test -p rusty-lsl stream_info_transport_provider::tests::provider_output_accessors_preserve_witness_and_value_allocations -- --exact --test-threads=1
 ```
 
-The focused gate checks twelve local Rust tests, exact byte and allocation
-precedence, iterative traversal, source ownership, the independent overlay,
-historical fixture digests, corpus null states, inert closure, and public
-routing. It proves no complete document, parser, decoder, LSL mapping, endpoint
-or official behavior, protocol, wire, I/O, runtime, or compatibility.
+It proves borrowed and consuming access preserves the exact provider witness,
+six value roles, and allocations. Standard remains the aggregate owner gate
+and proves no new provider, acquisition policy, I/O, compatibility, device, or
+Manifold behavior.
 
-## Entry point
-
-Run the full source-only gate from the repository root:
+LSLC-005W runs the unchanged LSLC-005V external conformance under the
+repository-permitted integration-test target:
 
 ```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1
+cargo test -p rusty-lsl --test public_api lslc_005w_ -- --test-threads=1
 ```
 
-The script runs formatting, locked offline metadata inspection, locked offline
-tests, the STRM-000 compatibility/provenance gate, the LSLC-001A corpus gate,
-the LSLC-001B XML value-contract gate,
-the LSLC-001C XML character-data representation gate,
-the LSLC-001D XML leaf-element composition gate,
-the LSLC-001E XML container/leaf hierarchy gate,
-the CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007, and CORE-008 local-contract gates, the
-public-boundary and text-hygiene checker, the dependency-free local
-project-workspace checker, and Git whitespace checks.
+The four assertions prove only the accepted evidence-limit constructor, Unicode-scalar
+provider-identity bound, exact typed error payloads, and identity-mismatch
+precedence. Standard remains the aggregate owner gate and proves no new
+production behavior, provider policy, compatibility breadth, device behavior,
+or Manifold authority.
 
-Run the focused baseline gate with:
+LSLC-005U runs the unchanged LSLC-005T stateful-acquisition assertions through
+the repository-permitted public API integration-test target:
 
 ```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_strm_000.ps1
+cargo test -p rusty-lsl --test public_api sequential_stateful_acquisitions_are_call_isolated_and_recover_after_typed_failures -- --exact --test-threads=1
 ```
 
-Run the focused LSLC-001A corpus gate with:
+The standalone LSLC-005T target is removed. This is test-target-only corrective
+evidence; Standard remains the aggregate owner gate.
+
+LSLC-005T focused stateful-acquisition conformance:
 
 ```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001a.ps1
+cargo test -p rusty-lsl --test transport_provider_stateful_acquisition -- --test-threads=1
 ```
 
-Run the focused LSLC-001B XML value-contract gate with:
+It covers sequential accepted, provider-error, value-error, recovery, and
+exhaustion outcomes with exact call counts and unchanged prior accepted
+ownership. It is host-only test evidence and changes no provider policy,
+runtime behavior, compatibility breadth, device behavior, or authority.
+Standard remains the aggregate owner gate.
 
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001b.ps1
-```
-
-Run the focused LSLC-001C XML character-data representation gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001c.ps1
-```
-
-Run the focused LSLC-001D XML leaf-element composition gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001d.ps1
-```
-
-Run the focused LSLC-001E XML container/leaf hierarchy gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001e.ps1
-```
-
-Run the focused bounded-contract gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_001.ps1
-```
-
-Run the focused timestamped-chunk gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_002.ps1
-```
-
-Run the focused stream-descriptor gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_003.ps1
-```
-
-Run the focused bounded metadata-tree gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_004.ps1
-```
-
-Run the focused descriptor/sample binding gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_005.ps1
-```
-
-Run the focused timestamped descriptor/sample composition gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_006.ps1
-```
-
-Run the focused timestamped descriptor/chunk composition gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_007.ps1
-```
-
-Run the focused stream-definition composition gate with:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_core_008.ps1
-```
-
-## Acceptance criteria
-
-The source-only slice passes when:
-
-- the crate builds and tests without third-party dependencies;
-- unsafe Rust is forbidden;
-- the public status is exactly `BoundedLocalContracts`;
-- the only package remains unpublished at `crates/rusty-lsl`, exposes no Cargo
-  feature, and has exactly one library target;
-- repository content passes the tested public-boundary rules;
-- all four compatibility classes have bounded cases, all current results remain
-  `not-implemented`, and specification/planned/measured roles remain separate;
-- LSLC-001A records exactly the two approved public-documentation sources and
-  the independently worded claim inventory, with no source-code or
-  implementation-input classification;
-- its seven positive and nine damaged cases keep specification, oracle
-  observation, and candidate result separate; every observation and result is
-  `not-observed` with null evidence;
-- its corpus-owned input limits remain explicit, exact serialization remains
-  unresolved, historical STRM-000 files and CORE overlays retain their baseline
-  digests, all instruction rows are complete, and lifecycle parsing accepts
-  only active, validating, or accepted state;
-- the LSLC-001B overlay binds only local Rust tests to accepted LSLC-001A case
-  roles while every corpus oracle observation and candidate result remains
-  `not-observed` with null evidence;
-- separate nonzero XML text and name limits count Unicode scalar values; text
-  accepts exactly the XML 1.0 Fifth Edition `Char` production and names accept
-  the complete `NameStartChar` and `NameChar` productions;
-- text length precedes illegal-scalar rejection, name rejection follows empty,
-  length, invalid start, then first invalid continuation, and indexed errors
-  retain scalar indexes and code points;
-- accepted XML values retain their private original `String` allocation and
-  exact content, including ampersand, less-than, greater-than, and `]]>`;
-- LSLC-001B opens no escaping, parsing, serialization, output, document,
-  namespace, field-mapping, dependency, feature, unsafe, I/O, protocol, wire,
-  transport, or runtime surface;
-- the LSLC-001C overlay binds exactly seven focused local Rust tests only to
-  the accepted LSLC-001A character-data role and LSLC-001B `XmlText` contract,
-  while all corpus oracle/candidate evidence remains unchanged and null;
-- `XmlCharacterDataLimit` rejects zero and bounds exact encoded UTF-8 bytes;
-  encoding borrows without source mutation or revalidation, uses checked
-  arithmetic, checks the maximum before `try_reserve_exact`, writes the exact
-  precomputed length, and reports `LengthOverflow`, exact `LimitExceeded`, then
-  typed `AllocationFailed` in stable order;
-- the fixed local policy emits every `&`, `<`, and `>` as `&amp;`, `&lt;`, and
-  `&gt;`, preserves every other legal scalar and output allocation, and labels
-  global greater-than escaping as candidate policy rather than observed
-  behavior;
-- LSLC-001C opens no element, attribute, document, declaration, comment,
-  processing-instruction, CDATA-section, parser, decoder, generic entity,
-  namespace, schema, query, MetadataTree mapping, LSL mapping, exact endpoint,
-  dependency, feature, unsafe, I/O, protocol, wire, transport, runtime,
-  adapter, provider, FFI, device, or authority surface;
-- the LSLC-001D overlay binds exactly five focused local Rust tests to the
-  existing accepted `XmlElementName` and `XmlCharacterData` contracts while
-  all LSLC-001A oracle/candidate evidence remains unchanged and null;
-- `XmlLeafElement` owns exactly two private fields, has an infallible direct
-  move constructor, borrowed component accessors, and allocation-preserving
-  `into_parts`, with no raw-string entrypoint, limit, error, allocation,
-  clone, validation, re-encoding, normalization, or interpretation policy;
-- LSLC-001D opens no tag spelling, attribute, child, parent, mixed-content,
-  root, tree, document, namespace, raw-byte, parser, serializer, decoder,
-  metadata-tree, stream-info mapping, dependency, feature, unsafe, I/O,
-  protocol, wire, transport, runtime, adapter, provider, FFI, device,
-  authority, or compatibility-claim surface;
-- the separate CORE-001 overlay binds exactly `contract-metadata-bounds` and
-  `contract-sample-shape` to exact-limit, one-past-limit, malformed/zero-bound,
-  channel-mismatch, stable-error, and unchanged-value tests;
-- the separate CORE-002 overlay binds exact local Rust contract tests for finite
-  raw and optional derived timestamp values, explicit `ClockCorrected` and
-  `Smoothed` classification, bit preservation, raw/derived coexistence, empty
-  chunk acceptance under valid nonzero limits, exact chunk maxima, one-past
-  maxima, zero maxima, inconsistent shapes, stable error payloads, and unchanged
-  sample/time pairing and order;
-- CORE-002 opens no clock-reading, correction, dejittering, smoothing,
-  interpolation, sample-rate derivation, buffering, transport, protocol, or
-  runtime surface;
-- the separate CORE-003 overlay binds exact local Rust tests for a nonempty
-  stream name, exact and one-past Unicode scalar text bounds, optional bounded
-  opaque text, source correlation, zero and one-past channels, malformed
-  limits, explicit irregular rate, bit-preserving finite positive regular rate,
-  stable rate errors, and exactly seven channel-format names;
-- CORE-003 opens no XML/query/tree mutation, discovery, resolution, runtime
-  identity, recovery, clock, scheduling, transport, buffering, encoding,
-  conversion, wire numeric format, adapter, FFI, or authority surface;
-- the separate CORE-004 overlay binds the exact focused positive and damaged
-  Rust tests for exactly one root, strictly earlier parents, exact and one-past
-  node/depth/child/text bounds, nonzero limits, required nonempty names,
-  Unicode scalar counts, deep chains, child fanout, stable indexed errors, and
-  absent-versus-empty optional values;
-- CORE-004 retains a flat parent-before-child arena with private accepted
-  fields and read-only accessors, no recursive public ownership or recursive
-  validation/traversal, and no XML syntax, parsing, serialization, query,
-  mutation, protocol, discovery, transport, runtime, adapter, dependency,
-  feature, unsafe, authority, or compatibility-claim surface;
-- the separate CORE-005 overlay binds exact tests for all seven homogeneous
-  input mappings, each input-family format mismatch, descriptor/sample channel
-  mismatch, nonzero String limits, exact and one-past Unicode scalar bounds,
-  first-channel error indexing, empty String preservation, order preservation,
-  signed zero and NaN payload bit preservation, integer edges, and stable error
-  payloads;
-- CORE-005 retains private accepted fields and only a compact descriptor-shape
-  snapshot plus the owned validated sample, with no conversion, casting,
-  parsing, formatting, normalization, inference, byte sizing, encoding,
-  decoding, endianness, wire mapping, allocation beyond owned contract state,
-  runtime action, dependency, feature, or unsafe surface;
-- the separate CORE-006 overlay binds exact tests for all seven timestamped
-  homogeneous mappings, raw-only and both derived kinds, raw and derived signed
-  zero and finite bit patterns, sample NaN payloads, integer edges, exact and
-  one-past String bounds, format and channel mismatch, delegated validation
-  precedence and errors, consuming and read-only accessors, and exact
-  timestamp/sample pairing;
-- CORE-006 retains private accepted fields containing only a
-  `BoundDescriptorSample` plus unchanged raw and optional derived timestamp
-  evidence, delegates exactly once to `BoundDescriptorSample::new`, duplicates
-  no CORE-005 validation, and opens no clock, timestamp algorithm, sorting,
-  rewriting, scheduling, buffering, conversion, encoding, dependency, feature,
-  unsafe, transport, protocol, wire, or runtime surface;
-- the separate CORE-007 overlay binds exact tests for all seven timestamped
-  chunk mappings, original `ChunkLimits`, multi-sample order and pairing, raw
-  only and both derived kinds, signed-zero and finite timestamp bits, f32/f64
-  signed zero and NaN payloads, integer edges, String allocation/value/order
-  preservation, deterministic empty rejection, sample-zero format and channel
-  mismatch, later indexed String failure, and first-failure delegated
-  precedence;
-- CORE-007 retains private accepted fields containing only the original
-  `ChunkLimits` and ordered `Vec<BoundTimestampedDescriptorSample>`, rejects
-  emptiness before sample delegation, delegates exactly once per sample through
-  the single generic call to `BoundTimestampedDescriptorSample::new`, preserves
-  unchanged indexed `DescriptorSampleError` values, and duplicates no lower
-  validation or clock, algorithm, sorting, rewriting, splitting, merging,
-  rechunking, buffering, queueing, runtime, conversion, dependency, feature,
-  unsafe, transport, protocol, or wire surface;
-- the separate CORE-008 overlay binds exact tests for borrowed and consuming
-  access, all seven channel-format variants, irregular and exact-bit regular
-  nominal rates, descriptor limits and Unicode/optional text, metadata limits,
-  nontrivial parent-before-child node order, Unicode names and values,
-  absent-versus-empty optional values, and preservation of existing owned
-  allocations across composition;
-- CORE-008 retains private accepted fields containing exactly one complete
-  `StreamDescriptor` and one complete `MetadataTree`; its infallible constructor
-  moves both directly and adds no `Result`, error or limit family, allocation,
-  clone, normalization, inference, cross-component validation, XML or `desc`
-  interpretation, channel convention, runtime identity, dependency, feature,
-  unsafe, discovery, transport, provider, adapter, authority, protocol, wire,
-  or runtime surface;
-- the damaged matrix, provenance fields, artifact digests, case relationships,
-  source-input prohibitions, and oracle isolation contract remain valid;
-- the project-local workspace remains well-formed, source-only, and inert;
-- every visible source file passes whole-tree trailing-whitespace and terminal
-  newline checks, including untracked files before commit;
-- `git diff --check` reports no additional Git whitespace errors.
-
-The script rejects any dependency in `cargo metadata`. Build and development
-dependencies require a future review and a corresponding gate change rather
-than silent addition.
-
-## Evidence limits
-
-A passing source-only gate proves that this revision satisfies the local Rust
-contract semantics, historical specification-level STRM-000 checks, the
-LSLC-001A public-documentation corpus invariants, and inert
-closure checks in the local Rust and PowerShell environment. It does not prove
-clock or nominal-rate behavior, timestamp or rate derivation, sample, chunk, or
-descriptor transport, metadata-tree XML/document behavior, source identity or
-authority, channel encoding or conversion, actual LSL empty-chunk behavior,
-stream-definition XML/document meaning or cross-component semantics,
-protocol behavior, wire interoperability, ecosystem compatibility, network behavior,
-performance, numeric or String conversion, memory layout, native-library safety,
-platform support, official-liblsl behavior,
-or publication readiness.
-
-The LSLC-001A gate does not prove XML parsing, serialization, exact endpoint
-output, oracle behavior, candidate behavior, protocol or query behavior, wire
-compatibility, or ecosystem compatibility.
-
-The LSLC-001B gate proves only the local bounded XML text/name value contracts
-and inert source closure. It does not prove representation policy, escaping,
-CDATA or entity handling, parsing, serialization, document well-formedness,
-LSL field mapping, exact bytes, official endpoint behavior, protocol, wire,
-transport, runtime, or ecosystem compatibility.
-
-The LSLC-001C gate proves only the local bounded character-data representation,
-its source-value composition, fixed candidate replacements, typed allocation
-path, and inert source closure. It does not prove document well-formedness,
-LSL field mapping, exact endpoint output, official behavior, protocol, wire,
-transport, runtime, or ecosystem compatibility.
-
-The LSLC-001D gate proves only exact local composition of the two existing
-accepted component types, borrowed access, consuming recovery, allocation
-preservation, and inert source closure. It does not prove XML tag or document
-syntax, LSL field mapping, exact endpoint output, official behavior, protocol,
-wire, transport, runtime, or ecosystem compatibility.
-
-The LSLC-001E gate proves only the local bounded container/leaf hierarchy,
-deterministic iterative validation, ownership preservation, and inert source
-closure. Its nine focused tests cover exact and one-past bounds, root/parent
-shape, leaf parents, allocation and overflow helpers, precedence, and vector
-and component allocation preservation. It does not prove complete XML or
-document behavior, serialization or raw bytes, `MetadataTree` conversion,
-stream-info mapping, exact endpoint output, official behavior, protocol, wire,
-transport, runtime, or ecosystem compatibility.
-
-Future compatibility claims require focused positive and damaged fixtures,
-oracle versioning, normalized differential results, and platform details. Live
-or external evidence must remain separate from source validation and must name
-its cleanup and reproducibility limits.
-
-When the portable Rusty Morphospace work-environment repository is available,
-also run its `Test-WorkflowContracts.ps1` against `morphospace/`. The local
-checker is a repository gate; it does not replace portable lifecycle or
-transition validation.
-
-## LSLC-001F focused gate
-
-Run:
-
-```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001f.ps1
-```
-
-The LSLC-001F gate proves only the local consuming one-way projection,
-None/Some classification, deterministic indexed failures, deliberate output
-and represented-string allocation ownership, and unchanged final hierarchy
-delegation. Its twelve focused tests cover classification, shape rejection,
-component and target bounds, precedence, exact limits, allocation failure, and
-ownership. It does not prove reverse conversion, decoding, round trips,
-document or serialization behavior, stream-info or LSL mapping, endpoint or
-official behavior, protocol, wire, transport, runtime, or compatibility.
-
-## LSLC-001L focused gate
-
-Run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001l.ps1
-```
-
-The gate reuses the complete accepted LSLC-001K validator, including its
-immutable LSLC-001H corpus, case, observation, provenance, and driver checks.
-It then checks the borrowed-plus-two-string source shape, bounded fallible
-reserves, closed regular-rate bit policy, all seven overlay rows and observed
-numeric texts, three focused Rust tests, documentation routes, protected-file
-cleanliness, and inert dependency/feature/publication closure. It does not
-execute the external oracle or validate XML construction, complete-document
-bytes, volatile fields, protocol, wire, runtime, or broad floating-point
+LSLC-005S device validation is a separate serial-scoped gate. The public Quest
+harness builds exact clean Rusty LSL and Rusty Quest revisions for
+`aarch64-linux-android`, then requires the Rust-owned
+`rusty.lsl.rust_on_quest_float32_two_record_chunk.v1` effective marker, two
+ordered exact timestamp/value-bit pairs, immediate TCP port reuse, zero bounded
+fatals, and target-only package/process/forward/reverse/property/staging cleanup.
+Standard remains the source owner gate; neither route replays the official
+oracle or proves arbitrary chunks, non-loopback behavior, or broader runtime
 compatibility.
 
-## LSLC-001K focused gate
-
-Run:
+LSLC-005R focused transport-provider conformance:
 
 ```text
-powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001k.ps1
+cargo test -p rusty-lsl stream_info_transport_provider::tests -- --test-threads=1
 ```
 
-The LSLC-001K gate checks the exact single-reference view shape, fixed six-role
-order, original and effective option/rate separation, all seven format
-mappings, pointer/source preservation tests, direct execution of the seven-case
-semantic matrix, exact LSLC-001H artifact bindings, seven-case local-results
-matrix, documentation routing, and inert dependency and feature closure. The
-rolling gate reuses the full immutable LSLC-001H corpus, case, observation,
-provenance, and driver validators. It deliberately does not reapply LSLC-001J's
-current-HEAD protected-tree pin after an authorized source unit; the accepted
-LSLC-001J receipt preserves that validation-only result. The gate does not prove
-XML, numeric formatting, runtime fields, protocol, wire, transport, I/O,
-adapters, providers, devices, or authority.
+It covers one-call acquisition, mismatch precedence, typed value ownership,
+allocation preservation, fixed role order, and repeated determinism. It is
+host-only test evidence and does not change provider policy, runtime behavior,
+compatibility breadth, device behavior, or authority. Standard remains the
+aggregate owner gate.
+
+LSLC-005Q focused three-owner snapshot conformance:
+
+```text
+cargo test -p rusty-lsl lslc_005q_ -- --test-threads=1
+```
+
+It covers caller-selected acquisition order, separate typed provider errors,
+allocation preservation, delegated limits, and repeated deterministic
+no-cross-owner composition. It is host-only test evidence and does not change
+provider policy, runtime behavior, compatibility breadth, device behavior, or
+authority. Standard remains the aggregate owner gate.
+
+LSLC-005O focused exact-closure validation reuses the existing LSLC-004V
+checker:
+
+```text
+python ./tools/check_lslc_004v.py
+```
+
+Only the accepted typed projection blob is rebound; the UDP blob, semantics,
+damaged mutations, and Standard policy inventory remain unchanged.
+
+LSLC-005N focused typed discovery-response conformance:
+
+```text
+cargo test -p rusty-lsl lslc_005n_ -- --test-threads=1
+```
+
+It covers exact UTF-8 position and envelope-error ownership plus repeated
+exact-boundary acceptance with complete IPv6 source preservation. Standard
+remains the aggregate owner gate.
+
+LSLC-005M focused clock-correction damage and soak conformance:
+
+```text
+cargo test -p rusty-lsl lslc_005m_ -- --test-threads=1
+```
+
+LSLC-005L device validation is a separate serial-scoped gate. The public Quest
+harness builds exact clean Rusty LSL and Rusty Quest revisions for
+`aarch64-linux-android`, then requires the Rust-owned
+`rusty.lsl.rust_on_quest_float32_loopback.v1` effective marker, exact
+timestamp/value-bit retention, immediate TCP port reuse, zero bounded fatals,
+and target-only package/process/forward/reverse/property/staging cleanup.
+Standard remains the source owner gate; neither route replays the official
+oracle or proves non-loopback or broader runtime compatibility.
+
+LSLC-005K focused conformance runs with
+`cargo test -p rusty-lsl lslc_005k_ -- --test-threads=1`; it repeats twelve
+deterministic recovery/correction/queue cycles with pressure, cancellation,
+terminal bypass, teardown, and immediate TCP/UDP port reuse. It is host-only
+test evidence and does not replace Standard validation or prove new runtime,
+compatibility, device, or authority breadth.
+
+LSLC-005J focused conformance runs with
+`cargo test -p rusty-lsl lslc_003p_ -- --test-threads=1`; it covers the
+accepted fixed-width sequence owner’s damaged paths and cleanup only and does
+not replace Standard validation or prove broader runtime compatibility.
+
+LSLC-005H device validation is a separate serial-scoped gate. It requires the
+Rust-owned `rusty.lsl.rust_on_quest_core_contract.v1` effective marker from an
+exact-source-locked `aarch64-linux-android` build, zero bounded target/system
+fatals, and complete removal of the run-owned package/process without changing
+forwards, reverses, properties, or staging. It proves one local core contract
+execution on Quest, not Java LSL behavior, transport, or broad compatibility.
+
+LSLC-005G adds serialized synthetic terminal-path tests for unchanged
+LSLC-005D. They prove that terminal, exhausted, recovery-cancelled, and
+recovery-deadline outcomes do not read the clock or admit a queue record. They
+do not prove official interoperability, devices, automatic policy, provider
+selection, merged cancellation/backpressure, or Manifold authority.
+
+LSLC-005F adds two serialized synthetic damaged-path tests for unchanged
+LSLC-005D. They prove record/state ownership across post-recovery clock
+cancellation and post-correction queue cancellation. They do not prove
+official interoperability, devices, automatic policy, provider selection,
+merged cancellation/backpressure, or Manifold authority.
+
+LSLC-005E adds one serialized synthetic loopback test for the unchanged
+LSLC-005D recovery-to-correction-to-queue path. It proves caller-classified
+retry order, exactly-once clock correction after recovery, queue admission,
+and bit-preserving raw/value evidence beside a derived timestamp. It does not
+prove official interoperability, device behavior, automatic policy, provider
+selection, merged cancellation/backpressure ownership, or Manifold authority.
+
+LSLC-005D focused tests use the lslc_005d filter; Standard remains the owner
+gate for the complete bounded recovery, correction, queue, public API, and
+public-boundary closure.
+
+LSLC-005C focused validation is `cargo test -p rusty-lsl lslc_005c`. It proves
+only unchanged raw/value reconstruction beside the accepted clock owner's
+derived value and public composition shape. Standard remains the owner gate and
+proves no automatic, official, device, broad clock, or Manifold behavior.
+
+LSLC-005B focused validation is `cargo test -p rusty-lsl lslc_005b`. It proves
+only caller-classified retry over one fixed selected endpoint, exact recovered
+record queueing, and retained sample/state evidence on queue cancellation. Standard
+proves no automatic, official, device, broad recovery, or Manifold behavior.
+
+LSLC-005A focused validation is `cargo test -p rusty-lsl lslc_005a`. It proves
+only the bounded selected-response Float32 inlet-to-existing-queue composition,
+exact raw timestamp/value preservation, and separate queue cancellation ownership.
+Standard remains the owner gate and proves no official, device, recovery, broader
+compatibility, or Manifold behavior.
+
+LSLC-004Z focused validation is `cargo test -p rusty-lsl lslc_004z`. It proves
+only the bounded selected-response-to-one-Float32-record composition and
+projection-before-I/O rejection. Standard remains the owner gate and proves no
+device, non-loopback, broad compatibility, or Manifold behavior.
+
+LSLC-004Y focused coverage checks projection-before-I/O, one finite synthetic
+loopback handshake, delegated typed failures, cancellation, and cleanup. Device
+validation is forbidden.
+
+The focused owner-determinism check is
+`cargo test -p rusty-lsl lslc_002z -- --test-threads=1`. The tests retain their
+original assertions and cleanup checks while beginning with exact socket ownership;
+shared multicast serialization does not propagate poison between tests.
+
+The aggregate `rust-tests` owner gate preserves the complete workspace/all-targets suite
+and runs its test binaries with `--test-threads=1` to isolate unrelated timing-sensitive
+loopback cases. Historical workflow vocabulary must be checked through
+`tools/check_lslc_004q.ps1`, which binds the accepted LSLC-004Q adoption receipt and exact
+owner commit; the raw owner validator is not a substitute for that project-owned route.
+
+LSLC-004X focused coverage checks canonical concrete-unicast IPv4 service endpoint
+projection and malformed, noncanonical, zero-port, unspecified, multicast, and
+broadcast rejection without I/O.
+
+LSLC-004W focused coverage checks exact first-match suggestion, no-match, empty-input
+rejection, and unchanged typed-discovery behavior. It is source-only and forbids device
+or official-oracle claims.
+
+LSLC-003S historical activation validation is immutable and replays only from
+its exact accepted revision-14 commit through the deep-only
+`pinned-lslc-003s-replay` policy gate. Live Standard and CI do not run that
+historical checker against current lock bytes; they run `current-closure`,
+which binds the current descriptor, feature lock, runtime constants, and
+portable registry projection. Policy tests reject omitted, swapped, or mixed
+live/historical routes.
+
+The historical focused command remains
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003s.ps1`.
+It validates the exact descriptor source binding, resolver-owned relative
+paths, canonical lock fingerprint/revision, workspace registry, nominal
+capability, dependency closure, absence-is-inert behavior, damaged fixture
+inventory, all LSLC-003C preservation checks, Rust tests, and public boundary.
+It proves no String transport, I/O, framing, runtime execution, device behavior,
+ambient activation, or authority.
+
+LSLC-003Q focused validation runs
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003q.ps1`.
+The policy-owned `lslc-003q-observation` gate checks exact sanitized bounds,
+framing, hashes, nonclaims, damaged fixture mutations, required routes, and the
+public boundary. It does not rerun the private oracle or prove implementation,
+activation, damaged-peer behavior, arbitrary Strings, devices, or authority.
+
+LSLC-003P focused validation runs
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003p.ps1`.
+The policy-owned `lslc-003p-runtime` gate proves only the closed two-channel,
+three-record local runtime contract, not activation, arbitrary counts,
+non-loopback behavior, devices, or broad compatibility.
+
+The sole current validation-policy authority is
+[`tools/validation-policy.json`](../tools/validation-policy.json). Run its portable facade:
+
+```text
+python ./tools/dispatch_validation.py --profile quick
+python ./tools/dispatch_validation.py --profile standard
+python ./tools/dispatch_validation.py --profile deep
+```
+
+`tools/check_all.ps1` is the compatibility wrapper for `standard`; CI invokes
+the policy-owned `ci` profile directly. Gates declare stable IDs, owners,
+dependencies, change scope, claims, limitations, environment, and timeouts.
+Receipts record executions but never select policy.
+
+Release-boundary review uses PowerShell 7.6 or newer:
+
+```text
+pwsh -NoProfile -File ./tools/Review-ReleaseCandidate.ps1
+```
+
+The review executes the public API target and CI profile under the declared
+Rust 1.80 toolchain, then Deep and the non-executing static readiness gate.
+Its final output binds exact commit, tree, toolchain, and profiles. Static
+readiness alone cannot establish release-handoff readiness.
+
+The current `pinned-rust-180-clippy` role executes
+`tools/check_current_rust_180.py`: exact Rust 1.80 identity, the public API
+target, and the complete current Clippy target graph. The older LSLC-003K
+669-warning snapshot remains immutable historical evidence and is not a valid
+current-target warning inventory.
+
+LSLC-003O observation evidence is checked through the policy-owned
+`lslc-003o-observation` gate. Its focused direct route is:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003o.ps1
+```
+
+This validates the sanitized bounded matrix, damaged evidence mutations,
+provenance hashes, public/private boundary, and documentation routes. It does
+not rerun the private oracle or prove a production runtime.
+
+Pinned immutable evidence is routed by `validation/historical-gates.json` and
+the bound v2 manifest. The complete prior validation guide is preserved
+byte-for-byte at
+[`docs/history/VALIDATION-THROUGH-LSLC-003M.md`](history/VALIDATION-THROUGH-LSLC-003M.md).
+The migration inventory and decision are in
+[`docs/validation/VALIDATION-AUTHORITY-INVENTORY.md`](validation/VALIDATION-AUTHORITY-INVENTORY.md)
+and [`docs/adr/LSLC-003N-VALIDATION-POLICY-AUTHORITY.md`](adr/LSLC-003N-VALIDATION-POLICY-AUTHORITY.md).
+
+LSLC-003T is checked by `tools/check_lslc_003t.ps1` and policy gate
+`lslc-003t-runtime`, covering exact capability composition, valid loopback,
+damaged framing, UTF-8 and byte bounds, cancellation, deadline, cleanup,
+provenance, documentation, and public boundary.
+
+LSLC-003U is checked by `tools/check_lslc_003u.ps1` and policy gate
+`lslc-003u-observation`. The gate validates the two exact cases, four pinned
+attempt hashes, six damaged mutations, documentation routes, limitations, and
+the current public boundary without executing an oracle in portable validation.
+
+LSLC-003V is checked by `tools/check_lslc_003v.ps1` and policy gate
+`lslc-003v-runtime-conformance`, including the accepted production-prefix byte
+comparison, two focused loopback cases, damaged fixture mutations, routes, and
+public boundary.
+
+LSLC-003W is checked by `tools/check_lslc_003w.ps1` and policy gate
+`lslc-003w-observation`. The gate validates the exact empty record, two pinned
+attempt hashes, six damaged mutations, documentation routes, limitations, and
+the public boundary without executing an oracle in portable validation.
+
+LSLC-003X is checked by `tools/check_lslc_003x.ps1` and policy gate
+`lslc-003x-runtime`. It validates empty-value loopback, prior bounds and
+capability markers, six damaged fixture mutations, cleanup, documentation
+routes, and the public boundary.
+
+LSLC-003Y is checked by `tools/check_lslc_003y.ps1` and policy gate
+`lslc-003y-observation`. The gate validates the exact 128-byte record, two
+pinned attempt hashes, six damaged mutations, documentation routes,
+limitations, and public boundary without executing an oracle.
+
+LSLC-004H is checked by `tools/check_lslc_004h.ps1` and policy gate
+`lslc-004h-active-interface-observation`. Portable validation checks the
+sanitized exact-source fixture, two repeat dimensions, private artifact hashes,
+six damaged mutations, documentation routes, limitations, and public boundary.
+It performs no network operation and does not replay private artifacts.
+
+LSLC-004I is checked by `tools/check_lslc_004i.ps1`. It independently
+recomputes the revision-14 fingerprint, checks the runtime and current fixtures,
+runs the direct LSLC-003S and LSLC-003J owners, and executes closed activation
+tests proving current admission, stale rejection, and inert empty selection.
+It is now historical-only and replays from exact accepted commit `1121efd2`
+through the deep-only `pinned-lslc-004i-replay` gate; live Standard uses the
+current closure instead of applying its revision-14 assertions to current bytes.
+
+LSLC-004D is checked by `tools/check_lslc_004d.ps1` and policy gate
+`lslc-004d-runtime-conformance`. It byte-compares the production prefix with
+accepted LSLC-004C, rejects six damaged fixture mutations, runs the focused
+synthetic multicast test, retains the deadline/cancellation owner markers, and
+checks the public boundary.
+
+LSLC-004E is checked by `tools/check_lslc_004e.ps1` and policy gate
+`lslc-004e-runtime`. It runs the exact joined-loopback owner test, rejects six
+damaged fixture mutations, retains the LSLC-002Z cancellation/deadline owner
+route, checks documentation and public boundaries, and forbids broader claims.
+
+LSLC-004F is checked by `tools/check_lslc_004f.ps1` and policy gate
+`lslc-004f-runtime-conformance`. It byte-checks both accepted production
+prefixes, rejects six damaged fixtures, runs one exact composition test, and
+checks documentation and public boundaries.
+
+LSLC-004G is checked by `tools/check_lslc_004g.ps1` and policy gate
+`lslc-004g-quest-device-conformance`. Portable validation checks only the
+sanitized exact-head fixture, seven private-artifact hashes, six damaged
+mutations, cleanup/fatal outcomes, limitations, and public boundary. It does
+not contact a headset or replay private artifacts.
+
+LSLC-004B is checked by `tools/check_lslc_004b.ps1` and policy gate
+`lslc-004b-runtime`. It validates exact-129 loopback and cleanup, typed
+130-byte rejection, preservation markers, six damaged fixture mutations,
+documentation routes, and public boundary.
+
+LSLC-004C is checked by `tools/check_lslc_004c.ps1` and policy gate
+`lslc-004c-observation`. It validates the exact group, explicit-loopback and
+single-platform scope, two repeats, membership cleanup, both finite directions,
+hash bindings, six damaged mutations, documentation routes, and public boundary.
+
+LSLC-003Z is checked by `tools/check_lslc_003z.ps1` and policy gate
+`lslc-003z-runtime`. It validates exact-128 loopback and cleanup, typed
+129-byte rejection, preservation markers, six damaged fixture mutations,
+documentation routes, and public boundary.
+
+LSLC-004A is checked by `tools/check_lslc_004a.ps1` and policy gate
+`lslc-004a-observation`. The gate validates the exact 129-byte record, two
+pinned attempt hashes, six damaged mutations, documentation routes,
+limitations, and public boundary without executing an oracle.
+
+LSLC-004J is checked by `tools/check_lslc_004j.ps1` and policy gate
+`lslc-004j-runtime`. It validates the exact destination, caller-explicit
+concrete-interface contract, two sanitized private active-interface repeats,
+loopback-wrapper preservation, typed pre-I/O nonconcrete rejection, six damaged
+fixture mutations, documentation routes, owner tests, and public boundary.
+
+LSLC-004K is checked by `tools/check_lslc_004k.ps1` and policy gate
+`lslc-004k-observation`. Portable validation checks exact pinned versions,
+group/interface scope, two sanitized query/response and cleanup results,
+private-artifact hashes, limitations, six damaged mutations, documentation
+routes, and public boundary without executing the private oracle.
+
+LSLC-004L is checked by `tools/check_lslc_004l.ps1` and policy gate
+`lslc-004l-immutable-receipt-head-identity`. The focused self-test positively
+binds exact immutable LSLC-003M and LSLC-004J bytes and rejects modified or new
+receipts, non-receipts, private paths/content, credentials, build artifacts,
+and trailing whitespace. It also hash-checks that the direct raw checker and
+both accepted receipts remain byte-identical.
+
+LSLC-004N addressable official-query evidence is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004n.ps1`.
+It verifies exact hashes/lengths, sanitized grammar, pin and two-repeat limits,
+ten damaged mutations, documentation routes, and the current public boundary;
+it does not replay the private oracle.
+
+LSLC-004M is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004m.ps1`.
+The route runs the focused owner test, ten damaged fixture mutations, exact
+production-prefix binding, public boundary, and the current Standard profile.
+
+LSLC-004O is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004o.ps1`.
+It verifies two sanitized official-to-production results, exact production
+prefix, ten damaged mutations, public boundary, instructions, and Standard;
+the private oracle and active interface are not replayed by portable gates.
+
+LSLC-004P is checked with
+`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004p.ps1`.
+It verifies two sanitized official-outlet-to-production-requester results,
+exact accepted requester bytes, ten damaged mutations, public boundary,
+instructions, and Standard; the private outlet and interface are not replayed.
+
+LSLC-004Q is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004q.ps1`
+while `RLSL_WORK_ENVIRONMENT_ROOT` names an exact clean materialization of
+owner commit `50f8e8a67641f535347c3061d531e6d4df46e535`. The gate validates all
+fourteen immutable legacy units through the project receipt and keeps every
+current unit closed against current registries.
+
+LSLC-004R is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004r.ps1`.
+It verifies two addressable response and document hashes/lengths, minimum
+sanitized structure, honest dynamic-byte limits, ten damaged mutations,
+documentation routes, and the current public boundary without replaying the
+private oracle or response values.
+
+LSLC-004S is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004s.ps1`.
+It verifies exact production-prefix identity, runs the two focused owner tests,
+rejects ten damaged fixture mutations, checks documentation and the public
+boundary, and never replays an official response or private value.
+
+LSLC-004T is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004t.ps1`.
+It verifies the exact unchanged production prefix, runs the focused typed
+composition and damaged delegation, rejects ten evidence mutations, and checks
+documentation plus the public boundary.
+
+LSLC-004U is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004u.ps1`.
+It pins the unchanged UDP blob, tests positive and delegated-error paths,
+checks public API visibility, rejects ten mutations, and runs public boundary.
+
+LSLC-004V is checked with
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004v.ps1`.
+It pins the unchanged UDP and typed-projection blobs, runs focused positive,
+indexed-damage, cancellation, cleanup, and public-API cases, rejects ten
+evidence mutations, and checks the public boundary without oracle or device work.
+# Float32 two-record chunk integration candidate
+
+Focused validation is `cargo test -p rusty-lsl candidate_two_record_chunk`.
+It proves only exact two-record ordering, raw timestamp/value preservation,
+pre-I/O count rejection, and loopback cleanup for the independently authored
+candidate. Standard remains the aggregate owner gate. Neither route replays
+the private oracle or proves canonical acceptance, arbitrary chunks, devices,
+broad interoperability, or Manifold authority.

@@ -1,0 +1,30 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema":"rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id":"rlsl-lslc-003h-standard-validation",
+  "project_id":"rusty-lsl",
+  "unit_id":"rlsl-lslc-003h-current-gates-dispatcher",
+  "created_at":"2026-07-15T14:15:00Z",
+  "tier":"standard",
+  "result":"pass",
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"40e164440c17fe96e916e49038662227bb474cd0","head_revision":"4b1fab1e96d294059d9820c68427a5fe6bb24df4","branch":"codex/rlsl-autonomous"}],
+  "changed_paths":[
+    {"repo_id":"rusty-lsl","path":".github/workflows/ci.yml"},{"repo_id":"rusty-lsl","path":"AGENTS.md"},{"repo_id":"rusty-lsl","path":"README.md"},{"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-003h-current-gates-dispatcher.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003h-begin-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003h-claim.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003h-ready.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003h-record-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003h-standard-validation.json"},{"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-003h-standard-validation.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},{"repo_id":"rusty-lsl","path":"tools/check_all.ps1"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_003h.ps1"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_003h.py"},{"repo_id":"rusty-lsl","path":"tools/current-gates.json"},{"repo_id":"rusty-lsl","path":"tools/dispatch_current_gates.py"},{"repo_id":"rusty-lsl","path":"tools/test_dispatch_current_gates.py"}
+  ],
+  "artifacts":[{"artifact_id":"lslc-003h-standard-log","kind":"validation-log","path":"rlsl-lslc-003h-standard-validation.md","sha256":"e4d5c2e421b513ef820748d468986d85a66660f82c3503c08d4afe92af11142e"}],
+  "criteria":[
+    {"acceptance_id":"complete-current-gate-manifest","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003h.ps1","evidence_refs":["lslc-003h-standard-log"]},
+    {"acceptance_id":"fail-closed-dispatch","status":"pass","command":"python ./tools/test_dispatch_current_gates.py","evidence_refs":["lslc-003h-standard-log"]},
+    {"acceptance_id":"aggregate-and-ci-routing","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003h.ps1","evidence_refs":["lslc-003h-standard-log"]},
+    {"acceptance_id":"authority-and-runtime-invariance","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003h-standard-log"]}
+  ],
+  "gates":[
+    {"gate_id":"validation-source-owner","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1","evidence_refs":["lslc-003h-standard-log"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-003h-standard-log"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-003h-standard-log"]}
+  ],
+  "device_validation":null
+}

@@ -1,0 +1,138 @@
+{
+  "schema": "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004g-quest-ipv4-multicast-device-conformance",
+  "action": "BeginValidation",
+  "timestamp": "2026-07-16T22:07:28.0324300Z",
+  "executed": true,
+  "transition": "active-to-validating",
+  "status_before": "active",
+  "status_after": "validating",
+  "current_unit_before": "rlsl-lslc-004g-quest-ipv4-multicast-device-conformance",
+  "current_unit_after": "rlsl-lslc-004g-quest-ipv4-multicast-device-conformance",
+  "preservation": {
+    "git_mutation_performed": false,
+    "device_mutation_performed": false,
+    "force_push_allowed": false,
+    "repository_states": [
+      {
+        "repo_id": "rusty-lsl",
+        "available": true,
+        "is_git": true,
+        "head": "4042b16dd6b10c1320b4d1f0709ccfe0f28f805a",
+        "branch": "codex/rlsl-autonomous",
+        "upstream": "origin/codex/rlsl-autonomous",
+        "dirty": false,
+        "tracked_changes": 0,
+        "untracked_changes": 0,
+        "ahead": 3,
+        "behind": 0,
+        "diverged": false,
+        "relation": "ahead"
+      },
+      {
+        "repo_id": "rusty-quest",
+        "available": true,
+        "is_git": true,
+        "head": "d09b02307b6f8d960c94799644f1939054f7e1e1",
+        "branch": "codex/rlsl-quest-multicast-004g",
+        "upstream": null,
+        "dirty": false,
+        "tracked_changes": 0,
+        "untracked_changes": 0,
+        "ahead": null,
+        "behind": null,
+        "diverged": false,
+        "relation": "no-upstream"
+      }
+    ]
+  },
+  "validation_matrix": [
+    {
+      "order": 1,
+      "gate_id": "validation-device",
+      "kind": "command",
+      "profile_id": "device",
+      "command": "Run the private serial-scoped LSLC-004G two-Quest capsule and sanitize through tools/check_lslc_004g.ps1.",
+      "disposition": "required"
+    },
+    {
+      "order": 2,
+      "gate_id": "validation-source-owner",
+      "kind": "command",
+      "profile_id": "source-owner",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "disposition": "required"
+    },
+    {
+      "order": 3,
+      "gate_id": "validation-workflow",
+      "kind": "command",
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "disposition": "required"
+    },
+    {
+      "order": 4,
+      "gate_id": "instruction-synchronization",
+      "kind": "instruction",
+      "profile_id": "instruction-sync",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "disposition": "required"
+    },
+    {
+      "order": 5,
+      "gate_id": "device-validation",
+      "kind": "device",
+      "profile_id": "device",
+      "command": "Use the device workflow with only the explicitly supplied serials.",
+      "disposition": "serial-scoped-plan-required",
+      "serials": [
+        "quest-pair"
+      ]
+    }
+  ],
+  "graph_scope": {
+    "change_categories": [
+      "implementation",
+      "public-private-boundary",
+      "validation"
+    ],
+    "repositories": [
+      {
+        "repo_id": "rusty-lsl",
+        "allowed_paths": [
+          "AGENTS.md",
+          "docs/COMPATIBILITY.md",
+          "docs/VALIDATION.md",
+          "fixtures/compatibility/lslc-004g-quest-ipv4-multicast-device-conformance.json",
+          "fixtures/compatibility/README.md",
+          "morphospace/feature.lock.json",
+          "morphospace/iteration-events.jsonl",
+          "morphospace/iteration-units/rlsl-lslc-004g-quest-ipv4-multicast-device-conformance.json",
+          "morphospace/project.spec.json",
+          "morphospace/receipts/",
+          "morphospace/source-compositions/rlsl-lslc-004g-source-lock.json",
+          "morphospace/workspace.state.json",
+          "README.md",
+          "tools/check_lslc_004g.ps1",
+          "tools/check_lslc_004g.py",
+          "tools/validation-policy.json"
+        ]
+      },
+      {
+        "repo_id": "rusty-quest",
+        "allowed_paths": [
+          "apps/lsl-multicast-conformance-android/",
+          "tools/Build-LslMulticastConformanceAndroid.ps1",
+          "tools/Test-LslMulticastConformanceAndroid.ps1"
+        ]
+      }
+    ],
+    "read_only_dependencies": [],
+    "exclusion": "Do not scan repositories or paths outside this list."
+  },
+  "adoption_receipt": null,
+  "push_plan": null,
+  "event_id": "rlsl-lslc-004g-quest-ipv4-multicast-device-conformance-validating-0516"
+}

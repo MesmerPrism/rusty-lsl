@@ -1,0 +1,32 @@
+{
+  "schema": "rusty.lsl.compatibility.lslc_003q.v1",
+  "unit_id": "rlsl-lslc-003q-bounded-string-record-observation",
+  "official": {"package":"pylsl","version":"1.18.2","library_version":117,"protocol_version":110,"implementation_source_used":false},
+  "bounds": {"channels":1,"caller_records":1,"initialization_records":2,"directions":2,"max_payload_bytes":127,"network":"ipv4-loopback","finite_deadlines":true},
+  "repeats": 2,
+  "value": {"classification":"independently-authored-ascii-utf8","utf8_bytes":13,"text":"Rusty-mu-snow"},
+  "official_outlet_to_private_inlet": {
+    "outcome":"pass",
+    "initialization":[
+      {"marker":2,"timestamp":123456.789,"length_form":1,"length":2,"value":"10"},
+      {"marker":2,"timestamp":123456.789,"length_form":1,"length":2,"value":"10"}
+    ],
+    "caller_record":{"marker":2,"timestamp":1234.5,"length_form":1,"length":13,"value":"Rusty-mu-snow"}
+  },
+  "private_outlet_to_official_inlet": {"outcome":"pass","pulled":{"timestamp":1234.5,"values":["Rusty-mu-snow"]}},
+  "negative_observations": {
+    "truncation":"not-run-positive-framing-observation-only",
+    "malformed_length":"not-run-positive-framing-observation-only",
+    "cancellation":"not-run-positive-framing-observation-only",
+    "empty_string":"outside-unit-envelope",
+    "oversized_string":"outside-unit-envelope"
+  },
+  "provenance": {
+    "driver_sha256":"90c5ed742ac555ef8e2695702f236cf9b9b60b2a77748c0ee2474a32c07c3bf1",
+    "configuration_sha256":"41d41bb8b3df2c4988ffac7b6b80cef79dac462289a908de532a7b04b0cc681c",
+    "raw_attempt_sha256":["8f9d6258574ff9765a47cf6ade6da353c8086d377ff28df208851e4beb2961d6","db901839eeaa78f924ecf501167f609323427304fffd29b8b8a59a8e2bb9ba03"],
+    "official_binary_sha256":"8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff"
+  },
+  "recommendation":"bounded-single-channel-single-record-string-runtime",
+  "claims":{"production_implementation":false,"activation":false,"empty_or_multiple_records":false,"multiple_channels":false,"arbitrary_or_oversized_strings":false,"non_loopback":false,"devices":false,"broad_compatibility":false,"authority":false}
+}

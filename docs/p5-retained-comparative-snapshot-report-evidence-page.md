@@ -1,0 +1,9 @@
+# P5 Retained Comparative Snapshot Report Evidence Page
+
+This P51 candidate adds one substantive crate-private, caller-requested bounded evidence-page owner over one actual P50 `CallerRequestedFloat32RetainedComparativeSnapshotReport`. The owner consumes and retains the complete report unchanged. It does not clone or reconstruct the report, its P49 owners, or any nested proposal, snapshot, report, sample, vector, or other allocation. Consuming extraction returns the unchanged complete report and the separately allocated page facts.
+
+The caller supplies an explicit zero-based `u64` start and configures one explicit nonzero maximum page length. Configuration checks that the `usize` bound is representable as `u64`. Page construction fallibly converts the actual evidence total, start, page length, and end between `usize` and `u64`; uses checked subtraction and addition for every range; and fallibly reserves the exact selected page length before copying. It copies only the P50 report's existing `Copy` evidence facts, in exact existing order.
+
+Every successful page reports deterministic start-inclusive, end-exclusive, and total evidence positions. Start equal to total succeeds as an empty-at-end page. Start greater than total is a distinct typed out-of-range error. Conversion, range, and allocation failures return the unchanged complete P50 report, with no partial externally visible page.
+
+This owner is caller-requested, default-inert, advisory, and non-applying. It infers no missing evidence, loss, continuity, or causality and claims no liblsl equivalence. It has no root/runtime export, activation or application path, and no Manifold, session, stream, transport, control, routing, admission, authorization, device, oracle, recovery, discovery, or policy authority.

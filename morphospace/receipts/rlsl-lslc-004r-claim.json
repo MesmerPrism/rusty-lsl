@@ -1,0 +1,109 @@
+{
+  "schema": "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004r-official-outlet-response-datagram-observation",
+  "action": "Claim",
+  "timestamp": "2026-07-17T05:10:55.4347712Z",
+  "executed": true,
+  "transition": "ready-to-active",
+  "status_before": "ready",
+  "status_after": "active",
+  "current_unit_before": null,
+  "current_unit_after": "rlsl-lslc-004r-official-outlet-response-datagram-observation",
+  "preservation": {
+    "git_mutation_performed": false,
+    "device_mutation_performed": false,
+    "force_push_allowed": false,
+    "repository_states": [
+      {
+        "repo_id": "rusty-lsl",
+        "available": true,
+        "is_git": true,
+        "head": "59adab9f13c6fcc6f2124ee07367bbe584b692a8",
+        "branch": "codex/rlsl-autonomous",
+        "upstream": "origin/codex/rlsl-autonomous",
+        "dirty": false,
+        "tracked_changes": 0,
+        "untracked_changes": 0,
+        "ahead": 2,
+        "behind": 0,
+        "diverged": false,
+        "relation": "ahead"
+      }
+    ]
+  },
+  "validation_matrix": [
+    {
+      "order": 1,
+      "gate_id": "validation-source-only",
+      "kind": "command",
+      "profile_id": "source-only",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004r.ps1",
+      "disposition": "required"
+    },
+    {
+      "order": 2,
+      "gate_id": "validation-source-owner",
+      "kind": "command",
+      "profile_id": "source-owner",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "disposition": "required"
+    },
+    {
+      "order": 3,
+      "gate_id": "validation-workflow",
+      "kind": "command",
+      "profile_id": "workflow",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "disposition": "required"
+    },
+    {
+      "order": 4,
+      "gate_id": "instruction-synchronization",
+      "kind": "instruction",
+      "profile_id": "instruction-sync",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "disposition": "required"
+    },
+    {
+      "order": 5,
+      "gate_id": "device-validation",
+      "kind": "device",
+      "profile_id": "device",
+      "command": "Do not run live device operations for this unit.",
+      "disposition": "forbidden",
+      "serials": []
+    }
+  ],
+  "graph_scope": {
+    "change_categories": [
+      "public-private-boundary",
+      "validation"
+    ],
+    "repositories": [
+      {
+        "repo_id": "rusty-lsl",
+        "allowed_paths": [
+          "AGENTS.md",
+          "docs/COMPATIBILITY.md",
+          "docs/PROVENANCE.md",
+          "docs/VALIDATION.md",
+          "fixtures/compatibility/lslc-004r-official-outlet-response-datagram-observation.json",
+          "fixtures/compatibility/README.md",
+          "morphospace/iteration-events.jsonl",
+          "morphospace/iteration-units/rlsl-lslc-004r-official-outlet-response-datagram-observation.json",
+          "morphospace/receipts/",
+          "morphospace/workspace.state.json",
+          "tools/check_lslc_004r.ps1",
+          "tools/check_lslc_004r.py",
+          "tools/validation-policy.json"
+        ]
+      }
+    ],
+    "read_only_dependencies": [],
+    "exclusion": "Do not scan repositories or paths outside this list."
+  },
+  "adoption_receipt": null,
+  "push_plan": null,
+  "event_id": "rlsl-lslc-004r-official-outlet-response-datagram-observation-claimed-0602"
+}

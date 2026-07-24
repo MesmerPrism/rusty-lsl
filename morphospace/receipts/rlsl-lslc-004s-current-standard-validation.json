@@ -1,0 +1,29 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema":"rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id":"rlsl-lslc-004s-current-standard-validation",
+  "project_id":"rusty-lsl",
+  "unit_id":"rlsl-lslc-004s-official-response-production-requester-conformance",
+  "created_at":"2026-07-17T07:00:00Z",
+  "tier":"standard",
+  "result":"pass",
+  "repository_revisions":[{"repo_id":"rusty-lsl","base_revision":"153b4afed224e0e26216caaabba68e962d1b4800","head_revision":"803ef8626410c6d1f014c01ab13627dec40abc09","branch":"codex/rlsl-autonomous"}],
+  "changed_paths":[
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-004s-official-response-production-requester-conformance.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004s-current-standard-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"}
+  ],
+  "artifacts":[{"artifact_id":"lslc-004s-structural-conformance","kind":"compatibility-evidence","path":"../../fixtures/compatibility/lslc-004s-official-response-production-requester-conformance.json","sha256":"4a674e72d20b87502f06a43fa48a2057a172ab915c663ee7f693ec6b4598c753"}],
+  "criteria":[
+    {"acceptance_id":"independent-response-structure-conformance","status":"pass","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004s.ps1","evidence_refs":["lslc-004s-structural-conformance"]},
+    {"acceptance_id":"standard-closure","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004s-structural-conformance"]}
+  ],
+  "gates":[
+    {"gate_id":"validation-source-only","status":"pass","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004s.ps1","evidence_refs":["lslc-004s-structural-conformance"]},
+    {"gate_id":"validation-source-owner","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004s-structural-conformance"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-004s-structural-conformance"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-004s-structural-conformance"]}
+  ],
+  "device_validation":null
+}

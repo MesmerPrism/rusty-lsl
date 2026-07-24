@@ -1,0 +1,114 @@
+{
+    "schema":  "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+    "project_id":  "rusty-lsl",
+    "unit_id":  "rlsl-lslc-003n-validation-policy-authority",
+    "action":  "Claim",
+    "timestamp":  "2026-07-16T08:28:39.7909715Z",
+    "executed":  true,
+    "transition":  "ready-to-active",
+    "status_before":  "ready",
+    "status_after":  "active",
+    "current_unit_before":  null,
+    "current_unit_after":  "rlsl-lslc-003n-validation-policy-authority",
+    "preservation":  {
+                         "git_mutation_performed":  false,
+                         "device_mutation_performed":  false,
+                         "force_push_allowed":  false,
+                         "repository_states":  [
+                                                   {
+                                                       "repo_id":  "rusty-lsl",
+                                                       "available":  true,
+                                                       "is_git":  true,
+                                                       "head":  "be468c1a5a7b5c7ec418982a364feeb9c18b94bc",
+                                                       "branch":  "codex/rlsl-autonomous",
+                                                       "upstream":  "origin/codex/rlsl-autonomous",
+                                                       "dirty":  false,
+                                                       "tracked_changes":  0,
+                                                       "untracked_changes":  0,
+                                                       "ahead":  2,
+                                                       "behind":  0,
+                                                       "diverged":  false,
+                                                       "relation":  "ahead"
+                                                   }
+                                               ]
+                     },
+    "validation_matrix":  [
+                              {
+                                  "order":  1,
+                                  "gate_id":  "validation-source-owner",
+                                  "kind":  "command",
+                                  "profile_id":  "source-owner",
+                                  "command":  "python ./tools/dispatch_validation.py --profile deep",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  2,
+                                  "gate_id":  "validation-workflow",
+                                  "kind":  "command",
+                                  "profile_id":  "workflow",
+                                  "command":  "powershell -NoProfile -ExecutionPolicy Bypass -File \u003cwork-environment-root\u003e/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot \u003cproject-root\u003e/morphospace",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  3,
+                                  "gate_id":  "instruction-synchronization",
+                                  "kind":  "instruction",
+                                  "profile_id":  "instruction-sync",
+                                  "command":  "Verify every declared instruction surface is complete and validated.",
+                                  "disposition":  "required"
+                              },
+                              {
+                                  "order":  4,
+                                  "gate_id":  "device-validation",
+                                  "kind":  "device",
+                                  "profile_id":  "device",
+                                  "command":  "Do not run live device operations for this unit.",
+                                  "disposition":  "forbidden",
+                                  "serials":  [
+
+                                              ]
+                              }
+                          ],
+    "graph_scope":  {
+                        "change_categories":  [
+                                                  "public-private-boundary",
+                                                  "state-machine",
+                                                  "validation"
+                                              ],
+                        "repositories":  [
+                                             {
+                                                 "repo_id":  "rusty-lsl",
+                                                 "allowed_paths":  [
+                                                                       ".github/workflows/ci.yml",
+                                                                       "AGENTS.md",
+                                                                       "docs/adr/",
+                                                                       "docs/history/",
+                                                                       "docs/VALIDATION.md",
+                                                                       "docs/validation/",
+                                                                       "morphospace/iteration-events.jsonl",
+                                                                       "morphospace/iteration-units/rlsl-lslc-003n-validation-policy-authority.json",
+                                                                       "morphospace/receipts/",
+                                                                       "morphospace/workspace.state.json",
+                                                                       "README.md",
+                                                                       "tools/check_all.ps1",
+                                                                       "tools/check_cargo_shape.py",
+                                                                       "tools/check_documentation_router.py",
+                                                                       "tools/dispatch_current_gates.py",
+                                                                       "tools/dispatch_validation.py",
+                                                                       "tools/test_validation_policy.py",
+                                                                       "tools/validation-archive-binding.json",
+                                                                       "tools/validation-historical-gates.json",
+                                                                       "tools/validation-policy.json",
+                                                                       "tools/validation-policy.schema.json"
+                                                                   ]
+                                             }
+                                         ],
+                        "read_only_dependencies":  [
+
+                                                   ],
+                        "exclusion":  "Do not scan repositories or paths outside this list."
+                    },
+    "adoption_receipt":  null,
+    "push_plan":  null,
+    "event_id":  "rlsl-lslc-003n-validation-policy-authority-claimed-0412"
+}

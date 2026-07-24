@@ -1,0 +1,132 @@
+{
+  "schema": "rusty.morphospace.workflow.work_unit_automation_receipt.v1",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004l-immutable-receipt-head-identity",
+  "action": "PreparePush",
+  "timestamp": "2026-07-17T00:48:39.3723693Z",
+  "executed": true,
+  "transition": "push-bundle-prepared",
+  "status_before": "accepted",
+  "status_after": "accepted",
+  "current_unit_before": null,
+  "current_unit_after": null,
+  "preservation": {
+    "git_mutation_performed": false,
+    "device_mutation_performed": false,
+    "force_push_allowed": false,
+    "repository_states": [
+      {
+        "repo_id": "rusty-lsl",
+        "available": true,
+        "is_git": true,
+        "head": "c691c38cfe0b58b00905b9f3e32e01078a45e6c7",
+        "branch": "codex/rlsl-autonomous",
+        "upstream": "origin/codex/rlsl-autonomous",
+        "dirty": false,
+        "tracked_changes": 0,
+        "untracked_changes": 0,
+        "ahead": 13,
+        "behind": 0,
+        "diverged": false,
+        "relation": "ahead"
+      }
+    ]
+  },
+  "validation_matrix": [
+    {
+      "order": 1,
+      "gate_id": "validation-source-only",
+      "kind": "command",
+      "profile_id": "source-only",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004l.ps1",
+      "disposition": "required"
+    },
+    {
+      "order": 2,
+      "gate_id": "validation-source-owner",
+      "kind": "command",
+      "profile_id": "source-owner",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "disposition": "required"
+    },
+    {
+      "order": 3,
+      "gate_id": "validation-workflow",
+      "kind": "command",
+      "profile_id": "workflow",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "disposition": "required"
+    },
+    {
+      "order": 4,
+      "gate_id": "instruction-synchronization",
+      "kind": "instruction",
+      "profile_id": "instruction-sync",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "disposition": "required"
+    },
+    {
+      "order": 5,
+      "gate_id": "device-validation",
+      "kind": "device",
+      "profile_id": "device",
+      "command": "Do not run live device operations for this unit.",
+      "disposition": "forbidden",
+      "serials": []
+    }
+  ],
+  "graph_scope": {
+    "change_categories": [
+      "public-private-boundary",
+      "validation"
+    ],
+    "repositories": [
+      {
+        "repo_id": "rusty-lsl",
+        "allowed_paths": [
+          "AGENTS.md",
+          "docs/VALIDATION.md",
+          "morphospace/iteration-events.jsonl",
+          "morphospace/iteration-units/rlsl-lslc-004l-immutable-receipt-head-identity.json",
+          "morphospace/receipts/",
+          "morphospace/workspace.state.json",
+          "README.md",
+          "tools/check_lslc_004l.ps1",
+          "tools/dispatch_validation.py",
+          "tools/test_dispatch_public_boundary_policy.py",
+          "tools/validation-policy.json"
+        ]
+      }
+    ],
+    "read_only_dependencies": [],
+    "exclusion": "Do not scan repositories or paths outside this list."
+  },
+  "adoption_receipt": null,
+  "push_plan": {
+    "schema": "rusty.morphospace.workflow.push_bundle_plan.v1",
+    "bundle_id": "rlsl-lslc-004l-immutable-receipt-head-identity-push-bundle",
+    "project_id": "rusty-lsl",
+    "unit_ids": [
+      "rlsl-lslc-004l-immutable-receipt-head-identity"
+    ],
+    "prepared_at": "2026-07-17T00:48:39.3723693Z",
+    "dependency_order": [
+      "rusty-lsl"
+    ],
+    "repositories": [
+      {
+        "repo_id": "rusty-lsl",
+        "branch": "codex/rlsl-autonomous",
+        "commit": "c691c38cfe0b58b00905b9f3e32e01078a45e6c7",
+        "upstream": "origin/codex/rlsl-autonomous",
+        "ahead": 13,
+        "behind": 0
+      }
+    ],
+    "source_first": true,
+    "planning_last": true,
+    "execution": "not-performed",
+    "force_push_allowed": false
+  },
+  "event_id": "rlsl-lslc-004l-immutable-receipt-head-identity-push-prepared-0555"
+}

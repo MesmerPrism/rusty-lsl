@@ -2,24 +2,46 @@
   "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/project-spec-v2.schema.json",
   "schema": "rusty.morphospace.workflow.project_spec.v2",
   "project_id": "rusty-lsl",
-  "revision": 1,
+  "revision": 6,
   "owner": "rusty-lsl-project",
-  "purpose": "Develop an independently authored Rust implementation of Lab Streaming Layer compatibility with explicit typed Rusty Morphospace observation and proposal hooks.",
+  "purpose": "Deliver a production-quality independently authored pure-Rust Lab Streaming Layer implementation with a coherent native outlet/inlet lifecycle, bounded transport, required compatibility evidence, and explicit typed advisory Rusty Morphospace observation and proposal hooks.",
   "activation_model": {
     "default": "disabled",
     "unlisted_modules": "inert",
     "runtime_rule": "selected-lock-and-runtime-input"
   },
   "composition": {
-    "selected_features": [],
+    "selected_features": [
+      "bounded-sample-queue",
+      "finite-sample-recovery",
+      "fixed-width-numeric-sample",
+      "integrated-clock-correction",
+      "short-info-discovery-responder",
+      "string-sample",
+      "stream-handshake",
+      "timestamped-float32-sample",
+      "udp-discovery"
+    ],
     "denied_features": [],
-    "selected_modules": [],
+    "selected_modules": [
+      "bounded-sample-queue",
+      "finite-sample-recovery",
+      "fixed-width-numeric-sample",
+      "integrated-clock-correction",
+      "short-info-discovery-responder",
+      "string-sample",
+      "stream-handshake",
+      "timestamped-float32-sample",
+      "udp-discovery"
+    ],
     "denied_modules": [],
-    "allowed_permissions": [],
+    "allowed_permissions": [
+      "clock read",
+      "network access"
+    ],
     "denied_permissions": [
       "device access",
       "native library loading",
-      "network access",
       "process spawning"
     ],
     "data_classes": [
@@ -30,7 +52,52 @@
   },
   "authority_map": [
     {
+      "parameter": "lsl.string-sample-capability",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.fixed-width-numeric-sample-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.discovery-responder-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.sample-recovery-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.sample-queue-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.clock-correction-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.sample-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.connection-setup-runtime",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
       "parameter": "lsl.compatibility",
+      "owner": "rusty-lsl",
+      "adapters": []
+    },
+    {
+      "parameter": "lsl.discovery-runtime",
       "owner": "rusty-lsl",
       "adapters": []
     },
@@ -46,6 +113,27 @@
     }
   ],
   "repositories": [
+    {
+      "repo_id": "workflow-environment",
+      "role": "tool",
+      "path": "<work-environment-root>",
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/PLANNED_PUBLICATION_ACCOUNTING.md",
+        "schemas/publication-ordering-interruption.schema.json",
+        "schemas/planned-publication-accounting-receipt.schema.json",
+        "schemas/push-bundle-plan.schema.json",
+        "scripts/Invoke-WorkUnitAutomation.ps1",
+        "scripts/Test-WorkflowContracts.ps1",
+        "scripts/Test-PlannedPublicationAccounting.ps1",
+        "scripts/Test-WorkUnitAutomation.ps1",
+        "scripts/WorkUnitAutomation.psm1",
+        "scripts/lib/MorphospacePlannedPublication.psm1",
+        "skills/rusty-morphospace-context/SKILL.md",
+        "skills/system-engineering/SKILL.md"
+      ]
+    },
     {
       "repo_id": "rusty-lsl",
       "role": "core",
@@ -64,20 +152,169 @@
         "morphospace/",
         "tools/"
       ]
+    },
+    {
+      "repo_id": "rusty-quest",
+      "role": "platform-test-harness",
+      "path": "../rusty-quest",
+      "allowed_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/VALIDATION.md",
+        "apps/lsl-multicast-conformance-android/",
+        "apps/lsl-rust-conformance-android/",
+      "apps/lsl-rust-float32-loopback-android/",
+      "apps/lsl-rust-float32-two-record-chunk-android/",
+        "tools/Build-LslMulticastConformanceAndroid.ps1",
+        "tools/Test-LslMulticastConformanceAndroid.ps1",
+        "tools/Build-LslRustConformanceAndroid.ps1",
+        "tools/Invoke-LslRustConformanceQuest.ps1",
+        "tools/Test-LslRustConformanceAndroid.ps1",
+        "tools/Build-LslRustFloat32LoopbackAndroid.ps1",
+        "tools/Invoke-LslRustFloat32LoopbackQuest.ps1",
+      "tools/Test-LslRustFloat32LoopbackAndroid.ps1"
+      ,"tools/Build-LslRustFloat32TwoRecordChunkAndroid.ps1"
+      ,"tools/Invoke-LslRustFloat32TwoRecordChunkQuest.ps1"
+      ,"tools/Test-LslRustFloat32TwoRecordChunkAndroid.ps1"
+      ]
     }
   ],
-  "modules": [],
+  "modules": [
+    {
+      "module_id": "fixed-width-numeric-sample",
+      "feature_id": "fixed-width-numeric-sample",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.fixed_width_numeric_sample.v1",
+      "contract_revision": "lslc-003b",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "stream-handshake"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "short-info-discovery-responder",
+      "feature_id": "short-info-discovery-responder",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.short_info_discovery_responder.v1",
+      "contract_revision": "lslc-002z",
+      "source_repo": "rusty-lsl",
+      "dependencies": [],
+      "selected": true
+    },
+    {
+      "module_id": "finite-sample-recovery",
+      "feature_id": "finite-sample-recovery",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.finite_sample_recovery.v1",
+      "contract_revision": "lslc-002w",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "bounded-sample-queue"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "bounded-sample-queue",
+      "feature_id": "bounded-sample-queue",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.bounded_sample_queue.v1",
+      "contract_revision": "lslc-002v",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "integrated-clock-correction",
+      "feature_id": "integrated-clock-correction",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.integrated_clock_correction.v1",
+      "contract_revision": "lslc-002u",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "string-sample",
+      "feature_id": "string-sample",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.string_sample.activation.v1",
+      "contract_revision": "lslc-003s",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "stream-handshake"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "timestamped-float32-sample",
+      "feature_id": "timestamped-float32-sample",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.timestamped_float32_sample.v1",
+      "contract_revision": "lslc-002y",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "stream-handshake"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "stream-handshake",
+      "feature_id": "stream-handshake",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.stream_handshake.v1",
+      "contract_revision": "lslc-002y",
+      "source_repo": "rusty-lsl",
+      "dependencies": [],
+      "selected": true
+    },
+    {
+      "module_id": "udp-discovery",
+      "feature_id": "udp-discovery",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.udp_discovery.v1",
+      "contract_revision": "lslc-002p",
+      "source_repo": "rusty-lsl",
+      "dependencies": [],
+      "selected": true
+    }
+  ],
   "non_scope": [
-    "LSL protocol, wire, discovery, clock, inlet, outlet, recovery, FFI, and runtime implementation before an approved unit opens that scope.",
+    "Ambient activation, unbounded transport or recovery, implicit endpoint or policy ownership, copied or translated liblsl or rLSL implementation source, and production claims without named evidence. The versioned production roadmap may add bounded native lifecycle, stream-shape, discovery, clocking, buffering, recovery, and advisory integration behavior through explicit units.",
     "Manifold stream admission, registry, subscriptions, routes, leases, revisions, authorization, or audit.",
     "Morphospace-native sample transport, platform lifecycle, Quest or Hostess adapters, and commands derived from inbound samples.",
     "Private evidence, local machine paths, device identities, credentials, raw captures, and copied or translated liblsl or rLSL source."
   ],
   "validation_profiles": [
     {
+      "profile_id": "runtime-loopback",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_003b.ps1"
+      ]
+    },
+    {
+      "profile_id": "source-owner",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+      ]
+    },
+    {
       "profile_id": "source-only",
       "commands": [
-        "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_all.ps1"
       ]
     },
     {
@@ -85,13 +322,37 @@
       "commands": [
         "powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace"
       ]
+    },
+    {
+      "profile_id": "workflow-focused",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkUnitAutomation.ps1"
+      ]
+    },
+    {
+      "profile_id": "publication-focused",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-PlannedPublicationAccounting.ps1 -SelfTest"
+      ]
+    },
+    {
+      "profile_id": "workflow-standard",
+      "commands": [
+        "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkEnvironment.ps1 -SelfTest -Tier Standard"
+      ]
+    },
+    {
+      "profile_id": "device",
+      "commands": [
+        "Run the private serial-scoped Quest capsule declared by the current required-device unit and publish only its sanitized receipt."
+      ]
     }
   ],
   "acceptance_profiles": [
     {
       "profile_id": "inert-default",
       "commands": [
-        "Verify the selected feature and module sets are empty and the effect union contains no runtime effect."
+        "Verify default activation remains disabled and the selected UDP discovery effect still requires its explicit runtime input."
       ]
     },
     {

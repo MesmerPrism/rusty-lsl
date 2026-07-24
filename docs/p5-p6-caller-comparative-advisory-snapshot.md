@@ -1,0 +1,9 @@
+# P5–P6 Caller Comparative Advisory Snapshot
+
+This P47 candidate adds one substantive crate-private, caller-requested snapshot owner over an actual P46 `CallerRequestedFloat32ComparativeAdvisoryEvidenceHistory` and an actual P46 `MorphospaceFloat32ComparativeAdvisoryEvidenceDeltaProposal`. Through those retained owners it composes the actual P43 packages, P44 package-delta evidence, P45 comparative evidence, and P46 history/delta evidence without cloning, reconstructing, accepting, or applying a proposal.
+
+The snapshot consumes and retains both complete inputs unchanged. Its bounded observation index first records each history entry in caller order with its exact existing fact count, then records every delta fact in existing order with its exact count kind, earlier and later values, and existing checked relation. The index copies only compact facts; all nested packages, reports, evidence vectors, proposals, samples, and allocations remain owned by the original retained values. Consuming extraction returns both inputs.
+
+Three explicit nonzero bounds constrain history entries, delta facts, and total observations. Construction checks component bounds, checked-adds the total, checks the total bound, fallibly converts the total and every index, and fallibly reserves the complete index before writing it. Every bound, arithmetic, conversion, or allocation failure returns the complete history and delta proposal unchanged. No partially constructed snapshot escapes and neither input is mutated.
+
+The module is private, default-inert, advisory, and non-applying, with no root or runtime export. It infers no loss, continuity, causality, quality, health, compatibility, or policy and claims no liblsl equivalence. It grants no Manifold, session, stream, transport, control, activation, routing, admission, authorization, device, oracle, or application authority.

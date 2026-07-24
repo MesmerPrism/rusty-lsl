@@ -1,0 +1,40 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-004l-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004l-immutable-receipt-head-identity",
+  "created_at": "2026-07-17T00:45:19Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [{"repo_id":"rusty-lsl","base_revision":"10488520822a2acb06a68944111ed588d3fd26f6","head_revision":"391878222e4fd0b4ed31d4ffee2e75153a09520c","branch":"codex/rlsl-autonomous"}],
+  "changed_paths": [
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},
+    {"repo_id":"rusty-lsl","path":"README.md"},
+    {"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-004l-immutable-receipt-head-identity.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004l-begin-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004l-record-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004l-record-validation-current.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004l-standard-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_004l.ps1"},
+    {"repo_id":"rusty-lsl","path":"tools/dispatch_validation.py"},
+    {"repo_id":"rusty-lsl","path":"tools/test_dispatch_public_boundary_policy.py"},
+    {"repo_id":"rusty-lsl","path":"tools/validation-policy.json"}
+  ],
+  "artifacts": [{"artifact_id":"lslc-004l-focused-checker","kind":"validation-evidence","path":"../../tools/check_lslc_004l.ps1","sha256":"ffb6d62c5945097228821bbc22fc45e25c21126c9699406f81e3715037f10ae8"}],
+  "criteria": [
+    {"acceptance_id":"exact-head-immutable-receipt-exception","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004l.ps1","evidence_refs":["lslc-004l-focused-checker"]},
+    {"acceptance_id":"fail-closed-damaged-boundaries","status":"pass","command":"python ./tools/test_dispatch_public_boundary_policy.py","evidence_refs":["lslc-004l-focused-checker"]},
+    {"acceptance_id":"policy-and-workflow-closure","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004l-focused-checker"]}
+  ],
+  "gates": [
+    {"gate_id":"validation-source-only","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004l.ps1","evidence_refs":["lslc-004l-focused-checker"]},
+    {"gate_id":"validation-source-owner","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004l-focused-checker"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-004l-focused-checker"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-004l-focused-checker"]}
+  ],
+  "device_validation": null
+}

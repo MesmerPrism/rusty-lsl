@@ -1,0 +1,11 @@
+{
+  "$schema":"https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-descriptor.schema.json",
+  "schema":"rusty.morphospace.workflow.feature_descriptor.v1",
+  "feature_id":"string-sample","module_id":"string-sample","version":"0.1.0","owner_lane":"rusty-lsl",
+  "source":{"repo_id":"rusty-lsl","revision":"66e414077b9c3228bdbc7aa03b41d7eb6e049fec","path":"crates/rusty-lsl/src/timestamped_float32_session_runtime.rs","sha256":"beb36211f901c90805ccabca1c4d93dc8ad7e5d8db17314e5748a78a959419a2"},
+  "dependencies":["stream-handshake"],"conflicts":[],"exclusive_group":null,
+  "effects":{"permissions":[],"services":[],"activities":[],"queries":[],"tools":[],"assets":[],"shaders":[],"native_libraries":[],"commands":[],"routes":[],"streams":[],"inputs":["explicit caller StringSample capability request"],"scenes":[],"markers":[]},
+  "parameter_authorities":[{"parameter":"lsl.string-sample-capability","owner":"rusty-lsl"}],
+  "activation":{"rule":"selected-lock-and-runtime-input","runtime_inputs":["explicit caller StringSample capability request"],"receipt_schema":"rusty.lsl.string_sample.activation_receipt.v1","effective_marker":"rusty.lsl.string_sample.effective"},
+  "validation_profile":"runtime-loopback","rollback_profile":"rollback"
+}

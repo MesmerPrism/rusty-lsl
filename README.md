@@ -1,560 +1,701 @@
 # Rusty LSL
 
-LSLC-002E observes the smallest protocol-110 short-info response envelope from
-an exact official public endpoint in two bounded loopback-only cases. Each
-response starts with the canonical decimal query identifier followed by CRLF;
-the remaining bytes are one unchanged LSLC-002A-shaped XML document with its
-internal LF layout and final LF. Both extracted bodies passed LSLC-002A parsing
-and LSLC-002B typed admission. Raw artifacts and runtime values remain private.
+P68 is a release-gap correction only. It restores declared Rust 1.80
+compilation without changing floating-point bits, makes CI use complete Git
+history under `pwsh`, and requires an executing CI/Deep release review before
+handoff. P67 remains an unpublished feature-branch candidate: version `0.0.0`,
+`publish = false`, default-disabled activation, and no public-main, official
+oracle, non-loopback, host-to-Quest, release, tag, or registry claim.
 
-This observation justifies a later source-only response-envelope contract; it
-does not implement one and proves no correlation semantics, socket/discovery
-runtime, endpoint behavior, currentness, or interoperability.
+The first-hop chronology is under material pressure. P68 does not risk a broad
+mechanical rewrite; the next documentation-only maintenance unit should move
+P56-P67 narrative into `docs/history/` and retain a compact capability,
+transport, recovery, and release-boundary router here.
 
-LSLC-002D corrects the rejected LSLC-002C line-ending inference without
-rewriting its history. The canonical short-info query candidate uses CRLF after
-all three lines, making the pinned public example exactly 65 bytes. LF-only,
-mixed, missing/extra CR or LF, truncated, oversized, and noncanonical decimal
-inputs reject at their first failing byte. RST code indentation is not packet
-content.
+P65 adds a public transactional composition between exact caller-owned
+whole-session lifecycle evidence and a caller-authored advisory proposal.
+Identity/provenance, P64 execution extent, selection, lifecycle, processing,
+terminal, cleanup, recovery, loss, and health drift refuse before either value
+is published. Unknown facts remain explicit, and the successful result is
+inert data with no applying or Manifold authority. See
+`docs/p65-stream-lifecycle-advisory-composition.md`.
 
-LSLC-002C adds the first source-only protocol-110 byte-shape contract: an exact
-bounded `LSL:shortinfo` query payload with one printable-ASCII query line,
-canonical decimal nonzero return port and query identifier, and one LF after
-each of the three lines. It provides a canonical encoder and a borrowed parser
-with typed first-failure offsets. Its independently authored fixtures bind only
-the displayed example in official public LSL network-connectivity
-documentation; they are not endpoint observations or interoperability proof.
+P64 adds a public, bounded, data-only advisory composition over the exact P63
+execution observation. Caller-bound opaque identity, budget, committed-cycle
+extent, and per-cycle facts must all match before the proposal commits; drift
+returns no partial proposal. The descriptive classification neither requests
+nor causes behavior. See
+`docs/p64-requested-processing-execution-advisory.md`.
 
-The contract does not evaluate the query or interpret either numeric field and
-does not add a response shape, sockets, multicast, endpoint selection,
-discovery runtime, retries, clocks, currentness, provider evidence, activation,
-devices, or Manifold authority.
+P61 adds public transactional observability that binds completed Float32
+caller-requested timestamp processing to exact finite-recovery/cancellation and
+bounded queue/backpressure health while preserving each runtime owner.
 
-LSLC-002B consumes one accepted LSLC-002A parse and admits its decoded values
-through the existing bounded `StreamDefinition` and `StreamInfoVolatileFields`
-contracts. Only `amp`, `lt`, and `gt` are decoded; static numeric and format
-spellings remain closed. This local typed observation carries no owner witness,
-currentness, endpoint meaning, wire claim, networking, runtime, or authority.
+P60 makes caller-requested timestamp modes and bounded configuration public,
+then exposes the complete Float32 discovery/session/processing lifecycle through
+safe success, health, record, and error projections. Private transactional
+owners remain private. See `docs/p60-public-requested-timestamp-contract.md`
+and `docs/p60-public-complete-requested-processing-evidence.md`.
 
-LSLC-002A adds `ParsedStreamInfoObservedDocument`, a byte-bounded borrowed
-scanner for exactly the canonical empty-description document shape emitted by
-LSLC-001R. It checks the declaration, LF/tab layout, fixed seventeen field
-names and closing tags, represented character data, `<desc />`, root close,
-and final LF in one forward pass. Accepted state retains the unchanged source
-and a fixed array of seventeen byte ranges, with no parser-side heap
-allocation. Damaged, truncated, oversized, non-canonical, malformed-closing,
-and character-data fixtures bind deterministic first-byte errors.
+P59 extends the complete caller-named Float32 lifecycle through the public
+bounded recovery/clock/queue batch and the existing crate-owned transactional
+caller-requested report post-processing tail. Both compositions retain exact
+discovery and selection evidence, existing typed failures, committed health,
+terminal close and cleanup, and explicit default-disabled activation. See
+`docs/p59-complete-float32-batch-lifecycle.md` and
+`docs/p59-complete-float32-requested-post-processing-lifecycle.md`.
 
-This narrow local candidate is not a general XML parser, field decoder,
-endpoint/wire interoperability claim, provider, discovery, transport, runtime,
-network, feature, device, or authority surface. Run
-`./tools/check_lslc_002a.ps1` for the focused gate.
+P58 closes the remaining Float32 discovery-execution seam and adds one
+caller-explicit, format-neutral facade over all seven concrete formats. The
+facade retains each existing typed lifecycle owner and adds no ambient
+discovery, retry, codec, session, cleanup, or activation authority. See
+`docs/p58-float32-complete-discovery-lifecycle.md` and
+`docs/p58-coherent-all-format-discovery-lifecycle.md`.
 
-LSLC-001Z adds `StreamInfoThreeOwnerObservedDocument`, one bounded facade over
-accepted N and X state. It delegates unchanged to P, Q, and R and returns the
-finished observed document beside X's three separate owner witnesses. This
-removes caller orchestration only; it adds no parser, endpoint or wire claim,
-runtime activation, freshness, authorization, networking, or Manifold
+P57 completes the bounded discovery-to-session seam for Double64, Int64,
+Int32, Int16, Int8, and String. Concrete root and `runtime` entry points run
+the existing explicitly activated bounded discovery owner, apply the existing
+exact nonempty stream-name suggestion in receive order, validate the selected
+response, then delegate connection, phased transfer, canonical completion, and
+cleanup to the existing per-format session owners. Integer success retains the
+completed discovery run and selected index beside the canonical report;
+Double64 and String return their unchanged canonical reports while typed
+failures preserve discovery, selection/no-match, connection, transfer, and
+completion boundaries. There is no automatic or ambiguous selection, retry,
+background work, activation default, new codec, device, Makepad, or Manifold
 authority.
 
-LSLC-001X adds `StreamInfoThreeOwnerSnapshot`, a consuming composition of one
-accepted T, U, and V acquisition into complete S admission. It retains the
-three witnesses separately and moves the original eleven value allocations
-without comparing owner identities, epochs, or revisions. This proves no
-cross-owner atomicity/currentness, ambient acquisition, authorization,
-activation, runtime effect, networking, or Manifold authority.
-
-LSLC-001V adds `StreamInfoTransportProvider`: one explicit synchronous call
-returns all six transport-owned endpoint strings with one shared owner witness.
-`StreamInfoTransportAcquisition` retains that witness separately, matches it
-exactly, applies O's transport text maximum in fixed role order, and projects
-only the S transport lane. Endpoint text stays opaque; no interface inspection,
-parsing, sockets, network access, reachability, authorization, activation, or
-Manifold authority is added.
-
-LSLC-001U adds `StreamInfoRuntimeProvider`: one explicit synchronous call
-returns all four runtime-assigned values with one shared owner witness.
-`StreamInfoRuntimeAcquisition` retains the witness separately, matches it
-exactly, applies O's runtime text maximum in role order, and projects only the
-S runtime lane. It performs no ambient clock/environment/host acquisition.
-
-LSLC-001T adds `StreamInfoImplementationVersionProvider`, a synchronous
-caller-selected adapter contract acquiring only the implementation-owned
-version. `StreamInfoImplementationVersionAcquisition` accepts currentness only
-when bounded provider identity and owner-issued epoch/revision exactly match
-the expected witness. Its consuming projection yields one `Version`-labelled
-LSLC-001S value; complete snapshot admission remains separate. No clock, host
-inspection, selection, runtime/transport acquisition, networking, activation,
-or authority is added.
-
-`StreamInfoVolatileProviderSnapshot` admits a complete caller-supplied volatile
-snapshot through three disjoint ownership lanes before producing accepted
-`StreamInfoVolatileFields`. This is shape and bound validation only: it has no
-acquisition, freshness, address/port semantics, runtime, or authority behavior.
-
-## LSLC-001R observed stream-info document envelope
-
-`StreamInfoObservedDocument` borrows accepted LSLC-001Q state and emits one
-byte-bounded owned string using the LSLC-001H-observed declaration, LF and tab
-layout, empty `<desc />` spelling, and final LF. It leaves element values and
-the source tree unchanged and rejects unobserved childless description
-containers instead of generalizing their spelling.
-
-This specialized envelope does not retrofit or replace the compact LSLC-001G
-serializer. It proves no parsing, canonical XML, endpoint/wire equivalence,
-provider acquisition, networking, transport, runtime, or authority. Run
-`./tools/check_lslc_001r.ps1` for the focused gate.
-
-## LSLC-001Q ordered stream-info element composition
-
-`StreamInfoOrderedXml` consumes accepted LSLC-001N static-plus-description and
-LSLC-001P volatile trees into one bounded local `info` element hierarchy. Its
-direct children are the six static fields, eleven volatile fields, then
-`desc`; only description-subtree parent indexes receive the fixed eleven-node
-offset, while every component value moves unchanged.
-
-This closes local element ordering only. It does not claim the observed XML
-declaration, whitespace, self-closing empty `desc`, complete endpoint bytes,
-provider acquisition, clocks, host or identity generation, networking,
-runtime, or authority. Run `./tools/check_lslc_001q.ps1` for the focused gate.
-
-## LSLC-001P bounded volatile stream-info XML composition
-
-`StreamInfoVolatileXml` borrows accepted LSLC-001O data and produces a bounded
-local `info` tree with eleven direct volatile-field leaves in accepted order.
-Fixed names and opaque values are separately copied through the existing XML
-value, character-data, and tree contracts; the source remains unchanged.
-
-This is not a provider or complete document. It adds no static/`desc` merge,
-declaration, observed whitespace or self-closing policy, clocks, host
-inspection, identity generation, endpoint parsing, networking, runtime, or
-authority. Run `./tools/check_lslc_001p.ps1` for the focused gate.
-
-## LSLC-001O bounded volatile stream-info data
-
-`StreamInfoVolatileFields` accepts one owning input for the eleven LSLC-001H
-volatile roles in fixed observed order. Three explicit nonzero Unicode
-scalar-value maxima separate implementation-assigned `version`, runtime-assigned
-creation/identity/session/host values, and transport-owned address/port values.
-Every string, including empty or deliberately non-numeric text, remains opaque
-and allocation-preserving.
-
-This is an accepted-data surface only. It does not obtain values from a
-provider, read clocks or hosts, generate identity, parse addresses or ports,
-validate XML, build a document, open networking, activate a runtime, or own
-Manifold decisions. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001o.ps1` for the focused gate.
-
-## LSLC-001N bounded description XML composition
-
-`StreamInfoDescriptionXml` consumes an accepted LSLC-001M static tree and a
-separately accepted LSLC-001F tree whose container root is exactly `desc`.
-It moves both into one target-bounded `info` tree, placing `desc` after the six
-static leaves and preserving description hierarchy, order, absent-versus-empty
-classification, and component allocations. It does not reinterpret arbitrary
-metadata roots or claim observed document whitespace, self-closing empty
-`desc`, volatile fields, endpoint bytes, protocol, or runtime.
-
-## LSLC-001M bounded static stream-info XML composition
-
-`StreamInfoStaticXml` composes the accepted six static stream-info roles into
-one owned seven-node `XmlElementTree`. Its `info` root has direct `name`,
-`type`, `channel_count`, `channel_format`, `source_id`, and `nominal_srate`
-leaves in that exact order. The projection reuses LSLC-001L spellings and
-LSLC-001B through E contracts; the unchanged LSLC-001G serializer provides the
-tested compact explicit-tag view. It deliberately does not claim the observed
-XML declaration, whitespace, `desc`, volatile fields, complete endpoint
-document, protocol, or runtime.
-
-## LSLC-001L bounded static numeric spellings
-
-`StreamInfoStaticNumericSpellings` borrows one accepted
-`StreamInfoStaticFields` and exposes only owned `channel_count()` and
-`nominal_srate()` text. It spells the seven accepted LSLC-001H/K cases exactly:
-channel counts `1` through `7`; irregular rate `0.000000000000000`; and regular
-rates `100.0000000000000`, `59.94000000000000`, `1.000000000000000`,
-`256.5000000000000`, and `1000000.250000000`.
-
-The channel-count output is bounded to the 20 bytes sufficient for `usize` on
-supported Rust targets. Nominal-rate output is exactly 17 bytes. Regular rates
-are accepted only by exact `f64` bit identity with those five observed values;
-all others fail with `UnsupportedRegularNominalSrate` and retain the rejected
-bits. Both outputs use exact fallible reserves, and the borrowed source remains
-unchanged and reusable.
-
-This is a deliberately closed observed-case policy, not exponent, locale,
-shortest-round-trip, rounding, arbitrary fixed-decimal, or general liblsl
-formatting compatibility. It constructs no XML and assigns no `desc`, volatile
-field, runtime, protocol, wire, I/O, adapter, provider, device, or Manifold
-authority meaning. Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001l.ps1` for the focused gate.
-
-## LSLC-001K borrowed static stream-info fields
-
-`StreamInfoStaticFields` borrows one accepted `StreamDefinition` and exposes
-the six descriptor-owned semantic roles in the fixed order `name`, `type`,
-`channel_count`, `channel_format`, `source_id`, `nominal_srate`. It retains the
-original `Option<&str>` forms while separate effective accessors map only
-absence to `""`. It likewise retains `NominalSampleRate` while a separate
-numeric accessor maps only `Irregular` to positive `0.0` and preserves regular
-rate bits. All seven `ChannelFormat` variants map exactly to `float32`,
-`double64`, `string`, `int32`, `int16`, `int8`, and `int64`.
-
-The view owns only a reference: it allocates nothing, preserves borrowed pointer
-identity, leaves the definition reusable, and exposes the unchanged generic
-`MetadataTree` without assigning `desc` meaning. The separate LSLC-001K local
-results overlay binds the accepted seven LSLC-001H cases at semantic-field
-level and is backed by direct execution of the same seven-case Rust matrix,
-without changing their XML observations or full-document candidate status. The
-rolling gate also reuses the full immutable LSLC-001H semantic and provenance
-validators while retaining LSLC-001J as historical validation-only evidence.
-XML and numeric spelling, volatile runtime fields, protocol, transport, I/O,
-adapters, providers, devices, and Manifold authority remain out of scope.
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File
-./tools/check_lslc_001k.ps1` for the focused gate.
-
-## LSLC-001J shallow-checkout protected-surface correction
-
-GitHub Actions runs `29276386135` and `29278122366` are preserved as distinct
-failed pre-fix attempts. The latter passed all 134 Rust tests and LSLC-001A
-through LSLC-001G before the focused checker tried to compare against historical
-revision `9650de4`, which was unavailable in the depth-1 checkout.
-
-LSLC-001J removes that history dependency while retaining an exact accepted
-identity. The checker hashes the binary stdout of `git ls-tree -r --full-tree
-HEAD` for the Rust crate, both Cargo files, `morphospace/feature.lock.json`, and
-`morphospace/project.spec.json`. Exactly 21 path/mode/object entries and SHA-256
-`ee776163e904ea3c6eb336dd1855d12f0def3e257634272e0c33e7b6e784d8e1` are
-accepted. Independent checks reject staged and unstaged protected changes and
-all untracked paths under those roots. Disposable local shallow clones prove a
-one-commit pass with `9650de4` absent and deterministic worktree, index,
-untracked-path, and exact-manifest failures.
-
-This validation-only correction performs no fetch, unshallow, network access,
-oracle execution, or protected implementation inspection. It changes no Rust
-or Cargo surface, feature or project lock, observation, driver, capture,
-candidate behavior, runtime effect, dependency, platform behavior,
-compatibility claim, publication status, or authority boundary. LSLC-001I
-canonical LF/complete-CRLF driver validation remains unchanged.
-
-## LSLC-001I checkout-portable driver provenance
-
-GitHub Actions run `29276386135` preserved a failed pre-fix integration
-attempt in which a Windows checkout materialized the LF-bound LSLC-001H driver
-sources as complete CRLF. LSLC-001I repairs only that source-validation
-boundary: the focused checker reads current working-tree bytes, accepts either
-complete LF or byte-equivalent complete CRLF, and hashes canonical LF bytes
-against the two unchanged recorded SHA-256 values. It rejects mixed LF/CRLF,
-lone carriage returns, and any non-line-ending content mutation. Deterministic
-in-memory checks cover both accepted materializations and all damaged forms for
-each bound driver.
-
-The provenance entries now state the digest basis as
-`canonical-lf-source-bytes`. Canonicalization replaces only CRLF pairs with LF;
-it performs no trimming, decoding, or other byte normalization. No oracle
-driver, accepted observation, raw capture digest, normalization operation,
-external identity, candidate behavior, dependency, runtime effect, or
-authority boundary changes, and the external oracle is not rerun. Use
-`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001h.ps1`
-for the focused validation.
-
-## LSLC-001H pinned StreamInfo XML observation
-
-LSLC-001H records seven bounded synthetic `StreamInfo.as_xml()` black-box
-cases from the official Windows AMD64 `pylsl 1.18.2` wheel (SHA-256
-`3ea2693417c7d79766cebf967250fde78aa1a3ad2b198e40246d36f549dbfde1`),
-public liblsl library version `117`, and native DLL SHA-256
-`8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff`.
-The run used CPython 3.12.10 AMD64, called no discovery/network API, and
-created no outlet or inlet.
-
-Across all seven data-only formats, the direct `info` order was
-`name`, `type`, `channel_count`, `channel_format`, `source_id`,
-`nominal_srate`, the runtime/misc fields, then `desc`. Serialization
-contained inter-element whitespace; an empty description was `<desc />`;
-rates used fixed 16-significant-digit decimal spellings; formats were
-`float32`, `double64`, `string`, `int32`, `int16`, `int8`, and
-`int64`. In caller character data, `&`, `<`, and `>` appeared as
-`&amp;`, `&lt;`, and `&gt;`; quotes, apostrophes, and Unicode stayed
-literal, and `]]>` appeared as `]]&gt;`. Ordered nested metadata remained
-under the final `desc`.
-
-Raw XML and native diagnostics remain external because they can contain
-machine/runtime values. The committed exact public XML replaces only the
-character data of ten runtime/session/host/address/port fields, with every
-raw byte range recorded. The frozen LSLC-001A corpus remains byte-identical
-and unresolved candidate evidence remains `not-observed`. This observation
-does not implement candidate XML, StreamDefinition mapping, protocol, wire,
-runtime, broad compatibility, or stream authority.
-
-## LSLC-001G bounded element-tree serialization
-
-`XmlElementSerialization::serialize` borrows an accepted `XmlElementTree` and
-returns one byte-bounded owned UTF-8 `String`. Fixed local policy emits explicit
-start and end tags for every node, inserts no whitespace, visits container
-children depth-first with siblings in ascending original arena index, and
-copies accepted `XmlCharacterData` verbatim without decoding or re-escaping.
-Exact checked length and limit rejection precede one exact fallible traversal-
-frame-stack reserve and one exact fallible output reserve. The frames index
-direct-child and next-sibling links once, so traversal is linear in node count.
-The source remains owned by the
-caller; accepted output exposes only its limit, borrowed text, and
-allocation-preserving consuming access.
-
-This local string projection is not a complete XML or LSL stream-info
-document. It assigns no `info` or `desc` role, field mapping, endpoint or
-official-liblsl behavior, round-trip claim, protocol, wire, I/O, runtime,
-adapter, provider, or authority meaning. Run
-`powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_001g.ps1`
-for the focused gate.
-
-Rusty LSL is an independently authored Rust implementation of Lab Streaming
-Layer compatibility. It is designed for the existing LSL ecosystem and for
-explicit, typed integration with Rusty Morphospace.
-
-Status: source-only crate with dependency-free bounded local contracts through
-LSLC-001R. Accepted evidence now includes the frozen LSLC-001A specification
-corpus and the separate LSLC-001H pinned black-box observations; accepted local
-candidate surfaces include XML values, character-data representation, element
-composition/tree/serialization, static and explicit-description stream-info
-composition, bounded volatile data and XML composition, compact ordered
-elements, and a separate observation-bound document envelope. The historical STRM-000
-results remain `not-implemented`, LSLC-001A's own oracle/candidate cells remain
-`not-observed`, and LSLC-001H's complete-document candidate result remains
-`not-observed`. No LSL
-protocol, wire, runtime, operational, or ecosystem compatibility is implemented
-or claimed.
-
-LSLC-001B adds separate validated nonzero Unicode scalar-value limits for
-`XmlText` and `XmlElementName`. `XmlText` may be empty and accepts exactly the
-XML 1.0 Fifth Edition `Char` production. `XmlElementName` is nonempty and
-accepts the complete `NameStartChar` and `NameChar` productions. Typed errors
-retain deterministic expected/actual counts or the first rejected scalar's
-zero-based index and code point. Accepted values expose their limit, borrowed
-text, and consuming `String` access while preserving the original allocation
-and exact contents.
-
-Ampersand, less-than, greater-than, and caller text containing `]]>` remain
-unchanged accepted values. Colon is accepted name syntax only and grants no
-namespace meaning. This slice adds no escaping, entity or CDATA policy,
-parsing, serialization, byte output, document assembly, LSL field mapping,
-protocol, transport, wire, runtime, or compatibility behavior.
-
-LSLC-001C separately borrows an accepted `XmlText` and produces
-`XmlCharacterData` under a fixed candidate-owned policy: `&`, `<`, and `>`
-become `&amp;`, `&lt;`, and `&gt;`; every other legal scalar remains byte-for-byte
-unchanged in UTF-8. Thus `&<>]]>` becomes `&amp;&lt;&gt;]]&gt;` and `&amp;` becomes
-`&amp;amp;`. Global greater-than escaping is local policy, not observed liblsl
-behavior.
-
-`XmlCharacterDataLimit` is a nonzero encoded UTF-8 byte maximum. Encoding
-calculates the exact length with checked arithmetic, rejects output exceeding
-the maximum before allocation, reserves fallibly, and returns typed overflow,
-limit, or allocation errors in that order. Private accepted state exposes `limit()`, `as_str()`, and
-allocation-preserving `into_string()`. This does not add an XML element,
-attribute, document, parser, decoder, generic entity engine, CDATA-section, LSL
-mapping, protocol, wire, transport, adapter, provider, or runtime API.
-
-LSLC-001D adds `XmlLeafElement`, an infallible composition of exactly one
-accepted `XmlElementName` and one accepted `XmlCharacterData`. Construction
-moves both components directly into private state. Borrowed `name()` and
-`character_data()` access and consuming `into_parts()` preserve their limits,
-exact contents, and owned string allocations without cloning, allocation,
-revalidation, re-encoding, normalization, or interpretation.
-
-The value is leaf-only contract state, not tag syntax or a serialized XML
-element. It adds no raw-string entrypoint, start/end/empty-element spelling,
-attributes, children, mixed content, parent, root, tree, or document structure,
-namespace meaning, parser, serializer, raw bytes, metadata-tree or stream-info
-mapping, protocol, wire, runtime, or compatibility claim. Colon remains name
-syntax only, and global greater-than escaping remains LSLC-001C local candidate
-policy rather than observed liblsl behavior.
-
-The architecture keeps LSL interoperability at a data-plane edge:
-
-- Rusty LSL owns LSL-compatible metadata, discovery, samples, clocks, recovery,
-  and backend-neutral Rust APIs.
-- Rusty Manifold remains the authority for accepted Morphospace streams,
-  subscriptions, routes, leases, revisions, and audit.
-- Platform and operator adapters remain outside this repository.
-- Deeper Morphospace hooks emit observations and proposals; they do not bypass
-  the owning authority.
-
-Project-owned public source is licensed `AGPL-3.0-or-later`. Official liblsl
-is an MIT-licensed interoperability oracle, not a source template. rLSL source
-is not an implementation input.
-
-CORE-001 implements only local Rust contract semantics: validated nonzero
-limits, atomic construction, deterministic bound and channel-mismatch errors,
-and preservation of accepted caller-provided values. It adds no XML, protocol,
-transport, runtime, or authority behavior. CORE-002 adds finite raw source
-timestamps, separately typed optional derived timestamp values explicitly
-classified as `ClockCorrected` or `Smoothed`, timestamped samples, and chunks
-with explicit maximum sample and channel counts. Those kinds classify only
-caller-provided values; they do not implement either algorithm. Accepted
-floating-point bits, sample values, per-sample timestamp pairing, and order are
-preserved. Valid nonzero limits accept an empty bounded chunk. Non-finite
-timestamps, zero maxima, one-past maxima, and inconsistent sample shapes return
-typed deterministic errors. This local slice does not read clocks or calculate
-correction, dejittering, smoothing, interpolation, or sample-rate-derived
-timestamps.
-
-CORE-003 adds a bounded descriptor with a required nonempty stream name,
-optional bounded opaque text for content type and source correlation, a
-positive bounded channel count, an explicit nominal sample rate, and one of
-exactly seven data-only channel formats. All text maxima count Unicode scalar
-values. Accepted name, content type, and source correlation text is preserved
-exactly without trimming, case folding, normalization, inference, or
-reordering. Optional source correlation remains caller data only; it is not a
-global identity, outlet UID, discovery or recovery decision, route,
-permission, admission, or Morphospace/Manifold authority.
-
-`NominalSampleRate` is explicitly irregular or a validated finite positive
-regular-Hz value that preserves its accepted floating-point bits. It does not
-read clocks, measure, schedule, enforce, interpolate, or derive rates.
-`ChannelFormat` names `Float32`, `Double64`, `String`, `Int32`, `Int16`, `Int8`,
-and `Int64`; these variants have no protocol or wire numeric discriminants and
-do not size, encode, decode, or convert samples. CORE-003 adds no XML,
-metadata-tree queries or mutation, discovery, networking, transport, buffering,
-runtime identity, adapters, FFI, or external authority.
-
-CORE-004 adds an unvalidated flat node-input type and atomically constructs a
-bounded `MetadataTree`. Exactly one root is required at index zero, root depth
-is one, and every later node must name a parent index strictly less than its own
-index. Nonzero limits bound total nodes, depth, direct children per node, name
-Unicode scalar values, and optional value Unicode scalar values. Names are
-required and nonempty. Optional values preserve `None` versus `Some("")`.
-Accepted node order, parent indices, names, and values are retained exactly in
-private accepted fields with read-only accessors. Storage, validation, and
-inspection are flat and iterative, with no recursive public ownership or
-recursive validation/traversal.
-
-CORE-004 adds no XML syntax, parser, serializer, namespace, attribute, entity,
-schema, query, mutation, document assembly, protocol, wire, discovery,
-networking, transport, runtime, clock, provider, adapter, or authority behavior.
-Its tests prove only the named local Rust contract semantics.
-
-CORE-005 adds a separate descriptor/sample binding module. Its public
-unvalidated input family contains exactly seven homogeneous representations:
-`Sample<f32>`, `Sample<f64>`, `Sample<String>`, `Sample<i32>`, `Sample<i16>`,
-`Sample<i8>`, and `Sample<i64>`, mapped one-to-one to the existing data-only
-`ChannelFormat` values. Construction reuses the validated `Sample<T>` and
-`StreamDescriptor` contracts, requires the descriptor's exact format and
-channel count, and stores only a compact validated shape snapshot rather than
-copying the full descriptor.
-
-An explicit nonzero limit bounds each String channel by Unicode scalar values.
-Empty strings and all accepted text remain exact. Numeric values remain in
-order and preserve exact integer values and floating-point bits, including
-signed zero and chosen NaN payloads. CORE-005 performs no conversion, casting,
-parsing, formatting, normalization, inference, byte sizing, encoding, decoding,
-endianness, wire mapping, or runtime action.
-
-CORE-006 adds a separate timestamped descriptor/sample composition whose
-public unvalidated input family contains exactly seven homogeneous
-`TimestampedSample<T>` variants corresponding to the existing data-only
-formats. Construction moves the timestamped sample apart once and delegates
-the unchanged sample to `BoundDescriptorSample::new`, preserving CORE-005
-format, descriptor/sample channel-count, String Unicode-scalar validation,
-error payloads, and format → channel-count → String-bound precedence.
-
-Accepted state privately owns the resulting binding plus the mandatory raw
-source timestamp and optional derived timestamp evidence. It preserves raw
-source timestamp bits, optional derived `None` versus `Some`, derived kind and
-bits, sample values and order, and their exact pairing without cloning or
-recalculation. This composition reads no clock and performs no timestamp
-derivation, correction, smoothing, dejittering, interpolation, sorting,
-rewriting, scheduling, buffering, conversion, encoding, transport, protocol,
-wire, or runtime action.
-
-CORE-007 adds a separate timestamped descriptor/chunk composition whose public
-input family contains exactly seven homogeneous `TimestampedChunk<T>` variants.
-It rejects an empty existing chunk before delegation, retains the original
-chunk limits exactly, and moves every sample in caller order exactly once
-through `BoundTimestampedDescriptorSample::new`. Accepted private state owns
-only those original limits and the ordered CORE-006 bindings. The first
-delegated failure reports its zero-based sample index and unchanged
-`DescriptorSampleError`.
-
-This local non-empty requirement is not a claim about actual LSL empty-chunk
-compatibility. CORE-007 performs no clock read or timestamp algorithm, sorting,
-rewriting, splitting, merging, rechunking, buffering, queueing, scheduling,
-conversion, encoding, XML, discovery, networking, transport, protocol, wire,
-or runtime action.
-
-CORE-008 adds a focused `StreamDefinition` aggregate that moves one already
-validated `StreamDescriptor` and one already validated `MetadataTree` directly
-into private accepted state. Borrowed `descriptor()` and `extended_metadata()`
-accessors and consuming `into_parts()` preserve both complete components,
-including their limits, exact optional text forms, nominal-rate bits, channel
-format, flat node order, parent indices, Unicode names, and optional values.
-The infallible constructor adds no error or limit family, allocation, clone,
-normalization, inference, or cross-component validation.
-
-The generic metadata-tree root gains no LSL `desc`-element meaning. This slice
-adds no XML/document assembly, channel metadata convention, runtime identity,
-version, creation time, UID, session, host, address, port, fingerprint,
-recovery, discovery, networking, clock, buffering, provider, adapter,
-authority, protocol, wire, or runtime behavior.
-
-LSLC-001A adds a separate provenance-locked corpus of independently worded
-public-documentation claims and bounded future test roles. It covers the
-documented stream-info top-level, core, extended-description, and runtime/misc
-roles plus the XML 1.0 legal-character and character-data constraints named in
-[`docs/CORPUS.md`](docs/CORPUS.md). It contains no XML payload, endpoint output,
-parser, serializer, or observed compatibility result. Exact serialization is
-unresolved pending a separately approved black-box oracle unit.
-
-The separate STRM-000 baseline
-continues to distinguish independently authored specifications, planned
-black-box observations, and measured results; only the first exists today. See
-[`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md),
-[`docs/ORACLE.md`](docs/ORACLE.md), and the deterministic public fixtures under
-[`fixtures/compatibility/`](fixtures/compatibility/README.md).
-
-Development is bounded by the public project-local control surface under
-[`morphospace/`](morphospace/README.md). Its lock selects no feature or module
-and permits no runtime effect. CORE-008 bounds this local implementation and
-validation slice without asserting a particular workflow lifecycle state. The
-separate CORE-001 and CORE-002 overlays, the separate CORE-003 and CORE-004
-local-results overlays, and the separate CORE-005, CORE-006, CORE-007, and
-CORE-008 local-results overlays report only local Rust contract tests. Activity
-and local unit-test results are not LSL interoperability or runtime evidence.
-
-LSLC-001E adds a dependency-free bounded parent-before-child hierarchy over
-accepted XML components. `XmlElementNodeValue` contains either a name-only
-container or an accepted `XmlLeafElement`; index zero is the sole root, every
-later parent is strictly earlier and a container, and root-one depth and direct
-child counts are checked iteratively.
-
-`XmlElementTreeLimits` bounds nodes, depth, children per container, and retained
-UTF-8 bytes. Retained bytes are the checked sum of owned container names, leaf
-names, and represented character data; they are an arena resource count, not
-serialized or wire size. Validation fallibly reserves one private scratch
-`Vec`. Accepted `XmlElementTree` state keeps the original caller node vector
-and component allocations, provides read-only inspection and consuming
-recovery, and exposes neither mutable access nor `Clone` on owning candidate
-node, value, or tree types.
-
-The hierarchy is not a complete XML tree or document and assigns no mixed
-content, tag spelling, serialization order, raw bytes, parser, mutation,
-`MetadataTree` conversion, `info`/`desc` role, stream-info mapping, endpoint,
-protocol, wire, runtime, authority, or compatibility meaning.
-
-LSLC-001F adds
-`project_metadata_tree_to_xml_element_tree(source, limits)` as the sole public
-projection. It consumes an accepted `MetadataTree`; maps `None` to a
-name-only container and every `Some`, including empty text, to a represented
-leaf; preserves node order, parent indexes, root identity, and name `String`
-allocations; and delegates a distinct fallibly reserved candidate arena to
-`XmlElementTree`. `MetadataXmlProjectionLimits` contains only caller-selected
-accepted XML name, text, character-data, and element-tree limits.
-
-Target node count rejects before the first child whose parent is
-value-bearing, then output reservation precedes per-node name, optional text,
-and character-data validation. Final hierarchy errors are retained unchanged.
-This partial local classification is one-way only: there is no borrowed or
-reverse conversion, `From`/`TryFrom` or default policy, decoding, logical-text
-recovery, round-trip claim, document production, stream-info or LSL mapping,
-endpoint representation, protocol, wire, runtime, or compatibility behavior.
+The concrete selected-discovery Float32 session-batch facade preserves one
+caller-selected response and receive-order index through strict endpoint
+projection, the sole phased Float32 session, and its canonical completed
+report. The report's actual extent then enters the existing recovery, clock,
+and queue batch owner; success or owner-preserving failure exposes only borrowed
+exact health. This adds no lifecycle, policy, allocation, activation, device,
+oracle, Makepad, or Manifold authority.
+
+The bounded chunk surface has concrete root and `runtime` entry points for all
+seven declared formats. These thin facades consume caller-owned timestamped
+chunks only within each format's already accepted session shape and record
+bounds, returning concrete ordered outlet or inlet reports. Float32 preserves
+its existing exact two-record adapter; Double64 and the signed integer formats
+remain limited to 1x1 and 2x3, while String remains 1x1 with values of 0 through
+129 UTF-8 bytes. The private lifecycle and sealed codecs retain all transfer,
+allocation, cancellation, deadline, terminal-close, and cleanup ownership.
+Runtime activation remains revision 34, explicit, and default-disabled.
+
+The frozen Int64 selected-discovery surface exposes concrete root and
+`runtime` facade entrypoints for caller-selected connect and complete-run
+operations, plus their typed error. It preserves the existing endpoint,
+selected-response contract, preflight, lifecycle, and activation owners; it
+adds no discovery execution, selection policy, retry, recovery, device, or
+Manifold authority, and activation remains explicit and default-disabled.
+
+The native Int64 bounded-session surface is deliberately closed to signed
+64-bit values encoded little-endian and to exactly the accepted 1x1 and 2x3
+shapes. Concrete public inlet/outlet facades remain thin adapters: the sole
+crate-private format-neutral lifecycle owns connection, progress, completion,
+terminal close, and cleanup, while one sealed crate-private Int64 codec owns
+the exact eight-byte framing. Damage, cancellation, and deadline remain typed
+and distinct; every terminal path retains cleanup and immediate reuse. This
+adds no generic public codec or lifecycle, broader shape or format, discovery,
+automatic policy, device/oracle or official-compatibility claim, activation
+authority, command path, or Manifold authority. Activation remains explicit
+and disabled by default.
+
+The concrete Float32 report-batch health projection borrows either the
+successful batch outcome or the owner-preserving batch error and returns an
+immutable snapshot; it does not move, clone, or reinterpret retained records,
+failures, or recovery states. The snapshot reports exact total, completed, and
+remaining counts, the current zero-based index only when the batch error has
+one, and exactly one of `complete`, `empty-report`, `cancelled`, `deadline`,
+`terminal`, `exhausted`, `recovery-error`, `pipeline-error`, or `invariant`.
+Classification follows the existing batch result variant first, the existing
+termination variant second, and exact retained lengths last. It estimates no
+packet loss and adds no threshold, monitoring, recovery, queue, format,
+activation, device, oracle, or Manifold policy or authority.
+
+One private allocation-free selected-response contract now validates concrete
+format, channel count, UID, hostname, source ID, and session ID before session
+preflight and TCP. Six concrete Float32, Double64, Int32, Int16, Int8, and
+String adapters use that owner while retaining caller selection and the
+existing format-specific lifecycle, codec, allocation, and report owners.
+Activation remains explicit and disabled by default.
+
+The bounded String discovery composition connects one caller-selected completed
+typed discovery response to the existing phased String inlet owner. It keeps
+strict endpoint, exact 1x1 preflight, and session error precedence; the
+accepted 0..=129 UTF-8-byte envelope, lifecycle, allocation, cleanup, and
+explicit default-disabled activation retain their existing owners.
+
+The bounded integer discovery composition exposes concrete Int32, Int16, and
+Int8 entrypoints from one caller-selected completed typed discovery response
+to the existing phased connected inlet owners. It preserves endpoint,
+preflight, and session error precedence and admits only the evidenced 1x1 and
+2x3 shapes. Discovery policy, selection, identity, lifecycle, allocation, and
+activation retain their existing owners; activation remains explicit and
+default-disabled.
+
+The concrete Int32, Int16, and Int8 sessions now expose accepted-outlet and
+connected-inlet phases for only the accepted one-channel/one-record and
+two-channel/three-record shapes. Callers may advance the sole private cursor,
+consume exact completion into the existing reports, or close without a report;
+legacy finish delegates through the same owners. Sealed typed integer
+strategies preserve exact width, bits, little-endian framing, record/channel
+order, and the inlet's sole received-record allocation without retaining a
+second projected collection. Activation remains explicit and disabled by
+default.
+
+The accepted one-channel, one-record String session now exposes concrete
+accepted-outlet and connected-inlet owners. Callers may advance the sole record,
+consume exact completion into the existing report, or close without a report;
+legacy finish delegates through the same private format-neutral lifecycle and
+sealed String codec. The 0 through 129 UTF-8-byte envelope, received allocation,
+typed damage/cancellation/deadline behavior, cleanup, and explicit
+default-disabled activation remain unchanged.
+
+A caller-selected completed typed UDP discovery response can now enter the
+existing concrete phased Double64 inlet for only the accepted one-channel/
+one-record and two-channel/three-record shapes. The caller retains the
+receive-order index, discovery run, identity, limits, cancellation, and
+activation; strict endpoint projection and the existing Double64 preflight,
+connect, lifecycle, and canonical report remain the sole owners. Existing
+endpoint, preflight, and session errors remain distinct and unchanged. No
+discovery, ranking, retry, shape, report, error, codec, lifecycle, socket, or
+activation authority is added.
+
+The two already evidenced Double64 shapes now expose concrete accepted-outlet
+and connected-inlet owners for caller-driven record transfer, exact completion,
+or report-free close. They delegate cursor, initialization, codec, allocation,
+completion, and cleanup to the sole private format-neutral lifecycle; legacy
+whole-session entrypoints continue through the same owners. Activation remains
+explicit and default-disabled.
+
+A caller-selected typed UDP discovery response can now be projected into the
+existing concrete connected Float32 inlet owner without consuming the whole
+session. The caller retains discovery and selection inputs and drives phased
+transfer, completion, or report-free close; the legacy whole-session adapter
+delegates through the same path.
+
+The bounded homogeneous Float32 session now exposes record-at-a-time transfer
+on its existing accepted/connected concrete owners. The sole private phased
+lifecycle still owns initialization-once, the exact cursor, successful-only
+advancement, overrun rejection before I/O, consuming completion, terminal
+close, and allocation-owned inlet records. One-shot and exact two-record chunk
+facades continue through the same owner; activation remains explicit and
+default-disabled.
+
+The sole crate-private format-neutral lifecycle now owns one-time initialization,
+the exact bounded record cursor, per-record successful advancement, and
+exact-count completion. The exact one-channel/two-record Float32 chunk facade
+is the first public phased proof, with accepted/connected stream owners,
+canonical consuming reports, and report-free close/drop.
+
+The bounded Float32 outlet session now exposes a caller-explicit accepted
+state between preflight and its canonical consuming completion report. The
+same private lifecycle owner retains the connected stream, supports report-free
+close, and remains the path used by legacy one-shot finish.
+
+The bounded Float32 inlet session also exposes a caller-explicit connected
+state between preflight and its canonical consuming completion report. This is
+the same private lifecycle owner used by the legacy one-shot finish path.
+
+The exact one-channel, two-record Float32 chunk path now has consuming public
+session facades that preserve canonical lifecycle reports and allocation-owned
+records while keeping the established compatibility entrypoints unchanged.
+
+Validated format-neutral session shape and successful completion facts remain
+crate-private beneath the existing concrete typed facades. LSLC-007M does not
+widen accepted String or numeric shapes, public APIs, or runtime activation.
+
+The concrete String outlet/inlet session facade admits only one channel and one
+caller record containing 0 through 129 UTF-8 bytes. It preflights before I/O,
+returns consuming completed reports, and uses the same private lifecycle and
+sealed String strategy as the legacy entrypoints; activation remains explicit
+and disabled by default.
+
+Concrete Int32, Int16, and Int8 session facades cover the evidenced one-record
+and two-channel/three-record shapes. They preflight before I/O and complete
+through the same private lifecycle engine as the existing Float32, Double64,
+and String paths; activation remains explicit and disabled by default.
+
+The production runtime now exposes a bounded discovery-independent Float32
+recovery → clock-correction → queue pipeline. Callers retain acquisition,
+policy, activation, clock, queue, and distinct cancellation ownership; runtime
+activation remains explicit and default-disabled.
+
+One concrete batch adapter consumes every record retained by a completed
+Float32 inlet report, using `record_count()` as the exact batch extent. It
+delegates records sequentially to the sole recovery/clock/queue owner. Each
+successful record allocation transfers to the caller-owned queue; completion
+and failure results retain indexed completed-prefix, current-record, and
+untouched-suffix evidence without introducing automatic policy, another
+format, or activation authority. The legacy one-record adapter remains public.
+
+The accepted Float32, Double64, integer, and String paths now share one
+format-neutral crate-private bounded session lifecycle engine. Their sealed
+format strategies preserve existing framing, errors, and public adapters;
+activation remains explicit and default-disabled.
+
+Rusty LSL is being developed into a production-quality, independently authored,
+pure-Rust Lab Streaming Layer implementation for Rusty Morphospace. The current
+priority is one coherent native outlet/inlet lifecycle and shared bounded
+record/chunk engine, followed by general stream shapes, discovery and
+connection lifecycle, clocks/buffering/recovery, typed advisory Morphospace
+integration, host/Quest qualification, and stable promotion.
+
+Every runtime remains default-disabled and requires the accepted lock plus an
+explicit caller runtime input. Rusty LSL emits typed observations and proposals;
+Manifold retains admission, routing, lease, authorization, revision, and audit
+authority. Compatibility work is scheduled when it validates the production
+runtime; speculative ecosystem breadth is secondary.
+
+The first production vertical's explicit Float32 outlet/inlet roles and
+caller-bounded homogeneous channel and record shapes remain public facades
+over the format-neutral lifecycle. Its codec remains sealed and subordinate.
+Legacy one-record and two-record functions remain thin adapters.
+
+The same sole lifecycle now has a sealed Double64 strategy for exactly the
+evidenced one-channel/one-record and two-channel/three-record shapes. Public
+Double64 sessions own consuming completion reports, and the older fixed-width
+Double64 functions adapt into them. Int32, Int16, and Int8 now use sealed
+strategies beneath that same lifecycle for only the accepted one-by-one and
+two-by-three shapes; their existing fixed-width functions remain thin facade
+adapters. This does not claim arbitrary shapes or official interoperability.
+
+A caller may now borrow one completed typed UDP discovery run, explicitly
+select a response, project its strict IPv4 service endpoint, and enter the sole
+bounded Float32 inlet session. It may retain the concrete connected owner for
+phased transfer or use the whole-session delegate. Discovery execution and
+selection policy remain caller-owned.
+
+See [Production Roadmap](docs/LSL-PRODUCTION-ROADMAP.md) for the completion
+definition and next production slice. Detailed accepted unit history remains in
+[LSLC Work-Unit History](docs/history/LSLC-WORK-UNIT-HISTORY.md); the notes below
+are preserved historical routing, not the current schedule.
+
+LSLC-006E adds test-only deterministic conformance for the accepted
+recovery-to-clock-correction-to-queue composition: recovery cancellation
+precedes classification, clock work, and queue admission, while clock
+cancellation retains the exact recovered record and recovery states before
+queue admission. It changes no production behavior, recovery policy, clock
+provider/domain, queue policy, activation, compatibility claim, device
+behavior, or Manifold authority.
+
+LSLC-006D adds test-only deterministic conformance for the accepted
+one-channel, two-record Float32 chunk runtime: nontrivial exact timestamp/value
+bits, ordered ownership, terminal/deadline/cancellation separation, cleanup,
+and immediate port reuse. It changes no production behavior, chunk breadth,
+activation, compatibility claim, device behavior, or Manifold authority.
+
+LSLC-006C adds test-only deterministic conformance for the accepted UDP
+discovery runtime and truthfully rebinds the exact LSLC-004U/004V validation
+closure: receive-order preservation, exact source/query identity, consuming
+response allocation ownership, pre-cancellation precedence, and caller-selected
+port cleanup. It changes no production behavior, discovery policy, parsing,
+selection, activation, compatibility claim, device behavior, or Manifold
+authority.
+
+LSLC-006A adds test-only deterministic conformance for the accepted runtime
+activation receipt authority: canonical receipt identity across caller order,
+exact lock and consumer binding, capability-marker agreement, and rejection
+without partial authority. It changes no production behavior, accepted lock,
+activation breadth, compatibility claim, device behavior, or Manifold
+authority.
+
+LSLC-005Z corrects only the LSLC-005Y Cargo target shape by moving its
+unchanged assertion into the permitted `public_api` target and removing the
+standalone target. It changes no production behavior, provider policy,
+compatibility breadth, device behavior, or Manifold authority.
+
+LSLC-005Y adds test-only external conformance for accepted runtime acquisition
+parts: borrowed witness/value access and consuming preservation of the exact
+witness and all four original value allocations. It changes no production
+behavior, provider policy, compatibility breadth, device behavior, or
+Manifold authority.
+
+LSLC-005X adds `witness`, `values`, and allocation-preserving `into_parts`
+access to the accepted transport provider output. It adds no provider,
+acquisition policy, runtime behavior, compatibility breadth, device behavior,
+or Manifold authority.
+
+LSLC-005W corrects only the LSLC-005V Cargo target shape by moving its
+unchanged evidence-limit assertions into the permitted `public_api` target and
+removing the standalone target. It changes no production behavior, provider
+policy, compatibility breadth, device behavior, or Manifold authority.
+
+LSLC-005V adds test-only external conformance for the accepted transport
+provider evidence-limit contract: exact nonzero bound retention,
+Unicode-scalar identity counting, typed rejection payloads, and
+identity-mismatch precedence. It changes no production behavior, provider
+policy, compatibility breadth, device behavior, or Manifold authority.
+
+LSLC-005U corrects only the LSLC-005T Cargo target shape by moving its
+stateful-acquisition assertions under the repository-permitted `public_api`
+integration-test target and removing the standalone target. The assertions and
+test-only claim boundary are unchanged; production behavior, provider policy,
+transport, activation, compatibility breadth, devices, and authority remain
+unchanged.
+
+LSLC-005T adds test-only sequential stateful-acquisition conformance for the
+existing transport provider. It verifies isolation across accepted, typed
+provider-error, typed value-error, recovery, and exhaustion outcomes while
+preserving earlier accepted values, without changing production behavior,
+provider policy, transport, activation, compatibility breadth, devices, or
+authority.
+
+LSLC-005S provides bounded Rust-on-Quest conformance for the accepted
+one-channel, two-record Float32 chunk runtime. The exact clean Rusty LSL source
+executes the ordered exchange inside Rust over `127.0.0.1`, preserves both
+timestamp/value bit pairs, and releases its TCP port immediately. Android Java
+owns lifecycle only. This adds no arbitrary chunking, production behavior,
+activation, official/non-loopback compatibility, device breadth, or authority.
+
+LSLC-005R adds test-only deterministic conformance for the existing transport
+provider. It verifies one-call acquisition, mismatch precedence, typed value
+ownership, original allocation preservation, fixed role order, and repeated
+determinism without changing production behavior, provider policy, transport,
+activation, compatibility breadth, devices, or authority.
+
+LSLC-005Q adds test-only deterministic conformance for the existing
+three-owner stream-info snapshot. It verifies caller-selected acquisition
+order, separate provider-error ownership, allocation preservation, delegated
+limits, and repeated no-cross-owner composition without changing production
+behavior, provider policy, transport, activation, compatibility breadth,
+devices, or authority.
+
+LSLC-005O updates only the exact LSLC-004V validation hash for the accepted
+LSLC-005N typed response projection. It changes no production behavior, gate
+inventory, fixture meaning, compatibility breadth, or activation.
+
+LSLC-005N adds test-only deterministic typed UDP discovery-response projection
+conformance for exact UTF-8 positions, envelope-error ownership, repeated
+exact-boundary acceptance, and complete IPv6 source preservation. Production
+behavior, parsing, I/O, selection, activation, and compatibility breadth are
+unchanged.
+
+LSLC-005M adds test-only deterministic damaged-response and lifecycle
+conformance for the existing integrated clock-correction owner; it changes no
+production behavior, policy, activation, or compatibility claim.
+
+LSLC-005L provides a second bounded Rust-on-Quest proof: the exact accepted
+one-channel, one-record Float32 handshake/sample runtime executes inside Rust
+on Quest over `127.0.0.1`, preserving exact timestamp/value bits and releasing
+its TCP port for immediate reuse. Android Java owns lifecycle only. This does
+not widen production behavior, activation, non-loopback or official
+compatibility, supported shapes, device breadth, or authority.
+
+LSLC-005K strengthens only test coverage for the existing finite
+recovery-to-clock-correction-to-bounded-queue composition. Its deterministic
+twelve-cycle host soak exercises retry, queue pressure and cancellation,
+terminal/cancel bypass, exact timestamp/value ownership, repeated teardown,
+and immediate TCP/UDP port reuse without changing production behavior,
+activation, compatibility breadth, devices, or authority.
+
+LSLC-005J strengthens only test coverage for the existing exact two-channel,
+three-record Double64, Int32, Int16, and Int8 loopback runtime. It exercises
+per-width truncation, width-shift damage, cancellation versus deadline,
+repeated teardown, and immediate port reuse without changing production bytes,
+runtime breadth, activation, device behavior, or authority.
+
+LSLC-005I adds one bounded, capability-gated IPv4-loopback runtime for exactly
+one channel and two Float32 caller records. It reuses the accepted one-record
+codec and initialization owner and preserves typed marker, truncation,
+extra-record, deadline, cancellation, cleanup, and port-reuse behavior. The
+sanitized two-direction evidence does not generalize record counts, formats,
+channels, network scope, devices, activation, or authority.
+
+The LSLC-005H device harness provides the first bounded Rust-on-Quest proof:
+an exact clean Rusty LSL revision is compiled for `aarch64-linux-android`, and
+its core one-channel Float32 descriptor/sample binding executes inside a
+distinct public Quest test package. This is separate from Android Java and
+host-Rust evidence and does not claim wire or ecosystem compatibility.
+
+LSLC-005G adds test-only conformance for the byte-unchanged LSLC-005D
+pre-correction terminal paths. Terminal, exhausted, recovery-cancelled, and
+recovery-deadline outcomes bypass both clock correction and queue admission
+while retaining their existing failures and states. It changes no production
+behavior, policy, ownership, compatibility, device, or Manifold authority.
+
+LSLC-005F adds test-only damaged-path conformance for unchanged LSLC-005D:
+clock cancellation preserves the recovered record and recovery states before
+queue admission, and queue cancellation retains the corrected record and
+states. It changes no production behavior, policy, ownership, compatibility,
+device, or Manifold authority.
+
+LSLC-005E adds test-only synthetic conformance for the unchanged LSLC-005D
+minimum runtime spine: one caller-classified retry, one recovered Float32
+record, one separately activated clock correction, and one bounded-queue
+admission. It changes no production behavior or API and does not widen policy,
+provider/domain ownership, cancellation, backpressure, compatibility, device,
+or Manifold authority claims.
+
+LSLC-005D composes caller-classified finite inlet recovery with the separately
+activated integrated clock-correction owner and an already activated bounded
+queue. Correction runs only for a recovered record; recovery policy, clock
+provider/domain, raw timestamp, four cancellation lanes, activation, and
+backpressure remain separate. It adds no automatic policy, rediscovery,
+broader compatibility, or Manifold authority.
+
+LSLC-005C composes one accepted selected-response Float32 inlet record through
+the separately activated integrated clock-correction owner and into an already
+activated bounded queue. Clock provider/domain, raw timestamp, cancellation,
+backpressure, and activation ownership remain separate. It adds no automatic
+correction, recovery, broader compatibility, or Manifold authority.
+
+LSLC-005B composes caller-classified finite recovery around the accepted
+selected-response Float32 inlet, then queues only a recovered record in an already
+activated bounded queue. Recovery policy, failure classification, three cancellation
+lanes, queue backpressure, and raw timestamps remain separately owned. It adds no
+rediscovery, endpoint reselection, automatic recovery policy, or Manifold authority.
+
+LSLC-005A composes the accepted caller-selected one-record Float32 inlet result
+into an already separately activated caller-owned bounded queue. Inlet and queue
+cancellation remain distinct, queue backpressure retains rejected record ownership,
+and raw timestamps remain unchanged. It adds no queue construction, worker,
+recovery, compatibility breadth, or Manifold authority.
+
+LSLC-004Z adds the first bounded discovery-to-data composition: one
+caller-selected typed discovery response is strictly projected to its concrete
+IPv4 service endpoint and passed to the existing separately capability-gated
+one-record Float32 inlet. It adds no automatic selection, retained connection,
+chunking, other formats, retry/recovery, or authority.
+
+LSLC-004Y adds an explicit bounded composition from one caller-selected typed
+discovery response to the existing separately activated inlet handshake. It
+preserves strict endpoint and handshake errors and adds no automatic selection,
+fallback, identity derivation, retained socket, sample transport, or authority.
+
+Host validation uses pre-bound unicast responder sockets and non-cascading
+test-only multicast serialization. These mechanisms change neither public APIs
+nor production socket, timeout, activation, cleanup, or authority behavior.
+
+LSLC-004X strictly projects one caller-selected accepted typed response's canonical
+concrete-unicast IPv4 address and nonzero service port into a `SocketAddrV4` proposal.
+It performs no I/O or connection and grants no routing, admission, activation, or
+authority.
+
+LSLC-004W adds only an allocation-free caller-explicit exact-name suggestion over an
+already accepted bounded typed UDP discovery run. It returns the first receive-order
+index or no suggestion and adds no I/O, ranking, endpoint selection, connection,
+admission, routing, device behavior, or Manifold authority.
+
+LSLC-003S registers a distinct `StringSample` capability in the closed feature
+lock. It is selected-but-run-disabled and capability-only: no String transport
+or runtime effect exists until a later reviewed runtime consumes exact nominal
+admission plus the existing handshake dependency.
+
+LSLC-003Q records observation-only protocol-110 String framing for one bounded
+13-byte value, one channel, and one caller record in two repeated loopback runs.
+It is evidence for a later bounded candidate, not a String implementation,
+activation, arbitrary String support, or broad compatibility.
+
+LSLC-003P implements a selected-but-run-disabled bounded sequence runtime for
+exactly two homogeneous channels and three ordered records across double64,
+int32, int16, and int8. It is finite IPv4-loopback candidate behavior bound to
+LSLC-003O evidence, not activation, arbitrary-count support, non-loopback
+support, broad ecosystem compatibility, or authority.
+
+Rusty LSL is an independently authored Rust implementation of bounded Lab
+Streaming Layer compatibility surfaces. Project-owned source is licensed
+AGPL-3.0-or-later. Official liblsl is used only as a pinned black-box
+compatibility oracle, never as an implementation template.
+
+## Current capability surface
+
+The `rusty-lsl` crate provides dependency-light bounded contracts for stream
+descriptors, metadata trees, XML values and observed stream-info documents,
+timestamps, homogeneous samples and chunks, and descriptor/sample binding.
+These local contracts do not by themselves perform discovery, networking,
+clock correction, buffering, recovery, protocol exchange, or runtime
+activation.
+
+The closed project lock selects eight candidate capability families:
+
+- bounded sample queue;
+- finite sample recovery;
+- fixed-width numeric sample transport;
+- integrated clock correction;
+- short-info discovery responder;
+- stream handshake;
+- timestamped Float32 sample transport;
+- UDP discovery.
+
+Every selected capability remains disabled by default. Runtime effects require
+the accepted lock plus an explicit descriptor-approved caller input and an
+effective activation receipt. Selection is not activation, compatibility,
+endpoint authority, discovery identity, authorization, or Manifold stream
+authority. Supported claims and their evidence limits are defined by the
+documents below, not by this summary.
+
+LSLC-003O adds observation-only evidence for two-channel, three-record
+`double64`, `int32`, `int16`, and `int8` sequences in two bounded pinned-
+official IPv4-loopback directions. It adds no production implementation,
+activation, broad interoperability, or authority.
+
+## Authoritative project documents
+
+- [Agent instructions](AGENTS.md) — ownership, public-safety, architecture,
+  worktree, and validation rules.
+- [Architecture](docs/ARCHITECTURE.md) — component boundaries and authority.
+- [Compatibility](docs/COMPATIBILITY.md) — supported and unresolved
+  interoperability claims.
+- [Provenance](docs/PROVENANCE.md) — independent authorship and evidence
+  classification.
+- [Validation](docs/VALIDATION.md) — current commands and what they prove.
+- [Validation policy](tools/validation-policy.json) — the sole current gate,
+  profile, claim, and limitation authority used by local and CI dispatch.
+- [Corpus](docs/CORPUS.md) and [oracle policy](docs/ORACLE.md) — public
+  documentation inputs and black-box observation discipline.
+- [Licensing](docs/LICENSING.md) and [supply chain](docs/SUPPLY_CHAIN.md) —
+  source/dependency review boundaries.
+- [Project workflow](morphospace/README.md) — bounded work-unit lifecycle and
+  inert-by-default composition state.
+- [Compatibility fixtures](fixtures/compatibility/README.md) — public-safe
+  deterministic fixture routing.
+
+## Preserved history
+
+- [LSLC work-unit history](docs/history/LSLC-WORK-UNIT-HISTORY.md) preserves
+  the chronological unit notes formerly carried by `AGENTS.md`.
+- [README through accepted LSLC-003L](docs/history/README-THROUGH-LSLC-003L.md)
+  preserves the complete prior README byte-for-byte as historical evidence.
+
+Historical descriptions and passing local tests are not current runtime or
+interoperability claims. Consult the authoritative documents and accepted
+receipts for the exact scope of each claim.
+
+LSLC-003T provides the closed capability-gated one-channel, one-record bounded
+String loopback runtime observed by LSLC-003Q. It remains run-disabled unless
+the caller presents the selected LSLC-003S `StringSample` capability.
+
+LSLC-003U records sanitized pinned black-box evidence for mixed-width UTF-8 and
+the exact 127-byte boundary. Private drivers, raw records, endpoints,
+diagnostics, and version-drift runs remain outside the repository.
+
+LSLC-003V confirms the unchanged LSLC-003T runtime handles both LSLC-003U
+value classes in synthetic finite loopback; it changes tests and evidence only.
+
+LSLC-003W records sanitized pinned black-box evidence for exactly one empty
+String caller record in both finite IPv4-loopback directions. It changes no
+runtime or activation; private drivers, raw records, endpoints, diagnostics,
+environment, and machine identity remain outside the repository.
+
+LSLC-003X extends the existing capability-gated one-channel, one-record String
+runtime only to the LSLC-003W-observed empty value. The 127-byte maximum,
+one-byte length form, finite loopback behavior, and activation closure remain.
+
+LSLC-003Y records sanitized pinned black-box evidence that one independently
+authored exact-128-byte String uses length form one with length 128 in both
+finite loopback directions. It changes no runtime or activation.
+
+LSLC-004B extends the closed capability-gated String runtime only through that
+observed exact 129-byte boundary. Existing empty and nonempty cases remain;
+130 bytes reject, and activation, framing form, finite loopback, and authority
+do not widen.
+
+LSLC-004C records sanitized single-platform evidence for one documented IPv4
+multicast discovery group on an explicit loopback interface, including finite
+query/response directions and membership cleanup. It changes no runtime and
+does not generalize interfaces, retry policy, platforms, or authority.
+
+LSLC-003Z extends the closed capability-gated String runtime only through that
+observed exact 128-byte boundary. Existing empty and nonempty cases remain;
+129 bytes reject, and activation, framing form, finite loopback, and authority
+do not widen.
+
+LSLC-004A records sanitized pinned black-box evidence that one independently
+authored exact-129-byte String uses length form one with length 129 in both
+finite loopback directions. It changes no runtime or activation.
+
+LSLC-004D adds only a synthetic test of the unchanged explicit-destination UDP
+requester against one joined loopback peer at exactly 239.255.172.215:16571.
+It preserves the existing finite deadline, cancellation, cleanup, activation,
+API, dependencies, and authority boundaries.
+
+LSLC-004E adds only an explicitly activated responder for the same exact group
+on a caller-selected loopback interface. It serves one bounded existing
+short-info query/response and then releases membership and the socket; broader
+interface, group, family, retry, routing, and authority policy remain absent.
+
+LSLC-004F composes the unchanged accepted requester and responder only in a
+synthetic test for one exact-group loopback query/response. It adds no runtime
+surface or device claim.
+
+LSLC-004G records sanitized, hash-bound device conformance from two Quest 3S
+peers on one explicit IPv4 Wi-Fi interface. Both peers joined, dropped, and
+rejoined the exact group; one peer received one multicast query and the other
+received its one response. Explicit cancellation, socket and multicast-lock
+cleanup, zero target-package fatals, and complete run-owned cleanup passed.
+This changes no Rusty LSL runtime or activation and grants no Manifold
+admission, routing, identity, or authority.
+
+LSLC-004H records sanitized two-repeat evidence that the accepted Rust UDP
+requester composed with an independently authored joined responder on one
+caller-explicit active private IPv4 host interface at the exact group. One
+bounded query/response, pre-I/O cancellation, no-response deadline, membership
+cleanup, and socket cleanup passed per repeat. This single Windows host
+observation does not widen the loopback-only production responder or establish
+portable interface, retry, cross-host, device, official, or Manifold behavior.
+
+LSLC-004I rebinds the inert-by-default runtime activation admission to the
+accepted deterministic revision-14 lock fingerprint after the project
+composition changed in LSLC-004G. The selected module set, dependencies,
+explicit effective-marker requirements, runtime behavior, and authority do not
+change; the superseded fingerprint now rejects as stale.
+
+LSLC-004J adds one separately named responder entry point for the exact
+239.255.172.215:16571 destination on a caller-supplied concrete IPv4 interface.
+It neither discovers nor chooses that interface. Unspecified, multicast, and
+broadcast values reject before socket I/O, while the earlier loopback-only API
+and all activation, deadline, cancellation, and cleanup behavior remain.
+
+LSLC-004K records sanitized pinned-official evidence on one caller-explicit
+active IPv4 interface. In two private repeats the resolver emitted the exact
+group query, accepted one independently authored bounded response, returned
+the matching source, and cleanup passed. This observation changes no Rusty LSL
+production surface and is not portable interface, cross-host, or device proof.
+
+LSLC-004L aligns the policy-owned public-boundary dispatcher with its existing
+immutable-evidence decision: only a tracked receipt whose current bytes exactly
+equal its `HEAD` blob may retain historical missing-newline bytes. New,
+untracked, modified, non-receipt, or otherwise damaged content still rejects;
+the direct raw boundary checker remains unchanged.
+
+LSLC-004N adds addressable observation-only evidence for two identical 65-byte
+pinned-official short-info query datagrams. It publishes exact hashes and a
+sanitized three-line grammar without publishing reply-routing/correlation
+values or claiming stability beyond the two bounded repeats.
+
+LSLC-004M test-only conformance shows that the unchanged exact-group responder
+accepts the LSLC-004N-observed public query grammar with independently selected
+five- and twenty-digit values. It does not replay private observed values or
+change production runtime behavior.
+
+LSLC-004O adds sanitized observation-only evidence that two pinned-official
+resolver calls reached the unchanged exact-group production responder on one
+explicit active host interface and returned one matching source with cleanup.
+It adds no production widening or portable interface policy.
+
+LSLC-004P adds the opposite observation direction: two pinned-official outlet
+responses were admitted by the unchanged explicit-destination requester on one
+bounded active IPv4 host-interface path. It adds no requester-interface policy,
+production widening, multicast portability, or authority.
+
+LSLC-004U exposes a bounded local `TypedUdpDiscoveryResponse` projection from
+one accepted UDP response with explicit caller limits and no I/O or activation.
+
+LSLC-004V exposes one caller-explicit `run_typed_udp_discovery` composition.
+It uses the existing capability-gated bounded UDP call and typed projection,
+preserving run termination, local/source addresses, receive order, and indexed
+typed errors without adding discovery policy, compatibility breadth, or authority.
+P62 exposes one bounded production composition for already completed Float32
+requested processing: caller-classified finite recovery, caller-owned queue
+admission, a stable exact execution report, and transactional P61 health. See
+[`docs/p62-complete-requested-processing-execution.md`](docs/p62-complete-requested-processing-execution.md).
+
+P63 adds finite caller-budgeted execution batching and immutable supervision of
+bounded, same-execution P62 report snapshots. The complete P63 data-only
+composition validates exactly one independent report series for every committed
+batch cycle; it does not merge distinct cycles or add retry, scheduling, queue,
+recovery, clock, loss, or activation authority. See
+[`docs/p63-complete-requested-processing-execution-batch.md`](docs/p63-complete-requested-processing-execution-batch.md).

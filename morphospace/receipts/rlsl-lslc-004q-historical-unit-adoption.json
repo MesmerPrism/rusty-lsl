@@ -1,0 +1,414 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/historical-unit-adoption-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.historical_unit_adoption_receipt.v1",
+  "receipt_id": "rlsl-lslc-004q-historical-unit-adoption",
+  "project_id": "rusty-lsl",
+  "source_workflow": {
+    "release": "0.5.0+historical-adoption-v1",
+    "commit": "50f8e8a67641f535347c3061d531e6d4df46e535"
+  },
+  "units": [
+    {
+      "unit_id": "rlsl-lslc-003s-string-sample-activation-descriptor",
+      "unit_path": "iteration-units/rlsl-lslc-003s-string-sample-activation-descriptor.json",
+      "unit_sha256": "89467eb9bd493fc3ce2c918b65318406055823ce7d5e74251ce0b99a3f673833",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-003s-string-sample-activation-descriptor-accepted-0441",
+        "receipt_path": "receipts/rlsl-lslc-003s-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "activation",
+            "current": "feature-activation",
+            "retained_as": "legacy activation domain retained by unit tags, objective, and limitations"
+          }
+        ],
+        "validation_profiles": [
+          {
+            "legacy": "activation",
+            "current": "source-only",
+            "retained_as": "historical activation validation limitation"
+          }
+        ],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-003u-string-utf8-boundary-observation",
+      "unit_path": "iteration-units/rlsl-lslc-003u-string-utf8-boundary-observation.json",
+      "unit_sha256": "d17df9ca09abf625c9bff543fa5591faf855ec9fc3a1dda2ce5bb8e98b80af15",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-003u-string-utf8-boundary-observation-accepted-0455",
+        "receipt_path": "receipts/rlsl-lslc-003u-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [
+          {
+            "legacy": "compatibility",
+            "current": "source-only",
+            "retained_as": "historical compatibility validation limitation"
+          }
+        ],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-003v-string-utf8-boundary-runtime-conformance",
+      "unit_path": "iteration-units/rlsl-lslc-003v-string-utf8-boundary-runtime-conformance.json",
+      "unit_sha256": "924435db8645ff915ec5039f9d90033cf8bbaee8c5e1ac4b992641883f7ffe12",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-003v-string-utf8-boundary-runtime-conformance-accepted-0462",
+        "receipt_path": "receipts/rlsl-lslc-003v-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          }
+        ],
+        "validation_profiles": [],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-003w-empty-string-record-observation",
+      "unit_path": "iteration-units/rlsl-lslc-003w-empty-string-record-observation.json",
+      "unit_sha256": "38ff1faee141a9d3b8bf93e6d9b24c78a0f4c0b740533fa2cae29a32e56737ca",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-003w-empty-string-record-observation-accepted-0467",
+        "receipt_path": "receipts/rlsl-lslc-003w-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [
+          {
+            "legacy": "compatibility",
+            "current": "source-only",
+            "retained_as": "historical compatibility validation limitation"
+          }
+        ],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-003x-empty-string-record-runtime",
+      "unit_path": "iteration-units/rlsl-lslc-003x-empty-string-record-runtime.json",
+      "unit_sha256": "3f0583e9bd9fa05d7dd6906f545bc69503ed9fd66c7750fd6cfc29341bf80d88",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-003x-empty-string-record-runtime-accepted-0472",
+        "receipt_path": "receipts/rlsl-lslc-003x-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-003y-exact-128-string-observation",
+      "unit_path": "iteration-units/rlsl-lslc-003y-exact-128-string-observation.json",
+      "unit_sha256": "9468213e4e1731936a980cb5d25e85fad45320594128128bb8c8786387e0e871",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-003y-exact-128-string-observation-accepted-0477",
+        "receipt_path": "receipts/rlsl-lslc-003y-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [
+          {
+            "legacy": "compatibility",
+            "current": "source-only",
+            "retained_as": "historical compatibility validation limitation"
+          }
+        ],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-003z-exact-128-string-record-runtime",
+      "unit_path": "iteration-units/rlsl-lslc-003z-exact-128-string-record-runtime.json",
+      "unit_sha256": "dcc9665fe7665dd5b616c0daed0ae04a187349e268e9d40870fef21346b37826",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-003z-exact-128-string-record-runtime-accepted-0482",
+        "receipt_path": "receipts/rlsl-lslc-003z-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-004a-exact-129-string-observation",
+      "unit_path": "iteration-units/rlsl-lslc-004a-exact-129-string-observation.json",
+      "unit_sha256": "02f763090d25ffa7a1780c5c78d78b2f9987175f42be27ff2f1fecefedb6eb11",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-004a-exact-129-string-observation-accepted-0487",
+        "receipt_path": "receipts/rlsl-lslc-004a-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [
+          {
+            "legacy": "compatibility",
+            "current": "source-only",
+            "retained_as": "historical compatibility validation limitation"
+          }
+        ],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-004b-exact-129-string-record-runtime",
+      "unit_path": "iteration-units/rlsl-lslc-004b-exact-129-string-record-runtime.json",
+      "unit_sha256": "f07536df08a03adec03124b86dd16a07e47a3db45ce10e4346902e80dc5dd68c",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-004b-exact-129-string-record-runtime-accepted-0492",
+        "receipt_path": "receipts/rlsl-lslc-004b-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-004c-ipv4-multicast-discovery-observation",
+      "unit_path": "iteration-units/rlsl-lslc-004c-ipv4-multicast-discovery-observation.json",
+      "unit_sha256": "83e62bc0da70b83d31f148d36b5ab98c459a941c2ff8becd074261d61e1c1ffd",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-004c-ipv4-multicast-discovery-observation-accepted-0497",
+        "receipt_path": "receipts/rlsl-lslc-004c-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [
+          {
+            "legacy": "compatibility",
+            "current": "source-only",
+            "retained_as": "historical compatibility validation limitation"
+          }
+        ],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-004d-ipv4-multicast-discovery-runtime-conformance",
+      "unit_path": "iteration-units/rlsl-lslc-004d-ipv4-multicast-discovery-runtime-conformance.json",
+      "unit_sha256": "e6879c3ef6e1efc7d42232b40e3633e529372649be032f66f018b1806d14f88e",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-004d-ipv4-multicast-discovery-runtime-conformance-accepted-0502",
+        "receipt_path": "receipts/rlsl-lslc-004d-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime",
+      "unit_path": "iteration-units/rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime.json",
+      "unit_sha256": "4f8b652ed799aa68fef59a2c448ee2d8d47970a46c46b150d10815c0841b4901",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-004e-explicit-loopback-multicast-responder-runtime-accepted-0507",
+        "receipt_path": "receipts/rlsl-lslc-004e-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-004f-exact-multicast-discovery-composition-conformance",
+      "unit_path": "iteration-units/rlsl-lslc-004f-exact-multicast-discovery-composition-conformance.json",
+      "unit_sha256": "b98da8eff3f83db723b95e0b2bff57532356ccd56b895293d6579783b38405dd",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-004f-exact-multicast-discovery-composition-conformance-accepted-0512",
+        "receipt_path": "receipts/rlsl-lslc-004f-standard-validation.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [],
+        "resource_kinds": []
+      }
+    },
+    {
+      "unit_id": "rlsl-lslc-004h-active-interface-rust-multicast-observation",
+      "unit_path": "iteration-units/rlsl-lslc-004h-active-interface-rust-multicast-observation.json",
+      "unit_sha256": "b3e8a19c0d025f9ae01eb11b24dfb942cfecf2ac1ec4b419495d2ab5ef72b298",
+      "terminal_status": "accepted",
+      "terminal_evidence": {
+        "event_id": "rlsl-lslc-004h-active-interface-rust-multicast-observation-accepted-0535",
+        "receipt_path": "receipts/rlsl-lslc-004h-standard-validation-after-004i.json"
+      },
+      "normalization": {
+        "change_categories": [
+          {
+            "legacy": "compatibility",
+            "current": "validation",
+            "retained_as": "compatibility domain retained by unit tags, objective, and limitations"
+          },
+          {
+            "legacy": "documentation",
+            "current": "documentation-only",
+            "retained_as": "documentation domain retained by unit instruction surfaces and outputs"
+          }
+        ],
+        "validation_profiles": [
+          {
+            "legacy": "compatibility",
+            "current": "source-only",
+            "retained_as": "historical compatibility validation limitation"
+          }
+        ],
+        "resource_kinds": [
+          {
+            "legacy": "network-interface",
+            "current": null,
+            "retained_as": "historical observation-only interface limitation; no current lease semantics"
+          }
+        ]
+      }
+    }
+  ]
+}

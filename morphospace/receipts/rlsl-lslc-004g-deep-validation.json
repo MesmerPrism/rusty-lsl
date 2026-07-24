@@ -1,0 +1,58 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-004g-deep-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004g-quest-ipv4-multicast-device-conformance",
+  "created_at": "2026-07-16T22:08:05.5039173Z",
+  "tier": "deep",
+  "result": "pass",
+  "repository_revisions": [
+    {"repo_id":"rusty-lsl","base_revision":"6b6631db7957c10c8b1ca73c7be420e958bd4e16","head_revision":"c450d46a0d7046d5808d6157acd7aa0967096b70","branch":"codex/rlsl-autonomous"},
+    {"repo_id":"rusty-quest","base_revision":"50a80a00957916aeb81e592c8cd21c7b314de75e","head_revision":"d09b02307b6f8d960c94799644f1939054f7e1e1","branch":"codex/rlsl-quest-multicast-004g"}
+  ],
+  "changed_paths": [
+    {"repo_id":"rusty-lsl","path":"AGENTS.md"},{"repo_id":"rusty-lsl","path":"README.md"},
+    {"repo_id":"rusty-lsl","path":"docs/COMPATIBILITY.md"},{"repo_id":"rusty-lsl","path":"docs/VALIDATION.md"},
+    {"repo_id":"rusty-lsl","path":"fixtures/compatibility/README.md"},{"repo_id":"rusty-lsl","path":"fixtures/compatibility/lslc-004g-quest-ipv4-multicast-device-conformance.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/feature.lock.json"},{"repo_id":"rusty-lsl","path":"morphospace/iteration-events.jsonl"},
+    {"repo_id":"rusty-lsl","path":"morphospace/iteration-units/rlsl-lslc-004g-quest-ipv4-multicast-device-conformance.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/project.spec.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004g-begin-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004g-claim.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004g-deep-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004g-ready.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/receipts/rlsl-lslc-004g-record-validation.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/source-compositions/rlsl-lslc-004g-source-lock.json"},
+    {"repo_id":"rusty-lsl","path":"morphospace/workspace.state.json"},{"repo_id":"rusty-lsl","path":"tools/check_lslc_004g.ps1"},
+    {"repo_id":"rusty-lsl","path":"tools/check_lslc_004g.py"},{"repo_id":"rusty-lsl","path":"tools/validation-policy.json"},
+    {"repo_id":"rusty-quest","path":"apps/lsl-multicast-conformance-android/AndroidManifest.xml"},
+    {"repo_id":"rusty-quest","path":"apps/lsl-multicast-conformance-android/README.md"},
+    {"repo_id":"rusty-quest","path":"apps/lsl-multicast-conformance-android/src/main/java/io/github/mesmerprism/rustyquest/lslmulticastconformance/MulticastConformanceActivity.java"},
+    {"repo_id":"rusty-quest","path":"tools/Build-LslMulticastConformanceAndroid.ps1"},
+    {"repo_id":"rusty-quest","path":"tools/Test-LslMulticastConformanceAndroid.ps1"}
+  ],
+  "artifacts": [
+    {"artifact_id":"lslc-004g-sanitized-device-evidence","kind":"compatibility-evidence","path":"../../fixtures/compatibility/lslc-004g-quest-ipv4-multicast-device-conformance.json","sha256":"e7f034a53a06da112472243494c9ac5c4d06aab1296a4808f083ed3f43c4a416"}
+  ],
+  "criteria": [
+    {"acceptance_id":"quest-join-drop-rejoin","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004g.ps1","evidence_refs":["lslc-004g-sanitized-device-evidence"]},
+    {"acceptance_id":"two-device-query-response","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004g.ps1","evidence_refs":["lslc-004g-sanitized-device-evidence"]},
+    {"acceptance_id":"deadline-cancellation-cleanup","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004g.ps1","evidence_refs":["lslc-004g-sanitized-device-evidence"]},
+    {"acceptance_id":"policy-and-authority-closure","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004g-sanitized-device-evidence"]}
+  ],
+  "gates": [
+    {"gate_id":"validation-device","status":"pass","command":"Run the private serial-scoped LSLC-004G two-Quest capsule and sanitize through tools/check_lslc_004g.ps1.","evidence_refs":["lslc-004g-sanitized-device-evidence"]},
+    {"gate_id":"validation-source-owner","status":"pass","command":"python ./tools/dispatch_validation.py --profile standard","evidence_refs":["lslc-004g-sanitized-device-evidence"]},
+    {"gate_id":"validation-workflow","status":"pass","command":"powershell -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace","evidence_refs":["lslc-004g-sanitized-device-evidence"]},
+    {"gate_id":"instruction-synchronization","status":"pass","command":"Verify every declared instruction surface is complete and validated.","evidence_refs":["lslc-004g-sanitized-device-evidence"]},
+    {"gate_id":"device-validation","status":"pass","command":"Use the device workflow with only the explicitly supplied serials.","evidence_refs":["lslc-004g-sanitized-device-evidence"]}
+  ],
+  "device_validation": {
+    "serials": ["quest-pair"],
+    "cleanup_complete": true,
+    "package_fatal_count": 0,
+    "system_fatal_count": 0,
+    "evidence_refs": ["lslc-004g-sanitized-device-evidence"]
+  }
+}

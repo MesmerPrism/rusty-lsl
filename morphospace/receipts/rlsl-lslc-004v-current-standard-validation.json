@@ -1,0 +1,101 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/validation-receipt.schema.json",
+  "schema": "rusty.morphospace.workflow.validation_receipt.v1",
+  "receipt_id": "rlsl-lslc-004v-current-standard-validation",
+  "project_id": "rusty-lsl",
+  "unit_id": "rlsl-lslc-004v-typed-udp-discovery-run",
+  "created_at": "2026-07-17T10:01:44Z",
+  "tier": "standard",
+  "result": "pass",
+  "repository_revisions": [
+    {
+      "repo_id": "rusty-lsl",
+      "base_revision": "5f69c61d7b9424dd9a428a1bef18809fe95f7bf4",
+      "head_revision": "5a3f44c69d6922cf50c0e46d12d1f9b0c9c8825b",
+      "branch": "codex/rlsl-autonomous"
+    }
+  ],
+  "changed_paths": [
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/iteration-events.jsonl"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/iteration-units/rlsl-lslc-004v-typed-udp-discovery-run.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/receipts/rlsl-lslc-004v-begin-validation.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/receipts/rlsl-lslc-004v-current-standard-validation.json"
+    },
+    {
+      "repo_id": "rusty-lsl",
+      "path": "morphospace/workspace.state.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "lslc-004v-typed-discovery-run",
+      "kind": "compatibility-evidence",
+      "path": "../../fixtures/compatibility/lslc-004v-typed-udp-discovery-run.json",
+      "sha256": "725373121b184d922977bf3df279df079de74b06cef445239d9d01338cd3b8c7"
+    }
+  ],
+  "criteria": [
+    {
+      "acceptance_id": "bounded-typed-discovery-run",
+      "status": "pass",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004v.ps1",
+      "evidence_refs": [
+        "lslc-004v-typed-discovery-run"
+      ]
+    },
+    {
+      "acceptance_id": "standard-closure",
+      "status": "pass",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "evidence_refs": [
+        "lslc-004v-typed-discovery-run"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "validation-source-only",
+      "status": "pass",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./tools/check_lslc_004v.ps1",
+      "evidence_refs": [
+        "lslc-004v-typed-discovery-run"
+      ]
+    },
+    {
+      "gate_id": "validation-source-owner",
+      "status": "pass",
+      "command": "python ./tools/dispatch_validation.py --profile standard",
+      "evidence_refs": [
+        "lslc-004v-typed-discovery-run"
+      ]
+    },
+    {
+      "gate_id": "validation-workflow",
+      "status": "pass",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File <work-environment-root>/scripts/Test-WorkflowContracts.ps1 -WorkspaceRoot <project-root>/morphospace",
+      "evidence_refs": [
+        "lslc-004v-typed-discovery-run"
+      ]
+    },
+    {
+      "gate_id": "instruction-synchronization",
+      "status": "pass",
+      "command": "Verify every declared instruction surface is complete and validated.",
+      "evidence_refs": [
+        "lslc-004v-typed-discovery-run"
+      ]
+    }
+  ],
+  "device_validation": null
+}

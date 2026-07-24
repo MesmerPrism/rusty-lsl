@@ -7,6 +7,11 @@ license.workspace = true
 repository.workspace = true
 description = "An independently authored Rust implementation of Lab Streaming Layer compatibility"
 publish = false
+autotests = false
+
+[[test]]
+name = "public_api"
+path = "tests/public_api.rs"
 
 [lints]
 workspace = true
