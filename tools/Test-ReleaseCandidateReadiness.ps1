@@ -187,7 +187,7 @@ Test-Document "docs/COMPATIBILITY.md" (Get-Content "docs/COMPATIBILITY.md" -Raw)
     '[Nn]ot implemented and not claimed'
 )
 Test-Document "docs/LSL-PRODUCTION-ROADMAP.md" (Get-Content "docs/LSL-PRODUCTION-ROADMAP.md" -Raw) @(
-    'P8: stable promotion, public-main integration review, and versioned release readiness',
+    'P8: stable promotion and versioned release readiness after completed',
     'Default activation stays disabled'
 )
 Test-Document "docs/P6_HOST_QUALIFICATION.md" (Get-Content "docs/P6_HOST_QUALIFICATION.md" -Raw) @(
@@ -200,8 +200,8 @@ Test-Document "docs/VALIDATION.md" (Get-Content "docs/VALIDATION.md" -Raw) @(
 )
 Test-Document "docs/RELEASE_CANDIDATE.md" (Get-Content "docs/RELEASE_CANDIDATE.md" -Raw) @(
     'Test-ReleaseCandidateReadiness\.ps1',
-    'does not\s+integrate public main',
-    'does not\s+version, tag, release, or publish',
+    'Public-main source integration\s+has occurred',
+    'did not\s+version, tag, release, or publish',
     'specifically authorized'
 )
 
@@ -212,4 +212,4 @@ Write-Output "branch=$branch"
 Write-Output "commit=$head"
 Write-Output "tree=$tree"
 Write-Output "policy=$($policy.schema);revision=$($policy.revision);authority=$($policy.authority)"
-Write-Output "boundary=feature-branch readiness only; no integration, versioning, tagging, release, or publication"
+Write-Output "boundary=candidate readiness only; source integrated; no versioning, tagging, release, or publication"
