@@ -23,6 +23,8 @@ use std::io::ErrorKind;
 use std::net::TcpStream;
 use std::net::{SocketAddr, TcpListener};
 use std::sync::atomic::AtomicBool;
+#[cfg(test)]
+use std::sync::mpsc::sync_channel;
 use std::time::Duration;
 
 /// Selected feature identity.
@@ -1293,11 +1295,15 @@ mod tests {
         for cancelled_before_read in [true, false, true, false] {
             let listener = TcpListener::bind("127.0.0.1:0").unwrap();
             let address = listener.local_addr().unwrap();
+            let (accepted_tx, accepted_rx) = sync_channel(0);
+            let (release_tx, release_rx) = sync_channel(0);
             let worker = thread::spawn(move || {
                 let (_stream, _) = listener.accept().unwrap();
-                thread::sleep(Duration::from_millis(40));
+                accepted_tx.send(()).unwrap();
+                release_rx.recv().unwrap();
             });
             let mut stream = TcpStream::connect(address).unwrap();
+            accepted_rx.recv().unwrap();
             let cancelled = AtomicBool::new(cancelled_before_read);
             let actual = read_pair_record(
                 &mut stream,
@@ -1311,6 +1317,7 @@ mod tests {
                 FixedWidthNumericSampleError::Deadline
             };
             assert_eq!(actual, Err(expected));
+            release_tx.send(()).unwrap();
             drop(stream);
             worker.join().unwrap();
             assert!(TcpListener::bind(address).is_ok());
