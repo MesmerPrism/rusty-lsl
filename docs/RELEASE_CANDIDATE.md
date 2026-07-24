@@ -1,7 +1,8 @@
 # Release-candidate readiness
 
-RLSL-P8 defines a deterministic feature-branch readiness gate, not a release
-operation. From a clean candidate commit, run:
+RLSL-P8 defines a deterministic candidate readiness gate, not a release
+operation. The source reviewed through P68 is now integrated on public `main`;
+from a clean eligible `codex/*` candidate commit, run:
 
 ```powershell
 pwsh -NoProfile -File ./tools/Test-ReleaseCandidateReadiness.ps1
@@ -48,14 +49,13 @@ limitations.
 
 ## Remaining specifically authorized boundary
 
-A passing feature-branch candidate is reviewable evidence only. It does not
-integrate public main and does not version, tag, release, or publish anything.
-Those actions remain a separate, specifically authorized public-main
-integration and release boundary. The authorized integrator must separately
-run `pwsh -NoProfile -File ./tools/Review-ReleaseCandidate.ps1`. That executing
-review runs the public API target and CI profile under Rust 1.80, then Deep and
-this static readiness gate, and binds the exact commit, tree, toolchain, and
-profiles. Only that review may support a release-boundary handoff; this static
-script remains non-executing evidence. The integrator must still choose and
-approve a version and explicitly authorize any merge, tag, release, or
-registry publication.
+A passing candidate is reviewable evidence only. Public-main source integration
+has occurred, but it did not version, tag, release, or publish the crate. The
+authorized release reviewer must separately run
+`pwsh -NoProfile -File ./tools/Review-ReleaseCandidate.ps1` from an eligible
+candidate. That executing review runs the public API target and CI profile
+under Rust 1.80, then Deep and this static readiness gate, and binds the exact
+commit, tree, toolchain, and profiles. Only that review may support a
+release-boundary handoff; this static script remains non-executing evidence.
+A release owner must still choose and approve a version and explicitly
+authorize any tag, release, or registry publication.
