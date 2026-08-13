@@ -726,6 +726,13 @@ the policy-owned `ci` profile directly. Gates declare stable IDs, owners,
 dependencies, change scope, claims, limitations, environment, and timeouts.
 Receipts record executions but never select policy.
 
+`rust-toolchain.toml` pins ordinary development and source validation to Rust
+1.97.1 with Clippy and rustfmt. The workspace `rust-version = "1.80"` remains
+the independently supported compiler baseline. The exact
+`pinned-rust-180-clippy` gate and release-boundary review continue to exercise
+Rust 1.80 explicitly; the newer pin changes neither the Rust 2021 edition,
+Cargo resolver 2, dependencies, nor `Cargo.lock`.
+
 Release-boundary review uses PowerShell 7.6 or newer:
 
 ```text
