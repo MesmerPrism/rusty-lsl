@@ -43,6 +43,14 @@ shape or ecosystem compatibility, complete host-to-Quest qualification, make
 the public API stable, approve a version, or authorize a tag, registry
 publication, or Manifold authority. Those remain distinct reviewed boundaries.
 
+The successor persistent-outlet tranche advances P1/P2 with a caller-owned
+Float32 listener, reusable flat chunk submission, bounded retained consumer
+fan-out, and multiple independent outlets. It deliberately does not absorb P3
+discovery/selection policy, P4 recovery/background policy, P6 device
+qualification, P7 ecosystem interoperability, or P8 release authority. Those
+remain ordered follow-on gates after the host implementation is merged and read
+back.
+
 ## Unit guard
 
 Keep one canonical current unit. At every accepted/published boundary, persist

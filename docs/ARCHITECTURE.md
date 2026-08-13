@@ -1,5 +1,31 @@
 # Architecture
 
+## Caller-owned persistent Float32 chunk outlet
+
+`persistent_float32_outlet` is an additive public facade over the admitted
+Float32 sample and handshake capability. `PersistentFloat32OutletActivation`
+must be composed from `TimestampedFloat32SampleActivation`; there is no ambient
+or default activation. The facade owns one nonblocking `TcpListener`, a fixed
+channel count, one exactly sized reusable chunk buffer, and a pre-reserved
+bounded vector of consumers. It creates no thread and does not own discovery,
+selection, scheduling, retry, buffering, or recovery policy.
+
+`poll_accept_consumer` admits at most one pending socket. It reuses the existing
+protocol-110 handshake owner, sends the existing two-record Float32
+initialization, and retains the connected socket with its timeout cache.
+`push_chunk` validates the entire flat `records * channels` shape before I/O,
+encodes all caller timestamps and interleaved values once into the retained
+buffer, then performs one contiguous exact write per consumer. The loop uses
+the pre-reserved registry and retains only the first failure in its report, so
+the push path allocates no memory. Failed sockets are shut down and removed;
+other consumers continue. Explicit close and `Drop` shut down every retained
+consumer and release the listener.
+
+Each outlet owns independent listener, identity, shape, buffer, and consumers,
+so callers may run multiple outlets without a global registry. The public
+facade currently supports only Float32 and supplies no background discovery,
+inlet counterpart, implicit reconnection, or cross-host/device qualification.
+
 ## Session-owned Float32 sender state
 
 `format_neutral_session_runtime` constructs sealed writer state before an
@@ -482,10 +508,11 @@ not public API and adds no transport selection or Manifold authority.
 ## Dependency-closed runtime facade composition
 
 Runtime activation direction now follows the resolved lock: handshake feeds
-both sample families; Float32 sample activation feeds queue and integrated
-clock; queue feeds finite recovery. Discovery client and responder remain
-dependency-free but still require their own nominal lock capability. The
-facades consume opaque evidence and cannot construct or expand the lock.
+both sample families; Float32 sample activation feeds queue, integrated clock,
+and the separately admitted persistent Float32 outlet; queue feeds finite
+recovery. Discovery client and responder remain dependency-free but still
+require their own nominal lock capability. The facades consume opaque evidence
+and cannot construct or expand the lock.
 
 ## Lock-bound runtime activation
 

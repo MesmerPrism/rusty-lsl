@@ -36,6 +36,11 @@ The test uses the published crate-root facade exactly as an external consumer
 would. Private modules and private lifecycle engines are not part of the
 promotion.
 
+`PersistentFloat32Outlet` and its activation, limits, reports, and errors are an
+additive public candidate surface, but they are not yet part of this promoted
+release-candidate slice. They may be exercised and reviewed without implying a
+stable-version compatibility commitment.
+
 ## Compatibility and stability policy
 
 Before a stable Rusty LSL version is released, this candidate surface may still
@@ -59,8 +64,8 @@ shape. In particular, it excludes:
 - generic or private codec/session strategies and private engine structure;
 - automatic discovery, response filtering, selection, retries, scheduling,
   routing, queue policy, recovery policy, clock source, or interface choice;
-- ambient or default activation, background work, persistent connections, or
-  unbounded operation;
+- ambient or default activation, background work, or unbounded operation;
+- a stability promise for the additive persistent Float32 outlet candidate;
 - all-format parity, arbitrary channel/record counts, device behavior, multicast
   portability, official liblsl interoperability, performance, or wire-protocol
   completeness;

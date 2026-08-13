@@ -301,8 +301,8 @@ fn p4_session_batch_boundary_is_concrete_fail_closed_and_current_revision() {
     let _: Option<rusty_lsl::runtime::Float32SessionReportBatchError> = root_error;
     let root_termination: Option<rusty_lsl::Float32SessionReportBatchTermination> = None;
     let _: Option<rusty_lsl::runtime::Float32SessionReportBatchTermination> = root_termination;
-    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 36);
-    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 36);
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 37);
+    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 37);
 }
 
 #[test]
@@ -345,8 +345,8 @@ fn p32_selected_discovery_float32_session_batch_pipeline_is_concrete_on_both_fac
     let _error_health = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::health;
     let _error_into_kind = rusty_lsl::SelectedTypedUdpDiscoveryFloat32SessionBatchError::into_kind;
 
-    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 36);
-    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 36);
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 37);
+    assert_eq!(rusty_lsl::runtime::ACCEPTED_FEATURE_LOCK_REVISION, 37);
 }
 
 #[test]
@@ -458,8 +458,8 @@ fn p31_all_format_bounded_chunk_sessions_are_concrete_on_both_facades() {
         run_timestamped_string_bounded_chunk_inlet
     );
 
-    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 36);
-    assert_eq!(runtime::ACCEPTED_FEATURE_LOCK_REVISION, 36);
+    assert_eq!(rusty_lsl::ACCEPTED_FEATURE_LOCK_REVISION, 37);
+    assert_eq!(runtime::ACCEPTED_FEATURE_LOCK_REVISION, 37);
 }
 
 #[test]
@@ -1044,6 +1044,7 @@ fn selections() -> Vec<RuntimeActivationSelection<'static>> {
         RuntimeModule::BoundedSampleQueue,
         RuntimeModule::FiniteSampleRecovery,
         RuntimeModule::IntegratedClockCorrection,
+        RuntimeModule::PersistentFloat32Outlet,
         RuntimeModule::UdpDiscovery,
     ]
     .into_iter()
@@ -1064,6 +1065,92 @@ fn sample_activation(admission: &RuntimeActivationAdmission) -> TimestampedFloat
         .unwrap(),
     )
     .unwrap()
+}
+
+#[test]
+fn perf_002_persistent_float32_outlet_is_public_and_explicit() {
+    let admission =
+        admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, CONSUMER, &selections())
+            .unwrap();
+    let activation = PersistentFloat32OutletActivation::new(
+        admission
+            .capability(RuntimeModule::PersistentFloat32Outlet)
+            .unwrap(),
+        sample_activation(&admission),
+    )
+    .unwrap();
+    let limits = PersistentFloat32OutletLimits::new(10, 2).unwrap();
+    let handshake_limits =
+        StreamHandshakeLimits::new(1024, 128, Duration::from_millis(5), Duration::from_secs(1))
+            .unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let outlet = PersistentFloat32Outlet::new(
+        activation,
+        listener,
+        identity(handshake_limits),
+        handshake_limits,
+        TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+            .unwrap(),
+        1,
+        limits,
+    )
+    .unwrap();
+    assert_eq!(outlet.channel_count(), 1);
+    assert_eq!(outlet.connected_consumers(), 0);
+    assert_eq!(limits.max_records_per_chunk(), 10);
+    assert_eq!(limits.max_consumers(), 2);
+    assert_eq!(
+        PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+        runtime::PERSISTENT_FLOAT32_OUTLET_API_MARKER
+    );
+    assert_eq!(
+        PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+        runtime::PERSISTENT_FLOAT32_OUTLET_FEATURE_ID
+    );
+    assert_eq!(
+        PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER,
+        runtime::PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletActivationError>::None,
+        &Option::<runtime::PersistentFloat32OutletActivationError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32AcceptError>::None,
+        &Option::<runtime::PersistentFloat32AcceptError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32ConsumerAccepted>::None,
+        &Option::<runtime::PersistentFloat32ConsumerAccepted>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32ConsumerFailure>::None,
+        &Option::<runtime::PersistentFloat32ConsumerFailure>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletCloseReport>::None,
+        &Option::<runtime::PersistentFloat32OutletCloseReport>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletCreateError>::None,
+        &Option::<runtime::PersistentFloat32OutletCreateError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletLimitError>::None,
+        &Option::<runtime::PersistentFloat32OutletLimitError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32PushError>::None,
+        &Option::<runtime::PersistentFloat32PushError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32PushReport>::None,
+        &Option::<runtime::PersistentFloat32PushReport>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32TransportError>::None,
+        &Option::<runtime::PersistentFloat32TransportError>::None,
+    );
 }
 
 fn identity(limits: StreamHandshakeLimits) -> StreamHandshakeIdentity {

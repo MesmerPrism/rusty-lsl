@@ -136,6 +136,15 @@ mod morphospace_stream_lifecycle_advisory;
 #[allow(missing_docs)]
 mod morphospace_stream_lifecycle_advisory_proposal;
 mod morphospace_stream_lifecycle_observation;
+mod persistent_float32_outlet;
+#[cfg(test)]
+mod persistent_float32_outlet_benchmark;
+
+#[cfg(test)]
+#[test]
+fn perf_002_reuses_one_chunk_buffer_across_pushes() {
+    persistent_float32_outlet::tests::exercise_repeated_push_buffer_reuse();
+}
 mod raw_clock_exchange;
 mod requested_post_processing_queue_health;
 mod requested_post_processing_recovery;
@@ -426,6 +435,15 @@ pub use morphospace_stream_lifecycle_advisory_proposal::{
     MorphospaceStreamLifecyclePostProcessingIntent, MorphospaceStreamLifecyclePrecondition,
     MorphospaceStreamLifecycleProposalIdentity, MorphospaceStreamLifecycleRequestedClose,
     MorphospaceStreamLifecycleRequestedDisposition,
+};
+pub use persistent_float32_outlet::{
+    PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
+    PersistentFloat32ConsumerFailure, PersistentFloat32Outlet, PersistentFloat32OutletActivation,
+    PersistentFloat32OutletActivationError, PersistentFloat32OutletCloseReport,
+    PersistentFloat32OutletCreateError, PersistentFloat32OutletLimitError,
+    PersistentFloat32OutletLimits, PersistentFloat32PushError, PersistentFloat32PushReport,
+    PersistentFloat32TransportError, PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+    PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER, PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
 };
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,

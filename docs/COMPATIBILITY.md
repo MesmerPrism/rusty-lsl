@@ -1,5 +1,25 @@
 # Compatibility
 
+## Persistent Float32 chunk outlet candidate
+
+The public candidate now supports one or more caller-owned persistent Float32
+outlets, fixed nonzero channel counts, bounded caller-selected records per
+chunk, and a bounded number of retained consumers. Host loopback tests verify
+two consumers receive identical initialization and exact timestamp/value order
+from one encoded chunk, while two outlets retain independent identities,
+shapes, sockets, buffers, and values. Buffer pointer, length, and capacity stay
+unchanged across the push; malformed shape and preselected cancellation are
+rejected before I/O.
+
+The wire unit remains the observed protocol-110 Float32 record sequence: each
+record has the existing marker, timestamp, and channel values, and a chunk is
+those records serialized contiguously without an additional envelope. This
+candidate does not yet establish official liblsl consumer interoperability,
+network discovery of the retained outlet, non-loopback operation, reconnect or
+recovery behavior, OS portability, device qualification, or BLE-to-recorder
+latency. The descriptive host benchmark is performance evidence only for its
+exact revision, host, dimensions, and already-connected loopback transport.
+
 ## Current P67/P68 boundary
 
 The current candidate combines bounded caller-explicit discovery, transport,
