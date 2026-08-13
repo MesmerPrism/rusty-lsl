@@ -19,6 +19,7 @@ from pathlib import Path
 PYLSL_VERSION = "1.18.2"
 LIBLSL_VERSION = 117
 PROTOCOL_VERSION = 110
+LIBLSL_SOURCE_REVISION = "64988c6a14b8dc3b3f270ece58eab4f480bfab43"
 SOURCE_ID = "rusty-lsl-interop-001-official-consumer"
 RECORDS = 10
 EXPECTED_VALUES = [index + 0.25 for index in range(RECORDS)]
@@ -297,7 +298,9 @@ def main() -> int:
             "library_version": LIBLSL_VERSION,
             "protocol_version": PROTOCOL_VERSION,
             "native_library_sha256": native_sha256,
-            "implementation_source_used": False,
+            "diagnostic_source_inspected": True,
+            "diagnostic_source_revision": LIBLSL_SOURCE_REVISION,
+            "implementation_source_copied_or_translated": False,
         },
         "scope": {
             "platform_class": "single-windows-desktop-host",
