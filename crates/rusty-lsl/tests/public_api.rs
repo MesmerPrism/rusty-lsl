@@ -1096,6 +1096,42 @@ fn perf_002_persistent_float32_outlet_is_public_and_explicit() {
         PERSISTENT_FLOAT32_OUTLET_API_MARKER,
         runtime::PERSISTENT_FLOAT32_OUTLET_API_MARKER
     );
+    same_type(
+        &Option::<PersistentFloat32AcceptError>::None,
+        &Option::<runtime::PersistentFloat32AcceptError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32ConsumerAccepted>::None,
+        &Option::<runtime::PersistentFloat32ConsumerAccepted>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32ConsumerFailure>::None,
+        &Option::<runtime::PersistentFloat32ConsumerFailure>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletCloseReport>::None,
+        &Option::<runtime::PersistentFloat32OutletCloseReport>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletCreateError>::None,
+        &Option::<runtime::PersistentFloat32OutletCreateError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletLimitError>::None,
+        &Option::<runtime::PersistentFloat32OutletLimitError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32PushError>::None,
+        &Option::<runtime::PersistentFloat32PushError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32PushReport>::None,
+        &Option::<runtime::PersistentFloat32PushReport>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32TransportError>::None,
+        &Option::<runtime::PersistentFloat32TransportError>::None,
+    );
 }
 
 fn identity(limits: StreamHandshakeLimits) -> StreamHandshakeIdentity {

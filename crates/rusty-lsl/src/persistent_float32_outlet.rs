@@ -710,11 +710,40 @@ pub(crate) mod tests {
             PersistentFloat32OutletLimits::new(0, 1),
             Err(PersistentFloat32OutletLimitError::ZeroRecordsPerChunk)
         );
+        assert_eq!(
+            PersistentFloat32OutletLimits::new(1, 0),
+            Err(PersistentFloat32OutletLimitError::ZeroConsumers)
+        );
+        assert_eq!(
+            PersistentFloat32OutletLimits::new(1, MAX_CONSUMERS + 1),
+            Err(PersistentFloat32OutletLimitError::ConsumerLimitExceeded {
+                actual: MAX_CONSUMERS + 1,
+                limit: MAX_CONSUMERS,
+            })
+        );
+        let zero_channel_listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        assert_eq!(
+            PersistentFloat32Outlet::new(
+                activation(),
+                zero_channel_listener,
+                identity("70000000-0000-4000-8000-000000000006", "zero-channels"),
+                handshake_limits(),
+                sample_limits(),
+                0,
+                PersistentFloat32OutletLimits::new(1, 1).unwrap(),
+            )
+            .err(),
+            Some(PersistentFloat32OutletCreateError::ZeroChannels)
+        );
         let mut outlet = outlet(2, identity("70000000-0000-4000-8000-000000000001", "inert"));
         let before = outlet.buffer_identity();
         assert_eq!(
             outlet.poll_accept_consumer(&AtomicBool::new(false)),
             Ok(None)
+        );
+        assert_eq!(
+            outlet.poll_accept_consumer(&AtomicBool::new(true)),
+            Err(PersistentFloat32AcceptError::Cancelled)
         );
         assert_eq!(
             outlet.push_chunk(&[], &[], &AtomicBool::new(false)),
@@ -738,6 +767,14 @@ pub(crate) mod tests {
                 &AtomicBool::new(true)
             ),
             Err(PersistentFloat32PushError::Cancelled)
+        );
+        let oversized_timestamps = [RawSourceTimestamp::new(1.0).unwrap(); 9];
+        assert_eq!(
+            outlet.push_chunk(&[0.0; 18], &oversized_timestamps, &AtomicBool::new(false)),
+            Err(PersistentFloat32PushError::RecordLimitExceeded {
+                actual: 9,
+                limit: 8,
+            })
         );
         assert_eq!(outlet.buffer_identity(), before);
         assert_eq!(outlet.connected_consumers(), 0);
