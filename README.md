@@ -30,9 +30,11 @@ do not by themselves prove stable API, broad ecosystem interoperability,
 portable non-loopback behavior, host-to-Quest qualification, or release
 readiness.
 
-Project-owned source is licensed AGPL-3.0-or-later. Official liblsl is used
-only as a pinned black-box compatibility oracle, never as an implementation
-template. rLSL source is not an implementation input.
+Project-owned source is licensed AGPL-3.0-or-later. Official liblsl is used as
+a pinned compatibility endpoint, never as an implementation template. Public
+liblsl 1.17.7 receiver/server source was inspected only to diagnose endpoint
+connection roles; no source was copied or translated. rLSL source is not an
+implementation input.
 
 ## Persistent Float32 chunk outlet
 
@@ -49,6 +51,22 @@ This is a public candidate API, not default activation, a stable-version
 promise, automatic discovery, arbitrary-format support, recovery policy, or a
 claim of official liblsl/non-loopback/device interoperability. Those remain
 separate qualification boundaries.
+
+`PersistentFloat32OutletService` now composes that outlet with the existing
+short-info responder. The caller supplies one concrete IPv4 interface and owns
+the poll loop. Two pinned pylsl 1.18.2/liblsl 1.17 runs resolved the service
+and received an exact one-channel, ten-record Float32 chunk and timestamps.
+This qualifies that narrow Windows-host path, not background operation,
+automatic interface selection, recovery parity, arbitrary shapes,
+cross-platform/device behavior, stable API, or release readiness.
+
+The same-host Polar-shaped comparison at Rusty LSL `893cdc4` and Polar Stream
+`5e13f64` measured 14.2 µs median / 23.5 µs p95 for Rusty LSL and 4.2 µs /
+5.9 µs for current Polar Stream/liblsl. Polar includes one `lsl_local_clock`
+plus one native chunk call; Rusty LSL receives caller-supplied timestamps and
+encodes ten records before one TCP write. This is descriptive sender occupancy,
+not BLE-to-recorder latency, but establishes no current Rusty LSL speed
+advantage.
 
 ## Float32 sender state and measurement
 

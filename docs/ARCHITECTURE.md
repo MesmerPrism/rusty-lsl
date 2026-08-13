@@ -26,6 +26,29 @@ so callers may run multiple outlets without a global registry. The public
 facade currently supports only Float32 and supplies no background discovery,
 inlet counterpart, implicit reconnection, or cross-host/device qualification.
 
+## Caller-polled persistent Float32 discovery service
+
+`persistent_float32_outlet_service` owns one accepted outlet, one canonical
+stream-info body, one nonblocking UDP socket, and one bounded receive buffer.
+The production constructor binds the documented IPv4 discovery port and joins
+the documented multicast group on one caller-selected concrete interface. The
+prebound constructor preserves a caller's independently bound socket. Neither
+enumerates or chooses interfaces, retries, falls back, or starts a thread.
+
+Construction admits the body before retaining state, then requires Float32
+format and exact agreement with outlet shape, identity, address, and ports.
+Each poll handles at most one query/response and one data consumer. Once the
+consumer set is full, the service retains it and leaves auxiliary
+official-inlet connections in the listener backlog; the lower-level outlet
+keeps its capacity-error contract. Windows UDP `ConnectionReset` after a
+resolver reply is idle because it carries no datagram; other failures remain
+typed errors.
+
+`push_chunk` delegates to the existing allocation-free-after-setup encoder and
+fan-out owner. Close shuts down data consumers and drops discovery membership.
+Scheduling, interface, retry, recovery, and application policy remain caller
+authority.
+
 ## Session-owned Float32 sender state
 
 `format_neutral_session_runtime` constructs sealed writer state before an

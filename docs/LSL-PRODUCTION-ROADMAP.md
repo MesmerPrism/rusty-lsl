@@ -43,13 +43,19 @@ shape or ecosystem compatibility, complete host-to-Quest qualification, make
 the public API stable, approve a version, or authorize a tag, registry
 publication, or Manifold authority. Those remain distinct reviewed boundaries.
 
-The successor persistent-outlet tranche advances P1/P2 with a caller-owned
-Float32 listener, reusable flat chunk submission, bounded retained consumer
-fan-out, and multiple independent outlets. It deliberately does not absorb P3
-discovery/selection policy, P4 recovery/background policy, P6 device
-qualification, P7 ecosystem interoperability, or P8 release authority. Those
-remain ordered follow-on gates after the host implementation is merged and read
-back.
+The persistent-outlet sequence advances P1/P2/P3 with a caller-owned Float32
+listener, reusable flat chunk submission, bounded retained consumer fan-out,
+multiple independent outlets, and an explicit-interface caller-polled
+discovery service. One pinned official liblsl consumer has resolved, opened,
+pulled ten exact records, and closed on one Windows host. The same-host Polar
+comparison shows no current Rusty LSL sender-occupancy advantage.
+
+This closes only the bounded host prerequisite. The next production gates are
+H10 and BLE-to-recorder qualification, multiple concurrently discoverable
+outlets and consumers, non-loopback/cross-host and Linux/macOS coverage,
+reconnect/recovery behavior, arbitrary stream shapes, application integration,
+and an explicit licensing decision. Stability, version, tag, registry
+publication, and P8 release authority remain separately reviewed.
 
 ## Unit guard
 

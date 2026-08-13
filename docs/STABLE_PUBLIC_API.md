@@ -41,6 +41,11 @@ additive public candidate surface, but they are not yet part of this promoted
 release-candidate slice. They may be exercised and reviewed without implying a
 stable-version compatibility commitment.
 
+`PersistentFloat32OutletService` and its limits, reports, discovery evidence,
+and typed errors are likewise additive public candidates. External compilation
+and one official-consumer qualification do not promote them into the stable
+release-candidate slice or authorize default activation.
+
 ## Compatibility and stability policy
 
 Before a stable Rusty LSL version is released, this candidate surface may still

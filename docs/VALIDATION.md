@@ -1,5 +1,45 @@
 # Validation
 
+## INTEROP-001 managed persistent Float32 outlet
+
+The deterministic evidence and dispatcher contracts run without an official
+endpoint or network access:
+
+```text
+python ./tools/run_persistent_float32_outlet_official_consumer.py --self-test
+python ./tools/run_polar_stream_sender_ab_benchmark.py --self-test
+python ./tools/check_interop_001.py
+```
+
+The focused production and external-public-API checks are:
+
+```text
+cargo test -p rusty-lsl --lib interop_001 -- --test-threads=1
+cargo test -p rusty-lsl --test public_api interop_001_managed_persistent_float32_outlet_service_is_public_and_explicit -- --exact --test-threads=1
+```
+
+Owner host qualification uses the pinned pylsl 1.18.2 environment and one
+explicit active private IPv4 interface:
+
+```text
+<pinned-python> ./tools/run_persistent_float32_outlet_official_consumer.py --interface <caller-explicit-ipv4>
+```
+
+Run it twice from a clean exact revision and retain its emitted JSON outside
+the public repository. The admitted fixture records only hashes and sanitized
+results. The Polar comparator consumes independently emitted Rusty and Polar
+JSON results; the Polar subject is read by exact Git revision, not by its
+working tree. Compare the same host, dimensions, warmups, and iterations while
+preserving each subject's pinned Rust toolchain.
+
+The qualified path is one Windows host, one explicit interface, one outlet,
+one official inlet, one channel, and ten Float32 records using official
+`pull_sample`. It does not qualify pylsl `pull_chunk`, background scheduling,
+default interface choice, multiple outlets, non-loopback/cross-host transport,
+recovery, other platforms or shapes, H10/BLE, LabRecorder, stable API, or
+release. The A/B transport units differ in timestamp work and are descriptive
+sender occupancy, not BLE-to-recorder latency or a universal speed claim.
+
 ## Persistent Float32 chunk outlet
 
 Focused host tests cover idle nonblocking admission, complete pre-I/O shape and
