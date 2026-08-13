@@ -34,6 +34,20 @@ Project-owned source is licensed AGPL-3.0-or-later. Official liblsl is used
 only as a pinned black-box compatibility oracle, never as an implementation
 template. rLSL source is not an implementation input.
 
+## Float32 sender state and measurement
+
+An accepted bounded Float32 outlet session allocates one exact-size encoding
+buffer before caller-record transfer and reuses it for initialization and every
+declared record. Its bounded writer also retains the current socket write
+timeout and changes it only when the effective timeout changes; cancellation
+and a fresh total deadline are still checked for every record.
+
+`python ./tools/run_float32_sender_benchmark.py` runs a descriptive release-mode
+loopback microbenchmark and emits one JSON record with the revision, dirty-state
+flag, host, dimensions, median, and p95. It is not a performance gate or a claim
+of persistent outlets, chunk submission, background discovery, multi-consumer
+fanout, application latency, or liblsl parity.
+
 ## Project documents
 
 - [Production Roadmap](docs/LSL-PRODUCTION-ROADMAP.md) — completion criteria,

@@ -24,6 +24,48 @@ pub(crate) enum BoundedFixedRecordError {
     Io(ErrorKind),
 }
 
+/// Session-owned write configuration retained across fixed-record transfers.
+#[derive(Default)]
+pub(crate) struct BoundedWriteState {
+    configured_timeout: Option<Duration>,
+    #[cfg(test)]
+    timeout_updates: usize,
+}
+
+impl BoundedWriteState {
+    pub(crate) const fn new() -> Self {
+        Self {
+            configured_timeout: None,
+            #[cfg(test)]
+            timeout_updates: 0,
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) const fn timeout_updates(&self) -> usize {
+        self.timeout_updates
+    }
+
+    fn apply_timeout(
+        &mut self,
+        stream: &TcpStream,
+        timeout: Duration,
+    ) -> Result<(), BoundedFixedRecordError> {
+        if self.configured_timeout == Some(timeout) {
+            return Ok(());
+        }
+        stream
+            .set_write_timeout(Some(timeout))
+            .map_err(|error| BoundedFixedRecordError::Io(error.kind()))?;
+        self.configured_timeout = Some(timeout);
+        #[cfg(test)]
+        {
+            self.timeout_updates += 1;
+        }
+        Ok(())
+    }
+}
+
 /// Writes exactly one already encoded record under caller-owned bounds.
 pub(crate) fn write_exact_bounded(
     stream: &mut TcpStream,
@@ -31,6 +73,25 @@ pub(crate) fn write_exact_bounded(
     io_slice: Duration,
     total_deadline: Duration,
     cancelled: &AtomicBool,
+) -> Result<(), BoundedFixedRecordError> {
+    write_exact_bounded_with_state(
+        stream,
+        record,
+        io_slice,
+        total_deadline,
+        cancelled,
+        &mut BoundedWriteState::new(),
+    )
+}
+
+/// Writes one record while retaining equivalent socket timeout configuration.
+pub(crate) fn write_exact_bounded_with_state(
+    stream: &mut TcpStream,
+    record: &[u8],
+    io_slice: Duration,
+    total_deadline: Duration,
+    cancelled: &AtomicBool,
+    state: &mut BoundedWriteState,
 ) -> Result<(), BoundedFixedRecordError> {
     let started = Instant::now();
     let mut offset = 0;
@@ -41,9 +102,7 @@ pub(crate) fn write_exact_bounded(
         let remaining = total_deadline
             .checked_sub(started.elapsed())
             .ok_or(BoundedFixedRecordError::Deadline)?;
-        stream
-            .set_write_timeout(Some(remaining.min(io_slice)))
-            .map_err(|error| BoundedFixedRecordError::Io(error.kind()))?;
+        state.apply_timeout(stream, remaining.min(io_slice))?;
         match stream.write(&record[offset..]) {
             Ok(0) => return Err(BoundedFixedRecordError::Io(ErrorKind::WriteZero)),
             Ok(written) => offset += written,
@@ -153,5 +212,32 @@ mod tests {
             ),
             Err(BoundedFixedRecordError::Cancelled)
         );
+    }
+
+    #[test]
+    fn perf_001_reuses_steady_state_write_timeout() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let reader = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            let mut bytes = [0; 6];
+            stream.read_exact(&mut bytes).unwrap();
+            bytes
+        });
+        let mut stream = TcpStream::connect(address).unwrap();
+        let mut state = BoundedWriteState::new();
+        for record in [[1, 2, 3], [4, 5, 6]] {
+            write_exact_bounded_with_state(
+                &mut stream,
+                &record,
+                Duration::from_millis(10),
+                Duration::from_secs(1),
+                &AtomicBool::new(false),
+                &mut state,
+            )
+            .unwrap();
+        }
+        assert_eq!(state.timeout_updates(), 1);
+        assert_eq!(reader.join().unwrap(), [1, 2, 3, 4, 5, 6]);
     }
 }

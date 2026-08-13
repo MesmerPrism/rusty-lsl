@@ -1,5 +1,36 @@
 # Validation
 
+## Float32 sender-state and descriptive benchmark
+
+Focused host tests prove that one multichannel Float32 writer buffer retains
+the same pointer, length, and capacity through initialization and multiple
+records, and that equivalent steady-state socket write timeouts are configured
+once:
+
+```text
+cargo test -p rusty-lsl --lib perf_001
+```
+
+The benchmark dispatcher validates its argument bounds, closed marker payload,
+nearest-rank percentile selection, and result schema without compiling or
+running the benchmark:
+
+```text
+python ./tools/run_float32_sender_benchmark.py --self-test
+```
+
+A descriptive run measures ten sequential fixed-record writes per measurement
+over one established loopback TCP connection:
+
+```text
+python ./tools/run_float32_sender_benchmark.py --channels 1 --records 10 --warmup 20 --iterations 200
+```
+
+The final JSON binds the revision, worktree dirty state, host, release mode,
+dimensions, sample count, median, and p95. It has no pass/fail threshold and
+does not measure BLE-to-recorder latency, connection/discovery cost, a public
+chunk API, persistent operation, multi-consumer behavior, or liblsl parity.
+
 The P32 public qualification names the concrete selected-discovery Float32
 session-batch function, outcome, error, and stage-kind types at both facades,
 including their borrowed discovery/index, batch/error, and exact-health access:

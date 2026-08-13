@@ -61,6 +61,10 @@ belong only to the dedicated private planning repository.
 - Keep metadata, frames, channel counts, chunks, queues, timeouts, retries, and
   retained ranges explicitly bounded. Constructors validate complete inputs
   before committing accepted state and preserve owned error evidence.
+- Keep the bounded Float32 sender buffer and socket-timeout cache session-owned.
+  Allocate encoding state before caller-record transfer, preserve a fresh
+  per-record deadline and cancellation checks, and do not describe this finite
+  path as a persistent outlet or reusable public chunk API.
 - Runtime selection and activation remain separate. No default Cargo feature
   activates runtime behavior; accepted lock identity and explicit caller input
   remain required, and activation stays default-disabled.
@@ -100,6 +104,11 @@ python ./tools/dispatch_validation.py --profile deep
 composition invariant is checked by `python ./tools/check_cargo_shape.py` and
 permits only the `public_api` integration-test target. DOC-024 historical
 coverage is checked by `python ./tools/check_doc_024_coverage.py`.
+
+The non-gating Float32 sender microbenchmark is run through
+`python ./tools/run_float32_sender_benchmark.py`. Bind results to the emitted
+revision, dirty-state flag, host, mode, dimensions, warmup, and iteration count;
+never turn one host measurement into a universal performance claim.
 
 The compact router retains the route keys consumed by focused owner gates:
 `LSLC-001A`, `LSLC-001B`, `LSLC-001C`, `LSLC-001D`, `LSLC-001H`,

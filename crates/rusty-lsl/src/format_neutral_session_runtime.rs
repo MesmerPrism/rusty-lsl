@@ -15,6 +15,7 @@ pub(crate) trait SealedSessionStrategy: Copy {
     type Limits: Copy;
     type RecordError;
     type SessionError;
+    type WriterState;
 
     fn accept(
         listener: TcpListener,
@@ -30,8 +31,13 @@ pub(crate) trait SealedSessionStrategy: Copy {
         format_limits: Self::Limits,
         cancelled: &AtomicBool,
     ) -> Result<TcpStream, StreamHandshakeError>;
+    fn create_writer_state(
+        channels: usize,
+        limits: Self::Limits,
+    ) -> Result<Self::WriterState, Self::RecordError>;
     fn write_initialization(
         stream: &mut TcpStream,
+        writer_state: &mut Self::WriterState,
         channels: usize,
         limits: Self::Limits,
         cancelled: &AtomicBool,
@@ -44,6 +50,7 @@ pub(crate) trait SealedSessionStrategy: Copy {
     ) -> Result<(), Self::RecordError>;
     fn write_record(
         stream: &mut TcpStream,
+        writer_state: &mut Self::WriterState,
         sample: &Self::Sample,
         channels: usize,
         limits: Self::Limits,
@@ -231,6 +238,7 @@ pub(crate) struct AcceptedOutletSession<F: SealedSessionStrategy> {
     shape: SessionShape,
     initialized: bool,
     cursor: usize,
+    writer_state: F::WriterState,
     strategy: PhantomData<F>,
 }
 
@@ -301,12 +309,19 @@ impl<F: SealedSessionStrategy> AcceptedOutletSession<F> {
         }
         let socket = self.stream.0.as_mut().expect("session stream is present");
         if !self.initialized {
-            F::write_initialization(socket, self.shape.channels(), self.limits, cancelled)
-                .map_err(|error| TransferError::Session(F::record_error(None, error)))?;
+            F::write_initialization(
+                socket,
+                &mut self.writer_state,
+                self.shape.channels(),
+                self.limits,
+                cancelled,
+            )
+            .map_err(|error| TransferError::Session(F::record_error(None, error)))?;
             self.initialized = true;
         }
         F::write_record(
             socket,
+            &mut self.writer_state,
             record,
             self.shape.channels(),
             self.limits,
@@ -459,6 +474,8 @@ pub(crate) fn accept_outlet<F: SealedSessionStrategy>(
     shape: SessionShape,
     cancelled: &AtomicBool,
 ) -> Result<AcceptedOutletSession<F>, F::SessionError> {
+    let writer_state = F::create_writer_state(shape.channels(), format_limits)
+        .map_err(|error| F::record_error(None, error))?;
     let (stream, local, peer) = F::accept(
         listener,
         identity,
@@ -475,6 +492,7 @@ pub(crate) fn accept_outlet<F: SealedSessionStrategy>(
         shape,
         initialized: false,
         cursor: 0,
+        writer_state,
         strategy: PhantomData,
     })
 }

@@ -97,6 +97,8 @@ mod documented_discovery_query_proposal;
 mod exact_sequence_loss_health;
 mod finite_sample_recovery_runtime;
 mod fixed_width_numeric_sample_runtime;
+#[cfg(test)]
+mod float32_sender_benchmark;
 mod float32_session_batch_health;
 mod float32_session_report_post_processing_batch;
 mod float32_session_report_recovery_clock_queue;
