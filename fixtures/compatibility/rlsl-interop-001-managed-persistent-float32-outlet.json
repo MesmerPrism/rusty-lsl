@@ -1,0 +1,96 @@
+{
+  "schema": "rusty.lsl.interop_001.managed_persistent_float32_outlet.v1",
+  "source": {
+    "rusty_lsl_commit": "893cdc4d6e542086643f3c7d7429629b2bb19af4",
+    "rusty_lsl_tree": "554183e1e38e21d9595570e69aa4d4961721ac4a",
+    "persistent_outlet_sha256": "c8cb439b22c390fe041e883154227141e1ec2e8eb75ab8e83c772d537a4d2829",
+    "managed_service_sha256": "55543129e2b33e51faa291841d44070ba799b1f4824b9ce7aea8db649515d267",
+    "stream_handshake_sha256": "5c7df340efe54f2488f82072abfaf743b3aa2ffbf1d3a0449561fcf172969fc3",
+    "official_driver_sha256": "4c4b18c4957f3b49f0adb392a9b7003f1cd20baf8a92177ba8935b7a8f84efd4",
+    "comparison_driver_sha256": "7c155bd459c4241262b4066d1f3393330bd5f927e3f5ececd2c3d527ca9d1700"
+  },
+  "official": {
+    "package": "pylsl",
+    "package_version": "1.18.2",
+    "library_version": 117,
+    "protocol_version": 110,
+    "native_library_sha256": "8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff",
+    "diagnostic_source_inspected": true,
+    "diagnostic_source_revision": "64988c6a14b8dc3b3f270ece58eab4f480bfab43",
+    "implementation_source_copied_or_translated": false
+  },
+  "scope": {
+    "platform_class": "single-windows-desktop-host",
+    "interface_selection": "caller-explicit-active-private-ipv4",
+    "serialized_repeats": 2,
+    "outlets": 1,
+    "consumers": 1,
+    "channels": 1,
+    "records": 10
+  },
+  "official_results": {
+    "discovery_requests": [2, 2],
+    "official_source_resolved": ["pass", "pass"],
+    "persistent_handshake": ["pass", "pass"],
+    "exact_float32_values": ["pass", "pass"],
+    "exact_source_timestamps": ["pass", "pass"],
+    "bounded_close": ["pass", "pass"]
+  },
+  "polar_comparison": {
+    "polar_stream_revision": "5e13f64c6247f3ff5c5f919711d53edc1a7c8da3",
+    "polar_sender_source_sha256": "beeb63ede432949e1d39723e95eabbdff4e21765b3d034b662632631dcbe9579",
+    "channels": 1,
+    "records_per_chunk": 10,
+    "warmup_pushes": 100,
+    "measured_pushes": 1000,
+    "rusty_median_ns": 14200,
+    "rusty_p95_ns": 23500,
+    "liblsl_median_ns": 4200,
+    "liblsl_p95_ns": 5900,
+    "rusty_to_liblsl_median": 3.380952,
+    "rusty_to_liblsl_p95": 3.983051,
+    "transport_units_equal": false,
+    "current_rusty_speed_advantage": false
+  },
+  "private_artifacts": {
+    "official_repeat_sha256": [
+      "fbfd29ddc9984bd574322eb484a16a9c2a0f6cf0a1af028ad6615eedda0389a2",
+      "fbfd29ddc9984bd574322eb484a16a9c2a0f6cf0a1af028ad6615eedda0389a2"
+    ],
+    "rusty_benchmark_sha256": "69db95562bfd4fd42d7dc9ca62f77f8c8c00c92f3bd00e5ea5e671be24e78d8a",
+    "polar_benchmark_sha256": "084345e5737e75207feb5fddb777f04728173ab72836e6c5fac7842eceec7338",
+    "comparison_sha256": "86b8265718df63fcfd3477878c3f7df5a4156080b078f2fe20c4a1e649deb2b2",
+    "published": false
+  },
+  "limitations": {
+    "single_host": true,
+    "single_platform": true,
+    "pull_sample_only": true,
+    "background_service": false,
+    "default_interface_selection": false,
+    "multi_outlet_discovery": false,
+    "cross_host": false,
+    "cross_platform": false,
+    "recovery_parity": false,
+    "device_or_h10": false,
+    "ble_to_recorder_latency": false,
+    "stable_or_release_ready": false
+  },
+  "claims": {
+    "bounded_official_consumer_path": true,
+    "descriptive_sender_comparison": true,
+    "broad_liblsl_equivalence": false,
+    "production_suitability": false,
+    "universal_performance_advantage": false,
+    "runtime_default_activated": false,
+    "manifold_authority": false
+  },
+  "private_exclusions": [
+    "machine-paths",
+    "interface-name-address-index",
+    "endpoints",
+    "raw-output",
+    "environment",
+    "machine-identity"
+  ]
+}

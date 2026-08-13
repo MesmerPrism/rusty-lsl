@@ -42,6 +42,7 @@
       "lslc-004t-runtime-conformance",
       "lslc-004u-typed-response-projection",
       "lslc-004v-typed-discovery-run",
+      "interop-001-managed-persistent-float32-outlet",
       "git-diff-hygiene"
     ],
     "deep": [
@@ -76,6 +77,7 @@
       "lslc-004t-runtime-conformance",
       "lslc-004u-typed-response-projection",
       "lslc-004v-typed-discovery-run",
+      "interop-001-managed-persistent-float32-outlet",
       "git-diff-hygiene",
       "pinned-rust-180-clippy",
       "pinned-historical-replay",
@@ -114,6 +116,7 @@
       "lslc-004t-runtime-conformance",
       "lslc-004u-typed-response-projection",
       "lslc-004v-typed-discovery-run",
+      "interop-001-managed-persistent-float32-outlet",
       "git-diff-hygiene",
       "pinned-rust-180-clippy"
     ]
@@ -1689,6 +1692,54 @@
       }
     },
     {
+      "id": "interop-001-managed-persistent-float32-outlet",
+      "owner": "rusty-lsl-managed-persistent-float32-outlet",
+      "state": "current",
+      "command": [
+        "python",
+        "tools/check_interop_001.py"
+      ],
+      "depends_on": [
+        "cargo-shape",
+        "public-boundary"
+      ],
+      "change_categories": [
+        "implementation",
+        "validation",
+        "documentation-only"
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "README.md",
+        "crates/rusty-lsl/src/lib.rs",
+        "crates/rusty-lsl/src/persistent_float32_outlet.rs",
+        "crates/rusty-lsl/src/persistent_float32_outlet_official_consumer.rs",
+        "crates/rusty-lsl/src/persistent_float32_outlet_service.rs",
+        "crates/rusty-lsl/src/runtime.rs",
+        "crates/rusty-lsl/src/stream_handshake.rs",
+        "crates/rusty-lsl/tests/public_api.rs",
+        "docs/ARCHITECTURE.md",
+        "docs/COMPATIBILITY.md",
+        "docs/LSL-PRODUCTION-ROADMAP.md",
+        "docs/STABLE_PUBLIC_API.md",
+        "docs/VALIDATION.md",
+        "fixtures/compatibility/rlsl-interop-001-managed-persistent-float32-outlet.json",
+        "tools/check_interop_001.py",
+        "tools/run_persistent_float32_outlet_official_consumer.py",
+        "tools/run_polar_stream_sender_ab_benchmark.py"
+      ],
+      "proves": [
+        "the exact managed service implementation, two sanitized pinned-official consumer repeats, descriptive same-host Polar/liblsl comparison, documentation routes, exclusions, and private evidence hashes remain synchronized"
+      ],
+      "does_not_prove": [
+        "pylsl pull_chunk, background or default interface policy, multiple outlets, non-loopback or cross-host behavior, recovery parity, other platforms or stream shapes, device or H10 behavior, BLE-to-recorder latency, broad compatibility, production suitability, stable API, release, or universal performance"
+      ],
+      "environment": {
+        "network": "forbidden",
+        "timeout_seconds": 120
+      }
+    },
+    {
       "id": "pinned-rust-180-clippy",
       "owner": "rusty-lsl-lint-policy",
       "state": "current",
@@ -1751,6 +1802,22 @@
     }
   ],
   "semantic_deltas": [
+    {
+      "id": "interop-001-managed-persistent-float32-outlet-gate",
+      "decision": "Standard, Deep, and CI validation require the sanitized INTEROP-001 managed-service, official-consumer, and Polar comparison contract.",
+      "reason": "The new caller-polled public service and its bounded host qualification need one deterministic portable gate that binds exact implementation bytes, results, exclusions, and evidence hashes without replaying network or private host state.",
+      "preserves": [
+        "caller scheduling and explicit interface authority",
+        "default-inert activation and bounded resource ownership",
+        "private paths, endpoints, raw output, environment, and machine identity",
+        "the official endpoint and Polar implementation as independently authored references"
+      ],
+      "does_not_authorize": [
+        "automatic interface, worker, retry, reconnect, or recovery policy",
+        "multiple outlets, other shapes, cross-host/platform, device, H10, BLE, or LabRecorder claims",
+        "production adoption, stable API, version, release, registry publication, routing, admission, commands, or Manifold authority"
+      ]
+    },
     {
       "id": "lslc-004o-official-resolver-production-responder-observation-gate",
       "decision": "Standard, Deep, and CI validation require sanitized two-repeat pinned-official resolver to unchanged production responder evidence.",

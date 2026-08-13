@@ -14,11 +14,31 @@ rejected before I/O.
 The wire unit remains the observed protocol-110 Float32 record sequence: each
 record has the existing marker, timestamp, and channel values, and a chunk is
 those records serialized contiguously without an additional envelope. This
-candidate does not yet establish official liblsl consumer interoperability,
-network discovery of the retained outlet, non-loopback operation, reconnect or
-recovery behavior, OS portability, device qualification, or BLE-to-recorder
-latency. The descriptive host benchmark is performance evidence only for its
-exact revision, host, dimensions, and already-connected loopback transport.
+The managed service closes one bounded official-consumer gap. Two repeated
+clean-revision Windows-host runs used pylsl 1.18.2, liblsl library 117, and
+protocol 110. The official resolver discovered the service; the inlet
+completed the persistent handshake; and sample pulls returned the exact ten
+one-channel values and source timestamps before bounded close. The native
+library SHA-256 was
+`8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff`.
+Public liblsl source at `64988c6a14b8dc3b3f270ece58eab4f480bfab43`
+was inspected to diagnose connection roles; no source was copied or translated.
+
+This qualifies one explicit-interface, one-host, one-platform, one-channel,
+ten-record Float32 path. It does not establish a background service, default
+interface policy, the pylsl `pull_chunk` wrapper, broad liblsl equivalence,
+non-loopback/cross-host behavior, recovery parity, OS portability, device
+qualification, or BLE-to-recorder latency.
+
+The Polar reference is `5e13f64c6247f3ff5c5f919711d53edc1a7c8da3`;
+its sender source SHA-256 is
+`beeb63ede432949e1d39723e95eabbdff4e21765b3d034b662632631dcbe9579`.
+With one connected inlet, 100 warmups and 1,000 measured ten-record pushes,
+Rusty LSL `893cdc4` measured 14,200 ns median / 23,500 ns p95; Polar
+Stream/liblsl measured 4,200 ns / 5,900 ns. Ratios were 3.380952 and 3.983051.
+The transport units differ in timestamp handling. This descriptive sender
+occupancy shows no current Rusty LSL performance advantage, but is not complete
+application latency or a universal claim.
 
 ## Current P67/P68 boundary
 

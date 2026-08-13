@@ -2,10 +2,9 @@
 
 ## Current status
 
-Rusty LSL source is integrated on public `main`. The crate remains version
-`0.0.0`, `publish = false`, default-inert, and a candidate rather than a
-stable, tagged, or registry-published release. Source integration is not
-release, activation, compatibility, device, or acceptance evidence.
+Rusty LSL source is integrated on public `main`. The crate remains `0.0.0`,
+`publish = false`, default-inert, and neither stable nor released. Source
+integration is not activation, compatibility, device, or acceptance evidence.
 
 The production sequence is integrated through the public source surfaces
 described by the architecture, compatibility, validation, roadmap, and history
@@ -49,8 +48,9 @@ belong only to the dedicated private planning repository.
 ## Implementation rules
 
 - Do not copy or translate liblsl or rLSL source. Official liblsl is an
-  MIT-licensed black-box compatibility oracle and reference endpoint, never an
-  implementation template. rLSL source is not an implementation input.
+  MIT-licensed compatibility oracle and reference endpoint, never an
+  implementation template. Any diagnostic source inspection must be explicit
+  and revision-bound. rLSL source is not an implementation input.
 - Keep specification, planned observation, measured result, candidate result,
   and accepted behavior distinct. Do not claim broad compatibility without the
   named process and evidence.
@@ -70,6 +70,8 @@ belong only to the dedicated private planning repository.
   `push_chunk` must encode once, allocate nothing, and issue one contiguous
   bounded write per retained consumer. Do not introduce an ambient worker,
   timer, discovery/selection policy, implicit retry, or unbounded registry.
+- Keep `PersistentFloat32OutletService` caller-polled on a concrete IPv4
+  interface: one query/consumer per poll; no worker, enumeration, fallback, retry.
 - Runtime selection and activation remain separate. No default Cargo feature
   activates runtime behavior; accepted lock identity and explicit caller input
   remain required, and activation stays default-disabled.
@@ -110,15 +112,18 @@ composition invariant is checked by `python ./tools/check_cargo_shape.py` and
 permits only the `public_api` integration-test target. DOC-024 historical
 coverage is checked by `python ./tools/check_doc_024_coverage.py`.
 
-The non-gating Float32 sender microbenchmark is run through
-`python ./tools/run_float32_sender_benchmark.py`. Bind results to the emitted
-revision, dirty-state flag, host, mode, dimensions, warmup, and iteration count;
-never turn one host measurement into a universal performance claim.
+Run the non-gating Float32 sender microbenchmark through
+`python ./tools/run_float32_sender_benchmark.py`; bind its emitted revision,
+dirty state, host, mode, dimensions, warmup, and iterations without a universal claim.
 
-The persistent chunk counterpart is run through
-`python ./tools/run_persistent_float32_outlet_benchmark.py` and follows the same
-evidence rule. Its transport unit is one `push_chunk` call on one established
-consumer, not discovery, connection, BLE-to-recorder, or ecosystem latency.
+The persistent counterpart, `tools/run_persistent_float32_outlet_benchmark.py`,
+measures one `push_chunk` to one established consumer, not discovery,
+connection, BLE-to-recorder, or ecosystem latency.
+
+Official-consumer and Polar comparison routes are
+`tools/run_persistent_float32_outlet_official_consumer.py` and
+`tools/run_polar_stream_sender_ab_benchmark.py`; bind emitted subjects, host,
+dimensions, and units, without broad, device, release, or universal claims.
 
 The compact router retains the route keys consumed by focused owner gates:
 `LSLC-001A`, `LSLC-001B`, `LSLC-001C`, `LSLC-001D`, `LSLC-001H`,
@@ -137,10 +142,9 @@ The compact router retains the route keys consumed by focused owner gates:
 `check_lslc_002a.ps1`. These are compatibility route keys, not current
 chronology or expanded claims; their scopes remain in the canonical documents.
 
-Run the smallest focused check while iterating, then the risk-selected owner
-aggregate once on the frozen candidate. Documentation or schema work does not
-justify device execution. Pull-request CI validates feature candidates;
-post-merge `main` validation is retained as independent readback.
+Run focused checks while iterating, then the risk-selected owner aggregate on
+the frozen candidate. Docs do not justify device execution. PR CI validates
+feature candidates; post-merge `main` validation is independent readback.
 
 Do not change validation policy, workflows, action pins, or the approval trust
 root inside a unit that would thereby approve itself. Route such work through
@@ -155,15 +159,14 @@ applications, and unsanitized planning evidence. Public evidence may contain
 portable schemas, synthetic fixtures, upstream references, exact public Git
 identities, and sanitized hash-bound summaries.
 
-Owner evidence precedes convenience text. Preserve historical or binary bytes
-exactly unless a separate policy admits conversion; canonical public text is
-UTF-8 without BOM, LF-only, and terminal-newline complete.
+Preserve historical or binary bytes unless policy admits conversion; canonical
+public text is UTF-8 without BOM, LF-only, and terminal-newline complete.
 
 ## Release boundary
 
 The current source is not a release. Release review requires PowerShell 7.6+
-through `pwsh` and the executing gate documented in
-`docs/RELEASE_CANDIDATE.md`. Static readiness remains non-executing. Do not
+and the executing gate in `docs/RELEASE_CANDIDATE.md`; static readiness does
+not execute. Do not
 change the version, create a tag or release, publish a registry package, or
 claim stable API without separate owner authorization and the named evidence.
 

@@ -8,12 +8,17 @@
 
 pub use crate::{
     PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
-    PersistentFloat32ConsumerFailure, PersistentFloat32Outlet, PersistentFloat32OutletActivation,
-    PersistentFloat32OutletActivationError, PersistentFloat32OutletCloseReport,
-    PersistentFloat32OutletCreateError, PersistentFloat32OutletLimitError,
-    PersistentFloat32OutletLimits, PersistentFloat32PushError, PersistentFloat32PushReport,
-    PersistentFloat32TransportError, PERSISTENT_FLOAT32_OUTLET_API_MARKER,
-    PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER, PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+    PersistentFloat32ConsumerFailure, PersistentFloat32DiscoveryHandled, PersistentFloat32Outlet,
+    PersistentFloat32OutletActivation, PersistentFloat32OutletActivationError,
+    PersistentFloat32OutletCloseReport, PersistentFloat32OutletCreateError,
+    PersistentFloat32OutletLimitError, PersistentFloat32OutletLimits,
+    PersistentFloat32OutletService, PersistentFloat32OutletServiceCloseReport,
+    PersistentFloat32OutletServiceCreateError, PersistentFloat32OutletServiceIdentityRole,
+    PersistentFloat32OutletServiceLimitError, PersistentFloat32OutletServiceLimits,
+    PersistentFloat32OutletServicePoll, PersistentFloat32OutletServicePollError,
+    PersistentFloat32PushError, PersistentFloat32PushReport, PersistentFloat32TransportError,
+    PERSISTENT_FLOAT32_OUTLET_API_MARKER, PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER,
+    PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
 };
 
 pub use crate::{

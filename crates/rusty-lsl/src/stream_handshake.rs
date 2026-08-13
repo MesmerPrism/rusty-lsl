@@ -138,6 +138,21 @@ impl StreamHandshakeIdentity {
         &self.uid
     }
 
+    /// Opaque host label.
+    pub fn hostname(&self) -> &str {
+        &self.hostname
+    }
+
+    /// Opaque source label.
+    pub fn source_id(&self) -> &str {
+        &self.source_id
+    }
+
+    /// Opaque session label.
+    pub fn session_id(&self) -> &str {
+        &self.session_id
+    }
+
     pub(crate) fn field(&self, role: StreamHandshakeIdentityRole) -> &str {
         match role {
             StreamHandshakeIdentityRole::Uid => &self.uid,
@@ -286,19 +301,35 @@ fn request_matches_format(
         _ => return false,
     };
     let _ = performance;
+    let maximum_buffer_length = lines[7]
+        .strip_prefix("Max-Buffer-Length: ")
+        .and_then(parse_canonical_unsigned);
+    let maximum_chunk_length = lines[8]
+        .strip_prefix("Max-Chunk-Length: ")
+        .and_then(parse_canonical_unsigned);
     lines[0] == format!("LSL:streamfeed/110 {}", identity.uid)
         && lines[1] == "Native-Byte-Order: 1234"
         && lines[3] == "Has-IEEE754-Floats: 1"
         && lines[4] == format!("Supports-Subnormals: {}", usize::from(supports_subnormals))
         && lines[5] == format!("Value-Size: {value_size}")
         && lines[6] == "Data-Protocol-Version: 110"
-        && lines[7] == "Max-Buffer-Length: 100"
-        && lines[8] == "Max-Chunk-Length: 1"
+        && maximum_buffer_length.is_some_and(|value| value > 0)
+        && maximum_chunk_length.is_some()
         && lines[9] == format!("Hostname: {}", identity.hostname)
         && lines[10] == format!("Source-Id: {}", identity.source_id)
         && lines[11] == format!("Session-Id: {}", identity.session_id)
         && lines[12].is_empty()
         && lines[13].is_empty()
+}
+
+fn parse_canonical_unsigned(value: &str) -> Option<u64> {
+    if value.is_empty()
+        || (value.len() > 1 && value.starts_with('0'))
+        || !value.bytes().all(|byte| byte.is_ascii_digit())
+    {
+        return None;
+    }
+    value.parse().ok()
 }
 fn response(identity: &StreamHandshakeIdentity) -> String {
     format!("LSL/110 200 OK\r\nUID: {}\r\nByte-Order: 1234\r\nSuppress-Subnormals: 0\r\nData-Protocol-Version: 110\r\n\r\n", identity.uid)
@@ -681,6 +712,36 @@ mod tests {
         }
         assert!(!request_matches(
             &official.replace("Source-Id: synthetic-source", "Source-Id: other"),
+            &identity
+        ));
+    }
+
+    #[test]
+    fn interop_001_official_requester_buffer_preferences_are_bounded_numbers() {
+        let identity = identity();
+        let canonical = request(&identity);
+        let official = canonical
+            .replace("Max-Buffer-Length: 100\r\n", "Max-Buffer-Length: 1000\r\n")
+            .replace("Max-Chunk-Length: 1\r\n", "Max-Chunk-Length: 0\r\n");
+        assert!(request_matches(&official, &identity));
+        for damaged in ["", "-1", "+1", "01", "1.0", "18446744073709551616"] {
+            assert!(!request_matches(
+                &canonical.replace(
+                    "Max-Buffer-Length: 100\r\n",
+                    &format!("Max-Buffer-Length: {damaged}\r\n"),
+                ),
+                &identity
+            ));
+            assert!(!request_matches(
+                &canonical.replace(
+                    "Max-Chunk-Length: 1\r\n",
+                    &format!("Max-Chunk-Length: {damaged}\r\n"),
+                ),
+                &identity
+            ));
+        }
+        assert!(!request_matches(
+            &canonical.replace("Max-Buffer-Length: 100", "Max-Buffer-Length: 0"),
             &identity
         ));
     }
