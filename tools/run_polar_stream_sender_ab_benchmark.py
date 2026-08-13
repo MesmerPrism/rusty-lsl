@@ -209,7 +209,12 @@ def compare(rusty: dict[str, object], polar: dict[str, object]) -> dict[str, obj
     ]:
         if require_integer(rusty, field) != require_integer(polar, field):
             raise ValueError(f"benchmark dimension mismatch: {field}")
-    if rusty.get("host") != polar.get("host"):
+    rusty_host = rusty.get("host")
+    polar_host = polar.get("host")
+    if not isinstance(rusty_host, dict) or not isinstance(polar_host, dict):
+        raise ValueError("benchmark host evidence is missing")
+    host_fields = ["system", "release", "machine"]
+    if any(rusty_host.get(field) != polar_host.get(field) for field in host_fields):
         raise ValueError("benchmarks were not recorded on the exact same host class")
     rusty_median = require_integer(rusty, "median_push_chunk_ns")
     rusty_p95 = require_integer(rusty, "p95_push_chunk_ns")
@@ -228,7 +233,11 @@ def compare(rusty: dict[str, object], polar: dict[str, object]) -> dict[str, obj
             "polar_sender_source_sha256": polar.get("polar_sender_source_sha256"),
             "official": official,
         },
-        "host": rusty["host"],
+        "host": {field: rusty_host[field] for field in host_fields},
+        "subject_toolchains": {
+            "rusty_lsl_rustc": rusty_host.get("rustc"),
+            "polar_stream_rustc": polar_host.get("rustc"),
+        },
         "dimensions": {
             field: rusty[field]
             for field in [
