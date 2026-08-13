@@ -7,6 +7,15 @@
 //! It defines no types, defaults, effects, or authority.
 
 pub use crate::{
+    PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
+    PersistentFloat32ConsumerFailure, PersistentFloat32Outlet, PersistentFloat32OutletActivation,
+    PersistentFloat32OutletCloseReport, PersistentFloat32OutletCreateError,
+    PersistentFloat32OutletLimitError, PersistentFloat32OutletLimits, PersistentFloat32PushError,
+    PersistentFloat32PushReport, PersistentFloat32TransportError,
+    PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+};
+
+pub use crate::{
     admit_runtime_activation, compose_morphospace_stream_lifecycle_advisory,
     connect_selected_typed_udp_discovery_double64_session_inlet,
     connect_selected_typed_udp_discovery_float32_session_inlet,

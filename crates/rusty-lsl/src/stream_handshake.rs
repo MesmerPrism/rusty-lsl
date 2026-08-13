@@ -499,7 +499,27 @@ pub(crate) fn accept_handshake_stream_with_format(
             Err(e) => return Err(StreamHandshakeError::Io(e.kind())),
         }
     };
-    let received = read_header(&mut stream, limits, started, cancelled)?;
+    admit_accepted_handshake_stream_with_format(
+        &mut stream,
+        identity,
+        limits,
+        cancelled,
+        value_size,
+        supports_subnormals,
+    )?;
+    Ok((stream, local, peer))
+}
+
+pub(crate) fn admit_accepted_handshake_stream_with_format(
+    stream: &mut TcpStream,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+    value_size: usize,
+    supports_subnormals: bool,
+) -> Result<(), StreamHandshakeError> {
+    let started = Instant::now();
+    let received = read_header(stream, limits, started, cancelled)?;
     if !request_matches_format(&received, identity, value_size, supports_subnormals) {
         return Err(if received.starts_with("LSL:streamfeed/110 ") {
             StreamHandshakeError::IdentityMismatch
@@ -508,8 +528,7 @@ pub(crate) fn accept_handshake_stream_with_format(
         });
     }
     let response = response(identity);
-    write_all_bounded(&mut stream, response.as_bytes(), limits, started, cancelled)?;
-    Ok((stream, local, peer))
+    write_all_bounded(stream, response.as_bytes(), limits, started, cancelled)
 }
 
 #[cfg(test)]

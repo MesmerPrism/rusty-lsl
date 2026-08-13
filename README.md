@@ -34,6 +34,22 @@ Project-owned source is licensed AGPL-3.0-or-later. Official liblsl is used
 only as a pinned black-box compatibility oracle, never as an implementation
 template. rLSL source is not an implementation input.
 
+## Persistent Float32 chunk outlet
+
+`PersistentFloat32Outlet` is a caller-owned, explicitly activated, long-lived
+Float32 TCP outlet. Construction fixes the channel count and allocates one
+bounded reusable flat chunk buffer plus a bounded consumer registry. The caller
+polls for pending consumers and calls `push_chunk(&[f32],
+&[RawSourceTimestamp], ...)`; one call encodes the complete interleaved chunk
+once and performs one contiguous bounded write per retained consumer. Multiple
+independent outlets and multiple consumers per outlet are supported without a
+crate-owned thread, timer, discovery policy, or allocation in `push_chunk`.
+
+This is a public candidate API, not default activation, a stable-version
+promise, automatic discovery, arbitrary-format support, recovery policy, or a
+claim of official liblsl/non-loopback/device interoperability. Those remain
+separate qualification boundaries.
+
 ## Float32 sender state and measurement
 
 An accepted bounded Float32 outlet session allocates one exact-size encoding
@@ -44,9 +60,14 @@ and a fresh total deadline are still checked for every record.
 
 `python ./tools/run_float32_sender_benchmark.py` runs a descriptive release-mode
 loopback microbenchmark and emits one JSON record with the revision, dirty-state
-flag, host, dimensions, median, and p95. It is not a performance gate or a claim
-of persistent outlets, chunk submission, background discovery, multi-consumer
-fanout, application latency, or liblsl parity.
+flag, host, dimensions, median, and p95. It remains the historical finite-session
+baseline and is not a performance gate or a claim about the persistent outlet,
+application latency, or liblsl parity.
+
+`python ./tools/run_persistent_float32_outlet_benchmark.py` separately measures
+one reusable chunk submission over one already established loopback consumer.
+Its result is descriptive and host-bound; it does not include connection,
+discovery, BLE, recorder, scheduling, or recovery latency.
 
 ## Project documents
 

@@ -1066,6 +1066,38 @@ fn sample_activation(admission: &RuntimeActivationAdmission) -> TimestampedFloat
     .unwrap()
 }
 
+#[test]
+fn perf_002_persistent_float32_outlet_is_public_and_explicit() {
+    let admission =
+        admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, CONSUMER, &selections())
+            .unwrap();
+    let activation = PersistentFloat32OutletActivation::new(sample_activation(&admission));
+    let limits = PersistentFloat32OutletLimits::new(10, 2).unwrap();
+    let handshake_limits =
+        StreamHandshakeLimits::new(1024, 128, Duration::from_millis(5), Duration::from_secs(1))
+            .unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let outlet = PersistentFloat32Outlet::new(
+        activation,
+        listener,
+        identity(handshake_limits),
+        handshake_limits,
+        TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+            .unwrap(),
+        1,
+        limits,
+    )
+    .unwrap();
+    assert_eq!(outlet.channel_count(), 1);
+    assert_eq!(outlet.connected_consumers(), 0);
+    assert_eq!(limits.max_records_per_chunk(), 10);
+    assert_eq!(limits.max_consumers(), 2);
+    assert_eq!(
+        PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+        runtime::PERSISTENT_FLOAT32_OUTLET_API_MARKER
+    );
+}
+
 fn identity(limits: StreamHandshakeLimits) -> StreamHandshakeIdentity {
     StreamHandshakeIdentity::new(
         "66666666-2222-4666-8666-666666666666".into(),

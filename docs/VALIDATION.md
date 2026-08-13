@@ -1,5 +1,30 @@
 # Validation
 
+## Persistent Float32 chunk outlet
+
+Focused host tests cover idle nonblocking admission, complete pre-I/O shape and
+cancellation rejection, reusable-buffer identity, exact two-consumer fan-out,
+two independent outlet shapes, explicit close, and immediate listener reuse:
+
+```text
+cargo test -p rusty-lsl --lib perf_002 -- --test-threads=1
+cargo test -p rusty-lsl --test public_api perf_002_persistent_float32_outlet_is_public_and_explicit -- --exact --test-threads=1
+```
+
+The deterministic dispatcher contract and one descriptive release run are:
+
+```text
+python ./tools/run_persistent_float32_outlet_benchmark.py --self-test
+python ./tools/run_persistent_float32_outlet_benchmark.py --channels 1 --records 10 --warmup 20 --iterations 200
+```
+
+One timing sample covers one `push_chunk` call that encodes ten records into the
+retained buffer and makes one contiguous write to one already established
+loopback consumer. The emitted JSON binds the revision, dirty state, host,
+dimensions, median, and p95. There is no performance threshold, and this does
+not measure connection/discovery, multiple-consumer scheduling, non-loopback,
+liblsl, BLE, LabRecorder, recovery, or device behavior.
+
 ## Float32 sender-state and descriptive benchmark
 
 Focused host tests prove that one multichannel Float32 writer buffer retains

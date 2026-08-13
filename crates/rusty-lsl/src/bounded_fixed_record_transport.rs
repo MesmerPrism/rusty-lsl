@@ -24,6 +24,13 @@ pub(crate) enum BoundedFixedRecordError {
     Io(ErrorKind),
 }
 
+/// Exact-write failure with the byte prefix accepted before the failure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct BoundedFixedRecordWriteFailure {
+    pub(crate) error: BoundedFixedRecordError,
+    pub(crate) written: usize,
+}
+
 /// Session-owned write configuration retained across fixed-record transfers.
 #[derive(Default)]
 pub(crate) struct BoundedWriteState {
@@ -93,21 +100,62 @@ pub(crate) fn write_exact_bounded_with_state(
     cancelled: &AtomicBool,
     state: &mut BoundedWriteState,
 ) -> Result<(), BoundedFixedRecordError> {
+    write_exact_bounded_with_state_progress(
+        stream,
+        record,
+        io_slice,
+        total_deadline,
+        cancelled,
+        state,
+    )
+    .map_err(|failure| failure.error)
+}
+
+/// Writes one record and retains the exact accepted byte prefix on failure.
+pub(crate) fn write_exact_bounded_with_state_progress(
+    stream: &mut TcpStream,
+    record: &[u8],
+    io_slice: Duration,
+    total_deadline: Duration,
+    cancelled: &AtomicBool,
+    state: &mut BoundedWriteState,
+) -> Result<(), BoundedFixedRecordWriteFailure> {
     let started = Instant::now();
     let mut offset = 0;
     while offset < record.len() {
         if cancelled.load(Ordering::Acquire) {
-            return Err(BoundedFixedRecordError::Cancelled);
+            return Err(BoundedFixedRecordWriteFailure {
+                error: BoundedFixedRecordError::Cancelled,
+                written: offset,
+            });
         }
-        let remaining = total_deadline
-            .checked_sub(started.elapsed())
-            .ok_or(BoundedFixedRecordError::Deadline)?;
-        state.apply_timeout(stream, remaining.min(io_slice))?;
+        let remaining = total_deadline.checked_sub(started.elapsed()).ok_or(
+            BoundedFixedRecordWriteFailure {
+                error: BoundedFixedRecordError::Deadline,
+                written: offset,
+            },
+        )?;
+        state
+            .apply_timeout(stream, remaining.min(io_slice))
+            .map_err(|error| BoundedFixedRecordWriteFailure {
+                error,
+                written: offset,
+            })?;
         match stream.write(&record[offset..]) {
-            Ok(0) => return Err(BoundedFixedRecordError::Io(ErrorKind::WriteZero)),
+            Ok(0) => {
+                return Err(BoundedFixedRecordWriteFailure {
+                    error: BoundedFixedRecordError::Io(ErrorKind::WriteZero),
+                    written: offset,
+                })
+            }
             Ok(written) => offset += written,
             Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-            Err(error) => return Err(BoundedFixedRecordError::Io(error.kind())),
+            Err(error) => {
+                return Err(BoundedFixedRecordWriteFailure {
+                    error: BoundedFixedRecordError::Io(error.kind()),
+                    written: offset,
+                })
+            }
         }
     }
     Ok(())

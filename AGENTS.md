@@ -63,8 +63,13 @@ belong only to the dedicated private planning repository.
   before committing accepted state and preserve owned error evidence.
 - Keep the bounded Float32 sender buffer and socket-timeout cache session-owned.
   Allocate encoding state before caller-record transfer, preserve a fresh
-  per-record deadline and cancellation checks, and do not describe this finite
-  path as a persistent outlet or reusable public chunk API.
+  per-record deadline and cancellation checks, and keep this finite path
+  distinct from the public persistent outlet.
+- Keep `PersistentFloat32Outlet` caller-owned and explicitly activated. Allocate
+  its fixed channel-shape buffer and bounded consumer registry at construction;
+  `push_chunk` must encode once, allocate nothing, and issue one contiguous
+  bounded write per retained consumer. Do not introduce an ambient worker,
+  timer, discovery/selection policy, implicit retry, or unbounded registry.
 - Runtime selection and activation remain separate. No default Cargo feature
   activates runtime behavior; accepted lock identity and explicit caller input
   remain required, and activation stays default-disabled.
@@ -109,6 +114,11 @@ The non-gating Float32 sender microbenchmark is run through
 `python ./tools/run_float32_sender_benchmark.py`. Bind results to the emitted
 revision, dirty-state flag, host, mode, dimensions, warmup, and iteration count;
 never turn one host measurement into a universal performance claim.
+
+The persistent chunk counterpart is run through
+`python ./tools/run_persistent_float32_outlet_benchmark.py` and follows the same
+evidence rule. Its transport unit is one `push_chunk` call on one established
+consumer, not discovery, connection, BLE-to-recorder, or ecosystem latency.
 
 The compact router retains the route keys consumed by focused owner gates:
 `LSLC-001A`, `LSLC-001B`, `LSLC-001C`, `LSLC-001D`, `LSLC-001H`,
