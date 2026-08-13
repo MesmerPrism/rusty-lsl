@@ -1,0 +1,55 @@
+{
+  "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-descriptor.schema.json",
+  "schema": "rusty.morphospace.workflow.feature_descriptor.v1",
+  "feature_id": "persistent-float32-outlet",
+  "module_id": "persistent-float32-outlet",
+  "version": "0.1.0",
+  "owner_lane": "rusty-lsl",
+  "source": {
+    "repo_id": "rusty-lsl",
+    "revision": "a4465a92f5ac41225acb089b2d0481436826f5b9",
+    "path": "crates/rusty-lsl/src/persistent_float32_outlet.rs",
+    "sha256": "c588e8986ec3a312c3ef338d89e5291b58d7a227e7b60345241cfbc3daa5e44d"
+  },
+  "dependencies": [
+    "timestamped-float32-sample"
+  ],
+  "conflicts": [],
+  "exclusive_group": null,
+  "effects": {
+    "permissions": [
+      "network access"
+    ],
+    "services": [],
+    "activities": [],
+    "queries": [],
+    "tools": [],
+    "assets": [],
+    "shaders": [],
+    "native_libraries": [],
+    "commands": [],
+    "routes": [],
+    "streams": [],
+    "inputs": [
+      "explicit caller persistent outlet identity, listener, bounds, channel shape, and timestamped Float32 chunks"
+    ],
+    "scenes": [],
+    "markers": []
+  },
+  "parameter_authorities": [
+    {
+      "parameter": "lsl.sample-runtime",
+      "owner": "rusty-lsl"
+    }
+  ],
+  "activation": {
+    "rule": "selected-lock-and-runtime-input",
+    "runtime_inputs": [
+      "explicit caller persistent outlet identity, listener, bounds, channel shape, and timestamped Float32 chunks"
+    ],
+    "receipt_schema": "rusty.lsl.persistent_float32_outlet.activation_receipt.v1",
+    "effective_marker": "rusty.lsl.persistent_float32_outlet.effective"
+  },
+  "validation_profile": "runtime-loopback",
+  "rollback_profile": "rollback"
+}

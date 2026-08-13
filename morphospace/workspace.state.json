@@ -56,8 +56,8 @@
   "last_accepted_receipt": "receipts/rlsl-lslc-004w-resumed-standard-validation.json",
   "last_event_id": "rlsl-lslc-004w-bounded-discovery-selection-suggestion-accepted-0645",
   "module_registry": {
-    "lock_fingerprint": "cb56e9b4963dc4e0b53a1ee0630a549fdfb095275b9afea4b5ed7abf79f9ad73",
-    "lock_revision": 36,
+    "lock_fingerprint": "63cd10510e1ffd1b827ce9ad7fa5c2ef014cfc0a4a1675f56ef1d9c087413f49",
+    "lock_revision": 37,
     "modules": [
       {
         "contract": "rusty.lsl.bounded_sample_queue.v1",
@@ -85,6 +85,13 @@
         "contract_revision": "lslc-002u",
         "maturity": "candidate",
         "module_id": "integrated-clock-correction",
+        "owner_repo": "rusty-lsl"
+      },
+      {
+        "contract": "rusty.lsl.persistent_float32_outlet.v1",
+        "contract_revision": "rlsl-perf-002",
+        "maturity": "candidate",
+        "module_id": "persistent-float32-outlet",
         "owner_repo": "rusty-lsl"
       },
       {

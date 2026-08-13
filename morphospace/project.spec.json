@@ -2,7 +2,7 @@
   "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/project-spec-v2.schema.json",
   "schema": "rusty.morphospace.workflow.project_spec.v2",
   "project_id": "rusty-lsl",
-  "revision": 6,
+  "revision": 7,
   "owner": "rusty-lsl-project",
   "purpose": "Deliver a production-quality independently authored pure-Rust Lab Streaming Layer implementation with a coherent native outlet/inlet lifecycle, bounded transport, required compatibility evidence, and explicit typed advisory Rusty Morphospace observation and proposal hooks.",
   "activation_model": {
@@ -16,6 +16,7 @@
       "finite-sample-recovery",
       "fixed-width-numeric-sample",
       "integrated-clock-correction",
+      "persistent-float32-outlet",
       "short-info-discovery-responder",
       "string-sample",
       "stream-handshake",
@@ -28,6 +29,7 @@
       "finite-sample-recovery",
       "fixed-width-numeric-sample",
       "integrated-clock-correction",
+      "persistent-float32-outlet",
       "short-info-discovery-responder",
       "string-sample",
       "stream-handshake",
@@ -237,6 +239,19 @@
       "maturity": "candidate",
       "contract": "rusty.lsl.integrated_clock_correction.v1",
       "contract_revision": "lslc-002u",
+      "source_repo": "rusty-lsl",
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
+      "selected": true
+    },
+    {
+      "module_id": "persistent-float32-outlet",
+      "feature_id": "persistent-float32-outlet",
+      "lane": "rusty-lsl",
+      "maturity": "candidate",
+      "contract": "rusty.lsl.persistent_float32_outlet.v1",
+      "contract_revision": "rlsl-perf-002",
       "source_repo": "rusty-lsl",
       "dependencies": [
         "timestamped-float32-sample"

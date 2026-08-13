@@ -2,11 +2,11 @@
   "$schema": "https://github.com/MesmerPrism/rusty-morphospace-work-environment/schemas/feature-lock-v2.schema.json",
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
-  "project_revision": 6,
-  "revision": 36,
-  "generated_at": "2026-08-13T12:06:00Z",
+  "project_revision": 7,
+  "revision": 37,
+  "generated_at": "2026-08-13T16:10:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "cb56e9b4963dc4e0b53a1ee0630a549fdfb095275b9afea4b5ed7abf79f9ad73",
+  "lock_fingerprint": "63cd10510e1ffd1b827ce9ad7fa5c2ef014cfc0a4a1675f56ef1d9c087413f49",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -14,6 +14,7 @@
     "finite-sample-recovery",
     "fixed-width-numeric-sample",
     "integrated-clock-correction",
+    "persistent-float32-outlet",
     "short-info-discovery-responder",
     "stream-handshake",
     "string-sample",
@@ -243,6 +244,63 @@
         ],
         "receipt_schema": "rusty.lsl.integrated_clock_correction.activation_receipt.v1",
         "effective_marker": "rusty.lsl.integrated_clock_correction.effective"
+      },
+      "validation_profile": "runtime-loopback",
+      "rollback_profile": "rollback"
+    },
+    {
+      "feature_id": "persistent-float32-outlet",
+      "module_id": "persistent-float32-outlet",
+      "version": "0.1.0",
+      "owner_lane": "rusty-lsl",
+      "selected": true,
+      "run_activation_default": "disabled",
+      "descriptor": {
+        "path": "features/persistent-float32-outlet.json",
+        "sha256": "ac5b7960470dda7bc9b7aa00186240c2dea2365ef7ed425e7347a9916ea85a00",
+        "source_repo": "rusty-lsl",
+        "source_revision": "a4465a92f5ac41225acb089b2d0481436826f5b9",
+        "source_path": "crates/rusty-lsl/src/persistent_float32_outlet.rs",
+        "source_sha256": "c588e8986ec3a312c3ef338d89e5291b58d7a227e7b60345241cfbc3daa5e44d"
+      },
+      "dependencies": [
+        "timestamped-float32-sample"
+      ],
+      "conflicts": [],
+      "exclusive_group": null,
+      "effects": {
+        "permissions": [
+          "network access"
+        ],
+        "services": [],
+        "activities": [],
+        "queries": [],
+        "tools": [],
+        "assets": [],
+        "shaders": [],
+        "native_libraries": [],
+        "commands": [],
+        "routes": [],
+        "streams": [],
+        "inputs": [
+          "explicit caller persistent outlet identity, listener, bounds, channel shape, and timestamped Float32 chunks"
+        ],
+        "scenes": [],
+        "markers": []
+      },
+      "parameter_authorities": [
+        {
+          "parameter": "lsl.sample-runtime",
+          "owner": "rusty-lsl"
+        }
+      ],
+      "activation": {
+        "rule": "selected-lock-and-runtime-input",
+        "runtime_inputs": [
+          "explicit caller persistent outlet identity, listener, bounds, channel shape, and timestamped Float32 chunks"
+        ],
+        "receipt_schema": "rusty.lsl.persistent_float32_outlet.activation_receipt.v1",
+        "effective_marker": "rusty.lsl.persistent_float32_outlet.effective"
       },
       "validation_profile": "runtime-loopback",
       "rollback_profile": "rollback"
@@ -545,6 +603,7 @@
       "explicit caller bounded sample queue construction and operations",
       "explicit caller finite recovery policy and attempt operation",
       "explicit caller fixed-width numeric sample configuration",
+      "explicit caller persistent outlet identity, listener, bounds, channel shape, and timestamped Float32 chunks",
       "explicit caller short-info responder configuration",
       "explicit caller StringSample capability request",
       "explicit caller TCP handshake configuration",
