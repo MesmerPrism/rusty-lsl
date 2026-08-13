@@ -201,7 +201,7 @@ def main() -> int:
         "sample_count": arguments.iterations * arguments.records,
         "median_push_chunk_ns": percentile_nearest_rank(samples, 50),
         "p95_push_chunk_ns": percentile_nearest_rank(samples, 95),
-        "transport_unit": "one reusable encoded Float32 chunk and one contiguous loopback TCP write",
+        "transport_unit": "one reusable encoded Float32 chunk and one contiguous loopback TCP write with caller-supplied timestamps",
         "interpretation": "descriptive-non-gating",
     }
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))

@@ -139,6 +139,9 @@ mod morphospace_stream_lifecycle_observation;
 mod persistent_float32_outlet;
 #[cfg(test)]
 mod persistent_float32_outlet_benchmark;
+#[cfg(test)]
+mod persistent_float32_outlet_official_consumer;
+mod persistent_float32_outlet_service;
 
 #[cfg(test)]
 #[test]
@@ -444,6 +447,13 @@ pub use persistent_float32_outlet::{
     PersistentFloat32OutletLimits, PersistentFloat32PushError, PersistentFloat32PushReport,
     PersistentFloat32TransportError, PERSISTENT_FLOAT32_OUTLET_API_MARKER,
     PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER, PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+};
+pub use persistent_float32_outlet_service::{
+    PersistentFloat32DiscoveryHandled, PersistentFloat32OutletService,
+    PersistentFloat32OutletServiceCloseReport, PersistentFloat32OutletServiceCreateError,
+    PersistentFloat32OutletServiceIdentityRole, PersistentFloat32OutletServiceLimitError,
+    PersistentFloat32OutletServiceLimits, PersistentFloat32OutletServicePoll,
+    PersistentFloat32OutletServicePollError,
 };
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,

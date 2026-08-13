@@ -441,10 +441,22 @@ impl PersistentFloat32Outlet {
         self.channel_count
     }
 
+    /// Handshake identity bound to discovery metadata by caller-owned compositions.
+    #[must_use]
+    pub const fn stream_identity(&self) -> &StreamHandshakeIdentity {
+        &self.identity
+    }
+
     /// Number of consumers currently retained for fan-out.
     #[must_use]
     pub fn connected_consumers(&self) -> usize {
         self.consumers.len()
+    }
+
+    /// Fixed retained-consumer bound selected at construction.
+    #[must_use]
+    pub const fn max_consumers(&self) -> usize {
+        self.limits.max_consumers
     }
 
     /// Admits at most one pending consumer; idle polling returns immediately.

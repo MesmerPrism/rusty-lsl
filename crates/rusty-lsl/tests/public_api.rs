@@ -1045,6 +1045,7 @@ fn selections() -> Vec<RuntimeActivationSelection<'static>> {
         RuntimeModule::FiniteSampleRecovery,
         RuntimeModule::IntegratedClockCorrection,
         RuntimeModule::PersistentFloat32Outlet,
+        RuntimeModule::ShortInfoDiscoveryResponder,
         RuntimeModule::UdpDiscovery,
     ]
     .into_iter()
@@ -1151,6 +1152,125 @@ fn perf_002_persistent_float32_outlet_is_public_and_explicit() {
         &Option::<PersistentFloat32TransportError>::None,
         &Option::<runtime::PersistentFloat32TransportError>::None,
     );
+}
+
+#[test]
+fn interop_001_managed_persistent_float32_outlet_service_is_public_and_explicit() {
+    let admission =
+        admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, CONSUMER, &selections())
+            .unwrap();
+    let handshake_limits =
+        StreamHandshakeLimits::new(1024, 128, Duration::from_millis(5), Duration::from_secs(1))
+            .unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let outlet = PersistentFloat32Outlet::new(
+        PersistentFloat32OutletActivation::new(
+            admission
+                .capability(RuntimeModule::PersistentFloat32Outlet)
+                .unwrap(),
+            sample_activation(&admission),
+        )
+        .unwrap(),
+        listener,
+        identity(handshake_limits),
+        handshake_limits,
+        TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
+            .unwrap(),
+        1,
+        PersistentFloat32OutletLimits::new(10, 2).unwrap(),
+    )
+    .unwrap();
+    let port = outlet.local_address().port();
+    let body = format!(
+        "<?xml version=\"1.0\"?>\n<info>\n\
+\t<name>interop-public</name>\n\
+\t<type>qualification</type>\n\
+\t<channel_count>1</channel_count>\n\
+\t<channel_format>float32</channel_format>\n\
+\t<source_id>p6-explicit-source</source_id>\n\
+\t<nominal_srate>100.0000000000000</nominal_srate>\n\
+\t<version>1.100000000000000</version>\n\
+\t<created_at>1.0</created_at>\n\
+\t<uid>66666666-2222-4666-8666-666666666666</uid>\n\
+\t<session_id>p6-host-session</session_id>\n\
+\t<hostname>p6-loopback-host</hostname>\n\
+\t<v4address>127.0.0.1</v4address>\n\
+\t<v4data_port>{port}</v4data_port>\n\
+\t<v4service_port>{port}</v4service_port>\n\
+\t<v6address></v6address>\n\
+\t<v6data_port>0</v6data_port>\n\
+\t<v6service_port>0</v6service_port>\n\
+\t<desc />\n</info>\n"
+    );
+    let service_limits = PersistentFloat32OutletServiceLimits::new(
+        2048,
+        StreamInfoObservedDocumentParseLimit::new(body.len()).unwrap(),
+        StreamInfoObservedAdmissionLimits::new(
+            StreamDescriptorLimits::new(128, 128, 128, 256).unwrap(),
+            MetadataTreeLimits::new(1, 1, 1, 4, 1).unwrap(),
+            StreamInfoVolatileFieldLimits::new(128, 128, 128).unwrap(),
+        ),
+        ShortInfoQueryWireLimits::new(256, 512).unwrap(),
+        ShortInfoResponseEnvelopeLimits::new(body.len(), body.len() + 32).unwrap(),
+    )
+    .unwrap();
+    let mut service = PersistentFloat32OutletService::new_prebound(
+        ShortInfoResponderActivation::new(
+            admission
+                .capability(RuntimeModule::ShortInfoDiscoveryResponder)
+                .unwrap(),
+        )
+        .unwrap(),
+        "127.0.0.1".parse().unwrap(),
+        outlet,
+        UdpSocket::bind("127.0.0.1:0").unwrap(),
+        body,
+        service_limits,
+    )
+    .unwrap();
+    assert!(service.poll(&AtomicBool::new(false)).unwrap().is_idle());
+    assert_eq!(service.channel_count(), 1);
+    assert_eq!(service.connected_consumers(), 0);
+    assert_eq!(service.advertised_ipv4().to_string(), "127.0.0.1");
+
+    fn same_type<T>(_: &T, _: &T) {}
+    same_type(
+        &Option::<PersistentFloat32OutletService>::None,
+        &Option::<runtime::PersistentFloat32OutletService>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletServiceLimits>::None,
+        &Option::<runtime::PersistentFloat32OutletServiceLimits>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletServiceLimitError>::None,
+        &Option::<runtime::PersistentFloat32OutletServiceLimitError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletServiceCreateError>::None,
+        &Option::<runtime::PersistentFloat32OutletServiceCreateError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletServiceIdentityRole>::None,
+        &Option::<runtime::PersistentFloat32OutletServiceIdentityRole>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletServicePoll>::None,
+        &Option::<runtime::PersistentFloat32OutletServicePoll>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32DiscoveryHandled>::None,
+        &Option::<runtime::PersistentFloat32DiscoveryHandled>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletServicePollError>::None,
+        &Option::<runtime::PersistentFloat32OutletServicePollError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletServiceCloseReport>::None,
+        &Option::<runtime::PersistentFloat32OutletServiceCloseReport>::None,
+    );
+    assert_eq!(service.close().outlet().closed_consumers(), 0);
 }
 
 fn identity(limits: StreamHandshakeLimits) -> StreamHandshakeIdentity {
