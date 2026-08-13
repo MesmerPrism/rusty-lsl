@@ -121,8 +121,9 @@ def validate(data: dict[str, object]) -> None:
         "network-endpoints", "raw-samples", "raw-logs",
     ]
     encoded = json.dumps(data, sort_keys=True).lower()
+    local_drive_prefixes = tuple(letter + ":" + chr(92) for letter in ("s", "c"))
     assert not any(fragment in encoded for fragment in (
-        "s:\\", "c:\\", "192.168.", "device_address", "device_serial",
+        *local_drive_prefixes, "192.168.", "device_address", "device_serial",
         "sensor_timestamp_ns", "microvolts", "x_mg", "y_mg", "z_mg",
     ))
 
