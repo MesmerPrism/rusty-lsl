@@ -15,7 +15,8 @@ fn validated_session_shape(channels: usize, records: usize) -> SessionShape {
 }
 use crate::{
     bounded_fixed_record_transport::{
-        read_exact_bounded, write_exact_bounded, BoundedFixedRecordError,
+        read_exact_bounded, write_exact_bounded, write_exact_bounded_with_state,
+        BoundedFixedRecordError, BoundedWriteState,
     },
     stream_handshake::{
         accept_handshake_stream, accept_handshake_stream_with_format, connect_handshake_stream,
@@ -43,12 +44,106 @@ pub(crate) mod codec {
     const INITIALIZATION_TIMESTAMP_BITS: u64 = 0x40fe240c9fbe76c9;
     pub(crate) const INITIALIZATION_VALUE_BITS: [u32; 2] = [0x40800000, 0x40000000];
 
+    pub(crate) struct Float32WriterState {
+        channels: usize,
+        record: Vec<u8>,
+        transport: BoundedWriteState,
+    }
+
+    impl Float32WriterState {
+        pub(crate) fn new(channels: usize) -> Result<Self, TimestampedFloat32SampleError> {
+            Ok(Self {
+                channels,
+                record: vec![0; record_bytes(channels)?],
+                transport: BoundedWriteState::new(),
+            })
+        }
+
+        pub(crate) fn write_initialization(
+            &mut self,
+            stream: &mut TcpStream,
+            limits: TimestampedFloat32SampleLimits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), TimestampedFloat32SampleError> {
+            for value_bits in INITIALIZATION_VALUE_BITS {
+                self.encode_initialization(value_bits);
+                self.write_encoded(stream, limits, cancelled)?;
+            }
+            Ok(())
+        }
+
+        pub(crate) fn write_record(
+            &mut self,
+            stream: &mut TcpStream,
+            sample: &TimestampedSample<f32>,
+            limits: TimestampedFloat32SampleLimits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), TimestampedFloat32SampleError> {
+            self.encode_record(sample)?;
+            self.write_encoded(stream, limits, cancelled)
+        }
+
+        fn encode_initialization(&mut self, value_bits: u32) {
+            self.record[0] = RECORD_MARKER;
+            self.record[1..9].copy_from_slice(&INITIALIZATION_TIMESTAMP_BITS.to_le_bytes());
+            let value = value_bits.to_le_bytes();
+            for bytes in self.record[9..].chunks_exact_mut(core::mem::size_of::<f32>()) {
+                bytes.copy_from_slice(&value);
+            }
+        }
+
+        fn encode_record(
+            &mut self,
+            sample: &TimestampedSample<f32>,
+        ) -> Result<(), TimestampedFloat32SampleError> {
+            if sample.sample().declared_channels() != self.channels {
+                return Err(channel_error(sample.sample().declared_channels()));
+            }
+            self.record[0] = RECORD_MARKER;
+            self.record[1..9].copy_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
+            for (bytes, value) in self.record[9..]
+                .chunks_exact_mut(core::mem::size_of::<f32>())
+                .zip(sample.sample().values())
+            {
+                bytes.copy_from_slice(&value.to_le_bytes());
+            }
+            Ok(())
+        }
+
+        fn write_encoded(
+            &mut self,
+            stream: &mut TcpStream,
+            limits: TimestampedFloat32SampleLimits,
+            cancelled: &AtomicBool,
+        ) -> Result<(), TimestampedFloat32SampleError> {
+            write_exact_bounded_with_state(
+                stream,
+                &self.record,
+                limits.io_slice(),
+                limits.total_deadline(),
+                cancelled,
+                &mut self.transport,
+            )
+            .map_err(map_transport_error)
+        }
+
+        #[cfg(test)]
+        pub(crate) fn buffer_identity(&self) -> (*const u8, usize, usize) {
+            (
+                self.record.as_ptr(),
+                self.record.len(),
+                self.record.capacity(),
+            )
+        }
+    }
+
     #[cfg(test)]
     pub(crate) fn initialization_sample(value_bits: u32) -> TimestampedSample<f32> {
         initialization_sample_for_channels(value_bits, 1)
             .expect("one initialization channel has a representable frame")
     }
 
+    #[cfg(test)]
     fn initialization_sample_for_channels(
         value_bits: u32,
         channel_count: usize,
@@ -68,17 +163,14 @@ pub(crate) mod codec {
         ))
     }
 
+    #[cfg(test)]
     pub(crate) fn write_initialization_for_channels(
         stream: &mut TcpStream,
         channel_count: usize,
         limits: TimestampedFloat32SampleLimits,
         cancelled: &AtomicBool,
     ) -> Result<(), TimestampedFloat32SampleError> {
-        for value_bits in INITIALIZATION_VALUE_BITS {
-            let sample = initialization_sample_for_channels(value_bits, channel_count)?;
-            write_record_for_channels(stream, &sample, channel_count, limits, cancelled)?;
-        }
-        Ok(())
+        Float32WriterState::new(channel_count)?.write_initialization(stream, limits, cancelled)
     }
 
     #[cfg(test)]
@@ -130,6 +222,7 @@ pub(crate) mod codec {
         write_record_for_channels(stream, sample, 1, limits, cancelled)
     }
 
+    #[cfg(test)]
     pub(crate) fn write_record_for_channels(
         stream: &mut TcpStream,
         sample: &TimestampedSample<f32>,
@@ -137,26 +230,7 @@ pub(crate) mod codec {
         limits: TimestampedFloat32SampleLimits,
         cancelled: &AtomicBool,
     ) -> Result<(), TimestampedFloat32SampleError> {
-        if sample.sample().declared_channels() != channel_count {
-            return Err(channel_error(sample.sample().declared_channels()));
-        }
-        let mut record = vec![0u8; record_bytes(channel_count)?];
-        record[0] = RECORD_MARKER;
-        record[1..9].copy_from_slice(&sample.raw_source_timestamp().value().to_le_bytes());
-        for (bytes, value) in record[9..]
-            .chunks_exact_mut(core::mem::size_of::<f32>())
-            .zip(sample.sample().values())
-        {
-            bytes.copy_from_slice(&value.to_le_bytes());
-        }
-        write_exact_bounded(
-            stream,
-            &record,
-            limits.io_slice(),
-            limits.total_deadline(),
-            cancelled,
-        )
-        .map_err(map_transport_error)
+        Float32WriterState::new(channel_count)?.write_record(stream, sample, limits, cancelled)
     }
 
     pub(crate) fn read_record_for_channels(
@@ -220,10 +294,9 @@ pub(crate) mod codec {
     }
 }
 
-use codec::{
-    read_initialization_for_channels, read_record_for_channels, write_initialization_for_channels,
-    write_record_for_channels,
-};
+use codec::{read_initialization_for_channels, read_record_for_channels};
+#[cfg(test)]
+use codec::{write_initialization_for_channels, write_record_for_channels};
 
 /// Explicit role owned by a completed Float32 session.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -465,6 +538,7 @@ mod session_format {
         type Limits = TimestampedFloat32SampleLimits;
         type RecordError = TimestampedFloat32SampleError;
         type SessionError = TimestampedFloat32SessionError;
+        type WriterState = codec::Float32WriterState;
 
         fn accept(
             listener: TcpListener,
@@ -484,13 +558,20 @@ mod session_format {
         ) -> Result<TcpStream, StreamHandshakeError> {
             connect_handshake_stream(peer, identity, limits, cancelled)
         }
+        fn create_writer_state(
+            channels: usize,
+            _limits: Self::Limits,
+        ) -> Result<Self::WriterState, Self::RecordError> {
+            codec::Float32WriterState::new(channels)
+        }
         fn write_initialization(
             stream: &mut TcpStream,
-            channels: usize,
+            writer_state: &mut Self::WriterState,
+            _channels: usize,
             limits: Self::Limits,
             cancelled: &AtomicBool,
         ) -> Result<(), Self::RecordError> {
-            write_initialization_for_channels(stream, channels, limits, cancelled)
+            writer_state.write_initialization(stream, limits, cancelled)
         }
         fn read_initialization(
             stream: &mut TcpStream,
@@ -502,12 +583,13 @@ mod session_format {
         }
         fn write_record(
             stream: &mut TcpStream,
+            writer_state: &mut Self::WriterState,
             sample: &Self::Sample,
-            channels: usize,
+            _channels: usize,
             limits: Self::Limits,
             cancelled: &AtomicBool,
         ) -> Result<(), Self::RecordError> {
-            write_record_for_channels(stream, sample, channels, limits, cancelled)
+            writer_state.write_record(stream, sample, limits, cancelled)
         }
         fn read_record(
             stream: &mut TcpStream,
@@ -551,6 +633,7 @@ mod session_format {
         type Limits = StringSampleLimits;
         type RecordError = StringSampleError;
         type SessionError = TimestampedStringSessionError;
+        type WriterState = ();
 
         fn accept(
             listener: TcpListener,
@@ -570,8 +653,15 @@ mod session_format {
         ) -> Result<TcpStream, StreamHandshakeError> {
             connect_handshake_stream_with_format(peer, identity, limits, cancelled, 0, false)
         }
+        fn create_writer_state(
+            _channels: usize,
+            _limits: Self::Limits,
+        ) -> Result<Self::WriterState, Self::RecordError> {
+            Ok(())
+        }
         fn write_initialization(
             stream: &mut TcpStream,
+            _writer_state: &mut Self::WriterState,
             channels: usize,
             limits: Self::Limits,
             cancelled: &AtomicBool,
@@ -592,6 +682,7 @@ mod session_format {
         }
         fn write_record(
             stream: &mut TcpStream,
+            _writer_state: &mut Self::WriterState,
             sample: &Self::Sample,
             channels: usize,
             limits: Self::Limits,
@@ -1039,6 +1130,7 @@ impl SealedSessionStrategy for Double64 {
     type Limits = TimestampedDouble64SessionIoLimits;
     type RecordError = FixedWidthNumericSampleError;
     type SessionError = TimestampedDouble64SessionError;
+    type WriterState = ();
     fn accept(
         listener: TcpListener,
         identity: &StreamHandshakeIdentity,
@@ -1057,8 +1149,15 @@ impl SealedSessionStrategy for Double64 {
     ) -> Result<TcpStream, StreamHandshakeError> {
         connect_handshake_stream_with_format(peer, identity, limits, cancelled, 8, true)
     }
+    fn create_writer_state(
+        _channels: usize,
+        _limits: Self::Limits,
+    ) -> Result<Self::WriterState, Self::RecordError> {
+        Ok(())
+    }
     fn write_initialization(
         stream: &mut TcpStream,
+        _writer_state: &mut Self::WriterState,
         channels: usize,
         limits: Self::Limits,
         cancelled: &AtomicBool,
@@ -1098,6 +1197,7 @@ impl SealedSessionStrategy for Double64 {
     }
     fn write_record(
         stream: &mut TcpStream,
+        _writer_state: &mut Self::WriterState,
         sample: &Self::Sample,
         channels: usize,
         limits: Self::Limits,
@@ -1240,6 +1340,7 @@ impl SealedSessionStrategy for FixedWidthInteger {
     type Limits = FixedWidthIntegerLimits;
     type RecordError = FixedWidthNumericSampleError;
     type SessionError = TimestampedFixedWidthIntegerSessionError;
+    type WriterState = ();
     fn accept(
         listener: TcpListener,
         identity: &StreamHandshakeIdentity,
@@ -1272,8 +1373,15 @@ impl SealedSessionStrategy for FixedWidthInteger {
             false,
         )
     }
+    fn create_writer_state(
+        _channels: usize,
+        _limits: Self::Limits,
+    ) -> Result<Self::WriterState, Self::RecordError> {
+        Ok(())
+    }
     fn write_initialization(
         stream: &mut TcpStream,
+        _writer_state: &mut Self::WriterState,
         channels: usize,
         limits: Self::Limits,
         cancelled: &AtomicBool,
@@ -1338,6 +1446,7 @@ impl SealedSessionStrategy for FixedWidthInteger {
     }
     fn write_record(
         stream: &mut TcpStream,
+        _writer_state: &mut Self::WriterState,
         sample: &Self::Sample,
         channels: usize,
         limits: Self::Limits,
@@ -1572,6 +1681,7 @@ impl<T: SealedIntegerValue> SealedSessionStrategy for TypedFixedWidthInteger<T> 
     type Limits = FixedWidthNumericSampleLimits;
     type RecordError = FixedWidthNumericSampleError;
     type SessionError = TimestampedFixedWidthIntegerSessionError;
+    type WriterState = ();
 
     fn accept(
         listener: TcpListener,
@@ -1605,14 +1715,22 @@ impl<T: SealedIntegerValue> SealedSessionStrategy for TypedFixedWidthInteger<T> 
             false,
         )
     }
+    fn create_writer_state(
+        _channels: usize,
+        _limits: Self::Limits,
+    ) -> Result<Self::WriterState, Self::RecordError> {
+        Ok(())
+    }
     fn write_initialization(
         stream: &mut TcpStream,
+        writer_state: &mut Self::WriterState,
         channels: usize,
         limits: Self::Limits,
         cancelled: &AtomicBool,
     ) -> Result<(), Self::RecordError> {
         FixedWidthInteger::write_initialization(
             stream,
+            writer_state,
             channels,
             FixedWidthIntegerLimits {
                 io: limits,
@@ -1639,6 +1757,7 @@ impl<T: SealedIntegerValue> SealedSessionStrategy for TypedFixedWidthInteger<T> 
     }
     fn write_record(
         stream: &mut TcpStream,
+        _writer_state: &mut Self::WriterState,
         sample: &Self::Sample,
         channels: usize,
         limits: Self::Limits,
@@ -3434,7 +3553,11 @@ mod tests {
         runtime_activation::test_capability, RawSourceTimestamp, RuntimeModule, Sample,
         SampleLimits, StreamHandshakeActivation,
     };
-    use std::{io::Write, thread, time::Duration};
+    use std::{
+        io::{Read, Write},
+        thread,
+        time::Duration,
+    };
 
     #[test]
     fn candidate_string_session_shape_is_closed_before_io() {
@@ -3545,6 +3668,54 @@ mod tests {
             RawSourceTimestamp::new(f64::from_bits(timestamp_bits)).unwrap(),
             None,
         )
+    }
+
+    #[test]
+    fn perf_001_reuses_float32_sender_state() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let reader = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            let mut bytes = vec![0; 5 * (9 + 3 * core::mem::size_of::<f32>())];
+            stream.read_exact(&mut bytes).unwrap();
+            bytes
+        });
+        let mut stream = TcpStream::connect(address).unwrap();
+        let mut state = codec::Float32WriterState::new(3).unwrap();
+        let identity = state.buffer_identity();
+        state
+            .write_initialization(&mut stream, sample_limits(), &AtomicBool::new(false))
+            .unwrap();
+        assert_eq!(state.buffer_identity(), identity);
+        for (timestamp, values) in [
+            (
+                0x4092_5220_0000_0001,
+                [0x3f80_0001, 0x4000_0002, 0x4040_0003],
+            ),
+            (
+                0x4092_5220_0000_0002,
+                [0x4080_0004, 0x40a0_0005, 0x40c0_0006],
+            ),
+            (
+                0x4092_5220_0000_0003,
+                [0x40e0_0007, 0x4100_0008, 0x4110_0009],
+            ),
+        ] {
+            state
+                .write_record(
+                    &mut stream,
+                    &shaped_sample(timestamp, &values),
+                    sample_limits(),
+                    &AtomicBool::new(false),
+                )
+                .unwrap();
+            assert_eq!(state.buffer_identity(), identity);
+        }
+        drop(stream);
+        let bytes = reader.join().unwrap();
+        assert!(bytes
+            .chunks_exact(identity.1)
+            .all(|record| record[0] == codec::RECORD_MARKER));
     }
 
     fn double64_sample(timestamp_bits: u64, value_bits: &[u64]) -> TimestampedSample<f64> {
@@ -4103,6 +4274,7 @@ mod tests {
                 .unwrap();
                 <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_initialization(
                     &mut stream,
+                    &mut (),
                     2,
                     io,
                     &AtomicBool::new(false),
@@ -4121,6 +4293,7 @@ mod tests {
                     );
                     <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_record(
                         &mut stream,
+                        &mut (),
                         &record,
                         2,
                         io,
@@ -4174,6 +4347,7 @@ mod tests {
             .unwrap();
             <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_initialization(
                 &mut stream,
+                &mut (),
                 1,
                 io,
                 &AtomicBool::new(false),
@@ -4186,6 +4360,7 @@ mod tests {
             );
             <TypedFixedWidthInteger<i64> as SealedSessionStrategy>::write_record(
                 &mut stream,
+                &mut (),
                 &record,
                 1,
                 io,
@@ -5075,6 +5250,63 @@ mod tests {
             received.records()[2].sample().values()[1].to_bits(),
             0xc040_0006
         );
+        let sent = worker.join().unwrap();
+        assert_eq!(sent.channel_count(), 2);
+        assert_eq!(sent.record_count(), 3);
+        TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn perf_001_multichannel_session_preserves_exact_wire_and_lifecycle() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let expected = [
+            (0x4092_5220_0000_0101, [0x3f80_0101, 0xbf80_0102]),
+            (0x4092_5b80_0000_0102, [0x4000_0103, 0xc000_0104]),
+            (0x4092_64e0_0000_0103, [0x4040_0105, 0xc040_0106]),
+        ];
+        let records = expected.map(|(timestamp, values)| shaped_sample(timestamp, &values));
+        let worker = thread::spawn(move || {
+            TimestampedFloat32OutletSession::preflight_bounded(
+                activation(),
+                listener,
+                &identity(),
+                handshake_limits(),
+                sample_limits(),
+                TimestampedFloat32SessionLimits::new(2, 3).unwrap(),
+                &records,
+            )
+            .unwrap()
+            .finish(&AtomicBool::new(false))
+            .unwrap()
+        });
+        let received = TimestampedFloat32InletSession::preflight_bounded(
+            activation(),
+            address,
+            &identity(),
+            handshake_limits(),
+            sample_limits(),
+            TimestampedFloat32SessionLimits::new(2, 3).unwrap(),
+            2,
+            3,
+        )
+        .unwrap()
+        .finish(&AtomicBool::new(false))
+        .unwrap();
+        assert_eq!(received.channel_count(), 2);
+        assert_eq!(received.record_count(), 3);
+        for (record, (timestamp, values)) in received.records().iter().zip(expected) {
+            assert_eq!(record.raw_source_timestamp().value().to_bits(), timestamp);
+            assert_eq!(
+                record
+                    .sample()
+                    .values()
+                    .iter()
+                    .map(|value| value.to_bits())
+                    .collect::<Vec<_>>(),
+                values
+            );
+        }
         let sent = worker.join().unwrap();
         assert_eq!(sent.channel_count(), 2);
         assert_eq!(sent.record_count(), 3);

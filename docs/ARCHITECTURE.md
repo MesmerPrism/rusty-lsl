@@ -1,5 +1,20 @@
 # Architecture
 
+## Session-owned Float32 sender state
+
+`format_neutral_session_runtime` constructs sealed writer state before an
+accepted outlet begins caller-record transfer. The Float32 strategy owns one
+exact-size byte buffer for its homogeneous channel shape and reuses it for both
+initialization records and all caller records. The buffer is private to the
+accepted session; other format strategies retain their existing behavior.
+
+`bounded_fixed_record_transport` retains the last successfully configured
+write timeout in that writer state. Each record still receives its own total
+deadline origin and observes cancellation before I/O. A timeout is applied to
+the socket again only when the effective `min(remaining, io_slice)` changes.
+This is an internal finite-session optimization, not persistent outlet,
+background worker, public chunk, batching-policy, recovery, or fanout authority.
+
 ## Public requested-processing boundary
 
 P60 projects caller-selected timestamp modes, bounded configuration, exact
