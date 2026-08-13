@@ -508,10 +508,11 @@ not public API and adds no transport selection or Manifold authority.
 ## Dependency-closed runtime facade composition
 
 Runtime activation direction now follows the resolved lock: handshake feeds
-both sample families; Float32 sample activation feeds queue and integrated
-clock; queue feeds finite recovery. Discovery client and responder remain
-dependency-free but still require their own nominal lock capability. The
-facades consume opaque evidence and cannot construct or expand the lock.
+both sample families; Float32 sample activation feeds queue, integrated clock,
+and the separately admitted persistent Float32 outlet; queue feeds finite
+recovery. Discovery client and responder remain dependency-free but still
+require their own nominal lock capability. The facades consume opaque evidence
+and cannot construct or expand the lock.
 
 ## Lock-bound runtime activation
 
