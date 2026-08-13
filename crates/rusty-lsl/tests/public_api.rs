@@ -1273,6 +1273,36 @@ fn interop_001_managed_persistent_float32_outlet_service_is_public_and_explicit(
     assert_eq!(service.close().outlet().closed_consumers(), 0);
 }
 
+#[test]
+fn device_001_polar_h10_nominal_rates_are_publicly_composable_and_admissible() {
+    for (channels, rate, spelling) in [
+        (1, 130.0, "130.0000000000000"),
+        (3, 200.0, "200.0000000000000"),
+    ] {
+        let descriptor = StreamDescriptor::new(
+            StreamDescriptorLimits::new(64, 64, 64, 8).unwrap(),
+            "Polar H10 qualification".to_owned(),
+            Some("device".to_owned()),
+            Some("sanitized-source".to_owned()),
+            channels,
+            NominalSampleRate::regular_hz(rate).unwrap(),
+            ChannelFormat::Float32,
+        )
+        .unwrap();
+        let definition = StreamDefinition::new(
+            descriptor,
+            MetadataTree::new(
+                MetadataTreeLimits::new(1, 1, 1, 8, 1).unwrap(),
+                vec![MetadataNodeInput::new(None, "desc".to_owned(), None)],
+            )
+            .unwrap(),
+        );
+        let fields = StreamInfoStaticFields::new(&definition);
+        let numeric = StreamInfoStaticNumericSpellings::new(&fields).unwrap();
+        assert_eq!(numeric.nominal_srate(), spelling);
+    }
+}
+
 fn identity(limits: StreamHandshakeLimits) -> StreamHandshakeIdentity {
     StreamHandshakeIdentity::new(
         "66666666-2222-4666-8666-666666666666".into(),
