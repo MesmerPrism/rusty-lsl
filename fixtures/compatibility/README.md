@@ -1,5 +1,12 @@
 # STRM-000 compatibility fixtures
 
+`rlsl-device-001-polar-h10-publisher-qualification.json` contains the sanitized
+DEVICE-001 one-Windows-H10 capture dimensions, truthful 130/200 Hz metadata
+correction, exact real-ECG-frame official-consumer result, H10-shaped sender
+comparison, current Polar input-wrapper classification, private evidence
+hashes, and bounded nonclaims. Device/participant identity, raw samples, paths,
+endpoints, and logs remain private. Run `python tools/check_device_001.py`.
+
 `lslc-003q-bounded-string-record-observation.json` contains only the sanitized
 one-channel, one-record String framing outcomes, private artifact hashes,
 negative classifications, and nonclaims from two pinned black-box repeats.

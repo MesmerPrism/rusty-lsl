@@ -40,6 +40,39 @@ The transport units differ in timestamp handling. This descriptive sender
 occupancy shows no current Rusty LSL performance advantage, but is not complete
 application latency or a universal claim.
 
+## DEVICE-001 physical Polar H10 publisher qualification
+
+One physical H10 on one Windows desktop negotiated a 232-byte PDU and a 15 ms
+connection interval. The reference capture contained 39 uniform 73-record ECG
+notifications (2,847 samples, estimated 130.1975 Hz) and 112 uniform 36-record
+three-axis accelerometer notifications (4,032 samples, estimated 202.5561 Hz
+for the nominal 200 Hz mode), plus 24 heart-rate notifications. The public
+fixture contains no device identity, participant identity, raw samples,
+endpoint, path, or raw log.
+
+An exact captured 73-record ECG notification was replayed through the managed
+Rusty outlet with a truthful 130 Hz descriptor. Pinned pylsl 1.18.2/liblsl 1.17
+resolved it, completed the persistent handshake, received exact Float32 values
+and caller timestamps, and acknowledged bounded close. The candidate now both
+composes and admits the exact 130 Hz ECG and 200 Hz accelerometer nominal-rate
+spellings; other unobserved regular-rate spellings still fail closed.
+
+Five repeated same-host sender measurements at the observed shapes produced
+13,400 ns Rusty versus 13,400 ns liblsl ECG median-of-medians and 13,900 ns
+versus 7,000 ns for accelerometer chunks. Median p95 values were 19,300 versus
+18,300 ns for ECG and 17,400 versus 9,500 ns for accelerometer. The estimated
+extra Rusty sender occupancy at the observed callback cadence was about 39 µs
+per second. Timestamp work differs, so this proves no Rusty speed advantage and
+is not BLE-to-recorder or LabRecorder latency.
+
+The executed Polar Stream input and LSL sender blobs remain identical on the
+current public readback. Its direct Rust PMD protocol diagnostic received 109
+PMD and 15 heart-rate notifications, but the full Windows input wrapper
+connected twice and emitted zero PMD notifications. That is a Polar-side input
+wrapper defect, not a Rusty LSL transport failure. DEVICE-001 therefore
+qualifies a bounded Rusty-backed Polar adapter pilot, not the current Polar
+Stream repository end to end and not a production replacement recommendation.
+
 ## Current P67/P68 boundary
 
 The current candidate combines bounded caller-explicit discovery, transport,

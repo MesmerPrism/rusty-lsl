@@ -68,6 +68,23 @@ encodes ten records before one TCP write. This is descriptive sender occupancy,
 not BLE-to-recorder latency, but establishes no current Rusty LSL speed
 advantage.
 
+DEVICE-001 adds one physical Windows Polar H10 qualification. The reference
+capture preserved 130 Hz ECG as 73-record notifications and nominal 200 Hz
+three-axis accelerometer data as 36-record notifications. One exact captured
+ECG notification then resolved through the managed Rusty outlet and reached a
+pinned official liblsl inlet with exact Float32 values and timestamps. The
+candidate also composes and admits truthful `130.0000000000000` and
+`200.0000000000000` nominal-rate metadata.
+
+At those observed notification shapes, five repeated sender microbenchmarks
+showed no Rusty speed advantage: ECG median-of-medians was 13.4 µs for both
+senders, while accelerometer chunks measured 13.9 µs for Rusty and 7.0 µs for
+liblsl. This qualifies the Rusty transport for a bounded Polar adapter pilot;
+it is not a recommendation to replace liblsl in production. The current Polar
+Stream Windows input wrapper connected but emitted no PMD notifications in two
+runs, while its direct protocol path streamed successfully; that separate
+Polar-side defect prevents a current-repository end-to-end integration claim.
+
 ## Float32 sender state and measurement
 
 An accepted bounded Float32 outlet session allocates one exact-size encoding

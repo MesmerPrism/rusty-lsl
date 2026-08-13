@@ -50,8 +50,17 @@ discovery service. One pinned official liblsl consumer has resolved, opened,
 pulled ten exact records, and closed on one Windows host. The same-host Polar
 comparison shows no current Rusty LSL sender-occupancy advantage.
 
-This closes only the bounded host prerequisite. The next production gates are
-H10 and BLE-to-recorder qualification, multiple concurrently discoverable
+DEVICE-001 closes one Windows H10 transport prerequisite: full-rate ECG and
+accelerometer notification shapes were captured, a real ECG frame reached a
+pinned official consumer through Rusty, truthful 130/200 Hz metadata is now
+composable and admissible, and H10-shaped sender occupancy is recorded. This
+supports a bounded Polar adapter pilot but does not recommend replacing
+liblsl. Current Polar Stream end-to-end qualification remains blocked by its
+Windows input wrapper emitting no PMD notifications despite a working direct
+protocol path.
+
+The next production gates are BLE-to-recorder/LabRecorder qualification,
+multiple concurrently discoverable
 outlets and consumers, non-loopback/cross-host and Linux/macOS coverage,
 reconnect/recovery behavior, arbitrary stream shapes, application integration,
 and an explicit licensing decision. Stability, version, tag, registry
