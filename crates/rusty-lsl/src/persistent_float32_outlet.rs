@@ -51,6 +51,11 @@ pub struct PersistentFloat32OutletLimits {
 
 impl PersistentFloat32OutletLimits {
     /// Admits nonzero limits within the crate's fixed retained-memory bounds.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed error for a zero bound or a consumer bound above the
+    /// fixed implementation ceiling.
     pub fn new(
         max_records_per_chunk: usize,
         max_consumers: usize,
@@ -328,6 +333,12 @@ pub struct PersistentFloat32Outlet {
 
 impl PersistentFloat32Outlet {
     /// Creates a nonblocking listener owner and allocates all reusable push storage.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed error when the channel shape is invalid, retained byte
+    /// arithmetic overflows or exceeds the fixed ceiling, allocation fails, or
+    /// the listener cannot be inspected or configured.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         activation: PersistentFloat32OutletActivation,
@@ -411,6 +422,11 @@ impl PersistentFloat32Outlet {
     }
 
     /// Admits at most one pending consumer; idle polling returns immediately.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed error for cancellation, full capacity, socket setup,
+    /// handshake admission, or required Float32 initialization failure.
     pub fn poll_accept_consumer(
         &mut self,
         cancelled: &AtomicBool,
@@ -457,6 +473,12 @@ impl PersistentFloat32Outlet {
     }
 
     /// Encodes once and performs one contiguous bounded write per retained consumer.
+    ///
+    /// # Errors
+    ///
+    /// Rejects preselected cancellation, an empty or oversized record extent,
+    /// or a flat value extent that differs from `records * channels` before I/O.
+    /// Per-consumer transport failures are retained in the successful report.
     pub fn push_chunk(
         &mut self,
         values: &[f32],

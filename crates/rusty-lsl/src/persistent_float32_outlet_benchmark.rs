@@ -25,13 +25,10 @@ const MAX_PUSHES: usize = 1_000_000;
 const MAX_BYTES: usize = 1_073_741_824;
 
 fn bounded_env(name: &str, default: usize, minimum: usize, maximum: usize) -> usize {
-    let value = env::var(name)
-        .ok()
-        .map(|raw| {
-            raw.parse::<usize>()
-                .expect("benchmark bound must be an integer")
-        })
-        .unwrap_or(default);
+    let value = env::var(name).ok().map_or(default, |raw| {
+        raw.parse::<usize>()
+            .expect("benchmark bound must be an integer")
+    });
     assert!(
         (minimum..=maximum).contains(&value),
         "{name} must be in {minimum}..={maximum}"
@@ -135,10 +132,17 @@ fn perf_002_persistent_float32_outlet_benchmark() {
     }
     assert_eq!(outlet.connected_consumers(), 1);
     let values = (0..records * channels)
-        .map(|index| index as f32 + 0.25)
+        .map(|index| {
+            let bounded = u16::try_from(index % (usize::from(u16::MAX) + 1))
+                .expect("modulo result is within u16");
+            f32::from(bounded) + 0.25
+        })
         .collect::<Vec<_>>();
     let timestamps = (0..records)
-        .map(|index| RawSourceTimestamp::new(123_456.75 + index as f64).unwrap())
+        .map(|index| {
+            let bounded = u32::try_from(index).expect("record bound is within u32");
+            RawSourceTimestamp::new(123_456.75 + f64::from(bounded)).unwrap()
+        })
         .collect::<Vec<_>>();
     let cancelled = AtomicBool::new(false);
     for _ in 0..warmup {
