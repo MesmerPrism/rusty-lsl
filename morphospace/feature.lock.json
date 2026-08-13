@@ -3,10 +3,10 @@
   "schema": "rusty.morphospace.workflow.feature_lock.v2",
   "project_id": "rusty-lsl",
   "project_revision": 6,
-  "revision": 35,
-  "generated_at": "2026-07-20T12:06:00Z",
+  "revision": 36,
+  "generated_at": "2026-08-13T12:06:00Z",
   "resolver_version": "rusty-morphospace-feature-resolver/2",
-  "lock_fingerprint": "ed363a5466cfe81b768b412e4b5f74081fb1230a03c91e17d81db77d6797e9d9",
+  "lock_fingerprint": "cb56e9b4963dc4e0b53a1ee0630a549fdfb095275b9afea4b5ed7abf79f9ad73",
   "default_activation": "disabled",
   "activation_rule": "selected-lock-and-runtime-input",
   "selected_features": [
@@ -141,7 +141,7 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/fixed-width-numeric-sample.json",
-        "sha256": "e6187f8263329636adef8674ede639da6d4cb0f2754c983e7a7dfdabc4ac9abd",
+        "sha256": "a4e8710859ed2b614112d13e30de343aef5d8e837f046cfd023908a68186314e",
         "source_repo": "rusty-lsl",
         "source_revision": "66e414077b9c3228bdbc7aa03b41d7eb6e049fec",
         "source_path": "crates/rusty-lsl/src/fixed_width_numeric_sample_runtime.rs",
@@ -421,11 +421,11 @@
       "run_activation_default": "disabled",
       "descriptor": {
         "path": "features/timestamped-float32-sample.json",
-        "sha256": "48023bf36cec0af6a570c47273d26a989a1d4d036a5fd8aae0fd05917fec43a2",
+        "sha256": "4008bf5a4b815bd10a4a1a3a0f1e9ba6e652dba1319f79284a0ec95a74dfe439",
         "source_repo": "rusty-lsl",
-        "source_revision": "9c017437336a5ef9a6ab2753ab309a716e31d946",
+        "source_revision": "984251582f09a7e2d5ab44ac14ad3d9042f6a95f",
         "source_path": "crates/rusty-lsl/src/timestamped_float32_session_runtime.rs",
-        "source_sha256": "0b613bd0690ac2b3fb61b7a35699fc32220c0513066b1a96e2c191287fb13ea4"
+        "source_sha256": "100116ac4d4ea54d9e20f216f36cf67fbb1492863470aaae6f28306111d0b8f2"
       },
       "dependencies": [
         "stream-handshake"
