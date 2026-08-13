@@ -9,9 +9,9 @@ use crate::bounded_fixed_record_transport::{
 use crate::stream_handshake::admit_accepted_handshake_stream_with_format;
 use crate::timestamped_float32_session_runtime::codec::{Float32WriterState, RECORD_MARKER};
 use crate::{
-    RawSourceTimestamp, StreamHandshakeError, StreamHandshakeIdentity, StreamHandshakeLimits,
-    TimestampedFloat32SampleActivation, TimestampedFloat32SampleError,
-    TimestampedFloat32SampleLimits,
+    RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, StreamHandshakeError,
+    StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32SampleActivation,
+    TimestampedFloat32SampleError, TimestampedFloat32SampleLimits,
 };
 use std::io::ErrorKind;
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
@@ -23,23 +23,49 @@ const MAX_CONSUMERS: usize = 64;
 
 /// Stable marker naming this public persistent-outlet API surface.
 pub const PERSISTENT_FLOAT32_OUTLET_API_MARKER: &str = "rusty.lsl.persistent_float32_outlet.api";
+/// Feature identity admitted by the complete runtime lock.
+pub const PERSISTENT_FLOAT32_OUTLET_FEATURE_ID: &str = "persistent-float32-outlet";
+/// Consumer-observed effective marker admitted by the complete runtime lock.
+pub const PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER: &str =
+    "rusty.lsl.persistent_float32_outlet.effective";
 
 /// Proof that the caller explicitly activated the admitted Float32 transport capability.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PersistentFloat32OutletActivation {
+    _capability: RuntimeModuleCapability,
     sample: TimestampedFloat32SampleActivation,
 }
 
 impl PersistentFloat32OutletActivation {
-    /// Composes the persistent API with an admitted Float32 sample activation.
-    #[must_use]
-    pub const fn new(sample: TimestampedFloat32SampleActivation) -> Self {
-        Self { sample }
+    /// Composes the admitted persistent-outlet capability with its Float32 dependency.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PersistentFloat32OutletActivationError::WrongModule`] when
+    /// the capability belongs to a different selected runtime module.
+    pub const fn new(
+        capability: RuntimeModuleCapability,
+        sample: TimestampedFloat32SampleActivation,
+    ) -> Result<Self, PersistentFloat32OutletActivationError> {
+        if !capability.matches(RuntimeModule::PersistentFloat32Outlet) {
+            return Err(PersistentFloat32OutletActivationError::WrongModule);
+        }
+        Ok(Self {
+            _capability: capability,
+            sample,
+        })
     }
 
     fn sample(self) -> TimestampedFloat32SampleActivation {
         self.sample
     }
+}
+
+/// Failure to compose the exact persistent Float32 outlet capability.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PersistentFloat32OutletActivationError {
+    /// The capability belongs to a different selected runtime module.
+    WrongModule,
 }
 
 /// Caller-selected retained-resource bounds for one outlet.
@@ -615,15 +641,21 @@ pub(crate) mod tests {
     use std::thread;
     use std::time::Duration;
 
+    fn sample_activation() -> TimestampedFloat32SampleActivation {
+        TimestampedFloat32SampleActivation::new(
+            test_capability(RuntimeModule::TimestampedFloat32Sample),
+            StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
+                .unwrap(),
+        )
+        .unwrap()
+    }
+
     fn activation() -> PersistentFloat32OutletActivation {
         PersistentFloat32OutletActivation::new(
-            TimestampedFloat32SampleActivation::new(
-                test_capability(RuntimeModule::TimestampedFloat32Sample),
-                StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
-                    .unwrap(),
-            )
-            .unwrap(),
+            test_capability(RuntimeModule::PersistentFloat32Outlet),
+            sample_activation(),
         )
+        .unwrap()
     }
 
     fn handshake_limits() -> StreamHandshakeLimits {
@@ -706,6 +738,13 @@ pub(crate) mod tests {
 
     #[test]
     fn perf_002_idle_poll_shape_rejection_and_cancellation_are_inert() {
+        assert_eq!(
+            PersistentFloat32OutletActivation::new(
+                test_capability(RuntimeModule::TimestampedFloat32Sample),
+                sample_activation(),
+            ),
+            Err(PersistentFloat32OutletActivationError::WrongModule)
+        );
         assert_eq!(
             PersistentFloat32OutletLimits::new(0, 1),
             Err(PersistentFloat32OutletLimitError::ZeroRecordsPerChunk)

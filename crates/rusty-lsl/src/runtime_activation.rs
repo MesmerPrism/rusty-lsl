@@ -10,7 +10,7 @@ pub const ACCEPTED_FEATURE_LOCK_FINGERPRINT: &str =
 pub const ACCEPTED_FEATURE_LOCK_REVISION: u64 = 36;
 
 const MAX_CONSUMER_ID_BYTES: usize = 128;
-const MODULE_COUNT: usize = 9;
+const MODULE_COUNT: usize = 10;
 
 /// A module selected by the accepted lock.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -23,6 +23,8 @@ pub enum RuntimeModule {
     FixedWidthNumericSample,
     /// Integrated clock correction runtime.
     IntegratedClockCorrection,
+    /// Caller-owned persistent Float32 chunk outlet.
+    PersistentFloat32Outlet,
     /// Finite short-info discovery responder.
     ShortInfoDiscoveryResponder,
     /// Capability-only bounded String sample module.
@@ -44,6 +46,7 @@ impl RuntimeModule {
             Self::FiniteSampleRecovery => "finite-sample-recovery",
             Self::FixedWidthNumericSample => "fixed-width-numeric-sample",
             Self::IntegratedClockCorrection => "integrated-clock-correction",
+            Self::PersistentFloat32Outlet => "persistent-float32-outlet",
             Self::ShortInfoDiscoveryResponder => "short-info-discovery-responder",
             Self::StringSample => "string-sample",
             Self::StreamHandshake => "stream-handshake",
@@ -60,6 +63,7 @@ impl RuntimeModule {
             Self::FiniteSampleRecovery => "rusty.lsl.finite_sample_recovery.effective",
             Self::FixedWidthNumericSample => "rusty.lsl.fixed_width_numeric_sample.effective",
             Self::IntegratedClockCorrection => "rusty.lsl.integrated_clock_correction.effective",
+            Self::PersistentFloat32Outlet => "rusty.lsl.persistent_float32_outlet.effective",
             Self::ShortInfoDiscoveryResponder => {
                 "rusty.lsl.short_info_discovery_responder.effective"
             }
@@ -80,6 +84,7 @@ impl RuntimeModule {
             "finite-sample-recovery" => Some(Self::FiniteSampleRecovery),
             "fixed-width-numeric-sample" => Some(Self::FixedWidthNumericSample),
             "integrated-clock-correction" => Some(Self::IntegratedClockCorrection),
+            "persistent-float32-outlet" => Some(Self::PersistentFloat32Outlet),
             "short-info-discovery-responder" => Some(Self::ShortInfoDiscoveryResponder),
             "string-sample" => Some(Self::StringSample),
             "stream-handshake" => Some(Self::StreamHandshake),
@@ -91,9 +96,9 @@ impl RuntimeModule {
 
     const fn dependency(self) -> Option<Self> {
         match self {
-            Self::BoundedSampleQueue | Self::IntegratedClockCorrection => {
-                Some(Self::TimestampedFloat32Sample)
-            }
+            Self::BoundedSampleQueue
+            | Self::IntegratedClockCorrection
+            | Self::PersistentFloat32Outlet => Some(Self::TimestampedFloat32Sample),
             Self::FiniteSampleRecovery => Some(Self::BoundedSampleQueue),
             Self::FixedWidthNumericSample | Self::StringSample | Self::TimestampedFloat32Sample => {
                 Some(Self::StreamHandshake)
@@ -497,6 +502,18 @@ mod tests {
 
     #[test]
     fn lslc_003c_dependency_closure_and_absence_are_explicit() {
+        assert_eq!(
+            admit_runtime_activation(
+                ACCEPTED_FEATURE_LOCK_FINGERPRINT,
+                "consumer",
+                &[selection(RuntimeModule::PersistentFloat32Outlet)],
+            ),
+            Err(RuntimeActivationError::MissingDependency {
+                module: RuntimeModule::PersistentFloat32Outlet,
+                dependency: RuntimeModule::TimestampedFloat32Sample,
+            })
+        );
+
         assert_eq!(
             admit_runtime_activation(
                 ACCEPTED_FEATURE_LOCK_FINGERPRINT,

@@ -58,6 +58,7 @@ fn identity() -> StreamHandshakeIdentity {
 
 fn activation() -> PersistentFloat32OutletActivation {
     PersistentFloat32OutletActivation::new(
+        test_capability(RuntimeModule::PersistentFloat32Outlet),
         TimestampedFloat32SampleActivation::new(
             test_capability(RuntimeModule::TimestampedFloat32Sample),
             StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake))
@@ -65,6 +66,7 @@ fn activation() -> PersistentFloat32OutletActivation {
         )
         .unwrap(),
     )
+    .unwrap()
 }
 
 fn drain(address: SocketAddr, channels: usize, expected_bytes: usize) -> thread::JoinHandle<()> {

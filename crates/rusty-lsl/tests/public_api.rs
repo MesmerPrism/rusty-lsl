@@ -1044,6 +1044,7 @@ fn selections() -> Vec<RuntimeActivationSelection<'static>> {
         RuntimeModule::BoundedSampleQueue,
         RuntimeModule::FiniteSampleRecovery,
         RuntimeModule::IntegratedClockCorrection,
+        RuntimeModule::PersistentFloat32Outlet,
         RuntimeModule::UdpDiscovery,
     ]
     .into_iter()
@@ -1071,7 +1072,13 @@ fn perf_002_persistent_float32_outlet_is_public_and_explicit() {
     let admission =
         admit_runtime_activation(ACCEPTED_FEATURE_LOCK_FINGERPRINT, CONSUMER, &selections())
             .unwrap();
-    let activation = PersistentFloat32OutletActivation::new(sample_activation(&admission));
+    let activation = PersistentFloat32OutletActivation::new(
+        admission
+            .capability(RuntimeModule::PersistentFloat32Outlet)
+            .unwrap(),
+        sample_activation(&admission),
+    )
+    .unwrap();
     let limits = PersistentFloat32OutletLimits::new(10, 2).unwrap();
     let handshake_limits =
         StreamHandshakeLimits::new(1024, 128, Duration::from_millis(5), Duration::from_secs(1))
@@ -1095,6 +1102,18 @@ fn perf_002_persistent_float32_outlet_is_public_and_explicit() {
     assert_eq!(
         PERSISTENT_FLOAT32_OUTLET_API_MARKER,
         runtime::PERSISTENT_FLOAT32_OUTLET_API_MARKER
+    );
+    assert_eq!(
+        PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+        runtime::PERSISTENT_FLOAT32_OUTLET_FEATURE_ID
+    );
+    assert_eq!(
+        PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER,
+        runtime::PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletActivationError>::None,
+        &Option::<runtime::PersistentFloat32OutletActivationError>::None,
     );
     same_type(
         &Option::<PersistentFloat32AcceptError>::None,

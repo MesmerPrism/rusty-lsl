@@ -439,10 +439,11 @@ pub use morphospace_stream_lifecycle_advisory_proposal::{
 pub use persistent_float32_outlet::{
     PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
     PersistentFloat32ConsumerFailure, PersistentFloat32Outlet, PersistentFloat32OutletActivation,
-    PersistentFloat32OutletCloseReport, PersistentFloat32OutletCreateError,
-    PersistentFloat32OutletLimitError, PersistentFloat32OutletLimits, PersistentFloat32PushError,
-    PersistentFloat32PushReport, PersistentFloat32TransportError,
-    PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+    PersistentFloat32OutletActivationError, PersistentFloat32OutletCloseReport,
+    PersistentFloat32OutletCreateError, PersistentFloat32OutletLimitError,
+    PersistentFloat32OutletLimits, PersistentFloat32PushError, PersistentFloat32PushReport,
+    PersistentFloat32TransportError, PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+    PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER, PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
 };
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,
