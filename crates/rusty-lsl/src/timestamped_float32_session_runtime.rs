@@ -86,9 +86,18 @@ pub(crate) mod codec {
         fn encode_initialization(&mut self, value_bits: u32) {
             self.record[0] = RECORD_MARKER;
             self.record[1..9].copy_from_slice(&INITIALIZATION_TIMESTAMP_BITS.to_le_bytes());
-            let value = value_bits.to_le_bytes();
-            for bytes in self.record[9..].chunks_exact_mut(core::mem::size_of::<f32>()) {
-                bytes.copy_from_slice(&value);
+            let mut magnitude = f32::from_bits(value_bits);
+            for (channel, bytes) in self.record[9..]
+                .chunks_exact_mut(core::mem::size_of::<f32>())
+                .enumerate()
+            {
+                let value = if channel % 2 == 0 {
+                    magnitude
+                } else {
+                    -magnitude
+                };
+                bytes.copy_from_slice(&value.to_le_bytes());
+                magnitude += 1.0;
             }
         }
 
@@ -199,12 +208,24 @@ pub(crate) mod codec {
     ) -> Result<(), TimestampedFloat32SampleError> {
         for (index, expected_value) in INITIALIZATION_VALUE_BITS.into_iter().enumerate() {
             let record = read_record_for_channels(stream, channel_count, limits, cancelled)?;
-            if record.raw_source_timestamp().value().to_bits() != INITIALIZATION_TIMESTAMP_BITS
-                || record
+            let mut magnitude = f32::from_bits(expected_value);
+            let values_match =
+                record
                     .sample()
                     .values()
                     .iter()
-                    .any(|value| value.to_bits() != expected_value)
+                    .enumerate()
+                    .all(|(channel, value)| {
+                        let expected = if channel % 2 == 0 {
+                            magnitude
+                        } else {
+                            -magnitude
+                        };
+                        magnitude += 1.0;
+                        value.to_bits() == expected.to_bits()
+                    });
+            if record.raw_source_timestamp().value().to_bits() != INITIALIZATION_TIMESTAMP_BITS
+                || !values_match
             {
                 return Err(TimestampedFloat32SampleError::InvalidInitialization { index });
             }
@@ -3607,6 +3628,116 @@ mod tests {
     fn sample_limits() -> TimestampedFloat32SampleLimits {
         TimestampedFloat32SampleLimits::new(Duration::from_millis(5), Duration::from_secs(1))
             .unwrap()
+    }
+
+    fn encoded_float32_initialization(channels: usize) -> Vec<u8> {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let record_bytes = 1 + core::mem::size_of::<f64>() + channels * core::mem::size_of::<f32>();
+        let reader = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            let mut bytes = vec![0; record_bytes * 2];
+            stream.read_exact(&mut bytes).unwrap();
+            bytes
+        });
+        let mut stream = TcpStream::connect(address).unwrap();
+        codec::Float32WriterState::new(channels)
+            .unwrap()
+            .write_initialization(&mut stream, sample_limits(), &AtomicBool::new(false))
+            .unwrap();
+        drop(stream);
+        reader.join().unwrap()
+    }
+
+    fn read_float32_initialization(
+        channels: usize,
+        bytes: Vec<u8>,
+    ) -> Result<(), TimestampedFloat32SampleError> {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let writer = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            stream.write_all(&bytes).unwrap();
+        });
+        let mut stream = TcpStream::connect(address).unwrap();
+        let result = codec::read_initialization_for_channels(
+            &mut stream,
+            channels,
+            sample_limits(),
+            &AtomicBool::new(false),
+        );
+        writer.join().unwrap();
+        result
+    }
+
+    fn initialization_value_bits(bytes: &[u8], channels: usize) -> Vec<Vec<u32>> {
+        let record_bytes = 1 + core::mem::size_of::<f64>() + channels * core::mem::size_of::<f32>();
+        bytes
+            .chunks_exact(record_bytes)
+            .map(|record| {
+                record[9..]
+                    .chunks_exact(core::mem::size_of::<f32>())
+                    .map(|value| u32::from_le_bytes(value.try_into().unwrap()))
+                    .collect()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn multichannel_float32_initialization_preserves_one_channel_and_orders_channels() {
+        let one = encoded_float32_initialization(1);
+        assert_eq!(
+            initialization_value_bits(&one, 1),
+            vec![vec![4.0_f32.to_bits()], vec![2.0_f32.to_bits()]]
+        );
+        assert_eq!(read_float32_initialization(1, one), Ok(()));
+
+        let three = encoded_float32_initialization(3);
+        assert_eq!(
+            initialization_value_bits(&three, 3),
+            vec![
+                vec![4.0_f32.to_bits(), (-5.0_f32).to_bits(), 6.0_f32.to_bits()],
+                vec![2.0_f32.to_bits(), (-3.0_f32).to_bits(), 4.0_f32.to_bits()],
+            ]
+        );
+        assert_eq!(read_float32_initialization(3, three), Ok(()));
+    }
+
+    #[test]
+    fn multichannel_float32_initialization_is_repeat_identical() {
+        let one = encoded_float32_initialization(1);
+        let three = encoded_float32_initialization(3);
+        for _ in 0..3 {
+            assert_eq!(encoded_float32_initialization(1), one);
+            assert_eq!(encoded_float32_initialization(3), three);
+        }
+    }
+
+    #[test]
+    fn multichannel_float32_initialization_rejects_legacy_repeat_order_and_shape_damage() {
+        let mut repeated = encoded_float32_initialization(3);
+        let record_bytes = 1 + core::mem::size_of::<f64>() + 3 * core::mem::size_of::<f32>();
+        repeated[13..17].copy_from_slice(&4.0_f32.to_le_bytes());
+        assert_eq!(
+            read_float32_initialization(3, repeated),
+            Err(TimestampedFloat32SampleError::InvalidInitialization { index: 0 })
+        );
+
+        let mut swapped = encoded_float32_initialization(3);
+        let (first, second) = swapped.split_at_mut(record_bytes);
+        first.swap_with_slice(second);
+        assert_eq!(
+            read_float32_initialization(3, swapped),
+            Err(TimestampedFloat32SampleError::InvalidInitialization { index: 0 })
+        );
+
+        let one_channel = encoded_float32_initialization(1);
+        assert!(matches!(
+            read_float32_initialization(3, one_channel),
+            Err(TimestampedFloat32SampleError::InvalidInitialization { index: 0 })
+                | Err(TimestampedFloat32SampleError::Truncated { .. })
+                | Err(TimestampedFloat32SampleError::Io(_))
+        ));
     }
 
     #[test]

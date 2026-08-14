@@ -22,6 +22,23 @@ structured Polar rates/channel metadata, public naming, and deterministic
 cleanup. The Python route validates the closed two-outlet/73x1/36x3 harness
 contract without requiring a physical device or official library installation.
 
+Owner host qualification of the corrected initialization uses pinned pylsl
+1.18.2/liblsl 1.17.7 and one explicit active private IPv4 interface:
+
+```text
+<pinned-python> ./tools/run_persistent_float32_outlet_official_consumer.py --interface <caller-explicit-ipv4> --polar-role ecg
+<pinned-python> ./tools/run_persistent_float32_outlet_official_consumer.py --interface <caller-explicit-ipv4> --polar-role acc
+```
+
+Run both roles twice from one clean exact revision. The driver resolves broadly,
+then requires exactly one candidate matching name, type, channel count, nominal
+rate, Float32 format, source ID, and UID. ECG requires 73 exact one-channel
+records at 130 Hz; ACC requires 36 exact three-channel records at 200 Hz. Both
+require exact source timestamps, persistent initialization, and bounded close.
+This does not qualify query-predicate evaluation, simultaneous two-inlet or
+registry fail-fast caller-data delivery, a physical H10, browser transport,
+LabRecorder, another host/platform, or release.
+
 These checks do not execute current Polar Stream, an official simultaneous
 two-inlet endpoint, a physical H10, BLE, LabRecorder, recovery, cross-host or
 cross-platform transport, licensing review, a release, or a production
