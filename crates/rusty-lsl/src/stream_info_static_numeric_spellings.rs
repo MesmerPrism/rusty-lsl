@@ -127,6 +127,10 @@ fn nominal_srate_spelling(
     let bits = rate.hz().to_bits();
     let spelling = if bits == 100.0_f64.to_bits() {
         "100.0000000000000"
+    } else if bits == 130.0_f64.to_bits() {
+        "130.0000000000000"
+    } else if bits == 200.0_f64.to_bits() {
+        "200.0000000000000"
     } else if bits == 59.94_f64.to_bits() {
         "59.94000000000000"
     } else if bits == 1.0_f64.to_bits() {
@@ -192,13 +196,23 @@ mod tests {
     }
 
     #[test]
-    fn lslc_001l_seven_observed_numeric_cases_execute_exactly() {
+    fn lslc_001l_observed_numeric_cases_and_device_001_rates_execute_exactly() {
         let cases = [
             (1, NominalSampleRate::irregular(), "0.000000000000000"),
             (
                 2,
                 NominalSampleRate::regular_hz(100.0).unwrap(),
                 "100.0000000000000",
+            ),
+            (
+                1,
+                NominalSampleRate::regular_hz(130.0).unwrap(),
+                "130.0000000000000",
+            ),
+            (
+                3,
+                NominalSampleRate::regular_hz(200.0).unwrap(),
+                "200.0000000000000",
             ),
             (
                 3,

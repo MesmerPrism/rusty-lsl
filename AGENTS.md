@@ -125,6 +125,14 @@ Official-consumer and Polar comparison routes are
 `tools/run_polar_stream_sender_ab_benchmark.py`; bind emitted subjects, host,
 dimensions, and units, without broad, device, release, or universal claims.
 
+DEVICE-001 physical-H10 evidence is checked by
+`python ./tools/check_device_001.py`. Keep device identity, participant data,
+raw samples, endpoints, paths, and logs private. Public claims stop at one
+Windows H10, the observed 73x1 ECG and 36x3 accelerometer notification shapes,
+one exact ECG-frame official-consumer replay, and descriptive sender occupancy.
+Do not compose this into a production-replacement, broad liblsl, medical,
+cross-platform, LabRecorder, recovery, or licensing claim.
+
 The compact router retains the route keys consumed by focused owner gates:
 `LSLC-001A`, `LSLC-001B`, `LSLC-001C`, `LSLC-001D`, `LSLC-001H`,
 `LSLC-003O`, `LSLC-003P`, `LSLC-003Q`, `LSLC-003S`, `LSLC-003T`,

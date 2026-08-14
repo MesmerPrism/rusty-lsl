@@ -134,7 +134,7 @@ pub enum StreamInfoObservedAdmissionError {
     InvalidChannelCount,
     /// The channel format was not one of the seven accepted names.
     InvalidChannelFormat,
-    /// The nominal rate was not one of the six accepted LSLC-001L spellings.
+    /// The nominal rate was not one of the admitted observed spellings.
     InvalidNominalSampleRate,
     /// Existing descriptor admission rejected the decoded static fields.
     Descriptor(StreamDescriptorError),
@@ -208,9 +208,11 @@ fn parse_channel_format(text: &str) -> Result<ChannelFormat, StreamInfoObservedA
 fn parse_nominal_rate(text: &str) -> Result<NominalSampleRate, StreamInfoObservedAdmissionError> {
     match text {
         "0.000000000000000" => Ok(NominalSampleRate::irregular()),
-        "100.0000000000000" => NominalSampleRate::regular_hz(100.0),
-        "59.94000000000000" => NominalSampleRate::regular_hz(59.94),
         "1.000000000000000" => NominalSampleRate::regular_hz(1.0),
+        "59.94000000000000" => NominalSampleRate::regular_hz(59.94),
+        "100.0000000000000" => NominalSampleRate::regular_hz(100.0),
+        "130.0000000000000" => NominalSampleRate::regular_hz(130.0),
+        "200.0000000000000" => NominalSampleRate::regular_hz(200.0),
         "256.5000000000000" => NominalSampleRate::regular_hz(256.5),
         "1000000.250000000" => NominalSampleRate::regular_hz(1_000_000.25),
         _ => return Err(StreamInfoObservedAdmissionError::InvalidNominalSampleRate),
@@ -317,15 +319,52 @@ mod tests {
         ] {
             for rate in [
                 "0.000000000000000",
-                "100.0000000000000",
-                "59.94000000000000",
                 "1.000000000000000",
+                "59.94000000000000",
+                "100.0000000000000",
+                "130.0000000000000",
+                "200.0000000000000",
                 "256.5000000000000",
                 "1000000.250000000",
             ] {
                 let source = document("1", format, rate);
                 StreamInfoObservedFields::admit(limits(), parse(&source)).unwrap();
             }
+        }
+    }
+
+    #[test]
+    fn device_001_admits_truthful_polar_h10_nominal_rates() {
+        for rate in ["130.0000000000000", "200.0000000000000"] {
+            let source = document("1", "float32", rate);
+            let admitted = StreamInfoObservedFields::admit(limits(), parse(&source)).unwrap();
+            let NominalSampleRate::RegularHz(admitted_rate) =
+                admitted.definition().descriptor().nominal_sample_rate()
+            else {
+                panic!("Polar H10 nominal rate became irregular");
+            };
+            assert_eq!(admitted_rate.hz().to_string(), &rate[..3]);
+        }
+    }
+
+    #[test]
+    fn device_001_rejects_noncanonical_or_invalid_nominal_rates() {
+        for rate in [
+            "130",
+            "130.0",
+            "0130.000000000000",
+            "+130.000000000000",
+            "-130.000000000000",
+            "130.00000000000000",
+            "NaN.000000000000",
+            "42.00000000000000",
+        ] {
+            let source = document("1", "float32", rate);
+            assert_eq!(
+                StreamInfoObservedFields::admit(limits(), parse(&source)),
+                Err(StreamInfoObservedAdmissionError::InvalidNominalSampleRate),
+                "accepted damaged nominal rate {rate:?}"
+            );
         }
     }
 }

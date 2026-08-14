@@ -1,5 +1,41 @@
 # Validation
 
+## DEVICE-001 physical Polar H10 publisher qualification
+
+The public sanitized evidence is deterministic and offline-checkable:
+
+```text
+python ./tools/check_device_001.py
+```
+
+It validates
+`fixtures/compatibility/rlsl-device-001-polar-h10-publisher-qualification.json`,
+including exact public Git/blob identities, private artifact hashes, 73x1 ECG
+and 36x3 accelerometer shapes, 130/200 Hz metadata admission, official-consumer
+results, five-repeat sender summaries, Polar input-wrapper classification,
+nonclaims, and public-boundary exclusions.
+
+The private serial-scoped device procedure selects one explicitly observed H10,
+records requested/observed PMD diagnostics, captures no less than five ECG and
+five accelerometer notifications, disconnects, verifies no run-owned process or
+socket remains, and retains raw samples and identity outside public source. A
+private replay sends one exact 73-record ECG notification with truthful 130 Hz
+metadata to pinned pylsl 1.18.2/liblsl 1.17 and requires exact Float32 values,
+exact timestamps, discovery, handshake, and bounded close.
+
+Focused source checks are:
+
+```text
+cargo test -p rusty-lsl --lib device_001 -- --test-threads=1
+cargo test -p rusty-lsl --test public_api device_001_polar_h10_nominal_rates_are_publicly_composable_and_admissible -- --exact --test-threads=1
+```
+
+This proves one Windows H10 and a bounded Polar adapter pilot only. It does not
+prove current Polar Stream end-to-end behavior, BLE-to-recorder or LabRecorder
+latency, multiple devices, long-run recovery, cross-host/platform operation,
+medical validity, production replacement, licensing compatibility, stable API,
+or release readiness.
+
 ## INTEROP-001 managed persistent Float32 outlet
 
 The deterministic evidence and dispatcher contracts run without an official

@@ -1,0 +1,115 @@
+{
+  "schema": "rusty.lsl.device_001.polar_h10_publisher_qualification.v1",
+  "source": {
+    "rusty_lsl_commit": "63184dabbbca168adb6d782900d9d0b60c377a23",
+    "rusty_lsl_tree": "8e309d4dc87b123c4144ff25b14c44443b4036ff",
+    "polar_stream_executed_revision": "a2facc330eaf45dca38d32da9fc6b825ceb9174d",
+    "polar_stream_current_readback": "1e9a7df4059dbac8af058a0645c889b677f2db68",
+    "polar_input_tree": "50c7b10f61dd982a6d84a62ddbf4c1c86a1c8b2d",
+    "polar_lsl_sender_blob": "5ef35f005003ebe84cff52a093f91270d85651a9",
+    "rate_admission_sha256": "24333ca34d9a760b81b51bb3d481a3de3798c5e8aa80c0086de90a5cb641bb6d",
+    "rate_composition_sha256": "c2f9b0468e0ce9b4980f6c6a554f8fceaebf88acb1c906442b4f151d7f6af093",
+    "persistent_outlet_sha256": "c8cb439b22c390fe041e883154227141e1ec2e8eb75ab8e83c772d537a4d2829",
+    "managed_service_sha256": "55543129e2b33e51faa291841d44070ba799b1f4824b9ce7aea8db649515d267"
+  },
+  "device_session": {
+    "device_class": "Polar H10",
+    "platform_class": "single-windows-desktop-host",
+    "negotiated_pdu_bytes": 232,
+    "observed_connection_interval_ms": 15.0,
+    "heart_rate_notifications": 24,
+    "ecg": {
+      "nominal_rate_hz": 130,
+      "estimated_rate_hz": 130.1975,
+      "frames": 39,
+      "samples": 2847,
+      "records_per_frame": 73,
+      "channels": 1
+    },
+    "accelerometer": {
+      "nominal_rate_hz": 200,
+      "estimated_rate_hz": 202.5561,
+      "frames": 112,
+      "samples": 4032,
+      "records_per_frame": 36,
+      "channels": 3
+    }
+  },
+  "rusty_official_consumer": {
+    "package": "pylsl",
+    "package_version": "1.18.2",
+    "library_version": 117,
+    "protocol_version": 110,
+    "native_library_sha256": "8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff",
+    "nominal_rate_hz": 130,
+    "records": 73,
+    "discovery_requests": 5,
+    "official_source_resolved": "pass",
+    "persistent_handshake": "pass",
+    "exact_captured_float32_values": "pass",
+    "exact_source_timestamps": "pass",
+    "bounded_close": "pass"
+  },
+  "sender_benchmark": {
+    "interpretation": "descriptive-not-ble-to-recorder-latency",
+    "warmup_pushes": 100,
+    "measured_pushes_per_repeat": 1000,
+    "repeats": 5,
+    "ecg": {
+      "channels": 1,
+      "records_per_chunk": 73,
+      "rusty_median_of_medians_ns": 13400,
+      "rusty_median_p95_ns": 19300,
+      "liblsl_median_of_medians_ns": 13400,
+      "liblsl_median_p95_ns": 18300,
+      "rusty_to_liblsl_median_ratio": 1.0
+    },
+    "accelerometer": {
+      "channels": 3,
+      "records_per_chunk": 36,
+      "rusty_median_of_medians_ns": 13900,
+      "rusty_median_p95_ns": 17400,
+      "liblsl_median_of_medians_ns": 7000,
+      "liblsl_median_p95_ns": 9500,
+      "rusty_to_liblsl_median_ratio": 1.985714
+    },
+    "estimated_extra_rusty_sender_occupancy_ns_per_second": 38823,
+    "current_rusty_speed_advantage": false,
+    "transport_units_equal": false
+  },
+  "polar_input_observation": {
+    "direct_protocol_control_replies": "pass",
+    "direct_protocol_pmd_notifications": 109,
+    "direct_protocol_heart_rate_notifications": 15,
+    "full_input_wrapper_connects": true,
+    "full_input_wrapper_pmd_notifications": 0,
+    "full_input_wrapper_runs": 2,
+    "classification": "polar-stream-windows-input-wrapper-defect-outside-rusty-lsl"
+  },
+  "private_artifacts": {
+    "session_sha256": "3a200e4a3b2f8d6822ea5f3d0ccbe0d77483c0ad6ce8d453376a40d4864c7de0",
+    "ecg_sha256": "63a18c40cb4a8bad6d3e77dbc3d39d3452ab5c0cb2e738dc30ae2b0cd0ad1d9d",
+    "accelerometer_sha256": "a391c006a1923d29dce611b7fe080b3c13e1d4b1de3c8a55562e0d11468bda9d",
+    "published": false
+  },
+  "claims": {
+    "one_windows_h10_full_rate_capture": true,
+    "truthful_130_and_200_hz_metadata": true,
+    "real_ecg_frame_to_official_consumer": true,
+    "h10_shaped_sender_comparison": true,
+    "rusty_transport_suitable_for_bounded_polar_adapter_pilot": true,
+    "rusty_faster_than_liblsl": false,
+    "current_polar_stream_end_to_end_integration": false,
+    "production_replacement_recommended": false,
+    "broad_liblsl_equivalence": false,
+    "stable_or_release_ready": false
+  },
+  "private_exclusions": [
+    "device-identity",
+    "participant-identity",
+    "machine-paths",
+    "network-endpoints",
+    "raw-samples",
+    "raw-logs"
+  ]
+}
