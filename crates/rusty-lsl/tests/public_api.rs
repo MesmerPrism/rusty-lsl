@@ -1232,6 +1232,8 @@ fn interop_001_managed_persistent_float32_outlet_service_is_public_and_explicit(
     assert_eq!(service.channel_count(), 1);
     assert_eq!(service.connected_consumers(), 0);
     assert_eq!(service.advertised_ipv4().to_string(), "127.0.0.1");
+    assert_eq!(service.timedata_local_address().port(), port);
+    assert_eq!(service.health().timedata_queries(), 0);
 
     fn same_type<T>(_: &T, _: &T) {}
     same_type(
@@ -1270,12 +1272,117 @@ fn interop_001_managed_persistent_float32_outlet_service_is_public_and_explicit(
         &Option::<PersistentFloat32OutletServiceCloseReport>::None,
         &Option::<runtime::PersistentFloat32OutletServiceCloseReport>::None,
     );
+    same_type(
+        &Option::<PersistentFloat32OutletServiceHealth>::None,
+        &Option::<runtime::PersistentFloat32OutletServiceHealth>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32TimedataHandled>::None,
+        &Option::<runtime::PersistentFloat32TimedataHandled>::None,
+    );
     assert_eq!(service.close().outlet().closed_consumers(), 0);
+}
+
+#[test]
+fn polar_001_registry_clock_health_and_structured_stream_info_are_public() {
+    fn same_type<T>(_: &T, _: &T) {}
+
+    let _registry_register = PersistentFloat32OutletRegistry::register_stream_info;
+    let _registry_push = PersistentFloat32OutletRegistry::try_push_chunk;
+    let _structured_compose = PersistentFloat32StreamInfo::compose;
+    let _fail_fast_push = PersistentFloat32Outlet::try_push_chunk;
+    assert!(persistent_float32_local_clock().is_finite());
+    assert!(runtime::persistent_float32_local_clock().is_finite());
+    assert_eq!(MAX_PERSISTENT_FLOAT32_REGISTRY_OUTLETS, 64);
+    assert_eq!(
+        MAX_PERSISTENT_FLOAT32_REGISTRY_OUTLETS,
+        runtime::MAX_PERSISTENT_FLOAT32_REGISTRY_OUTLETS
+    );
+    same_type(
+        &Option::<PersistentFloat32LocalClock>::None,
+        &Option::<runtime::PersistentFloat32LocalClock>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletHealth>::None,
+        &Option::<runtime::PersistentFloat32OutletHealth>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistry>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistry>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletId>::None,
+        &Option::<runtime::PersistentFloat32OutletId>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistryLimits>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistryLimits>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistryLimitError>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistryLimitError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistrationError>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistrationError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistryCreateError>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistryCreateError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistryPoll>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistryPoll>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistryPollError>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistryPollError>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistryHealth>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistryHealth>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32OutletRegistryCloseReport>::None,
+        &Option::<runtime::PersistentFloat32OutletRegistryCloseReport>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32RegistryDiscoveryHandled>::None,
+        &Option::<runtime::PersistentFloat32RegistryDiscoveryHandled>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32RegistryTimedataHandled>::None,
+        &Option::<runtime::PersistentFloat32RegistryTimedataHandled>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32RegistryConsumerAccepted>::None,
+        &Option::<runtime::PersistentFloat32RegistryConsumerAccepted>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32StreamInfo>::None,
+        &Option::<runtime::PersistentFloat32StreamInfo>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32StreamInfoInput>::None,
+        &Option::<runtime::PersistentFloat32StreamInfoInput>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32StreamInfoLimits>::None,
+        &Option::<runtime::PersistentFloat32StreamInfoLimits>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32StreamInfoError>::None,
+        &Option::<runtime::PersistentFloat32StreamInfoError>::None,
+    );
 }
 
 #[test]
 fn device_001_polar_h10_nominal_rates_are_publicly_composable_and_admissible() {
     for (channels, rate, spelling) in [
+        (1, 1.0, "1.000000000000000"),
+        (1, 2.0, "2.000000000000000"),
+        (3, 4.0, "4.000000000000000"),
+        (3, 20.0, "20.00000000000000"),
         (1, 130.0, "130.0000000000000"),
         (3, 200.0, "200.0000000000000"),
     ] {

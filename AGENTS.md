@@ -68,10 +68,21 @@ belong only to the dedicated private planning repository.
 - Keep `PersistentFloat32Outlet` caller-owned and explicitly activated. Allocate
   its fixed channel-shape buffer and bounded consumer registry at construction;
   `push_chunk` must encode once, allocate nothing, and issue one contiguous
-  bounded write per retained consumer. Do not introduce an ambient worker,
-  timer, discovery/selection policy, implicit retry, or unbounded registry.
+  bounded write per retained consumer. `try_push_chunk` is the separate
+  fail-fast policy: set nonblocking mode once, attempt at most one write per
+  consumer, evict partial/would-block peers, continue healthy fan-out, and do
+  not mix delivery policies after the first push. Do not introduce an ambient
+  worker, timer, discovery/selection policy, implicit retry, or unbounded registry.
 - Keep `PersistentFloat32OutletService` caller-polled on a concrete IPv4
-  interface: one query/consumer per poll; no worker, enumeration, fallback, retry.
+  interface: at most one query, one timedata request, and one consumer per poll;
+  no worker, enumeration, fallback, or retry. Keep timedata on the advertised
+  TCP service port's UDP counterpart and the process-local source clock shared.
+- Keep `PersistentFloat32OutletRegistry` bounded and caller-polled: one shared
+  discovery socket, one timedata socket per outlet, stable outlet IDs, and
+  round-robin timedata/consumer work. String registration retains the historical
+  canonical-body parser; nested metadata uses only proof-carrying
+  `PersistentFloat32StreamInfo` registration. Do not add arbitrary predicate
+  evaluation or accept handwritten XML through that typed route.
 - Runtime selection and activation remain separate. No default Cargo feature
   activates runtime behavior; accepted lock identity and explicit caller input
   remain required, and activation stays default-disabled.
@@ -124,6 +135,8 @@ Official-consumer and Polar comparison routes are
 `tools/run_persistent_float32_outlet_official_consumer.py` and
 `tools/run_polar_stream_sender_ab_benchmark.py`; bind emitted subjects, host,
 dimensions, and units, without broad, device, release, or universal claims.
+The first tool's `--multi-outlet-self-test` is the deterministic POLAR-001
+harness check; focused `polar_001` Rust tests remain the transport evidence.
 
 DEVICE-001 physical-H10 evidence is checked by
 `python ./tools/check_device_001.py`. Keep device identity, participant data,

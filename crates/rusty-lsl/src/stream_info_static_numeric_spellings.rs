@@ -125,7 +125,15 @@ fn nominal_srate_spelling(
         return Ok(IRREGULAR_SPELLING);
     };
     let bits = rate.hz().to_bits();
-    let spelling = if bits == 100.0_f64.to_bits() {
+    let spelling = if bits == 1.0_f64.to_bits() {
+        "1.000000000000000"
+    } else if bits == 2.0_f64.to_bits() {
+        "2.000000000000000"
+    } else if bits == 4.0_f64.to_bits() {
+        "4.000000000000000"
+    } else if bits == 20.0_f64.to_bits() {
+        "20.00000000000000"
+    } else if bits == 100.0_f64.to_bits() {
         "100.0000000000000"
     } else if bits == 130.0_f64.to_bits() {
         "130.0000000000000"
@@ -133,8 +141,6 @@ fn nominal_srate_spelling(
         "200.0000000000000"
     } else if bits == 59.94_f64.to_bits() {
         "59.94000000000000"
-    } else if bits == 1.0_f64.to_bits() {
-        "1.000000000000000"
     } else if bits == 256.5_f64.to_bits() {
         "256.5000000000000"
     } else if bits == 1_000_000.25_f64.to_bits() {
@@ -225,6 +231,21 @@ mod tests {
                 "1.000000000000000",
             ),
             (
+                1,
+                NominalSampleRate::regular_hz(2.0).unwrap(),
+                "2.000000000000000",
+            ),
+            (
+                3,
+                NominalSampleRate::regular_hz(4.0).unwrap(),
+                "4.000000000000000",
+            ),
+            (
+                3,
+                NominalSampleRate::regular_hz(20.0).unwrap(),
+                "20.00000000000000",
+            ),
+            (
                 5,
                 NominalSampleRate::regular_hz(256.5).unwrap(),
                 "256.5000000000000",
@@ -250,7 +271,7 @@ mod tests {
     #[test]
     fn lslc_001l_unsupported_regular_rates_fail_closed_with_exact_bits() {
         for value in [
-            2.0,
+            3.0,
             f64::from_bits(59.94_f64.to_bits() + 1),
             f64::from_bits(100.0_f64.to_bits() - 1),
         ] {
@@ -265,6 +286,42 @@ mod tests {
                 }) if actual_bits == value.to_bits()
             ));
         }
+    }
+
+    #[test]
+    fn polar_001_stream_info_composes_exact_selected_nominal_rates() {
+        for (value, expected) in [
+            (1.0, "1.000000000000000"),
+            (2.0, "2.000000000000000"),
+            (4.0, "4.000000000000000"),
+            (20.0, "20.00000000000000"),
+            (130.0, "130.0000000000000"),
+            (200.0, "200.0000000000000"),
+        ] {
+            let definition = definition(1, NominalSampleRate::regular_hz(value).unwrap());
+            let fields = StreamInfoStaticFields::new(&definition);
+            assert_eq!(
+                StreamInfoStaticNumericSpellings::new(&fields)
+                    .unwrap()
+                    .nominal_srate(),
+                expected
+            );
+        }
+    }
+
+    #[test]
+    fn polar_001_stream_info_rejects_unselected_regular_rate() {
+        let value = 3.0;
+        let definition = definition(1, NominalSampleRate::regular_hz(value).unwrap());
+        let fields = StreamInfoStaticFields::new(&definition);
+        assert!(matches!(
+            StreamInfoStaticNumericSpellings::new(&fields),
+            Err(
+                StreamInfoStaticNumericSpellingError::UnsupportedRegularNominalSrate {
+                    actual_bits,
+                }
+            ) if actual_bits == value.to_bits()
+        ));
     }
 
     #[test]

@@ -7,18 +7,29 @@
 //! It defines no types, defaults, effects, or authority.
 
 pub use crate::{
-    PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
-    PersistentFloat32ConsumerFailure, PersistentFloat32DiscoveryHandled, PersistentFloat32Outlet,
+    persistent_float32_local_clock, PersistentFloat32AcceptError,
+    PersistentFloat32ConsumerAccepted, PersistentFloat32ConsumerFailure,
+    PersistentFloat32DiscoveryHandled, PersistentFloat32LocalClock, PersistentFloat32Outlet,
     PersistentFloat32OutletActivation, PersistentFloat32OutletActivationError,
     PersistentFloat32OutletCloseReport, PersistentFloat32OutletCreateError,
-    PersistentFloat32OutletLimitError, PersistentFloat32OutletLimits,
+    PersistentFloat32OutletHealth, PersistentFloat32OutletId, PersistentFloat32OutletLimitError,
+    PersistentFloat32OutletLimits, PersistentFloat32OutletRegistrationError,
+    PersistentFloat32OutletRegistry, PersistentFloat32OutletRegistryCloseReport,
+    PersistentFloat32OutletRegistryCreateError, PersistentFloat32OutletRegistryHealth,
+    PersistentFloat32OutletRegistryLimitError, PersistentFloat32OutletRegistryLimits,
+    PersistentFloat32OutletRegistryPoll, PersistentFloat32OutletRegistryPollError,
     PersistentFloat32OutletService, PersistentFloat32OutletServiceCloseReport,
-    PersistentFloat32OutletServiceCreateError, PersistentFloat32OutletServiceIdentityRole,
-    PersistentFloat32OutletServiceLimitError, PersistentFloat32OutletServiceLimits,
-    PersistentFloat32OutletServicePoll, PersistentFloat32OutletServicePollError,
-    PersistentFloat32PushError, PersistentFloat32PushReport, PersistentFloat32TransportError,
-    PERSISTENT_FLOAT32_OUTLET_API_MARKER, PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER,
-    PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+    PersistentFloat32OutletServiceCreateError, PersistentFloat32OutletServiceHealth,
+    PersistentFloat32OutletServiceIdentityRole, PersistentFloat32OutletServiceLimitError,
+    PersistentFloat32OutletServiceLimits, PersistentFloat32OutletServicePoll,
+    PersistentFloat32OutletServicePollError, PersistentFloat32PushError,
+    PersistentFloat32PushReport, PersistentFloat32RegistryConsumerAccepted,
+    PersistentFloat32RegistryDiscoveryHandled, PersistentFloat32RegistryTimedataHandled,
+    PersistentFloat32StreamInfo, PersistentFloat32StreamInfoError,
+    PersistentFloat32StreamInfoInput, PersistentFloat32StreamInfoLimits,
+    PersistentFloat32TimedataHandled, PersistentFloat32TransportError,
+    MAX_PERSISTENT_FLOAT32_REGISTRY_OUTLETS, PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+    PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER, PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
 };
 
 pub use crate::{

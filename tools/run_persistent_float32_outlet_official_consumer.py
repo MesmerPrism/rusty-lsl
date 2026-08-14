@@ -28,6 +28,12 @@ RESULT_SCHEMA = "rusty.lsl.interop_001.official_consumer_qualification.v1"
 SELF_TEST_SCHEMA = (
     "rusty.lsl.interop_001.official_consumer_qualification_self_test.v1"
 )
+MULTI_MARKER = "RUSTY_LSL_POLAR_001_MULTI_OUTLET "
+MULTI_SELF_TEST_SCHEMA = (
+    "rusty.lsl.polar_001.multi_outlet_official_consumer_self_test.v1"
+)
+ECG_RECORDS = 73
+ACC_RECORDS = 36
 
 
 def explicit_ipv4(raw: str) -> str:
@@ -119,6 +125,92 @@ def self_test() -> None:
         raise AssertionError("damaged values were accepted")
 
 
+def parse_multi_server_output(output: str) -> dict[str, int]:
+    payloads = [
+        line.partition(MULTI_MARKER)[2]
+        for line in output.splitlines()
+        if MULTI_MARKER in line
+    ]
+    if len(payloads) != 1:
+        raise ValueError(f"expected one multi-outlet marker, observed {len(payloads)}")
+    document = json.loads(payloads[0])
+    expected = {
+        "outlets": 2,
+        "discovery_queries": 1,
+        "discovery_responses": 2,
+        "timedata_queries": 2,
+        "accepted_consumers": 2,
+        "ecg_records": ECG_RECORDS,
+        "acc_records": ACC_RECORDS,
+        "closed_consumers": 2,
+    }
+    if set(document) != set(expected):
+        raise ValueError("multi-outlet payload fields do not match the closed contract")
+    if any(not isinstance(value, int) or value < 0 for value in document.values()):
+        raise ValueError("multi-outlet payload counts must be non-negative integers")
+    for field, minimum in expected.items():
+        if field in {"discovery_queries", "discovery_responses"}:
+            if document[field] < minimum:
+                raise ValueError(f"multi-outlet {field} was below {minimum}")
+        elif document[field] != minimum:
+            raise ValueError(f"multi-outlet {field} drifted from {minimum}")
+    return document
+
+
+def require_multi_exact_data(
+    ecg: list[list[float]], acc: list[list[float]]
+) -> None:
+    if len(ecg) != ECG_RECORDS or any(len(sample) != 1 for sample in ecg):
+        raise ValueError("ECG notification shape drifted from 73 one-channel records")
+    if len(acc) != ACC_RECORDS or any(len(sample) != 3 for sample in acc):
+        raise ValueError("ACC notification shape drifted from 36 three-channel records")
+    if [sample[0] for sample in ecg] != [float(index) for index in range(ECG_RECORDS)]:
+        raise ValueError("ECG values differ from the exact oracle")
+    expected_acc = [
+        [float(index), float(index + 1), float(index + 2)]
+        for index in range(ACC_RECORDS)
+    ]
+    if acc != expected_acc:
+        raise ValueError("ACC values differ from the exact oracle")
+
+
+def multi_outlet_self_test() -> None:
+    fixture = MULTI_MARKER + json.dumps(
+        {
+            "outlets": 2,
+            "discovery_queries": 3,
+            "discovery_responses": 6,
+            "timedata_queries": 2,
+            "accepted_consumers": 2,
+            "ecg_records": ECG_RECORDS,
+            "acc_records": ACC_RECORDS,
+            "closed_consumers": 2,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    parsed = parse_multi_server_output(fixture)
+    assert parsed["discovery_responses"] == 6
+    ecg = [[float(index)] for index in range(ECG_RECORDS)]
+    acc = [
+        [float(index), float(index + 1), float(index + 2)]
+        for index in range(ACC_RECORDS)
+    ]
+    require_multi_exact_data(ecg, acc)
+    try:
+        parse_multi_server_output(fixture + "\n" + fixture)
+    except ValueError as error:
+        assert "observed 2" in str(error)
+    else:
+        raise AssertionError("duplicate multi-outlet markers were accepted")
+    try:
+        require_multi_exact_data(ecg, acc[:-1])
+    except ValueError as error:
+        assert "ACC notification shape" in str(error)
+    else:
+        raise AssertionError("damaged ACC record extent was accepted")
+
+
 def drain_pipe(pipe, destination: list[str]) -> None:
     for line in iter(pipe.readline, ""):
         destination.append(line)
@@ -140,17 +232,24 @@ def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--interface", type=explicit_ipv4)
     result.add_argument("--self-test", action="store_true")
+    result.add_argument("--multi-outlet-self-test", action="store_true")
     return result
 
 
 def main() -> int:
     arguments = parser().parse_args()
+    if arguments.self_test and arguments.multi_outlet_self_test:
+        parser().error("select only one self-test mode")
+    if arguments.multi_outlet_self_test:
+        multi_outlet_self_test()
+        print(json.dumps({"schema": MULTI_SELF_TEST_SCHEMA, "status": "pass"}, sort_keys=True))
+        return 0
     if arguments.self_test:
         self_test()
         print(json.dumps({"schema": SELF_TEST_SCHEMA, "status": "pass"}, sort_keys=True))
         return 0
     if arguments.interface is None:
-        parser().error("--interface is required unless --self-test is used")
+        parser().error("--interface is required unless a self-test is used")
 
     import pylsl
 

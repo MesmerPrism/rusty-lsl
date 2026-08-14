@@ -6,9 +6,9 @@
 use crate::{
     ChannelFormat, ParsedShortInfoQuery, ParsedStreamInfoObservedDocument,
     PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted, PersistentFloat32Outlet,
-    PersistentFloat32OutletCloseReport, PersistentFloat32PushError, PersistentFloat32PushReport,
-    RawSourceTimestamp, ShortInfoQueryParseError, ShortInfoQueryWireLimits,
-    ShortInfoResponderActivation, ShortInfoResponseEnvelope, ShortInfoResponseEnvelopeEncodeError,
+    PersistentFloat32OutletCloseReport, PersistentFloat32OutletHealth, PersistentFloat32PushError,
+    PersistentFloat32PushReport, RawSourceTimestamp, ShortInfoQueryParseError,
+    ShortInfoQueryWireLimits, ShortInfoResponderActivation, ShortInfoResponseEnvelopeEncodeError,
     ShortInfoResponseEnvelopeLimits, StreamInfoObservedAdmissionError,
     StreamInfoObservedAdmissionLimits, StreamInfoObservedDocumentParseError,
     StreamInfoObservedDocumentParseLimit, StreamInfoObservedFields, StreamInfoVolatileFieldRole,
@@ -68,6 +68,14 @@ impl PersistentFloat32OutletServiceLimits {
     pub const fn max_datagram_bytes(self) -> usize {
         self.max_datagram_bytes
     }
+
+    pub(crate) const fn query_limits(self) -> ShortInfoQueryWireLimits {
+        self.query
+    }
+
+    pub(crate) const fn response_limits(self) -> ShortInfoResponseEnvelopeLimits {
+        self.response
+    }
 }
 
 /// Invalid managed-service retained-resource limit.
@@ -93,6 +101,14 @@ pub struct PersistentFloat32DiscoveryHandled {
 }
 
 impl PersistentFloat32DiscoveryHandled {
+    pub(crate) const fn new(source: SocketAddr, destination: SocketAddr, query_id: u64) -> Self {
+        Self {
+            source,
+            destination,
+            query_id,
+        }
+    }
+
     /// Socket that supplied the query datagram.
     #[must_use]
     pub const fn source(self) -> SocketAddr {
@@ -113,9 +129,10 @@ impl PersistentFloat32DiscoveryHandled {
 }
 
 /// Bounded work completed by one caller-owned poll.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PersistentFloat32OutletServicePoll {
     discovery: Option<PersistentFloat32DiscoveryHandled>,
+    timedata: Option<PersistentFloat32TimedataHandled>,
     consumer: Option<PersistentFloat32ConsumerAccepted>,
 }
 
@@ -124,6 +141,12 @@ impl PersistentFloat32OutletServicePoll {
     #[must_use]
     pub const fn discovery(self) -> Option<PersistentFloat32DiscoveryHandled> {
         self.discovery
+    }
+
+    /// Timedata query handled by this poll, if any.
+    #[must_use]
+    pub const fn timedata(self) -> Option<PersistentFloat32TimedataHandled> {
+        self.timedata
     }
 
     /// Consumer admitted by this poll, if any.
@@ -135,7 +158,84 @@ impl PersistentFloat32OutletServicePoll {
     /// Whether neither socket had pending work.
     #[must_use]
     pub const fn is_idle(self) -> bool {
-        self.discovery.is_none() && self.consumer.is_none()
+        self.discovery.is_none() && self.timedata.is_none() && self.consumer.is_none()
+    }
+}
+
+/// One source-clock timedata exchange served on an advertised service port.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PersistentFloat32TimedataHandled {
+    source: SocketAddr,
+    query_id: u64,
+    echoed_t0: f64,
+    source_received_t1: f64,
+    source_sent_t2: f64,
+}
+
+impl PersistentFloat32TimedataHandled {
+    /// Consumer endpoint that supplied the timedata query.
+    #[must_use]
+    pub const fn source(self) -> SocketAddr {
+        self.source
+    }
+
+    /// Opaque query identifier echoed in the response.
+    #[must_use]
+    pub const fn query_id(self) -> u64 {
+        self.query_id
+    }
+
+    /// Consumer clock value echoed unchanged by numeric value.
+    #[must_use]
+    pub const fn echoed_t0(self) -> f64 {
+        self.echoed_t0
+    }
+
+    /// Source clock read immediately after datagram receipt.
+    #[must_use]
+    pub const fn source_received_t1(self) -> f64 {
+        self.source_received_t1
+    }
+
+    /// Source clock read immediately before response composition.
+    #[must_use]
+    pub const fn source_sent_t2(self) -> f64 {
+        self.source_sent_t2
+    }
+}
+
+/// Cumulative observations for one managed service.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PersistentFloat32OutletServiceHealth {
+    discovery_queries: u64,
+    timedata_queries: u64,
+    consumers_accepted: u64,
+    outlet: PersistentFloat32OutletHealth,
+}
+
+impl PersistentFloat32OutletServiceHealth {
+    /// Syntactically admitted discovery queries answered by this service.
+    #[must_use]
+    pub const fn discovery_queries(self) -> u64 {
+        self.discovery_queries
+    }
+
+    /// Syntactically admitted timedata queries answered by this service.
+    #[must_use]
+    pub const fn timedata_queries(self) -> u64 {
+        self.timedata_queries
+    }
+
+    /// Data consumers admitted by this service.
+    #[must_use]
+    pub const fn consumers_accepted(self) -> u64 {
+        self.consumers_accepted
+    }
+
+    /// Current persistent-outlet health.
+    #[must_use]
+    pub const fn outlet(self) -> PersistentFloat32OutletHealth {
+        self.outlet
     }
 }
 
@@ -166,6 +266,10 @@ pub enum PersistentFloat32OutletServiceCreateError {
     DiscoveryLocalAddress(ErrorKind),
     /// The caller-owned discovery socket could not be made nonblocking.
     DiscoveryNonblocking(ErrorKind),
+    /// The advertised UDP timedata service port could not be bound.
+    BindTimedata(ErrorKind),
+    /// The UDP timedata service socket could not be made nonblocking.
+    TimedataNonblocking(ErrorKind),
     /// The bounded discovery receive allocation failed.
     DiscoveryBufferAllocationFailed {
         /// Exact requested capacity.
@@ -240,6 +344,33 @@ pub enum PersistentFloat32OutletServicePollError {
         /// Reported sent bytes.
         actual: usize,
     },
+    /// Timedata receive failed.
+    TimedataReceive(ErrorKind),
+    /// Timedata request framing or numeric fields were invalid.
+    TimedataInvalid,
+    /// Timedata datagram exceeded the selected bound.
+    TimedataDatagramLimitExceeded {
+        /// Selected maximum.
+        limit: usize,
+        /// Bounded observed extent.
+        actual: usize,
+    },
+    /// Timedata response exceeded the selected datagram bound.
+    TimedataResponseLimitExceeded {
+        /// Selected maximum.
+        limit: usize,
+        /// Required response bytes.
+        actual: usize,
+    },
+    /// Timedata response send failed.
+    TimedataSend(ErrorKind),
+    /// UDP reported a partial timedata datagram send.
+    TimedataPartialSend {
+        /// Response bytes.
+        expected: usize,
+        /// Reported sent bytes.
+        actual: usize,
+    },
     /// Persistent-consumer admission failed.
     Accept(PersistentFloat32AcceptError),
 }
@@ -249,10 +380,14 @@ pub struct PersistentFloat32OutletService {
     outlet: PersistentFloat32Outlet,
     discovery: UdpSocket,
     discovery_local: SocketAddr,
+    timedata: PersistentFloat32TimedataSocket,
     advertised_ipv4: Ipv4Addr,
     body: String,
     limits: PersistentFloat32OutletServiceLimits,
     receive: Vec<u8>,
+    discovery_queries: u64,
+    timedata_queries: u64,
+    consumers_accepted: u64,
 }
 
 impl PersistentFloat32OutletService {
@@ -330,14 +465,22 @@ impl PersistentFloat32OutletService {
         discovery.set_nonblocking(true).map_err(|error| {
             PersistentFloat32OutletServiceCreateError::DiscoveryNonblocking(error.kind())
         })?;
+        let timedata = PersistentFloat32TimedataSocket::bind(
+            SocketAddr::new(IpAddr::V4(advertised_ipv4), outlet.local_address().port()),
+            limits.max_datagram_bytes,
+        )?;
         Ok(Self {
             outlet,
             discovery,
             discovery_local,
+            timedata,
             advertised_ipv4,
             body,
             limits,
             receive,
+            discovery_queries: 0,
+            timedata_queries: 0,
+            consumers_accepted: 0,
         })
     }
 
@@ -351,6 +494,12 @@ impl PersistentFloat32OutletService {
     #[must_use]
     pub const fn discovery_local_address(&self) -> SocketAddr {
         self.discovery_local
+    }
+
+    /// UDP service address used for source-clock timedata exchanges.
+    #[must_use]
+    pub const fn timedata_local_address(&self) -> SocketAddr {
+        self.timedata.local_address()
     }
 
     /// Caller-selected advertised IPv4 interface.
@@ -371,6 +520,17 @@ impl PersistentFloat32OutletService {
         self.outlet.connected_consumers()
     }
 
+    /// Reads cumulative managed-service and outlet observations.
+    #[must_use]
+    pub fn health(&self) -> PersistentFloat32OutletServiceHealth {
+        PersistentFloat32OutletServiceHealth {
+            discovery_queries: self.discovery_queries,
+            timedata_queries: self.timedata_queries,
+            consumers_accepted: self.consumers_accepted,
+            outlet: self.outlet.health(),
+        }
+    }
+
     /// Handles at most one pending discovery query and one pending consumer.
     ///
     /// Idle polling returns immediately. The accepted protocol handshake may use
@@ -388,6 +548,10 @@ impl PersistentFloat32OutletService {
             return Err(PersistentFloat32OutletServicePollError::Cancelled);
         }
         let discovery = self.poll_discovery()?;
+        let timedata = self.timedata.poll()?;
+        if timedata.is_some() {
+            self.timedata_queries = self.timedata_queries.saturating_add(1);
+        }
         // A full service retains its admitted data consumers and leaves any
         // auxiliary official-inlet connection in the bounded listener backlog.
         // The lower-level outlet keeps its explicit capacity error contract.
@@ -398,8 +562,12 @@ impl PersistentFloat32OutletService {
                 .poll_accept_consumer(cancelled)
                 .map_err(PersistentFloat32OutletServicePollError::Accept)?
         };
+        if consumer.is_some() {
+            self.consumers_accepted = self.consumers_accepted.saturating_add(1);
+        }
         Ok(PersistentFloat32OutletServicePoll {
             discovery,
+            timedata,
             consumer,
         })
     }
@@ -416,6 +584,20 @@ impl PersistentFloat32OutletService {
         cancelled: &AtomicBool,
     ) -> Result<PersistentFloat32PushReport, PersistentFloat32PushError> {
         self.outlet.push_chunk(values, timestamps, cancelled)
+    }
+
+    /// Delegates one fail-fast allocation-free-after-setup chunk fan-out.
+    ///
+    /// # Errors
+    ///
+    /// Preserves the persistent-outlet input and delivery-mode contract.
+    pub fn try_push_chunk(
+        &mut self,
+        values: &[f32],
+        timestamps: &[RawSourceTimestamp],
+        cancelled: &AtomicBool,
+    ) -> Result<PersistentFloat32PushReport, PersistentFloat32PushError> {
+        self.outlet.try_push_chunk(values, timestamps, cancelled)
     }
 
     /// Closes retained consumers; the discovery membership and socket drop on return.
@@ -459,26 +641,197 @@ impl PersistentFloat32OutletService {
         }
         let query = ParsedShortInfoQuery::parse(&self.receive[..length], self.limits.query)
             .map_err(PersistentFloat32OutletServicePollError::Query)?;
-        let parsed = ParsedStreamInfoObservedDocument::parse(self.limits.document, &self.body)
-            .expect("constructor retained one unchanged canonical body");
         let response =
-            ShortInfoResponseEnvelope::encode(query.query_id(), &parsed, self.limits.response)
+            encode_retained_body_response(query.query_id(), &self.body, self.limits.response)
                 .map_err(PersistentFloat32OutletServicePollError::Response)?;
         let destination = SocketAddr::new(source.ip(), query.return_port());
         let sent = self
             .discovery
-            .send_to(response.as_bytes(), destination)
+            .send_to(&response, destination)
             .map_err(|error| PersistentFloat32OutletServicePollError::Send(error.kind()))?;
-        if sent != response.as_bytes().len() {
+        if sent != response.len() {
             return Err(PersistentFloat32OutletServicePollError::PartialSend {
-                expected: response.as_bytes().len(),
+                expected: response.len(),
                 actual: sent,
             });
         }
+        self.discovery_queries = self.discovery_queries.saturating_add(1);
         Ok(Some(PersistentFloat32DiscoveryHandled {
             source,
             destination,
             query_id: query.query_id(),
+        }))
+    }
+}
+
+pub(crate) fn encode_retained_body_response(
+    query_id: u64,
+    body: &str,
+    limits: ShortInfoResponseEnvelopeLimits,
+) -> Result<Vec<u8>, ShortInfoResponseEnvelopeEncodeError> {
+    if body.len() > limits.max_body_bytes() {
+        return Err(ShortInfoResponseEnvelopeEncodeError::BodyLimitExceeded {
+            expected: limits.max_body_bytes(),
+            actual: body.len(),
+        });
+    }
+    let query_id = query_id.to_string();
+    let required = query_id
+        .len()
+        .checked_add(2)
+        .and_then(|value| value.checked_add(body.len()))
+        .ok_or(ShortInfoResponseEnvelopeEncodeError::LengthOverflow)?;
+    if required > limits.max_envelope_bytes() {
+        return Err(
+            ShortInfoResponseEnvelopeEncodeError::EnvelopeLimitExceeded {
+                expected: limits.max_envelope_bytes(),
+                required,
+            },
+        );
+    }
+    let mut response = Vec::new();
+    response.try_reserve_exact(required).map_err(|_| {
+        ShortInfoResponseEnvelopeEncodeError::AllocationFailed {
+            requested: required,
+        }
+    })?;
+    response.extend_from_slice(query_id.as_bytes());
+    response.extend_from_slice(b"\r\n");
+    response.extend_from_slice(body.as_bytes());
+    Ok(response)
+}
+
+pub(crate) struct PersistentFloat32TimedataSocket {
+    socket: UdpSocket,
+    local: SocketAddr,
+    receive: Vec<u8>,
+    max_datagram_bytes: usize,
+}
+
+impl PersistentFloat32TimedataSocket {
+    pub(crate) fn bind(
+        address: SocketAddr,
+        max_datagram_bytes: usize,
+    ) -> Result<Self, PersistentFloat32OutletServiceCreateError> {
+        let socket = UdpSocket::bind(address).map_err(|error| {
+            PersistentFloat32OutletServiceCreateError::BindTimedata(error.kind())
+        })?;
+        socket.set_nonblocking(true).map_err(|error| {
+            PersistentFloat32OutletServiceCreateError::TimedataNonblocking(error.kind())
+        })?;
+        let local = socket.local_addr().map_err(|error| {
+            PersistentFloat32OutletServiceCreateError::BindTimedata(error.kind())
+        })?;
+        let probe = max_datagram_bytes
+            .checked_add(1)
+            .ok_or(PersistentFloat32OutletServiceCreateError::DiscoveryProbeLengthOverflow)?;
+        let mut receive = Vec::new();
+        receive.try_reserve_exact(probe).map_err(|_| {
+            PersistentFloat32OutletServiceCreateError::DiscoveryBufferAllocationFailed {
+                requested: probe,
+            }
+        })?;
+        receive.resize(probe, 0);
+        Ok(Self {
+            socket,
+            local,
+            receive,
+            max_datagram_bytes,
+        })
+    }
+
+    pub(crate) const fn local_address(&self) -> SocketAddr {
+        self.local
+    }
+
+    pub(crate) fn poll(
+        &mut self,
+    ) -> Result<Option<PersistentFloat32TimedataHandled>, PersistentFloat32OutletServicePollError>
+    {
+        let t1;
+        let (length, source) = match self.socket.recv_from(&mut self.receive) {
+            Ok(received) => {
+                t1 = crate::persistent_float32_local_clock();
+                received
+            }
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    ErrorKind::WouldBlock | ErrorKind::ConnectionReset
+                ) =>
+            {
+                return Ok(None)
+            }
+            Err(error) => {
+                return Err(PersistentFloat32OutletServicePollError::TimedataReceive(
+                    error.kind(),
+                ))
+            }
+        };
+        if length > self.max_datagram_bytes {
+            return Err(
+                PersistentFloat32OutletServicePollError::TimedataDatagramLimitExceeded {
+                    limit: self.max_datagram_bytes,
+                    actual: length,
+                },
+            );
+        }
+        let text = core::str::from_utf8(&self.receive[..length])
+            .map_err(|_| PersistentFloat32OutletServicePollError::TimedataInvalid)?;
+        let line = text
+            .strip_prefix("LSL:timedata\r\n")
+            .and_then(|value| value.strip_suffix("\r\n"))
+            .ok_or(PersistentFloat32OutletServicePollError::TimedataInvalid)?;
+        let mut fields = line.split(' ');
+        let query_id_text = fields
+            .next()
+            .ok_or(PersistentFloat32OutletServicePollError::TimedataInvalid)?;
+        let t0_text = fields
+            .next()
+            .ok_or(PersistentFloat32OutletServicePollError::TimedataInvalid)?;
+        if fields.next().is_some() || query_id_text.is_empty() || t0_text.is_empty() {
+            return Err(PersistentFloat32OutletServicePollError::TimedataInvalid);
+        }
+        let query_id = query_id_text
+            .parse::<u64>()
+            .map_err(|_| PersistentFloat32OutletServicePollError::TimedataInvalid)?;
+        if query_id.to_string() != query_id_text {
+            return Err(PersistentFloat32OutletServicePollError::TimedataInvalid);
+        }
+        let t0 = t0_text
+            .parse::<f64>()
+            .map_err(|_| PersistentFloat32OutletServicePollError::TimedataInvalid)?;
+        if !t0.is_finite() {
+            return Err(PersistentFloat32OutletServicePollError::TimedataInvalid);
+        }
+        let t2 = crate::persistent_float32_local_clock();
+        let response = format!(" {query_id} {t0_text} {t1} {t2}");
+        if response.len() > self.max_datagram_bytes {
+            return Err(
+                PersistentFloat32OutletServicePollError::TimedataResponseLimitExceeded {
+                    limit: self.max_datagram_bytes,
+                    actual: response.len(),
+                },
+            );
+        }
+        let sent = self
+            .socket
+            .send_to(response.as_bytes(), source)
+            .map_err(|error| PersistentFloat32OutletServicePollError::TimedataSend(error.kind()))?;
+        if sent != response.len() {
+            return Err(
+                PersistentFloat32OutletServicePollError::TimedataPartialSend {
+                    expected: response.len(),
+                    actual: sent,
+                },
+            );
+        }
+        Ok(Some(PersistentFloat32TimedataHandled {
+            source,
+            query_id,
+            echoed_t0: t0,
+            source_received_t1: t1,
+            source_sent_t2: t2,
         }))
     }
 }
@@ -492,7 +845,7 @@ fn validate_interface(
     Ok(())
 }
 
-fn validate_body(
+pub(crate) fn validate_body(
     body: &str,
     limits: PersistentFloat32OutletServiceLimits,
     interface: Ipv4Addr,
@@ -800,6 +1153,109 @@ mod tests {
             service.poll(&cancelled),
             Err(PersistentFloat32OutletServicePollError::Cancelled)
         );
+    }
+
+    #[test]
+    fn polar_001_timedata_serves_source_clock_on_the_advertised_service_port() {
+        let mut service = service();
+        assert_eq!(
+            service.timedata_local_address().port(),
+            service.outlet_local_address().port()
+        );
+        let requester = UdpSocket::bind("127.0.0.1:0").unwrap();
+        requester
+            .set_read_timeout(Some(Duration::from_secs(1)))
+            .unwrap();
+        requester
+            .send_to(
+                b"LSL:timedata\r\n71 10.5\r\n",
+                service.timedata_local_address(),
+            )
+            .unwrap();
+        let handled = (0..100)
+            .find_map(|_| {
+                let poll = service.poll(&AtomicBool::new(false)).unwrap();
+                if poll.timedata().is_none() {
+                    thread::sleep(Duration::from_millis(1));
+                }
+                poll.timedata()
+            })
+            .unwrap();
+        assert_eq!(handled.query_id(), 71);
+        assert_eq!(handled.echoed_t0(), 10.5);
+        assert!(handled.source_received_t1().is_finite());
+        assert!(handled.source_sent_t2() >= handled.source_received_t1());
+
+        let mut response = [0_u8; 256];
+        let length = requester.recv(&mut response).unwrap();
+        let response = std::str::from_utf8(&response[..length]).unwrap();
+        let fields: Vec<_> = response.split_ascii_whitespace().collect();
+        assert_eq!(fields.len(), 4);
+        assert_eq!(fields[0], "71");
+        assert_eq!(fields[1], "10.5");
+        assert!(fields[2].parse::<f64>().unwrap().is_finite());
+        assert!(fields[3].parse::<f64>().unwrap().is_finite());
+        assert_eq!(service.health().timedata_queries(), 1);
+    }
+
+    #[test]
+    fn polar_001_timedata_rejects_malformed_input_without_losing_the_service() {
+        let mut service = service();
+        let requester = UdpSocket::bind("127.0.0.1:0").unwrap();
+        requester
+            .send_to(
+                b"LSL:timedata\r\n071 10.5\r\n",
+                service.timedata_local_address(),
+            )
+            .unwrap();
+        let error = (0..100)
+            .find_map(|_| match service.poll(&AtomicBool::new(false)) {
+                Err(error) => Some(error),
+                Ok(_) => {
+                    thread::sleep(Duration::from_millis(1));
+                    None
+                }
+            })
+            .unwrap();
+        assert_eq!(
+            error,
+            PersistentFloat32OutletServicePollError::TimedataInvalid
+        );
+        assert!(service.poll(&AtomicBool::new(false)).unwrap().is_idle());
+        assert_eq!(service.health().timedata_queries(), 0);
+    }
+
+    #[test]
+    fn polar_001_timedata_oversize_cancellation_and_cleanup_are_typed() {
+        let mut service = service();
+        let timedata_address = service.timedata_local_address();
+        let requester = UdpSocket::bind("127.0.0.1:0").unwrap();
+        requester
+            .send_to(&vec![b'x'; 2049], timedata_address)
+            .unwrap();
+        let error = (0..100)
+            .find_map(|_| match service.poll(&AtomicBool::new(false)) {
+                Err(error) => Some(error),
+                Ok(_) => {
+                    thread::sleep(Duration::from_millis(1));
+                    None
+                }
+            })
+            .unwrap();
+        assert_eq!(
+            error,
+            PersistentFloat32OutletServicePollError::TimedataDatagramLimitExceeded {
+                limit: 2048,
+                actual: 2049,
+            }
+        );
+        assert_eq!(
+            service.poll(&AtomicBool::new(true)),
+            Err(PersistentFloat32OutletServicePollError::Cancelled)
+        );
+        let _ = service.close();
+        let rebound = UdpSocket::bind(timedata_address).unwrap();
+        assert_eq!(rebound.local_addr().unwrap(), timedata_address);
     }
 
     #[test]

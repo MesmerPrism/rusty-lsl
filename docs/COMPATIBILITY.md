@@ -13,8 +13,8 @@ rejected before I/O.
 
 The wire unit remains the observed protocol-110 Float32 record sequence: each
 record has the existing marker, timestamp, and channel values, and a chunk is
-those records serialized contiguously without an additional envelope. This
-The managed service closes one bounded official-consumer gap. Two repeated
+those records serialized contiguously without an additional envelope. The
+managed service closes one bounded official-consumer gap. Two repeated
 clean-revision Windows-host runs used pylsl 1.18.2, liblsl library 117, and
 protocol 110. The official resolver discovered the service; the inlet
 completed the persistent handshake; and sample pulls returned the exact ten
@@ -39,6 +39,29 @@ Stream/liblsl measured 4,200 ns / 5,900 ns. Ratios were 3.380952 and 3.983051.
 The transport units differ in timestamp handling. This descriptive sender
 occupancy shows no current Rusty LSL performance advantage, but is not complete
 application latency or a universal claim.
+
+## POLAR-001 bounded multi-outlet prerequisite
+
+Focused host tests now run two independently identified Float32 outlets behind
+one discovery socket, with one-channel 130 Hz ECG and three-channel 200 Hz ACC
+shapes. Both outlets answer timedata in one process-local clock domain, admit
+independent consumers, preserve exact interleaved values, and close all retained
+sockets. A stalled peer is evicted after one nonblocking write attempt while a
+coordinated healthy peer continues receiving complete chunks. Valid, malformed,
+oversized, cancelled, and post-close timedata paths are typed and bounded.
+
+The structured composer admits exact 1, 2, 4, 20, 130, and 200 Hz spellings and
+nested channel labels/units/types through proof-carrying registration. The
+historical string parser remains closed; no arbitrary XML or discovery-predicate
+evaluator was added. The deterministic official-consumer harness self-test
+checks two Polar-shaped outlets, 73x1 ECG and 36x3 ACC notification extents,
+two timedata exchanges, two consumers, and cleanup.
+
+This establishes a source-level prerequisite for an experimental Polar Stream
+backend. It is not new physical-device evidence, an official two-inlet run,
+LabRecorder or BLE-to-recorder qualification, reconnect/recovery parity,
+cross-host or cross-platform evidence, a performance advantage, a licensing
+decision, stable API, release readiness, or authorization to replace liblsl.
 
 ## DEVICE-001 physical Polar H10 publisher qualification
 

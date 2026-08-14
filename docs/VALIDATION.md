@@ -1,5 +1,33 @@
 # Validation
 
+## POLAR-001 multi-outlet clocked service
+
+The focused source and external-public-API gates are:
+
+```text
+cargo test -p rusty-lsl --lib polar_001 -- --test-threads=1
+cargo test -p rusty-lsl --lib polar_001_multi_outlet -- --test-threads=1
+cargo test -p rusty-lsl --lib polar_001_timedata -- --test-threads=1
+cargo test -p rusty-lsl --lib polar_001_nonblocking -- --test-threads=1
+cargo test -p rusty-lsl --lib polar_001_stream_info -- --test-threads=1
+cargo test -p rusty-lsl --test public_api polar_001 -- --test-threads=1
+python ./tools/run_persistent_float32_outlet_official_consumer.py --multi-outlet-self-test
+```
+
+They prove one bounded two-outlet host composition with shared discovery,
+per-outlet timedata in one process-local clock domain, round-robin admissions,
+exact one- and three-channel chunks, fail-fast stalled-peer eviction with
+healthy fan-out, cumulative health, typed malformed/oversized/cancelled paths,
+structured Polar rates/channel metadata, public naming, and deterministic
+cleanup. The Python route validates the closed two-outlet/73x1/36x3 harness
+contract without requiring a physical device or official library installation.
+
+These checks do not execute current Polar Stream, an official simultaneous
+two-inlet endpoint, a physical H10, BLE, LabRecorder, recovery, cross-host or
+cross-platform transport, licensing review, a release, or a production
+replacement decision. Standard and exact Rust 1.80 gates remain required on
+the frozen candidate.
+
 ## DEVICE-001 physical Polar H10 publisher qualification
 
 The public sanitized evidence is deterministic and offline-checkable:

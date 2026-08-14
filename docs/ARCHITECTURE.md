@@ -21,6 +21,13 @@ the push path allocates no memory. Failed sockets are shut down and removed;
 other consumers continue. Explicit close and `Drop` shut down every retained
 consumer and release the listener.
 
+`try_push_chunk` selects a distinct fail-fast delivery mode. The first call
+makes each retained socket nonblocking once; each push then attempts exactly
+one write per consumer. Complete writes remain connected, while partial,
+would-block, or I/O-failed consumers are shut down and counted without stopping
+healthy fan-out. An outlet cannot switch between bounded-wait and fail-fast
+after either policy is selected. Encoding and report storage remain retained.
+
 Each outlet owns independent listener, identity, shape, buffer, and consumers,
 so callers may run multiple outlets without a global registry. The public
 facade currently supports only Float32 and supplies no background discovery,
@@ -37,17 +44,37 @@ enumerates or chooses interfaces, retries, falls back, or starts a thread.
 
 Construction admits the body before retaining state, then requires Float32
 format and exact agreement with outlet shape, identity, address, and ports.
-Each poll handles at most one query/response and one data consumer. Once the
+Each poll handles at most one query/response, one timedata request, and one data consumer. Once the
 consumer set is full, the service retains it and leaves auxiliary
 official-inlet connections in the listener backlog; the lower-level outlet
 keeps its capacity-error contract. Windows UDP `ConnectionReset` after a
 resolver reply is idle because it carries no datagram; other failures remain
 typed errors.
 
-`push_chunk` delegates to the existing allocation-free-after-setup encoder and
-fan-out owner. Close shuts down data consumers and drops discovery membership.
+Timedata uses UDP on the advertised TCP service port and echoes the exact query
+ID/t0 with t1/t2 from the shared process-local monotonic clock. `push_chunk`
+and `try_push_chunk` delegate to the existing retained encoder and fan-out
+owner. Close shuts down data consumers and drops discovery/timedata sockets.
 Scheduling, interface, retry, recovery, and application policy remain caller
 authority.
+
+## Bounded multi-outlet registry and structured stream info
+
+`persistent_float32_outlet_registry` owns one nonblocking discovery socket and
+a caller-bounded vector of independently shaped Float32 outlets. Registration
+assigns stable indices, rejects duplicate UIDs and service ports, and binds one
+UDP timedata socket per TCP listener. Each poll receives at most one shared
+discovery query, visits at most one timedata socket and one listener in
+round-robin order, and emits no more than the configured outlet bound of
+responses. Close accounts for every outlet and retained consumer.
+
+String registration keeps the historical observed-document parser closed.
+`persistent_float32_stream_info` instead composes descriptor, static XML,
+metadata XML, volatile fields, ordered XML, and observed document through their
+existing bounded owners. The result carries its outlet/interface binding into
+`register_stream_info`, so nested labels, units, and types need no caller-authored
+XML and no relaxed parser. Query predicate evaluation, interface selection,
+workers, queues, retry, and reconnection remain outside the registry.
 
 ## Session-owned Float32 sender state
 
