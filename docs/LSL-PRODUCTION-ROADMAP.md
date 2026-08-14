@@ -59,9 +59,15 @@ liblsl. Current Polar Stream end-to-end qualification remains blocked by its
 Windows input wrapper emitting no PMD notifications despite a working direct
 protocol path.
 
-The next production gates are BLE-to-recorder/LabRecorder qualification,
-multiple concurrently discoverable
-outlets and consumers, non-loopback/cross-host and Linux/macOS coverage,
+POLAR-001 closes the bounded source prerequisite for multiple concurrently
+discoverable Float32 outlets: one shared discovery socket, per-outlet timedata
+in one source-clock domain, round-robin admissions, fail-fast slow-consumer
+eviction, Polar rate/metadata composition, health counters, and deterministic
+cleanup. It adds no ambient worker or application policy.
+
+The next production gates are a default-off application adapter,
+BLE-to-recorder/LabRecorder qualification, an official simultaneous two-inlet
+run, non-loopback/cross-host and Linux/macOS coverage,
 reconnect/recovery behavior, arbitrary stream shapes, application integration,
 and an explicit licensing decision. Stability, version, tag, registry
 publication, and P8 release authority remain separately reviewed.

@@ -13,7 +13,7 @@ use crate::{
     StreamHandshakeIdentity, StreamHandshakeLimits, TimestampedFloat32SampleActivation,
     TimestampedFloat32SampleError, TimestampedFloat32SampleLimits,
 };
-use std::io::ErrorKind;
+use std::io::{ErrorKind, Write};
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -170,6 +170,8 @@ pub enum PersistentFloat32TransportError {
     Deadline,
     /// The socket operation failed.
     Io(ErrorKind),
+    /// A fail-fast write would block or accepted only a byte prefix.
+    Backpressure,
     /// The peer closed before the selected bytes completed.
     Truncated {
         /// Byte prefix observed before closure.
@@ -237,6 +239,8 @@ pub enum PersistentFloat32PushError {
         /// Required values.
         expected: usize,
     },
+    /// One outlet cannot mix bounded-wait and fail-fast delivery semantics.
+    DeliveryModeMismatch,
 }
 
 /// First failed consumer retained in a no-allocation fan-out report.
@@ -329,6 +333,61 @@ pub struct PersistentFloat32OutletCloseReport {
     closed_consumers: usize,
 }
 
+/// Bounded cumulative observations for one persistent outlet.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PersistentFloat32OutletHealth {
+    connected_consumers: usize,
+    consumer_high_water: usize,
+    push_calls: u64,
+    records_encoded: u64,
+    complete_deliveries: u64,
+    evicted_consumers: u64,
+}
+
+impl PersistentFloat32OutletHealth {
+    /// Consumers retained when the snapshot was read.
+    #[must_use]
+    pub const fn connected_consumers(self) -> usize {
+        self.connected_consumers
+    }
+
+    /// Largest simultaneously retained consumer count.
+    #[must_use]
+    pub const fn consumer_high_water(self) -> usize {
+        self.consumer_high_water
+    }
+
+    /// Accepted chunk submissions, including submissions with no consumer.
+    #[must_use]
+    pub const fn push_calls(self) -> u64 {
+        self.push_calls
+    }
+
+    /// Records encoded across accepted chunk submissions.
+    #[must_use]
+    pub const fn records_encoded(self) -> u64 {
+        self.records_encoded
+    }
+
+    /// Complete consumer deliveries across accepted chunk submissions.
+    #[must_use]
+    pub const fn complete_deliveries(self) -> u64 {
+        self.complete_deliveries
+    }
+
+    /// Consumers removed after a transport or backpressure failure.
+    #[must_use]
+    pub const fn evicted_consumers(self) -> u64 {
+        self.evicted_consumers
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum DeliveryMode {
+    BoundedWait,
+    FailFast,
+}
+
 impl PersistentFloat32OutletCloseReport {
     /// Consumers shut down during explicit close.
     #[must_use]
@@ -341,6 +400,7 @@ struct Consumer {
     stream: TcpStream,
     peer: SocketAddr,
     transport: BoundedWriteState,
+    nonblocking: bool,
 }
 
 /// Caller-owned persistent listener, reusable chunk buffer, and retained consumers.
@@ -355,6 +415,12 @@ pub struct PersistentFloat32Outlet {
     limits: PersistentFloat32OutletLimits,
     chunk: Vec<u8>,
     consumers: Vec<Consumer>,
+    delivery_mode: Option<DeliveryMode>,
+    consumer_high_water: usize,
+    push_calls: u64,
+    records_encoded: u64,
+    complete_deliveries: u64,
+    evicted_consumers: u64,
 }
 
 impl PersistentFloat32Outlet {
@@ -426,6 +492,12 @@ impl PersistentFloat32Outlet {
             limits,
             chunk,
             consumers,
+            delivery_mode: None,
+            consumer_high_water: 0,
+            push_calls: 0,
+            records_encoded: 0,
+            complete_deliveries: 0,
+            evicted_consumers: 0,
         })
     }
 
@@ -457,6 +529,19 @@ impl PersistentFloat32Outlet {
     #[must_use]
     pub const fn max_consumers(&self) -> usize {
         self.limits.max_consumers
+    }
+
+    /// Reads cumulative health without resetting any counter.
+    #[must_use]
+    pub fn health(&self) -> PersistentFloat32OutletHealth {
+        PersistentFloat32OutletHealth {
+            connected_consumers: self.consumers.len(),
+            consumer_high_water: self.consumer_high_water,
+            push_calls: self.push_calls,
+            records_encoded: self.records_encoded,
+            complete_deliveries: self.complete_deliveries,
+            evicted_consumers: self.evicted_consumers,
+        }
     }
 
     /// Admits at most one pending consumer; idle polling returns immediately.
@@ -503,7 +588,9 @@ impl PersistentFloat32Outlet {
             stream,
             peer,
             transport: BoundedWriteState::new(),
+            nonblocking: false,
         });
+        self.consumer_high_water = self.consumer_high_water.max(self.consumers.len());
         Ok(Some(PersistentFloat32ConsumerAccepted {
             peer,
             connected_consumers: self.consumers.len(),
@@ -523,40 +610,8 @@ impl PersistentFloat32Outlet {
         timestamps: &[RawSourceTimestamp],
         cancelled: &AtomicBool,
     ) -> Result<PersistentFloat32PushReport, PersistentFloat32PushError> {
-        if cancelled.load(Ordering::Acquire) {
-            return Err(PersistentFloat32PushError::Cancelled);
-        }
-        let record_count = timestamps.len();
-        if record_count == 0 {
-            return Err(PersistentFloat32PushError::EmptyChunk);
-        }
-        if record_count > self.limits.max_records_per_chunk {
-            return Err(PersistentFloat32PushError::RecordLimitExceeded {
-                actual: record_count,
-                limit: self.limits.max_records_per_chunk,
-            });
-        }
-        let expected_values = record_count * self.channel_count;
-        if values.len() != expected_values {
-            return Err(PersistentFloat32PushError::ValueCountMismatch {
-                actual: values.len(),
-                expected: expected_values,
-            });
-        }
-        let encoded_bytes = record_count * self.record_bytes;
-        for (record_index, timestamp) in timestamps.iter().enumerate() {
-            let start = record_index * self.record_bytes;
-            let record = &mut self.chunk[start..start + self.record_bytes];
-            record[0] = RECORD_MARKER;
-            record[1..FRAME_PREFIX_BYTES].copy_from_slice(&timestamp.value().to_le_bytes());
-            let value_start = record_index * self.channel_count;
-            for (encoded, value) in record[FRAME_PREFIX_BYTES..]
-                .chunks_exact_mut(core::mem::size_of::<f32>())
-                .zip(&values[value_start..value_start + self.channel_count])
-            {
-                encoded.copy_from_slice(&value.to_le_bytes());
-            }
-        }
+        let (record_count, encoded_bytes) =
+            self.encode_chunk(values, timestamps, cancelled, DeliveryMode::BoundedWait)?;
         let consumers_before = self.consumers.len();
         let mut complete_deliveries = 0;
         let mut failed_consumers = 0;
@@ -594,6 +649,12 @@ impl PersistentFloat32Outlet {
                 }
             }
         }
+        self.complete_deliveries = self
+            .complete_deliveries
+            .saturating_add(complete_deliveries as u64);
+        self.evicted_consumers = self
+            .evicted_consumers
+            .saturating_add(failed_consumers as u64);
         Ok(PersistentFloat32PushReport {
             record_count,
             consumers_before,
@@ -602,6 +663,142 @@ impl PersistentFloat32Outlet {
             failed_consumers,
             first_failure,
         })
+    }
+
+    /// Encodes once and attempts one nonblocking write per retained consumer.
+    ///
+    /// A consumer is removed immediately when socket setup fails, the write
+    /// would block, or only a byte prefix is accepted. Healthy consumers still
+    /// receive the same encoded chunk. After the first accepted call, this
+    /// outlet is fixed to fail-fast delivery so blocking and fail-fast policy
+    /// cannot be mixed accidentally.
+    ///
+    /// # Errors
+    ///
+    /// Preserves the complete pre-I/O input rejection contract and rejects a
+    /// delivery-mode change.
+    pub fn try_push_chunk(
+        &mut self,
+        values: &[f32],
+        timestamps: &[RawSourceTimestamp],
+        cancelled: &AtomicBool,
+    ) -> Result<PersistentFloat32PushReport, PersistentFloat32PushError> {
+        let (record_count, encoded_bytes) =
+            self.encode_chunk(values, timestamps, cancelled, DeliveryMode::FailFast)?;
+        let consumers_before = self.consumers.len();
+        let mut complete_deliveries = 0;
+        let mut failed_consumers = 0;
+        let mut first_failure = None;
+        let mut index = 0;
+        while index < self.consumers.len() {
+            let result = {
+                let consumer = &mut self.consumers[index];
+                let nonblocking = if consumer.nonblocking {
+                    Ok(())
+                } else {
+                    consumer.stream.set_nonblocking(true).map(|()| {
+                        consumer.nonblocking = true;
+                    })
+                };
+                match nonblocking {
+                    Ok(()) => match consumer.stream.write(&self.chunk[..encoded_bytes]) {
+                        Ok(actual) if actual == encoded_bytes => Ok(()),
+                        Ok(actual) => Err((actual, PersistentFloat32TransportError::Backpressure)),
+                        Err(error) if error.kind() == ErrorKind::WouldBlock => {
+                            Err((0, PersistentFloat32TransportError::Backpressure))
+                        }
+                        Err(error) => Err((0, PersistentFloat32TransportError::Io(error.kind()))),
+                    },
+                    Err(error) => Err((0, PersistentFloat32TransportError::Io(error.kind()))),
+                }
+            };
+            match result {
+                Ok(()) => {
+                    complete_deliveries += 1;
+                    index += 1;
+                }
+                Err((written_bytes, error)) => {
+                    let consumer = self.consumers.remove(index);
+                    let _ = consumer.stream.shutdown(Shutdown::Both);
+                    failed_consumers += 1;
+                    if first_failure.is_none() {
+                        first_failure = Some(PersistentFloat32ConsumerFailure {
+                            peer: consumer.peer,
+                            written_bytes,
+                            completed_records: written_bytes / self.record_bytes,
+                            error,
+                        });
+                    }
+                }
+            }
+        }
+        self.complete_deliveries = self
+            .complete_deliveries
+            .saturating_add(complete_deliveries as u64);
+        self.evicted_consumers = self
+            .evicted_consumers
+            .saturating_add(failed_consumers as u64);
+        Ok(PersistentFloat32PushReport {
+            record_count,
+            consumers_before,
+            consumers_after: self.consumers.len(),
+            complete_deliveries,
+            failed_consumers,
+            first_failure,
+        })
+    }
+
+    fn encode_chunk(
+        &mut self,
+        values: &[f32],
+        timestamps: &[RawSourceTimestamp],
+        cancelled: &AtomicBool,
+        delivery_mode: DeliveryMode,
+    ) -> Result<(usize, usize), PersistentFloat32PushError> {
+        if cancelled.load(Ordering::Acquire) {
+            return Err(PersistentFloat32PushError::Cancelled);
+        }
+        let record_count = timestamps.len();
+        if record_count == 0 {
+            return Err(PersistentFloat32PushError::EmptyChunk);
+        }
+        if record_count > self.limits.max_records_per_chunk {
+            return Err(PersistentFloat32PushError::RecordLimitExceeded {
+                actual: record_count,
+                limit: self.limits.max_records_per_chunk,
+            });
+        }
+        let expected_values = record_count * self.channel_count;
+        if values.len() != expected_values {
+            return Err(PersistentFloat32PushError::ValueCountMismatch {
+                actual: values.len(),
+                expected: expected_values,
+            });
+        }
+        if self
+            .delivery_mode
+            .is_some_and(|selected| selected != delivery_mode)
+        {
+            return Err(PersistentFloat32PushError::DeliveryModeMismatch);
+        }
+        self.delivery_mode = Some(delivery_mode);
+        let encoded_bytes = record_count * self.record_bytes;
+        for (record_index, timestamp) in timestamps.iter().enumerate() {
+            let start = record_index * self.record_bytes;
+            let record = &mut self.chunk[start..start + self.record_bytes];
+            record[0] = RECORD_MARKER;
+            record[1..FRAME_PREFIX_BYTES].copy_from_slice(&timestamp.value().to_le_bytes());
+            let value_start = record_index * self.channel_count;
+            for (encoded, value) in record[FRAME_PREFIX_BYTES..]
+                .chunks_exact_mut(core::mem::size_of::<f32>())
+                .zip(&values[value_start..value_start + self.channel_count])
+            {
+                encoded.copy_from_slice(&value.to_le_bytes());
+            }
+        }
+        self.push_calls = self.push_calls.saturating_add(1);
+        self.records_encoded = self.records_encoded.saturating_add(record_count as u64);
+        Ok((record_count, encoded_bytes))
     }
 
     /// Shuts down all retained consumers and releases the listener on return.
@@ -650,6 +847,7 @@ pub(crate) mod tests {
         read_initialization_for_channels, read_record_for_channels,
     };
     use crate::{RuntimeModule, StreamHandshakeActivation};
+    use std::io::Read;
     use std::thread;
     use std::time::Duration;
 
@@ -917,5 +1115,166 @@ pub(crate) mod tests {
             .unwrap();
         assert_eq!(first_reader.join().unwrap(), vec![(20.0, vec![7.0])]);
         assert_eq!(second_reader.join().unwrap(), vec![(21.0, vec![8.0, 9.0])]);
+    }
+
+    #[test]
+    fn polar_001_nonblocking_delivery_is_exact_observable_and_mode_closed() {
+        let stream_identity = identity(
+            "70000000-0000-4000-8000-000000000007",
+            "nonblocking-healthy",
+        );
+        let mut outlet = outlet(1, stream_identity.clone());
+        let reader = spawn_reader(outlet.local_address(), stream_identity, 1, 1);
+        accept_one(&mut outlet);
+        let report = outlet
+            .try_push_chunk(
+                &[42.5],
+                &[RawSourceTimestamp::new(7.25).unwrap()],
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        assert_eq!(report.complete_deliveries(), 1);
+        assert_eq!(report.failed_consumers(), 0);
+        assert_eq!(reader.join().unwrap(), vec![(7.25, vec![42.5])]);
+        assert_eq!(
+            outlet.push_chunk(
+                &[43.5],
+                &[RawSourceTimestamp::new(8.25).unwrap()],
+                &AtomicBool::new(false),
+            ),
+            Err(PersistentFloat32PushError::DeliveryModeMismatch)
+        );
+        let health = outlet.health();
+        assert_eq!(health.connected_consumers(), 1);
+        assert_eq!(health.consumer_high_water(), 1);
+        assert_eq!(health.push_calls(), 1);
+        assert_eq!(health.records_encoded(), 1);
+        assert_eq!(health.complete_deliveries(), 1);
+        assert_eq!(health.evicted_consumers(), 0);
+    }
+
+    #[test]
+    fn polar_001_nonblocking_slow_consumer_is_evicted_after_one_write_attempt() {
+        const RECORDS: usize = 1_200_000;
+        let stream_identity = identity(
+            "70000000-0000-4000-8000-000000000008",
+            "nonblocking-stalled",
+        );
+        let mut outlet = PersistentFloat32Outlet::new(
+            activation(),
+            TcpListener::bind("127.0.0.1:0").unwrap(),
+            stream_identity.clone(),
+            handshake_limits(),
+            sample_limits(),
+            1,
+            PersistentFloat32OutletLimits::new(RECORDS, 1).unwrap(),
+        )
+        .unwrap();
+        let address = outlet.local_address();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let stalled = thread::spawn(move || {
+            let cancelled = AtomicBool::new(false);
+            let mut stream =
+                connect_handshake_stream(address, &stream_identity, handshake_limits(), &cancelled)
+                    .unwrap();
+            read_initialization_for_channels(&mut stream, 1, sample_limits(), &cancelled).unwrap();
+            release_rx.recv().unwrap();
+        });
+        accept_one(&mut outlet);
+        let values = vec![1.0; RECORDS];
+        let timestamps = vec![RawSourceTimestamp::new(1.0).unwrap(); RECORDS];
+        let report = (0..8)
+            .find_map(|_| {
+                let report = outlet
+                    .try_push_chunk(&values, &timestamps, &AtomicBool::new(false))
+                    .unwrap();
+                (report.failed_consumers() == 1).then_some(report)
+            })
+            .expect("a stalled loopback peer must exhaust its bounded send buffer");
+        assert_eq!(report.consumers_before(), 1);
+        assert_eq!(report.consumers_after(), 0);
+        assert_eq!(report.complete_deliveries(), 0);
+        assert_eq!(report.failed_consumers(), 1);
+        assert_eq!(
+            report.first_failure().unwrap().error(),
+            PersistentFloat32TransportError::Backpressure
+        );
+        assert_eq!(outlet.health().evicted_consumers(), 1);
+        release_tx.send(()).unwrap();
+        stalled.join().unwrap();
+    }
+
+    #[test]
+    fn polar_001_nonblocking_stalled_consumer_does_not_delay_healthy_fanout() {
+        const RECORDS: usize = 1024;
+        const CHUNK_BYTES: usize = RECORDS * 13;
+        let stream_identity =
+            identity("70000000-0000-4000-8000-000000000009", "nonblocking-fanout");
+        let mut outlet = PersistentFloat32Outlet::new(
+            activation(),
+            TcpListener::bind("127.0.0.1:0").unwrap(),
+            stream_identity.clone(),
+            handshake_limits(),
+            sample_limits(),
+            1,
+            PersistentFloat32OutletLimits::new(RECORDS, 2).unwrap(),
+        )
+        .unwrap();
+        let address = outlet.local_address();
+        let healthy_identity = stream_identity.clone();
+        let (healthy_ack_tx, healthy_ack_rx) = std::sync::mpsc::channel();
+        let healthy = thread::spawn(move || {
+            let cancelled = AtomicBool::new(false);
+            let mut stream = connect_handshake_stream(
+                address,
+                &healthy_identity,
+                handshake_limits(),
+                &cancelled,
+            )
+            .unwrap();
+            read_initialization_for_channels(&mut stream, 1, sample_limits(), &cancelled).unwrap();
+            let mut chunks = 0;
+            let mut bytes = vec![0_u8; CHUNK_BYTES];
+            while stream.read_exact(&mut bytes).is_ok() {
+                chunks += 1;
+                healthy_ack_tx.send(()).unwrap();
+            }
+            chunks
+        });
+        accept_one(&mut outlet);
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let stalled = thread::spawn(move || {
+            let cancelled = AtomicBool::new(false);
+            let mut stream =
+                connect_handshake_stream(address, &stream_identity, handshake_limits(), &cancelled)
+                    .unwrap();
+            read_initialization_for_channels(&mut stream, 1, sample_limits(), &cancelled).unwrap();
+            release_rx.recv().unwrap();
+        });
+        accept_one(&mut outlet);
+
+        let values = vec![1.0; RECORDS];
+        let timestamps = vec![RawSourceTimestamp::new(1.0).unwrap(); RECORDS];
+        let mut pushes = 0;
+        let failure = (0..4096)
+            .find_map(|_| {
+                let report = outlet
+                    .try_push_chunk(&values, &timestamps, &AtomicBool::new(false))
+                    .unwrap();
+                assert_eq!(
+                    report.complete_deliveries(),
+                    1 + usize::from(report.failed_consumers() == 0)
+                );
+                healthy_ack_rx.recv_timeout(Duration::from_secs(1)).unwrap();
+                pushes += 1;
+                (report.failed_consumers() == 1).then_some(report)
+            })
+            .expect("the undrained peer must eventually reach bounded backpressure");
+        assert_eq!(failure.consumers_after(), 1);
+        assert_eq!(outlet.connected_consumers(), 1);
+        let _ = outlet.close();
+        release_tx.send(()).unwrap();
+        assert_eq!(healthy.join().unwrap(), pushes);
+        stalled.join().unwrap();
     }
 }

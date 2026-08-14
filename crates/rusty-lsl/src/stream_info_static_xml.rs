@@ -379,7 +379,7 @@ mod tests {
             None,
             None,
             1,
-            NominalSampleRate::regular_hz(2.0).unwrap(),
+            NominalSampleRate::regular_hz(3.0).unwrap(),
             ChannelFormat::Float32,
         );
         let unsupported_fields = StreamInfoStaticFields::new(&unsupported);
@@ -395,7 +395,7 @@ mod tests {
             ),
             Err(StreamInfoStaticXmlError::NumericSpelling(
                 StreamInfoStaticNumericSpellingError::UnsupportedRegularNominalSrate {
-                    actual_bits: 2.0_f64.to_bits(),
+                    actual_bits: 3.0_f64.to_bits(),
                 },
             ))
         );

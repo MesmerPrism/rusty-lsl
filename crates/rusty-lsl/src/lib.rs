@@ -136,12 +136,15 @@ mod morphospace_stream_lifecycle_advisory;
 #[allow(missing_docs)]
 mod morphospace_stream_lifecycle_advisory_proposal;
 mod morphospace_stream_lifecycle_observation;
+mod persistent_float32_local_clock;
 mod persistent_float32_outlet;
 #[cfg(test)]
 mod persistent_float32_outlet_benchmark;
 #[cfg(test)]
 mod persistent_float32_outlet_official_consumer;
+mod persistent_float32_outlet_registry;
 mod persistent_float32_outlet_service;
+mod persistent_float32_stream_info;
 
 #[cfg(test)]
 #[test]
@@ -439,21 +442,39 @@ pub use morphospace_stream_lifecycle_advisory_proposal::{
     MorphospaceStreamLifecycleProposalIdentity, MorphospaceStreamLifecycleRequestedClose,
     MorphospaceStreamLifecycleRequestedDisposition,
 };
+pub use persistent_float32_local_clock::{
+    persistent_float32_local_clock, PersistentFloat32LocalClock,
+};
 pub use persistent_float32_outlet::{
     PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
     PersistentFloat32ConsumerFailure, PersistentFloat32Outlet, PersistentFloat32OutletActivation,
     PersistentFloat32OutletActivationError, PersistentFloat32OutletCloseReport,
-    PersistentFloat32OutletCreateError, PersistentFloat32OutletLimitError,
-    PersistentFloat32OutletLimits, PersistentFloat32PushError, PersistentFloat32PushReport,
-    PersistentFloat32TransportError, PERSISTENT_FLOAT32_OUTLET_API_MARKER,
-    PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER, PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+    PersistentFloat32OutletCreateError, PersistentFloat32OutletHealth,
+    PersistentFloat32OutletLimitError, PersistentFloat32OutletLimits, PersistentFloat32PushError,
+    PersistentFloat32PushReport, PersistentFloat32TransportError,
+    PERSISTENT_FLOAT32_OUTLET_API_MARKER, PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER,
+    PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+};
+pub use persistent_float32_outlet_registry::{
+    PersistentFloat32OutletId, PersistentFloat32OutletRegistrationError,
+    PersistentFloat32OutletRegistry, PersistentFloat32OutletRegistryCloseReport,
+    PersistentFloat32OutletRegistryCreateError, PersistentFloat32OutletRegistryHealth,
+    PersistentFloat32OutletRegistryLimitError, PersistentFloat32OutletRegistryLimits,
+    PersistentFloat32OutletRegistryPoll, PersistentFloat32OutletRegistryPollError,
+    PersistentFloat32RegistryConsumerAccepted, PersistentFloat32RegistryDiscoveryHandled,
+    PersistentFloat32RegistryTimedataHandled, MAX_PERSISTENT_FLOAT32_REGISTRY_OUTLETS,
 };
 pub use persistent_float32_outlet_service::{
     PersistentFloat32DiscoveryHandled, PersistentFloat32OutletService,
     PersistentFloat32OutletServiceCloseReport, PersistentFloat32OutletServiceCreateError,
-    PersistentFloat32OutletServiceIdentityRole, PersistentFloat32OutletServiceLimitError,
-    PersistentFloat32OutletServiceLimits, PersistentFloat32OutletServicePoll,
-    PersistentFloat32OutletServicePollError,
+    PersistentFloat32OutletServiceHealth, PersistentFloat32OutletServiceIdentityRole,
+    PersistentFloat32OutletServiceLimitError, PersistentFloat32OutletServiceLimits,
+    PersistentFloat32OutletServicePoll, PersistentFloat32OutletServicePollError,
+    PersistentFloat32TimedataHandled,
+};
+pub use persistent_float32_stream_info::{
+    PersistentFloat32StreamInfo, PersistentFloat32StreamInfoError,
+    PersistentFloat32StreamInfoInput, PersistentFloat32StreamInfoLimits,
 };
 pub use raw_clock_exchange::{
     RawClockExchange, RawClockExchangeFormulaError, RawClockExchangeFormulaResult,

@@ -60,6 +60,31 @@ This qualifies that narrow Windows-host path, not background operation,
 automatic interface selection, recovery parity, arbitrary shapes,
 cross-platform/device behavior, stable API, or release readiness.
 
+`PersistentFloat32OutletRegistry` is the bounded multi-stream composition for
+Polar-shaped workloads. One caller-owned registry retains one discovery socket,
+stable IDs for up to the caller-selected outlet bound, one timedata UDP socket
+on each advertised TCP service port, and round-robin consumer/timedata polling.
+`PersistentFloat32LocalClock` supplies one process-local monotonic domain for
+source timestamps and timedata replies. No thread, queue, interface policy,
+retry, or reconnection is hidden inside the crate.
+
+For producer isolation, `try_push_chunk` encodes once and attempts one
+nonblocking write per consumer. A partial or would-block peer is closed and
+counted while healthy consumers continue. The first successful push fixes each
+outlet to bounded-wait or fail-fast policy, preventing accidental mode mixing.
+Health snapshots expose connected/high-water consumers, pushes, encoded
+records, complete deliveries, evictions, discovery, timedata, and admissions.
+
+`PersistentFloat32StreamInfo` derives identity, shape, ports, creation clock,
+and canonical XML from a live outlet plus typed metadata. Its proof-carrying
+registry route supports nested channel labels, units, and types without opening
+the historical string parser to arbitrary XML. Canonical regular-rate support
+now includes 1, 2, 4, 20, 130, and 200 Hz; other spellings still fail closed.
+This closes the bounded multi-outlet/clock/backpressure prerequisite for an
+experimental Polar adapter. It does not change the AGPL license, release state,
+default activation, or the recommendation to retain liblsl in production
+until application, recorder, recovery, platform, and licensing gates pass.
+
 The same-host Polar-shaped comparison at Rusty LSL `893cdc4` and Polar Stream
 `5e13f64` measured 14.2 µs median / 23.5 µs p95 for Rusty LSL and 4.2 µs /
 5.9 µs for current Polar Stream/liblsl. Polar includes one `lsl_local_clock`

@@ -46,6 +46,16 @@ and typed errors are likewise additive public candidates. External compilation
 and one official-consumer qualification do not promote them into the stable
 release-candidate slice or authorize default activation.
 
+`PersistentFloat32OutletRegistry`, `PersistentFloat32OutletId`, registry
+limits/poll/health/close evidence, `PersistentFloat32LocalClock`, timedata
+evidence, fail-fast push/eviction reports, and `PersistentFloat32StreamInfo`
+composition are additional POLAR-001 candidate surfaces. They are public from
+both crate-root and `runtime` facades for a bounded pilot, but are not part of
+the promoted stable slice. Their current meanings include caller-owned polling,
+fixed bounds, one-write fail-fast policy, proof-carrying nested metadata, and
+explicit cleanup; they do not promise background scheduling or broad liblsl
+equivalence.
+
 ## Compatibility and stability policy
 
 Before a stable Rusty LSL version is released, this candidate surface may still
