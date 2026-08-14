@@ -60,6 +60,17 @@ This qualifies that narrow Windows-host path, not background operation,
 automatic interface selection, recovery parity, arbitrary shapes,
 cross-platform/device behavior, stable API, or release readiness.
 
+The same pinned endpoint now also qualifies the protocol initialization for
+Polar-shaped channel counts. The one-channel sequence remains byte-identical:
+`[4.0]` then `[2.0]`. Multi-channel Float32 initialization follows the
+independently observed fixed-width family with alternating channel signs, so a
+three-channel inlet receives `[4.0, -5.0, 6.0]` then
+`[2.0, -3.0, 4.0]`. Separate official-inlet runs receive exact 73x1 ECG at
+130 Hz and 36x3 ACC at 200 Hz. They use broad discovery plus exact client-side
+identity matching because query-predicate evaluation remains outside the
+registry; they do not claim simultaneous two-inlet, fail-fast registry data,
+device, browser, cross-host, or broad compatibility.
+
 `PersistentFloat32OutletRegistry` is the bounded multi-stream composition for
 Polar-shaped workloads. One caller-owned registry retains one discovery socket,
 stable IDs for up to the caller-selected outlet bound, one timedata UDP socket

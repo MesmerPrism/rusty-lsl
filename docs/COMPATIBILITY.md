@@ -57,8 +57,18 @@ evaluator was added. The deterministic official-consumer harness self-test
 checks two Polar-shaped outlets, 73x1 ECG and 36x3 ACC notification extents,
 two timedata exchanges, two consumers, and cleanup.
 
+Pinned pylsl 1.18.2/liblsl 1.17.7 black-box runs additionally qualify the
+channel-sensitive initialization correction without inspecting official
+implementation source. A 73-record, one-channel 130 Hz ECG outlet preserves
+the prior `[4.0]`, `[2.0]` initialization bytes. A 36-record, three-channel
+200 Hz ACC outlet uses `[4.0, -5.0, 6.0]`, `[2.0, -3.0, 4.0]`; the official
+inlet then receives exact interleaved values and source timestamps. Each role
+is qualified separately through broad discovery and exact name, type, channel
+count, nominal rate, format, source ID, and UID matching. Zero, multiple, or
+mismatched candidates are rejected.
+
 This establishes a source-level prerequisite for an experimental Polar Stream
-backend. It is not new physical-device evidence, an official two-inlet run,
+backend. It is not new physical-device evidence, an official simultaneous two-inlet run,
 LabRecorder or BLE-to-recorder qualification, reconnect/recovery parity,
 cross-host or cross-platform evidence, a performance advantage, a licensing
 decision, stable API, release readiness, or authorization to replace liblsl.

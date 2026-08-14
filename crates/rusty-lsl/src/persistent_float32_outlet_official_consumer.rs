@@ -24,6 +24,10 @@ use std::time::{Duration, Instant};
 
 const SOURCE_ID: &str = "rusty-lsl-interop-001-official-consumer";
 const RECORDS: usize = 10;
+const POLAR_ECG_SOURCE_ID: &str = "rusty-lsl-polar-ecg-130";
+const POLAR_ACC_SOURCE_ID: &str = "rusty-lsl-polar-acc-200";
+const POLAR_ECG_RECORDS: usize = 73;
+const POLAR_ACC_RECORDS: usize = 36;
 
 fn required_env(name: &str) -> String {
     env::var(name).unwrap_or_else(|_| panic!("{name} is required"))
@@ -89,6 +93,50 @@ fn body(interface: Ipv4Addr, port: u16) -> String {
 \t<v6service_port>0</v6service_port>\n\
 \t<desc />\n</info>\n"
     )
+}
+
+fn polar_body(
+    interface: Ipv4Addr,
+    port: u16,
+    name: &str,
+    stream_type: &str,
+    channels: usize,
+    source_id: &str,
+    rate: &str,
+    uid: &str,
+) -> String {
+    format!(
+        "<?xml version=\"1.0\"?>\n<info>\n\
+\t<name>{name}</name>\n\
+\t<type>{stream_type}</type>\n\
+\t<channel_count>{channels}</channel_count>\n\
+\t<channel_format>float32</channel_format>\n\
+\t<source_id>{source_id}</source_id>\n\
+\t<nominal_srate>{rate}</nominal_srate>\n\
+\t<version>1.100000000000000</version>\n\
+\t<created_at>1.0</created_at>\n\
+\t<uid>{uid}</uid>\n\
+\t<session_id>rusty-lsl-polar-session</session_id>\n\
+\t<hostname>rusty-lsl-interop-host</hostname>\n\
+\t<v4address>{interface}</v4address>\n\
+\t<v4data_port>{port}</v4data_port>\n\
+\t<v4service_port>{port}</v4service_port>\n\
+\t<v6address></v6address>\n\
+\t<v6data_port>0</v6data_port>\n\
+\t<v6service_port>0</v6service_port>\n\
+\t<desc />\n</info>\n"
+    )
+}
+
+fn polar_identity(uid: &str, source_id: &str) -> StreamHandshakeIdentity {
+    StreamHandshakeIdentity::new(
+        uid.into(),
+        "rusty-lsl-interop-host".into(),
+        source_id.into(),
+        "rusty-lsl-polar-session".into(),
+        handshake_limits(),
+    )
+    .unwrap()
 }
 
 fn service_limits(body_len: usize) -> PersistentFloat32OutletServiceLimits {
@@ -201,6 +249,127 @@ fn interop_001_official_consumer_qualification_server() {
     let close = service.close();
     println!(
         "RUSTY_LSL_INTEROP_001_SERVER {{\"discovery_requests\":{discovery_requests},\"accepted_consumers\":1,\"records\":{RECORDS},\"closed_consumers\":{}}}",
+        close.outlet().closed_consumers()
+    );
+}
+
+#[test]
+#[ignore = "requires pinned pylsl 1.18.2/liblsl 1.17 official consumer"]
+fn polar_001_single_official_consumer_qualification_server() {
+    let interface = required_env("RUSTY_LSL_INTEROP_INTERFACE")
+        .parse::<Ipv4Addr>()
+        .expect("explicit interface must be IPv4");
+    let role = required_env("RUSTY_LSL_POLAR_ROLE");
+    let (name, stream_type, channels, source_id, rate, uid, records) = match role.as_str() {
+        "ecg" => (
+            "Rusty LSL Polar ECG 130",
+            "ECG",
+            1,
+            POLAR_ECG_SOURCE_ID,
+            "130.0000000000000",
+            "71000000-0000-4000-8000-000000000130",
+            POLAR_ECG_RECORDS,
+        ),
+        "acc" => (
+            "Rusty LSL Polar ACC 200",
+            "ACC",
+            3,
+            POLAR_ACC_SOURCE_ID,
+            "200.0000000000000",
+            "71000000-0000-4000-8000-000000000200",
+            POLAR_ACC_RECORDS,
+        ),
+        _ => panic!("RUSTY_LSL_POLAR_ROLE must be ecg or acc"),
+    };
+    let ready = PathBuf::from(required_env("RUSTY_LSL_INTEROP_READY_FILE"));
+    let consumer_ready = PathBuf::from(required_env("RUSTY_LSL_INTEROP_CONSUMER_READY_FILE"));
+    let ack = PathBuf::from(required_env("RUSTY_LSL_INTEROP_ACK_FILE"));
+    let outlet = PersistentFloat32Outlet::new(
+        outlet_activation(),
+        TcpListener::bind((interface, 0)).unwrap(),
+        polar_identity(uid, source_id),
+        handshake_limits(),
+        sample_limits(),
+        channels,
+        PersistentFloat32OutletLimits::new(records, 1).unwrap(),
+    )
+    .unwrap();
+    let text = polar_body(
+        interface,
+        outlet.local_address().port(),
+        name,
+        stream_type,
+        channels,
+        source_id,
+        rate,
+        uid,
+    );
+    let mut service = PersistentFloat32OutletService::new_explicit_ipv4_multicast(
+        responder_activation(),
+        interface,
+        outlet,
+        text.clone(),
+        service_limits(text.len()),
+    )
+    .unwrap();
+    fs::write(
+        &ready,
+        format!(
+            "{{\"schema\":\"rusty.lsl.polar_001.official_single_ready.v1\",\"role\":\"{role}\",\"channels\":{channels},\"records\":{records}}}"
+        ),
+    )
+    .unwrap();
+
+    let cancelled = AtomicBool::new(false);
+    let started = Instant::now();
+    let mut discovery_requests = 0usize;
+    let mut accepted = false;
+    let mut pushed = false;
+    while started.elapsed() < Duration::from_secs(20) {
+        let poll = service.poll(&cancelled).unwrap();
+        discovery_requests += usize::from(poll.discovery().is_some());
+        accepted |= poll.consumer().is_some();
+        if accepted && consumer_ready.is_file() && !pushed {
+            let base_timestamp = fs::read_to_string(&consumer_ready)
+                .unwrap()
+                .trim()
+                .parse::<f64>()
+                .unwrap();
+            let values = (0..records)
+                .flat_map(|index| {
+                    let value = f32::from(u16::try_from(index).unwrap());
+                    [value, value + 1.0, value + 2.0].into_iter().take(channels)
+                })
+                .collect::<Vec<_>>();
+            let rate_hz = if role == "ecg" { 130.0 } else { 200.0 };
+            let timestamps = (0..records)
+                .map(|index| {
+                    RawSourceTimestamp::new(
+                        base_timestamp + f64::from(u16::try_from(index).unwrap()) / rate_hz,
+                    )
+                    .unwrap()
+                })
+                .collect::<Vec<_>>();
+            let report = service
+                .push_chunk(&values, &timestamps, &cancelled)
+                .unwrap();
+            assert_eq!(report.record_count(), records);
+            assert_eq!(report.complete_deliveries(), 1);
+            pushed = true;
+        }
+        if pushed && ack.is_file() {
+            break;
+        }
+        thread::sleep(Duration::from_millis(1));
+    }
+    assert!(discovery_requests > 0, "official broad resolver must query");
+    assert!(accepted, "official inlet must complete initialization");
+    assert!(pushed, "exact Polar-shaped chunk must be pushed");
+    assert!(ack.is_file(), "official inlet must acknowledge exact data");
+    let close = service.close();
+    println!(
+        "RUSTY_LSL_POLAR_001_OFFICIAL_SINGLE {{\"role\":\"{role}\",\"channels\":{channels},\"rate_hz\":{},\"records\":{records},\"discovery_requests\":{discovery_requests},\"accepted_consumers\":1,\"closed_consumers\":{}}}",
+        if role == "ecg" { 130 } else { 200 },
         close.outlet().closed_consumers()
     );
 }

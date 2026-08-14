@@ -76,6 +76,15 @@ existing bounded owners. The result carries its outlet/interface binding into
 XML and no relaxed parser. Query predicate evaluation, interface selection,
 workers, queues, retry, and reconnection remain outside the registry.
 
+Float32 initialization is channel-order sensitive. One channel preserves the
+accepted two-record `[4.0]`, `[2.0]` wire sequence. For additional channels,
+each record advances the positive magnitude by one and alternates signs by
+channel: the three-channel sequence is `[4.0, -5.0, 6.0]` then
+`[2.0, -3.0, 4.0]`. Writer and reader share this sealed rule, while damaged
+legacy repeated values, record reordering, and wrong shapes fail before caller
+records are exposed. This changes neither caller-record framing nor the
+single-channel bytes.
+
 ## Session-owned Float32 sender state
 
 `format_neutral_session_runtime` constructs sealed writer state before an

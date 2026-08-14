@@ -1,5 +1,18 @@
 # Provenance
 
+## Polar-shaped Float32 initialization qualification
+
+The correction is independently authored from the repository's accepted
+LSLC-003O multi-channel fixed-width black-box pattern and new pinned endpoint
+results. The endpoint is pylsl 1.18.2, liblsl library 117/protocol 110, native
+DLL SHA-256
+`8156d0021794135ce217821cae0e99912753d86d8519e349756d13d99e0292ff`.
+Only documented pylsl discovery, inlet-open, and sample-pull APIs were used.
+Official implementation source and rLSL source were not inspected, copied, or
+translated for this correction. Raw diagnostics, interface values, endpoints,
+and temporary synchronization files remain external; the public tool emits a
+sanitized exact-revision result.
+
 ## LSLC-003Q private observation provenance
 
 The independently authored private driver and configuration are bound by
