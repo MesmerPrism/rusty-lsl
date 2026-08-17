@@ -65,9 +65,17 @@ in one source-clock domain, round-robin admissions, fail-fast slow-consumer
 eviction, Polar rate/metadata composition, health counters, and deterministic
 cleanup. It adds no ambient worker or application policy.
 
+INTEROP-002 closes the device-free simultaneous official-inlet host gate. One
+pinned pylsl 1.18.2/liblsl 1.17.7 ECG inlet and one ACC inlet open concurrently,
+receive exact 73x1 and 36x3 `pull_chunk` payloads with caller timestamps, and
+close within bounds. Exact auxiliary full-info requests use separate bounded
+capacity from the single admitted data consumer on each outlet. This is not
+generic multi-consumer, predicate-filter, device, LabRecorder, cross-host, or
+cross-platform conformance.
+
 The next production gates are a default-off application adapter,
-BLE-to-recorder/LabRecorder qualification, an official simultaneous two-inlet
-run, non-loopback/cross-host and Linux/macOS coverage,
+BLE-to-recorder/LabRecorder qualification, non-loopback/cross-host and
+Linux/macOS coverage,
 reconnect/recovery behavior, arbitrary stream shapes, application integration,
 and an explicit licensing decision. Stability, version, tag, registry
 publication, and P8 release authority remain separately reviewed.

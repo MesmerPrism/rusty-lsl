@@ -25,10 +25,11 @@ Public liblsl source at `64988c6a14b8dc3b3f270ece58eab4f480bfab43`
 was inspected to diagnose connection roles; no source was copied or translated.
 
 This qualifies one explicit-interface, one-host, one-platform, one-channel,
-ten-record Float32 path. It does not establish a background service, default
-interface policy, the pylsl `pull_chunk` wrapper, broad liblsl equivalence,
-non-loopback/cross-host behavior, recovery parity, OS portability, device
-qualification, or BLE-to-recorder latency.
+ten-record Float32 `pull_sample` path. INTEROP-002 separately qualifies bounded
+`pull_chunk` behavior; neither establishes a background service, default
+interface policy, broad liblsl equivalence, non-loopback/cross-host behavior,
+recovery parity, OS portability, device qualification, or BLE-to-recorder
+latency.
 
 The Polar reference is `5e13f64c6247f3ff5c5f919711d53edc1a7c8da3`;
 its sender source SHA-256 is
@@ -67,11 +68,38 @@ is qualified separately through broad discovery and exact name, type, channel
 count, nominal rate, format, source ID, and UID matching. Zero, multiple, or
 mismatched candidates are rejected.
 
-This establishes a source-level prerequisite for an experimental Polar Stream
-backend. It is not new physical-device evidence, an official simultaneous two-inlet run,
-LabRecorder or BLE-to-recorder qualification, reconnect/recovery parity,
-cross-host or cross-platform evidence, a performance advantage, a licensing
-decision, stable API, release readiness, or authorization to replace liblsl.
+INTEROP-002 now supplies the previously missing simultaneous official two-inlet
+host qualification. The remaining boundary is still only a source-level
+prerequisite for an experimental Polar Stream backend. It is not new
+physical-device evidence, LabRecorder or BLE-to-recorder qualification,
+reconnect/recovery parity, cross-host or cross-platform evidence, a performance
+advantage, a licensing decision, stable API, release readiness, or
+authorization to replace liblsl.
+
+## INTEROP-002 official two-inlet auxiliary routing
+
+Pinned pylsl 1.18.2/liblsl 1.17.7 black-box qualification opens one ECG inlet
+and one ACC inlet concurrently against two registry outlets. Broad enumeration
+is followed by exact client-side matching of name, type, channel count, nominal
+rate, Float32 format, source ID, and UID. Each outlet admits one data consumer,
+serves the official `LSL:fullinfo` auxiliary request without consuming that
+slot, and then delivers one exact `pull_chunk`: 73x1 at 130 Hz for ECG and 36x3
+at 200 Hz for ACC. Values and caller source timestamps are exact, both inlets
+close within bounds, and the single-channel initialization remains unchanged.
+
+The auxiliary route was derived from wire observations against the pinned
+official binaries and independent protocol reasoning; official implementation
+source was neither inspected nor copied for this correction. Its contract is
+closed to the exact request bytes, canonical bounded XML response, write-side
+half-close, separate bounded registry, deterministic cleanup, and cumulative
+health evidence. Damaged shapes and a second data consumer reject without
+disturbing the admitted consumer.
+
+This is one Windows host, one explicit private IPv4 interface, two Float32
+outlets, and one official consumer per outlet. It does not qualify discovery
+predicate evaluation, more than one official consumer per outlet, LabRecorder,
+recovery, cross-host/platform behavior, physical H10 acquisition, browser
+transport, stable API, release readiness, or broad liblsl equivalence.
 
 ## DEVICE-001 physical Polar H10 publisher qualification
 

@@ -3,12 +3,14 @@
 
 //! Caller-owned polling composition for persistent Float32 discovery and transfer.
 
+use crate::persistent_float32_outlet::PersistentFloat32ManagedRequest;
 use crate::{
     ChannelFormat, ParsedShortInfoQuery, ParsedStreamInfoObservedDocument,
-    PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted, PersistentFloat32Outlet,
-    PersistentFloat32OutletCloseReport, PersistentFloat32OutletHealth, PersistentFloat32PushError,
-    PersistentFloat32PushReport, RawSourceTimestamp, ShortInfoQueryParseError,
-    ShortInfoQueryWireLimits, ShortInfoResponderActivation, ShortInfoResponseEnvelopeEncodeError,
+    PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
+    PersistentFloat32FullInfoServed, PersistentFloat32Outlet, PersistentFloat32OutletCloseReport,
+    PersistentFloat32OutletHealth, PersistentFloat32PushError, PersistentFloat32PushReport,
+    RawSourceTimestamp, ShortInfoQueryParseError, ShortInfoQueryWireLimits,
+    ShortInfoResponderActivation, ShortInfoResponseEnvelopeEncodeError,
     ShortInfoResponseEnvelopeLimits, StreamInfoObservedAdmissionError,
     StreamInfoObservedAdmissionLimits, StreamInfoObservedDocumentParseError,
     StreamInfoObservedDocumentParseLimit, StreamInfoObservedFields, StreamInfoVolatileFieldRole,
@@ -134,6 +136,7 @@ pub struct PersistentFloat32OutletServicePoll {
     discovery: Option<PersistentFloat32DiscoveryHandled>,
     timedata: Option<PersistentFloat32TimedataHandled>,
     consumer: Option<PersistentFloat32ConsumerAccepted>,
+    full_info: Option<PersistentFloat32FullInfoServed>,
 }
 
 impl PersistentFloat32OutletServicePoll {
@@ -155,10 +158,19 @@ impl PersistentFloat32OutletServicePoll {
         self.consumer
     }
 
+    /// Full-info auxiliary request answered by this poll, if any.
+    #[must_use]
+    pub const fn full_info(self) -> Option<PersistentFloat32FullInfoServed> {
+        self.full_info
+    }
+
     /// Whether neither socket had pending work.
     #[must_use]
     pub const fn is_idle(self) -> bool {
-        self.discovery.is_none() && self.timedata.is_none() && self.consumer.is_none()
+        self.discovery.is_none()
+            && self.timedata.is_none()
+            && self.consumer.is_none()
+            && self.full_info.is_none()
     }
 }
 
@@ -210,6 +222,7 @@ pub struct PersistentFloat32OutletServiceHealth {
     discovery_queries: u64,
     timedata_queries: u64,
     consumers_accepted: u64,
+    full_info_responses: u64,
     outlet: PersistentFloat32OutletHealth,
 }
 
@@ -230,6 +243,12 @@ impl PersistentFloat32OutletServiceHealth {
     #[must_use]
     pub const fn consumers_accepted(self) -> u64 {
         self.consumers_accepted
+    }
+
+    /// Exact official full-info requests answered by this service.
+    #[must_use]
+    pub const fn full_info_responses(self) -> u64 {
+        self.full_info_responses
     }
 
     /// Current persistent-outlet health.
@@ -388,6 +407,7 @@ pub struct PersistentFloat32OutletService {
     discovery_queries: u64,
     timedata_queries: u64,
     consumers_accepted: u64,
+    full_info_responses: u64,
 }
 
 impl PersistentFloat32OutletService {
@@ -481,6 +501,7 @@ impl PersistentFloat32OutletService {
             discovery_queries: 0,
             timedata_queries: 0,
             consumers_accepted: 0,
+            full_info_responses: 0,
         })
     }
 
@@ -527,6 +548,7 @@ impl PersistentFloat32OutletService {
             discovery_queries: self.discovery_queries,
             timedata_queries: self.timedata_queries,
             consumers_accepted: self.consumers_accepted,
+            full_info_responses: self.full_info_responses,
             outlet: self.outlet.health(),
         }
     }
@@ -552,23 +574,26 @@ impl PersistentFloat32OutletService {
         if timedata.is_some() {
             self.timedata_queries = self.timedata_queries.saturating_add(1);
         }
-        // A full service retains its admitted data consumers and leaves any
-        // auxiliary official-inlet connection in the bounded listener backlog.
-        // The lower-level outlet keeps its explicit capacity error contract.
-        let consumer = if self.outlet.connected_consumers() == self.outlet.max_consumers() {
-            None
-        } else {
-            self.outlet
-                .poll_accept_consumer(cancelled)
-                .map_err(PersistentFloat32OutletServicePollError::Accept)?
+        let handled = self
+            .outlet
+            .poll_managed_request(&self.body, cancelled)
+            .map_err(PersistentFloat32OutletServicePollError::Accept)?;
+        let (consumer, full_info) = match handled {
+            Some(PersistentFloat32ManagedRequest::Consumer(consumer)) => (Some(consumer), None),
+            Some(PersistentFloat32ManagedRequest::FullInfo(full_info)) => (None, Some(full_info)),
+            None => (None, None),
         };
         if consumer.is_some() {
             self.consumers_accepted = self.consumers_accepted.saturating_add(1);
+        }
+        if full_info.is_some() {
+            self.full_info_responses = self.full_info_responses.saturating_add(1);
         }
         Ok(PersistentFloat32OutletServicePoll {
             discovery,
             timedata,
             consumer,
+            full_info,
         })
     }
 

@@ -1,5 +1,43 @@
 # Validation
 
+## INTEROP-002 official two-inlet auxiliary routing
+
+The deterministic source, damaged-shape, lifecycle, and public-surface gates
+run without an official endpoint or physical device:
+
+```text
+cargo test -p rusty-lsl --lib interop_002 -- --test-threads=1
+cargo test -p rusty-lsl --lib polar_001_multi_outlet -- --test-threads=1
+cargo test -p rusty-lsl --test public_api polar_001_registry_clock_health_and_structured_stream_info_are_public -- --exact --test-threads=1
+python ./tools/run_persistent_float32_outlet_official_consumer.py --multi-outlet-self-test
+```
+
+They prove exact full-info request classification, damaged/trailing request
+rejection, independent bounded auxiliary and data-consumer capacity, canonical
+response completion, cleanup accounting, and non-disturbance when a second data
+consumer is rejected. The Python self-test keeps the 73x1/36x3 oracle, exact
+descriptor selection, ambiguous/zero-candidate rejection, and damaged-shape
+checks deterministic.
+
+Owner host qualification uses pinned pylsl 1.18.2/liblsl 1.17.7 and one
+explicit active private IPv4 interface:
+
+```text
+<pinned-python> ./tools/run_persistent_float32_outlet_official_consumer.py --interface <caller-explicit-ipv4> --one-inlet-regression
+<pinned-python> ./tools/run_persistent_float32_outlet_official_consumer.py --interface <caller-explicit-ipv4> --one-inlet-pull-chunk-test
+<pinned-python> ./tools/run_persistent_float32_outlet_official_consumer.py --interface <caller-explicit-ipv4> --simultaneous-two-inlet-test
+```
+
+The first command preserves the prior one-channel `pull_sample` behavior. The
+second qualifies one-channel `pull_chunk`. The third opens ECG and ACC inlets
+concurrently, requires broad enumeration plus exact client-side descriptor
+matching, then consumes exact chunks and source timestamps from both outlets
+before bounded close. No physical H10 is involved. Query-predicate evaluation,
+more than one official consumer per outlet, LabRecorder, device/browser,
+recovery, cross-host/platform, broad equivalence, and release remain outside
+the claim. Cargo shape, exact Rust 1.80, serialized Standard, workflow contract,
+and diff/status gates remain mandatory.
+
 ## POLAR-001 multi-outlet clocked service
 
 The focused source and external-public-API gates are:
@@ -35,15 +73,15 @@ then requires exactly one candidate matching name, type, channel count, nominal
 rate, Float32 format, source ID, and UID. ECG requires 73 exact one-channel
 records at 130 Hz; ACC requires 36 exact three-channel records at 200 Hz. Both
 require exact source timestamps, persistent initialization, and bounded close.
-This does not qualify query-predicate evaluation, simultaneous two-inlet or
-registry fail-fast caller-data delivery, a physical H10, browser transport,
-LabRecorder, another host/platform, or release.
+This gate alone does not qualify query-predicate evaluation, simultaneous
+two-inlet or registry fail-fast caller-data delivery, a physical H10, browser
+transport, LabRecorder, another host/platform, or release. INTEROP-002 owns the
+separate simultaneous official-inlet qualification.
 
-These checks do not execute current Polar Stream, an official simultaneous
-two-inlet endpoint, a physical H10, BLE, LabRecorder, recovery, cross-host or
-cross-platform transport, licensing review, a release, or a production
-replacement decision. Standard and exact Rust 1.80 gates remain required on
-the frozen candidate.
+These POLAR-001 checks do not execute current Polar Stream, a physical H10,
+BLE, LabRecorder, recovery, cross-host or cross-platform transport, licensing
+review, a release, or a production replacement decision. Standard and exact
+Rust 1.80 gates remain required on the frozen candidate.
 
 ## DEVICE-001 physical Polar H10 publisher qualification
 

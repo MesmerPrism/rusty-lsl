@@ -1377,6 +1377,18 @@ fn polar_001_registry_clock_health_and_structured_stream_info_are_public() {
 }
 
 #[test]
+fn interop_002_full_info_routing_types_are_public() {
+    same_type(
+        &Option::<PersistentFloat32FullInfoServed>::None,
+        &Option::<runtime::PersistentFloat32FullInfoServed>::None,
+    );
+    same_type(
+        &Option::<PersistentFloat32RegistryFullInfoServed>::None,
+        &Option::<runtime::PersistentFloat32RegistryFullInfoServed>::None,
+    );
+}
+
+#[test]
 fn device_001_polar_h10_nominal_rates_are_publicly_composable_and_admissible() {
     for (channels, rate, spelling) in [
         (1, 1.0, "1.000000000000000"),

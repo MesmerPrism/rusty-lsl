@@ -9,6 +9,8 @@ use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
+const FULL_INFO_REQUEST: &[u8] = b"LSL:fullinfo\r\n";
+
 /// Feature identity selected by the project lock.
 pub const STREAM_HANDSHAKE_FEATURE_ID: &str = "stream-handshake";
 /// Exact marker required beside the selected feature.
@@ -217,6 +219,12 @@ pub struct StreamOutletHandshake {
     local: SocketAddr,
     peer: SocketAddr,
 }
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum AcceptedOutletRequest {
+    Streamfeed,
+    FullInfo,
+}
 impl StreamOutletHandshake {
     /// Actual listener address.
     pub const fn local_address(&self) -> SocketAddr {
@@ -403,6 +411,62 @@ fn read_header(
     String::from_utf8(bytes).map_err(|_| StreamHandshakeError::InvalidUtf8)
 }
 
+fn read_outlet_request(
+    stream: &mut TcpStream,
+    limits: StreamHandshakeLimits,
+    started: Instant,
+    cancelled: &AtomicBool,
+) -> Result<(AcceptedOutletRequest, Option<String>), StreamHandshakeError> {
+    let mut bytes = Vec::new();
+    bytes
+        .try_reserve_exact(limits.max_header_bytes)
+        .map_err(|_| StreamHandshakeError::AllocationFailed {
+            requested: limits.max_header_bytes,
+        })?;
+    loop {
+        if bytes.as_slice() == FULL_INFO_REQUEST {
+            stream
+                .set_read_timeout(Some(limits.io_slice.min(Duration::from_millis(1))))
+                .map_err(|error| StreamHandshakeError::Io(error.kind()))?;
+            let mut trailing = [0u8; 1];
+            match stream.peek(&mut trailing) {
+                Ok(0) => {}
+                Ok(_) => return Err(StreamHandshakeError::InvalidHeader),
+                Err(error)
+                    if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
+                Err(error) => return Err(StreamHandshakeError::Io(error.kind())),
+            }
+            return Ok((AcceptedOutletRequest::FullInfo, None));
+        }
+        if bytes.ends_with(b"\r\n\r\n") {
+            let header = String::from_utf8(bytes).map_err(|_| StreamHandshakeError::InvalidUtf8)?;
+            return Ok((AcceptedOutletRequest::Streamfeed, Some(header)));
+        }
+        if bytes.len() == limits.max_header_bytes {
+            return Err(StreamHandshakeError::HeaderLimitExceeded {
+                limit: limits.max_header_bytes,
+            });
+        }
+        if cancelled.load(Ordering::Acquire) {
+            return Err(StreamHandshakeError::Cancelled);
+        }
+        let remaining = limits
+            .total_deadline
+            .checked_sub(started.elapsed())
+            .ok_or(StreamHandshakeError::Deadline)?;
+        stream
+            .set_read_timeout(Some(remaining.min(limits.io_slice)))
+            .map_err(|error| StreamHandshakeError::Io(error.kind()))?;
+        let mut byte = [0u8; 1];
+        match stream.read(&mut byte) {
+            Ok(0) => return Err(StreamHandshakeError::InvalidHeader),
+            Ok(_) => bytes.push(byte[0]),
+            Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
+            Err(error) => return Err(StreamHandshakeError::Io(error.kind())),
+        }
+    }
+}
+
 /// Connects to one caller-selected peer, exchanges one request/response header, and closes on return.
 pub fn run_stream_inlet_handshake(
     _activation: StreamHandshakeActivation,
@@ -549,8 +613,32 @@ pub(crate) fn admit_accepted_handshake_stream_with_format(
     value_size: usize,
     supports_subnormals: bool,
 ) -> Result<(), StreamHandshakeError> {
+    match admit_accepted_outlet_request_with_format(
+        stream,
+        identity,
+        limits,
+        cancelled,
+        value_size,
+        supports_subnormals,
+    )? {
+        AcceptedOutletRequest::Streamfeed => Ok(()),
+        AcceptedOutletRequest::FullInfo => Err(StreamHandshakeError::InvalidHeader),
+    }
+}
+
+pub(crate) fn admit_accepted_outlet_request_with_format(
+    stream: &mut TcpStream,
+    identity: &StreamHandshakeIdentity,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+    value_size: usize,
+    supports_subnormals: bool,
+) -> Result<AcceptedOutletRequest, StreamHandshakeError> {
     let started = Instant::now();
-    let received = read_header(stream, limits, started, cancelled)?;
+    let (request_kind, received) = read_outlet_request(stream, limits, started, cancelled)?;
+    let Some(received) = received else {
+        return Ok(request_kind);
+    };
     if !request_matches_format(&received, identity, value_size, supports_subnormals) {
         return Err(if received.starts_with("LSL:streamfeed/110 ") {
             StreamHandshakeError::IdentityMismatch
@@ -559,7 +647,22 @@ pub(crate) fn admit_accepted_handshake_stream_with_format(
         });
     }
     let response = response(identity);
-    write_all_bounded(stream, response.as_bytes(), limits, started, cancelled)
+    write_all_bounded(stream, response.as_bytes(), limits, started, cancelled)?;
+    Ok(AcceptedOutletRequest::Streamfeed)
+}
+
+pub(crate) fn write_full_info_response(
+    stream: &mut TcpStream,
+    body: &str,
+    limits: StreamHandshakeLimits,
+    cancelled: &AtomicBool,
+) -> Result<(), StreamHandshakeError> {
+    if body.len() > limits.max_header_bytes {
+        return Err(StreamHandshakeError::HeaderLimitExceeded {
+            limit: limits.max_header_bytes,
+        });
+    }
+    write_all_bounded(stream, body.as_bytes(), limits, Instant::now(), cancelled)
 }
 
 #[cfg(test)]
@@ -567,6 +670,36 @@ mod tests {
     use super::*;
     use crate::runtime_activation::test_capability;
     use std::thread;
+
+    fn classify_outlet_request(
+        bytes: &'static [u8],
+    ) -> Result<AcceptedOutletRequest, StreamHandshakeError> {
+        classify_outlet_request_with_cancellation(bytes, false)
+    }
+
+    fn classify_outlet_request_with_cancellation(
+        bytes: &'static [u8],
+        cancelled: bool,
+    ) -> Result<AcceptedOutletRequest, StreamHandshakeError> {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let client = thread::spawn(move || {
+            let mut stream = TcpStream::connect(address).unwrap();
+            stream.write_all(bytes).unwrap();
+            thread::sleep(Duration::from_millis(5));
+        });
+        let (mut stream, _) = listener.accept().unwrap();
+        let result = admit_accepted_outlet_request_with_format(
+            &mut stream,
+            &identity(),
+            limits(),
+            &AtomicBool::new(cancelled),
+            core::mem::size_of::<f32>(),
+            true,
+        );
+        client.join().unwrap();
+        result
+    }
     fn activation() -> StreamHandshakeActivation {
         StreamHandshakeActivation::new(test_capability(RuntimeModule::StreamHandshake)).unwrap()
     }
@@ -612,6 +745,31 @@ mod tests {
         assert_eq!(outlet.local_address(), address);
         assert!(outlet.peer().ip().is_loopback());
         TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn interop_002_connection_role_and_ordering_are_exact_and_damaged_shapes_reject() {
+        assert_eq!(
+            classify_outlet_request(b"LSL:fullinfo\r\n"),
+            Ok(AcceptedOutletRequest::FullInfo)
+        );
+        for damaged in [
+            b"LSL:fullinfo\r".as_slice(),
+            b"LSL:fullinfo\n".as_slice(),
+            b"lsl:fullinfo\r\n".as_slice(),
+            b"LSL:fullinfo\r\n\r\n".as_slice(),
+            b"LSL:fullinfo\r\nx".as_slice(),
+            b"LSL:other\r\n".as_slice(),
+        ] {
+            assert_eq!(
+                classify_outlet_request(damaged),
+                Err(StreamHandshakeError::InvalidHeader)
+            );
+        }
+        assert_eq!(
+            classify_outlet_request_with_cancellation(b"LSL:full", true),
+            Err(StreamHandshakeError::Cancelled)
+        );
     }
     #[test]
     fn lslc_002s_cancellation_timeout_malformed_and_identity_mismatch_are_typed() {

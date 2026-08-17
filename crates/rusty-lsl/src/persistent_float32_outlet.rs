@@ -6,7 +6,10 @@
 use crate::bounded_fixed_record_transport::{
     write_exact_bounded_with_state_progress, BoundedFixedRecordError, BoundedWriteState,
 };
-use crate::stream_handshake::admit_accepted_handshake_stream_with_format;
+use crate::stream_handshake::{
+    admit_accepted_handshake_stream_with_format, admit_accepted_outlet_request_with_format,
+    write_full_info_response, AcceptedOutletRequest,
+};
 use crate::timestamped_float32_session_runtime::codec::{Float32WriterState, RECORD_MARKER};
 use crate::{
     RawSourceTimestamp, RuntimeModule, RuntimeModuleCapability, StreamHandshakeError,
@@ -157,6 +160,11 @@ pub enum PersistentFloat32OutletCreateError {
         /// Requested retained consumer slots.
         requested: usize,
     },
+    /// The bounded auxiliary-connection registry allocation failed.
+    AuxiliaryRegistryAllocationFailed {
+        /// Requested retained auxiliary slots.
+        requested: usize,
+    },
     /// Listener inspection or configuration failed.
     Io(ErrorKind),
 }
@@ -189,6 +197,11 @@ pub enum PersistentFloat32AcceptError {
         /// Selected maximum consumers.
         limit: usize,
     },
+    /// The retained full-info auxiliary registry is full.
+    AuxiliaryCapacityReached {
+        /// Selected maximum auxiliary connections.
+        limit: usize,
+    },
     /// Listener accept or socket configuration failed.
     Io(ErrorKind),
     /// Protocol-110 connection setup failed.
@@ -202,6 +215,39 @@ pub enum PersistentFloat32AcceptError {
 pub struct PersistentFloat32ConsumerAccepted {
     peer: SocketAddr,
     connected_consumers: usize,
+}
+
+/// Evidence that one exact official full-info request was answered and retained.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PersistentFloat32FullInfoServed {
+    peer: SocketAddr,
+    response_bytes: usize,
+    connected_auxiliaries: usize,
+}
+
+impl PersistentFloat32FullInfoServed {
+    /// Remote socket address of the full-info requester.
+    #[must_use]
+    pub const fn peer(&self) -> SocketAddr {
+        self.peer
+    }
+
+    /// Exact canonical XML response byte count.
+    #[must_use]
+    pub const fn response_bytes(&self) -> usize {
+        self.response_bytes
+    }
+
+    /// Retained auxiliary count after this response.
+    #[must_use]
+    pub const fn connected_auxiliaries(&self) -> usize {
+        self.connected_auxiliaries
+    }
+}
+
+pub(crate) enum PersistentFloat32ManagedRequest {
+    Consumer(PersistentFloat32ConsumerAccepted),
+    FullInfo(PersistentFloat32FullInfoServed),
 }
 
 impl PersistentFloat32ConsumerAccepted {
@@ -331,17 +377,21 @@ impl PersistentFloat32PushReport {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PersistentFloat32OutletCloseReport {
     closed_consumers: usize,
+    closed_auxiliaries: usize,
 }
 
 /// Bounded cumulative observations for one persistent outlet.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PersistentFloat32OutletHealth {
     connected_consumers: usize,
+    connected_auxiliaries: usize,
     consumer_high_water: usize,
+    auxiliary_high_water: usize,
     push_calls: u64,
     records_encoded: u64,
     complete_deliveries: u64,
     evicted_consumers: u64,
+    full_info_responses: u64,
 }
 
 impl PersistentFloat32OutletHealth {
@@ -351,10 +401,22 @@ impl PersistentFloat32OutletHealth {
         self.connected_consumers
     }
 
+    /// Full-info auxiliary connections retained when the snapshot was read.
+    #[must_use]
+    pub const fn connected_auxiliaries(self) -> usize {
+        self.connected_auxiliaries
+    }
+
     /// Largest simultaneously retained consumer count.
     #[must_use]
     pub const fn consumer_high_water(self) -> usize {
         self.consumer_high_water
+    }
+
+    /// Largest simultaneously retained full-info auxiliary count.
+    #[must_use]
+    pub const fn auxiliary_high_water(self) -> usize {
+        self.auxiliary_high_water
     }
 
     /// Accepted chunk submissions, including submissions with no consumer.
@@ -380,6 +442,12 @@ impl PersistentFloat32OutletHealth {
     pub const fn evicted_consumers(self) -> u64 {
         self.evicted_consumers
     }
+
+    /// Exact official full-info requests answered across this outlet lifetime.
+    #[must_use]
+    pub const fn full_info_responses(self) -> u64 {
+        self.full_info_responses
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -393,6 +461,12 @@ impl PersistentFloat32OutletCloseReport {
     #[must_use]
     pub const fn closed_consumers(&self) -> usize {
         self.closed_consumers
+    }
+
+    /// Full-info auxiliary connections shut down during explicit close.
+    #[must_use]
+    pub const fn closed_auxiliaries(&self) -> usize {
+        self.closed_auxiliaries
     }
 }
 
@@ -415,12 +489,15 @@ pub struct PersistentFloat32Outlet {
     limits: PersistentFloat32OutletLimits,
     chunk: Vec<u8>,
     consumers: Vec<Consumer>,
+    auxiliaries: Vec<TcpStream>,
     delivery_mode: Option<DeliveryMode>,
     consumer_high_water: usize,
+    auxiliary_high_water: usize,
     push_calls: u64,
     records_encoded: u64,
     complete_deliveries: u64,
     evicted_consumers: u64,
+    full_info_responses: u64,
 }
 
 impl PersistentFloat32Outlet {
@@ -475,6 +552,14 @@ impl PersistentFloat32Outlet {
                     requested: limits.max_consumers,
                 },
             )?;
+        let mut auxiliaries = Vec::new();
+        auxiliaries
+            .try_reserve_exact(limits.max_consumers)
+            .map_err(
+                |_| PersistentFloat32OutletCreateError::AuxiliaryRegistryAllocationFailed {
+                    requested: limits.max_consumers,
+                },
+            )?;
         let local = listener
             .local_addr()
             .map_err(|error| PersistentFloat32OutletCreateError::Io(error.kind()))?;
@@ -492,12 +577,15 @@ impl PersistentFloat32Outlet {
             limits,
             chunk,
             consumers,
+            auxiliaries,
             delivery_mode: None,
             consumer_high_water: 0,
+            auxiliary_high_water: 0,
             push_calls: 0,
             records_encoded: 0,
             complete_deliveries: 0,
             evicted_consumers: 0,
+            full_info_responses: 0,
         })
     }
 
@@ -536,11 +624,14 @@ impl PersistentFloat32Outlet {
     pub fn health(&self) -> PersistentFloat32OutletHealth {
         PersistentFloat32OutletHealth {
             connected_consumers: self.consumers.len(),
+            connected_auxiliaries: self.auxiliaries.len(),
             consumer_high_water: self.consumer_high_water,
+            auxiliary_high_water: self.auxiliary_high_water,
             push_calls: self.push_calls,
             records_encoded: self.records_encoded,
             complete_deliveries: self.complete_deliveries,
             evicted_consumers: self.evicted_consumers,
+            full_info_responses: self.full_info_responses,
         }
     }
 
@@ -595,6 +686,88 @@ impl PersistentFloat32Outlet {
             peer,
             connected_consumers: self.consumers.len(),
         }))
+    }
+
+    pub(crate) fn poll_managed_request(
+        &mut self,
+        full_info: &str,
+        cancelled: &AtomicBool,
+    ) -> Result<Option<PersistentFloat32ManagedRequest>, PersistentFloat32AcceptError> {
+        if cancelled.load(Ordering::Acquire) {
+            return Err(PersistentFloat32AcceptError::Cancelled);
+        }
+        self.prune_auxiliaries();
+        let (mut stream, peer) = match self.listener.accept() {
+            Ok(accepted) => accepted,
+            Err(error) if error.kind() == ErrorKind::WouldBlock => return Ok(None),
+            Err(error) => return Err(PersistentFloat32AcceptError::Io(error.kind())),
+        };
+        stream
+            .set_nodelay(true)
+            .map_err(|error| PersistentFloat32AcceptError::Io(error.kind()))?;
+        match admit_accepted_outlet_request_with_format(
+            &mut stream,
+            &self.identity,
+            self.handshake_limits,
+            cancelled,
+            core::mem::size_of::<f32>(),
+            true,
+        )
+        .map_err(PersistentFloat32AcceptError::Handshake)?
+        {
+            AcceptedOutletRequest::Streamfeed => {
+                if self.consumers.len() == self.limits.max_consumers {
+                    let _ = stream.shutdown(Shutdown::Both);
+                    return Err(PersistentFloat32AcceptError::ConsumerCapacityReached {
+                        limit: self.limits.max_consumers,
+                    });
+                }
+                Float32WriterState::new(self.channel_count)
+                    .and_then(|mut writer| {
+                        writer.write_initialization(&mut stream, self.sample_limits, cancelled)
+                    })
+                    .map_err(PersistentFloat32AcceptError::Initialization)?;
+                self.consumers.push(Consumer {
+                    stream,
+                    peer,
+                    transport: BoundedWriteState::new(),
+                    nonblocking: false,
+                });
+                self.consumer_high_water = self.consumer_high_water.max(self.consumers.len());
+                Ok(Some(PersistentFloat32ManagedRequest::Consumer(
+                    PersistentFloat32ConsumerAccepted {
+                        peer,
+                        connected_consumers: self.consumers.len(),
+                    },
+                )))
+            }
+            AcceptedOutletRequest::FullInfo => {
+                if self.auxiliaries.len() == self.limits.max_consumers {
+                    let _ = stream.shutdown(Shutdown::Both);
+                    return Err(PersistentFloat32AcceptError::AuxiliaryCapacityReached {
+                        limit: self.limits.max_consumers,
+                    });
+                }
+                write_full_info_response(&mut stream, full_info, self.handshake_limits, cancelled)
+                    .map_err(PersistentFloat32AcceptError::Handshake)?;
+                stream
+                    .shutdown(Shutdown::Write)
+                    .map_err(|error| PersistentFloat32AcceptError::Io(error.kind()))?;
+                stream
+                    .set_nonblocking(true)
+                    .map_err(|error| PersistentFloat32AcceptError::Io(error.kind()))?;
+                self.auxiliaries.push(stream);
+                self.auxiliary_high_water = self.auxiliary_high_water.max(self.auxiliaries.len());
+                self.full_info_responses = self.full_info_responses.saturating_add(1);
+                Ok(Some(PersistentFloat32ManagedRequest::FullInfo(
+                    PersistentFloat32FullInfoServed {
+                        peer,
+                        response_bytes: full_info.len(),
+                        connected_auxiliaries: self.auxiliaries.len(),
+                    },
+                )))
+            }
+        }
     }
 
     /// Encodes once and performs one contiguous bounded write per retained consumer.
@@ -805,13 +978,36 @@ impl PersistentFloat32Outlet {
     #[must_use]
     pub fn close(mut self) -> PersistentFloat32OutletCloseReport {
         let closed_consumers = self.consumers.len();
+        let closed_auxiliaries = self.auxiliaries.len();
         self.shutdown_consumers();
-        PersistentFloat32OutletCloseReport { closed_consumers }
+        self.shutdown_auxiliaries();
+        PersistentFloat32OutletCloseReport {
+            closed_consumers,
+            closed_auxiliaries,
+        }
     }
 
     fn shutdown_consumers(&mut self) {
         for consumer in self.consumers.drain(..) {
             let _ = consumer.stream.shutdown(Shutdown::Both);
+        }
+    }
+
+    fn prune_auxiliaries(&mut self) {
+        let mut probe = [0u8; 1];
+        self.auxiliaries
+            .retain_mut(|stream| match stream.peek(&mut probe) {
+                Err(error) if error.kind() == ErrorKind::WouldBlock => true,
+                _ => {
+                    let _ = stream.shutdown(Shutdown::Both);
+                    false
+                }
+            });
+    }
+
+    fn shutdown_auxiliaries(&mut self) {
+        for stream in self.auxiliaries.drain(..) {
+            let _ = stream.shutdown(Shutdown::Both);
         }
     }
 
@@ -824,6 +1020,7 @@ impl PersistentFloat32Outlet {
 impl Drop for PersistentFloat32Outlet {
     fn drop(&mut self) {
         self.shutdown_consumers();
+        self.shutdown_auxiliaries();
     }
 }
 
@@ -847,7 +1044,7 @@ pub(crate) mod tests {
         read_initialization_for_channels, read_record_for_channels,
     };
     use crate::{RuntimeModule, StreamHandshakeActivation};
-    use std::io::Read;
+    use std::io::{Read, Write};
     use std::thread;
     use std::time::Duration;
 
@@ -913,6 +1110,21 @@ pub(crate) mod tests {
             thread::sleep(Duration::from_millis(1));
         }
         panic!("pending consumer was not accepted");
+    }
+
+    fn poll_managed(
+        outlet: &mut PersistentFloat32Outlet,
+        full_info: &str,
+    ) -> Result<PersistentFloat32ManagedRequest, PersistentFloat32AcceptError> {
+        for _ in 0..500 {
+            if let Some(handled) =
+                outlet.poll_managed_request(full_info, &AtomicBool::new(false))?
+            {
+                return Ok(handled);
+            }
+            thread::sleep(Duration::from_millis(1));
+        }
+        panic!("pending managed request was not handled");
     }
 
     fn spawn_reader(
@@ -1064,6 +1276,100 @@ pub(crate) mod tests {
         assert_eq!(second.join().unwrap(), expected);
         assert_eq!(outlet.close().closed_consumers(), 2);
         TcpListener::bind(address).unwrap();
+    }
+
+    #[test]
+    fn interop_002_ordering_is_bounded_separate_and_does_not_disturb_data() {
+        const FULL_INFO: &str = "<?xml version=\"1.0\"?>\n<info><name>bounded</name></info>\n";
+        let stream_identity = identity("70000000-0000-4000-8000-000000000010", "managed-routing");
+        let mut outlet = PersistentFloat32Outlet::new(
+            activation(),
+            TcpListener::bind("127.0.0.1:0").unwrap(),
+            stream_identity.clone(),
+            handshake_limits(),
+            sample_limits(),
+            1,
+            PersistentFloat32OutletLimits::new(8, 1).unwrap(),
+        )
+        .unwrap();
+        let address = outlet.local_address();
+        assert!(matches!(
+            outlet.poll_managed_request(FULL_INFO, &AtomicBool::new(true)),
+            Err(PersistentFloat32AcceptError::Cancelled)
+        ));
+        assert_eq!(outlet.connected_consumers(), 0);
+        assert_eq!(outlet.health().connected_auxiliaries(), 0);
+
+        let request_full_info = || {
+            thread::spawn(move || {
+                let mut stream = TcpStream::connect(address).unwrap();
+                stream.write_all(b"LSL:fullinfo\r\n").unwrap();
+                let mut response = String::new();
+                stream.read_to_string(&mut response).unwrap();
+                response
+            })
+        };
+        let first_info = request_full_info();
+        let served = match poll_managed(&mut outlet, FULL_INFO).unwrap() {
+            PersistentFloat32ManagedRequest::FullInfo(served) => served,
+            PersistentFloat32ManagedRequest::Consumer(_) => panic!("full-info route drifted"),
+        };
+        assert_eq!(served.response_bytes(), FULL_INFO.len());
+        assert_eq!(served.connected_auxiliaries(), 1);
+        assert_eq!(first_info.join().unwrap(), FULL_INFO);
+        assert_eq!(outlet.connected_consumers(), 0);
+
+        let reader = spawn_reader(address, stream_identity.clone(), 1, 1);
+        let accepted = match poll_managed(&mut outlet, FULL_INFO).unwrap() {
+            PersistentFloat32ManagedRequest::Consumer(accepted) => accepted,
+            PersistentFloat32ManagedRequest::FullInfo(_) => panic!("data route drifted"),
+        };
+        assert_eq!(accepted.connected_consumers(), 1);
+
+        let second_info = request_full_info();
+        assert!(matches!(
+            poll_managed(&mut outlet, FULL_INFO),
+            Ok(PersistentFloat32ManagedRequest::FullInfo(_))
+        ));
+        assert_eq!(second_info.join().unwrap(), FULL_INFO);
+        assert_eq!(outlet.connected_consumers(), 1);
+
+        let rejected_identity = stream_identity.clone();
+        let rejected = thread::spawn(move || {
+            let cancelled = AtomicBool::new(false);
+            let mut stream = connect_handshake_stream(
+                address,
+                &rejected_identity,
+                handshake_limits(),
+                &cancelled,
+            )
+            .unwrap();
+            read_initialization_for_channels(&mut stream, 1, sample_limits(), &cancelled).is_err()
+        });
+        assert!(matches!(
+            poll_managed(&mut outlet, FULL_INFO),
+            Err(PersistentFloat32AcceptError::ConsumerCapacityReached { limit: 1 })
+        ));
+        assert!(rejected.join().unwrap());
+        assert_eq!(outlet.connected_consumers(), 1);
+
+        let report = outlet
+            .push_chunk(
+                &[42.0],
+                &[RawSourceTimestamp::new(7.0).unwrap()],
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        assert_eq!(report.complete_deliveries(), 1);
+        assert_eq!(reader.join().unwrap(), vec![(7.0, vec![42.0])]);
+        let health = outlet.health();
+        assert_eq!(health.consumer_high_water(), 1);
+        assert_eq!(health.auxiliary_high_water(), 1);
+        assert_eq!(health.full_info_responses(), 2);
+        assert_eq!(health.connected_consumers(), 1);
+        let closed = outlet.close();
+        assert_eq!(closed.closed_consumers(), 1);
+        assert!(closed.closed_auxiliaries() <= 1);
     }
 
     pub(crate) fn exercise_repeated_push_buffer_reuse() {

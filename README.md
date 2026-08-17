@@ -65,11 +65,15 @@ Polar-shaped channel counts. The one-channel sequence remains byte-identical:
 `[4.0]` then `[2.0]`. Multi-channel Float32 initialization follows the
 independently observed fixed-width family with alternating channel signs, so a
 three-channel inlet receives `[4.0, -5.0, 6.0]` then
-`[2.0, -3.0, 4.0]`. Separate official-inlet runs receive exact 73x1 ECG at
-130 Hz and 36x3 ACC at 200 Hz. They use broad discovery plus exact client-side
-identity matching because query-predicate evaluation remains outside the
-registry; they do not claim simultaneous two-inlet, fail-fast registry data,
-device, browser, cross-host, or broad compatibility.
+`[2.0, -3.0, 4.0]`. Pinned official-inlet qualification now opens ECG and ACC
+concurrently and receives exact 73x1 ECG at 130 Hz and 36x3 ACC at 200 Hz
+through `pull_chunk`. The managed registry routes each exact full-info
+auxiliary request separately from its one data-consumer slot and completes the
+canonical XML response with a bounded write-side half-close. Qualification
+uses broad discovery plus exact client-side identity matching because
+query-predicate evaluation remains outside the registry; it does not claim
+more than one official consumer per outlet, fail-fast registry data, device,
+browser, cross-host, LabRecorder, or broad compatibility.
 
 `PersistentFloat32OutletRegistry` is the bounded multi-stream composition for
 Polar-shaped workloads. One caller-owned registry retains one discovery socket,

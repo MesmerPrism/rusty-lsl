@@ -6,17 +6,19 @@
 use crate::runtime_activation::test_capability;
 use crate::{
     MetadataTreeLimits, PersistentFloat32Outlet, PersistentFloat32OutletActivation,
-    PersistentFloat32OutletLimits, PersistentFloat32OutletService,
+    PersistentFloat32OutletLimits, PersistentFloat32OutletRegistry,
+    PersistentFloat32OutletRegistryLimits, PersistentFloat32OutletService,
     PersistentFloat32OutletServiceLimits, RawSourceTimestamp, RuntimeModule,
     ShortInfoQueryWireLimits, ShortInfoResponderActivation, ShortInfoResponseEnvelopeLimits,
     StreamDescriptorLimits, StreamHandshakeActivation, StreamHandshakeIdentity,
     StreamHandshakeLimits, StreamInfoObservedAdmissionLimits, StreamInfoObservedDocumentParseLimit,
     StreamInfoVolatileFieldLimits, TimestampedFloat32SampleActivation,
-    TimestampedFloat32SampleLimits,
+    TimestampedFloat32SampleLimits, DOCUMENTED_IPV4_MULTICAST_GROUP,
+    DOCUMENTED_IPV4_MULTICAST_PORT,
 };
 use std::env;
 use std::fs;
-use std::net::{Ipv4Addr, TcpListener};
+use std::net::{Ipv4Addr, TcpListener, UdpSocket};
 use std::path::PathBuf;
 use std::sync::atomic::AtomicBool;
 use std::thread;
@@ -372,4 +374,157 @@ fn polar_001_single_official_consumer_qualification_server() {
         if role == "ecg" { 130 } else { 200 },
         close.outlet().closed_consumers()
     );
+}
+
+#[test]
+#[ignore = "requires pinned pylsl 1.18.2/liblsl 1.17 official consumers"]
+fn interop_002_official_two_inlet_qualification_server() {
+    let interface = required_env("RUSTY_LSL_INTEROP_INTERFACE")
+        .parse::<Ipv4Addr>()
+        .expect("explicit interface must be IPv4");
+    let ready = PathBuf::from(required_env("RUSTY_LSL_INTEROP_READY_FILE"));
+    let consumer_ready = PathBuf::from(required_env("RUSTY_LSL_INTEROP_CONSUMER_READY_FILE"));
+    let acknowledgement = PathBuf::from(required_env("RUSTY_LSL_INTEROP_ACK_FILE"));
+
+    let ecg = PersistentFloat32Outlet::new(
+        outlet_activation(),
+        TcpListener::bind((interface, 0)).unwrap(),
+        polar_identity("71000000-0000-4000-8000-000000000130", POLAR_ECG_SOURCE_ID),
+        handshake_limits(),
+        sample_limits(),
+        1,
+        PersistentFloat32OutletLimits::new(POLAR_ECG_RECORDS, 1).unwrap(),
+    )
+    .unwrap();
+    let acc = PersistentFloat32Outlet::new(
+        outlet_activation(),
+        TcpListener::bind((interface, 0)).unwrap(),
+        polar_identity("71000000-0000-4000-8000-000000000200", POLAR_ACC_SOURCE_ID),
+        handshake_limits(),
+        sample_limits(),
+        3,
+        PersistentFloat32OutletLimits::new(POLAR_ACC_RECORDS, 1).unwrap(),
+    )
+    .unwrap();
+    let ecg_body = polar_body(
+        interface,
+        ecg.local_address().port(),
+        "Rusty LSL Polar ECG 130",
+        "ECG",
+        1,
+        POLAR_ECG_SOURCE_ID,
+        "130.0000000000000",
+        "71000000-0000-4000-8000-000000000130",
+    );
+    let acc_body = polar_body(
+        interface,
+        acc.local_address().port(),
+        "Rusty LSL Polar ACC 200",
+        "ACC",
+        3,
+        POLAR_ACC_SOURCE_ID,
+        "200.0000000000000",
+        "71000000-0000-4000-8000-000000000200",
+    );
+    let max_body = ecg_body.len().max(acc_body.len());
+    let discovery =
+        UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DOCUMENTED_IPV4_MULTICAST_PORT)).unwrap();
+    discovery
+        .join_multicast_v4(&DOCUMENTED_IPV4_MULTICAST_GROUP, &interface)
+        .unwrap();
+    let mut registry = PersistentFloat32OutletRegistry::new_prebound(
+        responder_activation(),
+        interface,
+        discovery,
+        PersistentFloat32OutletRegistryLimits::new(2, service_limits(max_body)).unwrap(),
+    )
+    .unwrap();
+    let ecg_id = registry.register(ecg, ecg_body).unwrap();
+    let acc_id = registry.register(acc, acc_body).unwrap();
+    fs::write(
+        &ready,
+        "{\"schema\":\"rusty.lsl.interop_002.server_ready.v1\",\"outlets\":2}",
+    )
+    .unwrap();
+
+    let cancelled = AtomicBool::new(false);
+    let started = Instant::now();
+    let mut pushed = false;
+    while started.elapsed() < Duration::from_secs(30) {
+        registry.poll(&cancelled).unwrap();
+        if registry.health().consumers_accepted() == 2
+            && registry
+                .outlet_health(ecg_id)
+                .is_some_and(|health| health.full_info_responses() > 0)
+            && registry
+                .outlet_health(acc_id)
+                .is_some_and(|health| health.full_info_responses() > 0)
+            && consumer_ready.is_file()
+            && !pushed
+        {
+            let base_timestamp = fs::read_to_string(&consumer_ready)
+                .unwrap()
+                .trim()
+                .parse::<f64>()
+                .unwrap();
+            let ecg_values = (0..POLAR_ECG_RECORDS)
+                .map(|index| f32::from(u16::try_from(index).unwrap()))
+                .collect::<Vec<_>>();
+            let ecg_timestamps = (0..POLAR_ECG_RECORDS)
+                .map(|index| {
+                    RawSourceTimestamp::new(
+                        base_timestamp + f64::from(u16::try_from(index).unwrap()) / 130.0,
+                    )
+                    .unwrap()
+                })
+                .collect::<Vec<_>>();
+            let acc_values = (0..POLAR_ACC_RECORDS)
+                .flat_map(|index| {
+                    let value = f32::from(u16::try_from(index).unwrap());
+                    [value, value + 1.0, value + 2.0]
+                })
+                .collect::<Vec<_>>();
+            let acc_timestamps = (0..POLAR_ACC_RECORDS)
+                .map(|index| {
+                    RawSourceTimestamp::new(
+                        base_timestamp + f64::from(u16::try_from(index).unwrap()) / 200.0,
+                    )
+                    .unwrap()
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(
+                registry
+                    .try_push_chunk(ecg_id, &ecg_values, &ecg_timestamps, &cancelled)
+                    .unwrap()
+                    .unwrap()
+                    .complete_deliveries(),
+                1
+            );
+            assert_eq!(
+                registry
+                    .try_push_chunk(acc_id, &acc_values, &acc_timestamps, &cancelled)
+                    .unwrap()
+                    .unwrap()
+                    .complete_deliveries(),
+                1
+            );
+            pushed = true;
+        }
+        if pushed && acknowledgement.is_file() {
+            break;
+        }
+        thread::sleep(Duration::from_millis(1));
+    }
+    assert_eq!(registry.health().consumers_accepted(), 2);
+    assert!(
+        pushed,
+        "both official data consumers must receive one pushed chunk"
+    );
+    assert!(
+        acknowledgement.is_file(),
+        "both official inlets must acknowledge exact chunks"
+    );
+    let close = registry.close();
+    assert_eq!(close.outlets(), 2);
+    assert_eq!(close.consumers(), 2);
 }

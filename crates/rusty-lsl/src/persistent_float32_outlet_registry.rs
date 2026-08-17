@@ -3,13 +3,14 @@
 
 //! Bounded caller-polled ownership of multiple persistent Float32 outlets.
 
+use crate::persistent_float32_outlet::PersistentFloat32ManagedRequest;
 use crate::{
     ParsedShortInfoQuery, PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
-    PersistentFloat32DiscoveryHandled, PersistentFloat32Outlet, PersistentFloat32OutletHealth,
-    PersistentFloat32OutletServiceCreateError, PersistentFloat32OutletServiceLimits,
-    PersistentFloat32OutletServicePollError, PersistentFloat32PushError,
-    PersistentFloat32PushReport, PersistentFloat32StreamInfo, PersistentFloat32TimedataHandled,
-    RawSourceTimestamp, ShortInfoResponderActivation,
+    PersistentFloat32DiscoveryHandled, PersistentFloat32FullInfoServed, PersistentFloat32Outlet,
+    PersistentFloat32OutletHealth, PersistentFloat32OutletServiceCreateError,
+    PersistentFloat32OutletServiceLimits, PersistentFloat32OutletServicePollError,
+    PersistentFloat32PushError, PersistentFloat32PushReport, PersistentFloat32StreamInfo,
+    PersistentFloat32TimedataHandled, RawSourceTimestamp, ShortInfoResponderActivation,
 };
 use std::io::ErrorKind;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
@@ -185,6 +186,27 @@ pub struct PersistentFloat32RegistryConsumerAccepted {
     accepted: PersistentFloat32ConsumerAccepted,
 }
 
+/// Full-info response completed for one registered outlet.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PersistentFloat32RegistryFullInfoServed {
+    outlet: PersistentFloat32OutletId,
+    served: PersistentFloat32FullInfoServed,
+}
+
+impl PersistentFloat32RegistryFullInfoServed {
+    /// Outlet that answered the auxiliary request.
+    #[must_use]
+    pub const fn outlet(self) -> PersistentFloat32OutletId {
+        self.outlet
+    }
+
+    /// Existing full-info response report.
+    #[must_use]
+    pub const fn served(self) -> PersistentFloat32FullInfoServed {
+        self.served
+    }
+}
+
 impl PersistentFloat32RegistryConsumerAccepted {
     /// Outlet that admitted the consumer.
     #[must_use]
@@ -205,6 +227,7 @@ pub struct PersistentFloat32OutletRegistryPoll {
     discovery: Option<PersistentFloat32RegistryDiscoveryHandled>,
     timedata: Option<PersistentFloat32RegistryTimedataHandled>,
     consumer: Option<PersistentFloat32RegistryConsumerAccepted>,
+    full_info: Option<PersistentFloat32RegistryFullInfoServed>,
 }
 
 impl PersistentFloat32OutletRegistryPoll {
@@ -226,10 +249,19 @@ impl PersistentFloat32OutletRegistryPoll {
         self.consumer
     }
 
+    /// Full-info auxiliary request answered by this poll, if any.
+    #[must_use]
+    pub const fn full_info(self) -> Option<PersistentFloat32RegistryFullInfoServed> {
+        self.full_info
+    }
+
     /// Whether no socket had work at the selected round-robin positions.
     #[must_use]
     pub const fn is_idle(self) -> bool {
-        self.discovery.is_none() && self.timedata.is_none() && self.consumer.is_none()
+        self.discovery.is_none()
+            && self.timedata.is_none()
+            && self.consumer.is_none()
+            && self.full_info.is_none()
     }
 }
 
@@ -264,6 +296,7 @@ pub struct PersistentFloat32OutletRegistryHealth {
     discovery_responses: u64,
     timedata_queries: u64,
     consumers_accepted: u64,
+    full_info_responses: u64,
 }
 
 impl PersistentFloat32OutletRegistryHealth {
@@ -296,6 +329,12 @@ impl PersistentFloat32OutletRegistryHealth {
     pub const fn consumers_accepted(self) -> u64 {
         self.consumers_accepted
     }
+
+    /// Exact official full-info requests answered across registered outlets.
+    #[must_use]
+    pub const fn full_info_responses(self) -> u64 {
+        self.full_info_responses
+    }
 }
 
 /// Explicit registry close accounting.
@@ -303,6 +342,7 @@ impl PersistentFloat32OutletRegistryHealth {
 pub struct PersistentFloat32OutletRegistryCloseReport {
     outlets: usize,
     consumers: usize,
+    auxiliaries: usize,
 }
 
 impl PersistentFloat32OutletRegistryCloseReport {
@@ -316,6 +356,12 @@ impl PersistentFloat32OutletRegistryCloseReport {
     #[must_use]
     pub const fn consumers(self) -> usize {
         self.consumers
+    }
+
+    /// Retained full-info auxiliary connections closed across all outlets.
+    #[must_use]
+    pub const fn auxiliaries(self) -> usize {
+        self.auxiliaries
     }
 }
 
@@ -339,6 +385,7 @@ pub struct PersistentFloat32OutletRegistry {
     discovery_responses: u64,
     timedata_queries: u64,
     consumers_accepted: u64,
+    full_info_responses: u64,
 }
 
 impl PersistentFloat32OutletRegistry {
@@ -398,6 +445,7 @@ impl PersistentFloat32OutletRegistry {
             discovery_responses: 0,
             timedata_queries: 0,
             consumers_accepted: 0,
+            full_info_responses: 0,
         })
     }
 
@@ -537,6 +585,7 @@ impl PersistentFloat32OutletRegistry {
             discovery_responses: self.discovery_responses,
             timedata_queries: self.timedata_queries,
             consumers_accepted: self.consumers_accepted,
+            full_info_responses: self.full_info_responses,
         }
     }
 
@@ -559,11 +608,12 @@ impl PersistentFloat32OutletRegistry {
             .poll_discovery()
             .map_err(PersistentFloat32OutletRegistryPollError::Discovery)?;
         let timedata = self.poll_timedata()?;
-        let consumer = self.poll_consumer(cancelled)?;
+        let (consumer, full_info) = self.poll_request(cancelled)?;
         Ok(PersistentFloat32OutletRegistryPoll {
             discovery,
             timedata,
             consumer,
+            full_info,
         })
     }
 
@@ -588,12 +638,21 @@ impl PersistentFloat32OutletRegistry {
     #[must_use]
     pub fn close(self) -> PersistentFloat32OutletRegistryCloseReport {
         let outlets = self.entries.len();
-        let consumers = self
-            .entries
-            .into_iter()
-            .map(|entry| entry.outlet.close().closed_consumers())
-            .sum();
-        PersistentFloat32OutletRegistryCloseReport { outlets, consumers }
+        let (consumers, auxiliaries) =
+            self.entries
+                .into_iter()
+                .fold((0usize, 0usize), |(consumers, auxiliaries), entry| {
+                    let closed = entry.outlet.close();
+                    (
+                        consumers + closed.closed_consumers(),
+                        auxiliaries + closed.closed_auxiliaries(),
+                    )
+                });
+        PersistentFloat32OutletRegistryCloseReport {
+            outlets,
+            consumers,
+            auxiliaries,
+        }
     }
 
     fn poll_discovery(
@@ -680,31 +739,44 @@ impl PersistentFloat32OutletRegistry {
         Ok(exchange.map(|exchange| PersistentFloat32RegistryTimedataHandled { outlet, exchange }))
     }
 
-    fn poll_consumer(
+    fn poll_request(
         &mut self,
         cancelled: &AtomicBool,
     ) -> Result<
-        Option<PersistentFloat32RegistryConsumerAccepted>,
+        (
+            Option<PersistentFloat32RegistryConsumerAccepted>,
+            Option<PersistentFloat32RegistryFullInfoServed>,
+        ),
         PersistentFloat32OutletRegistryPollError,
     > {
         if self.entries.is_empty() {
-            return Ok(None);
+            return Ok((None, None));
         }
         let index = self.consumer_cursor % self.entries.len();
         self.consumer_cursor = (index + 1) % self.entries.len();
         let outlet = PersistentFloat32OutletId(index);
         let entry = &mut self.entries[index];
-        if entry.outlet.connected_consumers() == entry.outlet.max_consumers() {
-            return Ok(None);
-        }
-        let accepted = entry
+        let handled = entry
             .outlet
-            .poll_accept_consumer(cancelled)
+            .poll_managed_request(&entry.body, cancelled)
             .map_err(|error| PersistentFloat32OutletRegistryPollError::Accept { outlet, error })?;
-        if accepted.is_some() {
-            self.consumers_accepted = self.consumers_accepted.saturating_add(1);
+        match handled {
+            Some(PersistentFloat32ManagedRequest::Consumer(accepted)) => {
+                self.consumers_accepted = self.consumers_accepted.saturating_add(1);
+                Ok((
+                    Some(PersistentFloat32RegistryConsumerAccepted { outlet, accepted }),
+                    None,
+                ))
+            }
+            Some(PersistentFloat32ManagedRequest::FullInfo(served)) => {
+                self.full_info_responses = self.full_info_responses.saturating_add(1);
+                Ok((
+                    None,
+                    Some(PersistentFloat32RegistryFullInfoServed { outlet, served }),
+                ))
+            }
+            None => Ok((None, None)),
         }
-        Ok(accepted.map(|accepted| PersistentFloat32RegistryConsumerAccepted { outlet, accepted }))
     }
 }
 
@@ -722,8 +794,8 @@ mod tests {
         StreamInfoObservedDocumentParseLimit, StreamInfoVolatileFieldLimits,
         TimestampedFloat32SampleActivation, TimestampedFloat32SampleLimits,
     };
-    use std::io::Read;
-    use std::net::TcpListener;
+    use std::io::{Read, Write};
+    use std::net::{TcpListener, TcpStream};
     use std::thread;
     use std::time::Duration;
 
@@ -820,7 +892,7 @@ mod tests {
     }
 
     #[test]
-    fn polar_001_multi_outlet_discovery_clock_service_and_fan_out_are_independent() {
+    fn polar_001_multi_outlet_interop_002_ordering_and_fan_out_are_independent() {
         let ecg = outlet(1, 1);
         let acc = outlet(2, 3);
         let ecg_body = body(
@@ -845,8 +917,8 @@ mod tests {
             PersistentFloat32OutletRegistryLimits::new(2, service_limits(max_body)).unwrap(),
         )
         .unwrap();
-        let ecg_id = registry.register(ecg, ecg_body).unwrap();
-        let acc_id = registry.register(acc, acc_body).unwrap();
+        let ecg_id = registry.register(ecg, ecg_body.clone()).unwrap();
+        let acc_id = registry.register(acc, acc_body.clone()).unwrap();
         assert_eq!(ecg_id.index(), 0);
         assert_eq!(acc_id.index(), 1);
 
@@ -949,6 +1021,36 @@ mod tests {
         }
         accepted.sort_by_key(|id| id.index());
         assert_eq!(accepted, vec![ecg_id, acc_id]);
+
+        let ecg_info = thread::spawn(move || {
+            let mut stream = TcpStream::connect(ecg_address).unwrap();
+            stream.write_all(b"LSL:fullinfo\r\n").unwrap();
+            let mut response = String::new();
+            stream.read_to_string(&mut response).unwrap();
+            response
+        });
+        let acc_info = thread::spawn(move || {
+            let mut stream = TcpStream::connect(acc_address).unwrap();
+            stream.write_all(b"LSL:fullinfo\r\n").unwrap();
+            let mut response = String::new();
+            stream.read_to_string(&mut response).unwrap();
+            response
+        });
+        let mut full_info = Vec::new();
+        for _ in 0..2000 {
+            let result = registry.poll(&AtomicBool::new(false)).unwrap();
+            if let Some(served) = result.full_info() {
+                full_info.push(served.outlet());
+                if full_info.len() == 2 {
+                    break;
+                }
+            }
+            thread::sleep(Duration::from_millis(1));
+        }
+        full_info.sort_by_key(|id| id.index());
+        assert_eq!(full_info, vec![ecg_id, acc_id]);
+        assert_eq!(ecg_info.join().unwrap(), ecg_body);
+        assert_eq!(acc_info.join().unwrap(), acc_body);
         let timestamp = [RawSourceTimestamp::new(10.0).unwrap()];
         assert_eq!(
             registry
@@ -995,8 +1097,10 @@ mod tests {
         assert_eq!(health.discovery_responses(), 2);
         assert_eq!(health.timedata_queries(), 2);
         assert_eq!(health.consumers_accepted(), 2);
+        assert_eq!(health.full_info_responses(), 2);
         let close = registry.close();
         assert_eq!(close.outlets(), 2);
         assert_eq!(close.consumers(), 2);
+        assert_eq!(close.auxiliaries(), 2);
     }
 }
