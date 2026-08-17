@@ -136,7 +136,9 @@ Official-consumer and Polar comparison routes are
 `tools/run_polar_stream_sender_ab_benchmark.py`; bind emitted subjects, host,
 dimensions, and units, without broad, device, release, or universal claims.
 The first tool's `--multi-outlet-self-test` is the deterministic POLAR-001
-harness check; focused `polar_001` Rust tests remain the transport evidence.
+harness check. Its one-inlet regression, one-inlet `pull_chunk`, and
+simultaneous-two-inlet modes are the pinned INTEROP-002 host routes; focused
+`interop_002` and `polar_001` Rust tests remain the deterministic evidence.
 
 DEVICE-001 physical-H10 evidence is checked by
 `python ./tools/check_device_001.py`. Keep device identity, participant data,

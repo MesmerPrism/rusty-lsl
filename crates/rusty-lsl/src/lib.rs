@@ -447,13 +447,13 @@ pub use persistent_float32_local_clock::{
 };
 pub use persistent_float32_outlet::{
     PersistentFloat32AcceptError, PersistentFloat32ConsumerAccepted,
-    PersistentFloat32ConsumerFailure, PersistentFloat32Outlet, PersistentFloat32OutletActivation,
-    PersistentFloat32OutletActivationError, PersistentFloat32OutletCloseReport,
-    PersistentFloat32OutletCreateError, PersistentFloat32OutletHealth,
-    PersistentFloat32OutletLimitError, PersistentFloat32OutletLimits, PersistentFloat32PushError,
-    PersistentFloat32PushReport, PersistentFloat32TransportError,
-    PERSISTENT_FLOAT32_OUTLET_API_MARKER, PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER,
-    PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
+    PersistentFloat32ConsumerFailure, PersistentFloat32FullInfoServed, PersistentFloat32Outlet,
+    PersistentFloat32OutletActivation, PersistentFloat32OutletActivationError,
+    PersistentFloat32OutletCloseReport, PersistentFloat32OutletCreateError,
+    PersistentFloat32OutletHealth, PersistentFloat32OutletLimitError,
+    PersistentFloat32OutletLimits, PersistentFloat32PushError, PersistentFloat32PushReport,
+    PersistentFloat32TransportError, PERSISTENT_FLOAT32_OUTLET_API_MARKER,
+    PERSISTENT_FLOAT32_OUTLET_EFFECTIVE_MARKER, PERSISTENT_FLOAT32_OUTLET_FEATURE_ID,
 };
 pub use persistent_float32_outlet_registry::{
     PersistentFloat32OutletId, PersistentFloat32OutletRegistrationError,
@@ -462,7 +462,8 @@ pub use persistent_float32_outlet_registry::{
     PersistentFloat32OutletRegistryLimitError, PersistentFloat32OutletRegistryLimits,
     PersistentFloat32OutletRegistryPoll, PersistentFloat32OutletRegistryPollError,
     PersistentFloat32RegistryConsumerAccepted, PersistentFloat32RegistryDiscoveryHandled,
-    PersistentFloat32RegistryTimedataHandled, MAX_PERSISTENT_FLOAT32_REGISTRY_OUTLETS,
+    PersistentFloat32RegistryFullInfoServed, PersistentFloat32RegistryTimedataHandled,
+    MAX_PERSISTENT_FLOAT32_REGISTRY_OUTLETS,
 };
 pub use persistent_float32_outlet_service::{
     PersistentFloat32DiscoveryHandled, PersistentFloat32OutletService,

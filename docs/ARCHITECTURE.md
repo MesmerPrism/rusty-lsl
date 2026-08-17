@@ -44,10 +44,16 @@ enumerates or chooses interfaces, retries, falls back, or starts a thread.
 
 Construction admits the body before retaining state, then requires Float32
 format and exact agreement with outlet shape, identity, address, and ports.
-Each poll handles at most one query/response, one timedata request, and one data consumer. Once the
-consumer set is full, the service retains it and leaves auxiliary
-official-inlet connections in the listener backlog; the lower-level outlet
-keeps its capacity-error contract. Windows UDP `ConnectionReset` after a
+Each poll handles at most one query/response, one timedata request, and one TCP
+request. TCP admission distinguishes the exact data handshake from the exact
+`LSL:fullinfo\r\n` auxiliary request before applying capacity. Data consumers
+retain their caller-selected bound. Full-info responses use an independently
+preallocated bound, write the already-admitted canonical stream-info body,
+half-close the write side so the official inlet observes end-of-response, and
+retain the read side until peer close or explicit outlet cleanup. Damaged,
+trailing, or ambiguous request bytes fail closed. A full data-consumer set
+therefore cannot strand an official inlet's initialization request in the
+listener backlog or consume a data slot. Windows UDP `ConnectionReset` after a
 resolver reply is idle because it carries no datagram; other failures remain
 typed errors.
 
@@ -66,7 +72,9 @@ assigns stable indices, rejects duplicate UIDs and service ports, and binds one
 UDP timedata socket per TCP listener. Each poll receives at most one shared
 discovery query, visits at most one timedata socket and one listener in
 round-robin order, and emits no more than the configured outlet bound of
-responses. Close accounts for every outlet and retained consumer.
+responses. Listener polling continues for bounded full-info requests even when
+an outlet's data-consumer set is full. Close accounts for every outlet,
+retained data consumer, and retained auxiliary connection.
 
 String registration keeps the historical observed-document parser closed.
 `persistent_float32_stream_info` instead composes descriptor, static XML,

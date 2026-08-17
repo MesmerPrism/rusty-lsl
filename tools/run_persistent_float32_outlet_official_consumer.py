@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import ipaddress
 import json
@@ -169,7 +170,11 @@ def require_multi_exact_data(
     ecg: list[list[float]], acc: list[list[float]]
 ) -> None:
     if len(ecg) != ECG_RECORDS or any(len(sample) != 1 for sample in ecg):
-        raise ValueError("ECG notification shape drifted from 73 one-channel records")
+        widths = sorted({len(sample) for sample in ecg})
+        raise ValueError(
+            "ECG notification shape drifted from 73 one-channel records "
+            f"(records={len(ecg)}, widths={widths})"
+        )
     if len(acc) != ACC_RECORDS or any(len(sample) != 3 for sample in acc):
         raise ValueError("ACC notification shape drifted from 36 three-channel records")
     if [sample[0] for sample in ecg] != [float(index) for index in range(ECG_RECORDS)]:
@@ -420,7 +425,13 @@ def wait_for_file(path: Path, process: subprocess.Popen[str], timeout: float) ->
 
 
 def run_polar_official_qualification(
-    interface: str, role: str, pylsl, native_sha256: str, root: Path
+    interface: str,
+    role: str,
+    pylsl,
+    native_sha256: str,
+    root: Path,
+    *,
+    use_pull_chunk: bool = False,
 ) -> int:
     channels = 1 if role == "ecg" else 3
     records = ECG_RECORDS if role == "ecg" else ACC_RECORDS
@@ -486,12 +497,15 @@ def run_polar_official_qualification(
             consumer_stage = "broad-resolution"
             stream = resolve_exact_polar_stream(pylsl, role)
             inlet = pylsl.StreamInlet(stream, max_buflen=10, recover=False)
-            base_timestamp = pylsl.local_clock()
-            consumer_ready.write_text(repr(base_timestamp) + "\n", encoding="utf-8")
             consumer_stage = f"{role}-open"
             inlet.open_stream(timeout=10.0)
+            base_timestamp = pylsl.local_clock()
+            consumer_ready.write_text(repr(base_timestamp) + "\n", encoding="utf-8")
             consumer_stage = f"{role}-pull"
-            samples, timestamps = pull_exact_chunk(inlet, records)
+            if use_pull_chunk:
+                samples, timestamps = pull_exact_official_chunk(inlet, records)
+            else:
+                samples, timestamps = pull_exact_chunk(inlet, records)
             consumer_stage = "value-validation"
             if role == "ecg":
                 expected_samples = [[float(index)] for index in range(ECG_RECORDS)]
@@ -602,11 +616,213 @@ def run_polar_official_qualification(
     return 0
 
 
+def pull_exact_official_chunk(inlet, records: int) -> tuple[list[list[float]], list[float]]:
+    samples: list[list[float]] = []
+    timestamps: list[float] = []
+    deadline = time.monotonic() + 10.0
+    while len(samples) < records and time.monotonic() < deadline:
+        next_samples, next_timestamps = inlet.pull_chunk(
+            timeout=min(0.25, max(0.0, deadline - time.monotonic())),
+            max_samples=records - len(samples),
+        )
+        samples.extend(next_samples)
+        timestamps.extend(next_timestamps)
+    return samples, timestamps
+
+
+def run_simultaneous_two_inlet_qualification(
+    interface: str, pylsl, native_sha256: str, root: Path
+) -> int:
+    with tempfile.TemporaryDirectory(prefix="rusty-lsl-interop-002-") as raw_temp:
+        temp = Path(raw_temp)
+        ready = temp / "ready.json"
+        consumer_ready = temp / "consumer-ready"
+        acknowledgement = temp / "ack"
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "RUSTY_LSL_INTEROP_INTERFACE": interface,
+                "RUSTY_LSL_INTEROP_READY_FILE": str(ready),
+                "RUSTY_LSL_INTEROP_CONSUMER_READY_FILE": str(consumer_ready),
+                "RUSTY_LSL_INTEROP_ACK_FILE": str(acknowledgement),
+            }
+        )
+        process = subprocess.Popen(
+            [
+                "cargo",
+                "test",
+                "--quiet",
+                "-p",
+                "rusty-lsl",
+                "--lib",
+                "persistent_float32_outlet_official_consumer::interop_002_official_two_inlet_qualification_server",
+                "--",
+                "--exact",
+                "--ignored",
+                "--nocapture",
+                "--test-threads=1",
+            ],
+            cwd=root,
+            env=environment,
+            text=True,
+            encoding="utf-8",
+            errors="strict",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        assert process.stdout is not None and process.stderr is not None
+        stdout: list[str] = []
+        stderr: list[str] = []
+        stdout_thread = threading.Thread(target=drain_pipe, args=(process.stdout, stdout))
+        stderr_thread = threading.Thread(target=drain_pipe, args=(process.stderr, stderr))
+        stdout_thread.start()
+        stderr_thread.start()
+        inlets: dict[str, object] = {}
+        consumer_error: Exception | None = None
+        consumer_stage = "server-readiness"
+        base_timestamp = 0.0
+        try:
+            wait_for_file(ready, process, 30.0)
+            if json.loads(ready.read_text(encoding="utf-8")) != {
+                "schema": "rusty.lsl.interop_002.server_ready.v1",
+                "outlets": 2,
+            }:
+                raise ValueError("official two-inlet readiness shape drifted")
+            consumer_stage = "broad-resolution"
+            streams = {
+                role: resolve_exact_polar_stream(pylsl, role)
+                for role in ("ecg", "acc")
+            }
+            for role in ("ecg", "acc"):
+                consumer_stage = f"{role}-open"
+                inlet = pylsl.StreamInlet(streams[role], max_buflen=10, recover=False)
+                inlet.open_stream(timeout=10.0)
+                inlets[role] = inlet
+            base_timestamp = pylsl.local_clock()
+            consumer_ready.write_text(repr(base_timestamp) + "\n", encoding="utf-8")
+            consumer_stage = "simultaneous-pull-chunk"
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                pending = {
+                    role: executor.submit(
+                        pull_exact_official_chunk, inlets[role], records
+                    )
+                    for role, records in (("ecg", ECG_RECORDS), ("acc", ACC_RECORDS))
+                }
+                chunks = {
+                    role: future.result(timeout=11.0)
+                    for role, future in pending.items()
+                }
+            consumer_stage = "value-validation"
+            require_multi_exact_data(chunks["ecg"][0], chunks["acc"][0])
+            consumer_stage = "timestamp-validation"
+            for role, records, rate_hz in (
+                ("ecg", ECG_RECORDS, 130.0),
+                ("acc", ACC_RECORDS, 200.0),
+            ):
+                timestamps = chunks[role][1]
+                if len(timestamps) != records:
+                    raise ValueError(f"{role} timestamp extent drifted")
+                for index, actual in enumerate(timestamps):
+                    expected = base_timestamp + index / rate_hz
+                    if abs(float(actual) - expected) > 1e-12:
+                        raise ValueError(f"{role} source timestamp drifted")
+            consumer_stage = "acknowledgement"
+            acknowledgement.write_text("pass\n", encoding="utf-8")
+        except Exception as error:
+            consumer_error = RuntimeError(f"{consumer_stage}: {error}")
+        finally:
+            for inlet in inlets.values():
+                inlet.close_stream()
+            try:
+                return_code = process.wait(timeout=10.0)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+                return_code = process.returncode
+            stdout_thread.join()
+            stderr_thread.join()
+        output = "".join(stdout + stderr)
+        if consumer_error is not None or return_code != 0:
+            raise RuntimeError(
+                f"official simultaneous two-inlet consumer failed: {consumer_error}\n"
+                f"qualification server exit {return_code}:\n{output.strip()}"
+            ) from consumer_error
+
+    revision = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="strict",
+        stdout=subprocess.PIPE,
+        check=True,
+    ).stdout.strip()
+    print(
+        json.dumps(
+            {
+                "schema": "rusty.lsl.interop_002.official_two_inlet_qualification.v1",
+                "revision": revision,
+                "working_tree_dirty": bool(
+                    subprocess.run(
+                        ["git", "status", "--porcelain"],
+                        cwd=root,
+                        text=True,
+                        encoding="utf-8",
+                        errors="strict",
+                        capture_output=True,
+                        check=True,
+                    ).stdout.strip()
+                ),
+                "official": {
+                    "package": "pylsl",
+                    "package_version": PYLSL_VERSION,
+                    "library_version": LIBLSL_VERSION,
+                    "protocol_version": PROTOCOL_VERSION,
+                    "native_library_sha256": native_sha256,
+                    "implementation_source_inspected": False,
+                    "implementation_source_copied_or_translated": False,
+                },
+                "scope": {
+                    "outlets": [
+                        {"role": "ecg", "channels": 1, "rate_hz": 130, "records": ECG_RECORDS},
+                        {"role": "acc", "channels": 3, "rate_hz": 200, "records": ACC_RECORDS},
+                    ],
+                    "discovery": "broad enumeration with exact client-side descriptor matching",
+                    "sample_api": "pull_chunk",
+                    "data_consumer_slots": "one-per-outlet",
+                    "query_predicate_evaluation": False,
+                },
+                "result": {
+                    "simultaneous_inlet_open": "pass",
+                    "full_info_routing": "pass",
+                    "exact_chunks": "pass",
+                    "exact_source_timestamps": "pass",
+                    "bounded_close": "pass",
+                },
+                "limitations": {
+                    "single_host": True,
+                    "single_platform": True,
+                    "cross_host": False,
+                    "device": False,
+                    "labrecorder": False,
+                    "broad_liblsl_equivalence": False,
+                },
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    )
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--interface", type=explicit_ipv4)
     result.add_argument("--self-test", action="store_true")
     result.add_argument("--multi-outlet-self-test", action="store_true")
+    result.add_argument("--simultaneous-two-inlet-test", action="store_true")
+    result.add_argument("--one-inlet-regression", action="store_true")
+    result.add_argument("--one-inlet-pull-chunk-test", action="store_true")
     result.add_argument("--polar-role", choices=("ecg", "acc"))
     return result
 
@@ -617,6 +833,9 @@ def main() -> int:
         [
             arguments.self_test,
             arguments.multi_outlet_self_test,
+            arguments.simultaneous_two_inlet_test,
+            arguments.one_inlet_regression,
+            arguments.one_inlet_pull_chunk_test,
             arguments.polar_role is not None,
         ]
     )
@@ -645,6 +864,23 @@ def main() -> int:
     native_sha256 = hashlib.sha256(native_library.read_bytes()).hexdigest()
 
     root = Path(__file__).resolve().parents[1]
+    if arguments.simultaneous_two_inlet_test:
+        return run_simultaneous_two_inlet_qualification(
+            arguments.interface, pylsl, native_sha256, root
+        )
+    if arguments.one_inlet_regression:
+        return run_polar_official_qualification(
+            arguments.interface, "ecg", pylsl, native_sha256, root
+        )
+    if arguments.one_inlet_pull_chunk_test:
+        return run_polar_official_qualification(
+            arguments.interface,
+            "ecg",
+            pylsl,
+            native_sha256,
+            root,
+            use_pull_chunk=True,
+        )
     if arguments.polar_role is not None:
         return run_polar_official_qualification(
             arguments.interface, arguments.polar_role, pylsl, native_sha256, root
